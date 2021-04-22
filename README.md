@@ -42,4 +42,4 @@
 * [22_Vue项目后台](./note2/22_Vue项目后台.md)
 * [23_小程序uniapp](./note2/23_小程序uniapp.md)
 * [24_实战](./note2/24_实战.md)
-* [HTML5+CSS3 视频教程](./note2/HTML5+CSS3 视频教程.md)
+* [HTML5+CSS3 视频教程](./note2/HTML5+CSS3视频教程.md)
