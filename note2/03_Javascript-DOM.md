@@ -110,6 +110,10 @@ document.body的值可能是null
 
 ### 操作元素通用属性
 
+#### 1.获取DOM对象
+
+#### 2.添加本身具有的属性(对象.属性, 对象[属性])
+
 ```html
 - 通过id值获取元素的DOM对象(事件源)
 document.getElementById('idname')
@@ -276,6 +280,10 @@ btnNode.onclick = function(){
 
 ### 操作元素自定义属性
 
+#### setAttribute(属性名,属性值)
+
+#### getAttribute(属性名)
+
 ```Markdown
 - 根据属性是否天生就存在元素身上的额情况,我们可以将属性分为1.固有属性(天生属性), 2.自定义属性(自己随便添加).
 
@@ -313,6 +321,14 @@ window.onload = function(){
 
 
 ### 获取元素的其他方式
+
+#### document.getElementByClassName 数组
+
+#### document.getElementByTagName 数组
+
+#### document.querySelector()  #id .className  
+
+#### document.querySelectorAll(#id)
 
 ```html
 <body>
@@ -1743,7 +1759,7 @@ var target = event.target || target.srcElement;
 
 
 
-### 事件坐标
+### 事件坐标(鼠标的位置)++
 
 #### 概要
 

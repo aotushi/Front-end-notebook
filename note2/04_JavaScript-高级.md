@@ -345,7 +345,7 @@ Function是自己new了自己, 自己既是自己的构造函数,也是实例化
 
 
 
-#### 继承
+### 继承
 
 ```HTML
 - 原型继承
@@ -360,13 +360,100 @@ Function是自己new了自己, 自己既是自己的构造函数,也是实例化
 
 
 
-##### 原型继承
+```js
+//父类
 
-流程:
+//定义一个类
+function Animal(name){
+    //
+}
+```
 
-1.子类的原型对象 = 父类的一个实例化对象
 
-2.父类的实例(子类原型对象的构造器属性) = 子类  //原型继承只能继承方法.同时需要给这个父类的实例添加一个构造器属性
+
+
+
+
+
+#### 原型继承
+
+核心: 将父类的实例作为子类的原型
+
+缺点: 
+
+ 1.子类新增属性或方法,必须在new Animal()之后执行,不能放到构造器中;
+
+ 2.无法实现多继承
+
+ 3.来自原型对象的所有属性被所有实例共享
+
+ 4.创建子类实例时, 无法向父类构造函数传参
+
+```js
+function Animal(name) {
+  // 属性
+  this.name = name || 'Animal';
+  // 实例方法
+  this.sleep = function () {
+    console.log(this.name + '正在睡觉!');
+  }
+}
+
+// 原型方法
+Animal.prototype.eat = function (food) {
+  console.log(this.name + '正在吃' + food);
+}
+
+// 1.原型链继承  子类原型=父类实例
+function Cat() { }
+
+Cat.prototype = new Animal();
+Cat.prototype.name = 'cat';
+
+var cat = new Cat();
+console.log(cat.name);
+console.log(cat.eat('fish'));
+console.log(cat.sleep());
+console.log(cat instanceof Animal);
+console.log(cat instanceof Cat)
+```
+
+
+
+
+
+#### 借助构造函数继承
+
+核心: 使用父类的构造函数增强子类实例, 等于是复制父类的实例给子类(没用到原型)
+
+缺点:
+
+ 1.只能继承父类的实例属性和方法,不能继承原型的属性/方法
+
+ 2.无法实现函数复用,每个子类都有父类实例函数的副本,影响性能
+
+```js
+function Cat(name){
+  Animal.call(this);
+  this.name = name || 'Tom';
+}
+
+// Test Code
+var cat = new Cat();
+console.log(cat.name);
+console.log(cat.sleep());//undfined
+console.log(cat instanceof Animal); // false
+console.log(cat instanceof Cat); // true
+
+```
+
+
+
+
+
+#### 混合继承
+
+就是将原型继承和构造函数继承一起用.
 
 ```js
 //父类
@@ -410,73 +497,6 @@ var t1 = new Taidi('abc', 1, 'brown');
 console.log(t1);//Taidi {name: "ritian", age: 1, color: "brown"}
 t1.run();//跑得快
 ```
-
-
-
-###### 问题
-
-关于console.log(t1)中两个`__proto__`的指向如何理解.如图
-
-![原型链案例图](https://i.loli.net/2020/11/11/tyz1Rc2vFS79uiN.png)
-
-
-
-```js
-:
-
-function Taidi(name, age ,color){
-    //Dog.call(this, name , age , color);
-}
-
-Taidi.prototype.constructor = Taidi.
-===================================================================
-
-
-var t1 = new Taidi('ritian', 1, 'brown');
-console.log(t1)
-console.log(t1.__proto__)       //指向Dog类 Dog {name: undefined, age: undefined, color: undefined}
-console.log(t1.__proto__.__proto__)  
-//指向Dog类的原型对象  {run: ƒ, constructor: ƒ}
-//t1.__proto__就是其构造函数的原型对象Taidi.prototype,  Taidi.prototype又是Dog构造函数的实例,所以Taidi.prototype的隐式原型对象Taidi.__proto__(相当于T1.__proto__)指向Dog.prototype, 相当于T1.__proto__.__proto__ 
-
-//console.log(Taidi.__proto__)  ƒ () { [native code] }
-console.log(Taidi.prototype)     // Dog {name: undefined, age: undefined, color: undefined}
-console.log(Taidi.prototype.__proto__.run())  //跑得快
-console.log(Dog)
-//ƒ Dog(name, age, color) {
-        this.name = name;
-        this.age = age;
-        this.color = color;
-    }
-console.log(Dog.prototype)    //{run: ƒ, constructor: ƒ}
-
-
-```
-
-
-
-##### 借助构造函数继承
-
-```js
-//子类
-function Taidi(name, age ,color){
-    Dog.call(this, name , age , color); 
-    //将Taidi的实例传递到Dog函数中, call中的this指的是实例化对象.
-}
-
-Taidi.prototype = new Dog();
-
-call方法的意义:劫持this的指向/修改执行环境
-
-```
-
-
-
-
-
-##### 混合继承
-
-就是将原型继承和构造函数继承一起用.
 
 
 

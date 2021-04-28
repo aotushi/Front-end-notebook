@@ -5316,7 +5316,9 @@ Promise {<rejected>: "ok"}
     [[PromiseState]]: "rejected"
     [[PromiseResult]]: "ok"
 
-解析: 里面的promise对象的状态决定了resolve返回的对象的状态.如果里面是个成功的promise,则返回结果也是成功的promise.
+解析: 里面的promise对象的状态决定了resolve返回的对象的状态.
+      如果里面是个成功的promise,则返回结果也是成功的promise.
+      如果里面是一个失败的promise,则返回的结果也是失败的promise.
 
 
 
@@ -5523,17 +5525,28 @@ p.then(value => {
 #### 改变promise状态和指定回调函数(then)谁先谁后
 
 ```js
-(1)	都有可能, 正常情况下是先指定回调再改变状态, 但也可以先改状态再指定回调
-(2)	如何先改状态再指定回调?//同步
-①	在执行器中直接调用resolve()/reject()
-②	延迟更长时间, 之后才调用then() //executor函数中定时器时间小于定时器中的then函数的时间
-(3)	 先指定回调(先调用then方法)再改变状态?//异步
-        
-(4)	什么时候才能得到数据?(回调什么时候执行)
-①	如果先指定的回调(then), 那当状态发生改变时, 回调函数就会调用, 得到数据
-②	如果先改变的状态, 那当指定回调时, 回调函数就会调用, 得到数据
+1.都有可能. 正常时先指定回调再改变状态
+2.先改变状态再指定回调的方法//同步
+ 2.1 直接调用resolve()/reject()
+ 2.2 延迟更长时间才调用then()
+    let p = new Promise((resolve, reject)=>{
+        setTimeout(()=>{resolve('ok')},1000);
+    })
+    setTimeout(()=>{p.then(value=>{console.log(value)})},3000)
+ 
+3.先指定回调(先调用then方法)再改变状态//执行器种直接异步调用resolve()/reject()
+   let p = new Promise((resolve,reject) => {
+        setTimeout(function(){
+            resolve('ok')
+        },1000)
+     })
+     p.then(value => {
+         console.log(value);
+     })
 
-//执行器函数中可以是同步任务,也可以是异步任务
+4.什么时候得到数据?
+4.1 如果先指定的回调函数,当状态发生改变时,调用回调函数,得到数据
+4.2 如果先改变的状态,当指定回调函数时,回调函数就会调用,得到数据
 
 ```
 
@@ -5783,7 +5796,12 @@ async是一个关键字,用来描述async函数的.
   2.1 如果返回结果是非promise类型的值,则返回值是成功的promise
   2.2 抛出一个错误, 函数的状态为失败状态rejected, 错误值为函数返回值.
   2.3 如果返回结果是promise类型的值, 则promise的状态和值决定了这个函数的状态和返回值
- 
+
+带 async 关键字的函数，它使得你的函数的返回值必定是 promise 对象
+也就是
+如果async关键字函数返回的不是promise，会自动用Promise.resolve()包装
+如果async关键字函数显式地返回promise，那就以你返回的promise为准
+
 ```
 
 
@@ -5800,46 +5818,51 @@ await...后面的代码相当于放到成功的回调中
 
 
 
-```HTML
-//遇到await会阻塞后面的代码,先执行async外面的同步代码,同步代码执行完,再回到async内部,继续执行await后面的代码.
-//如果它等到的不是一个 promise 对象，那 await 表达式的运算结果就是它等到的东西。
-//如果它等到的是一个 promise 对象，await 就忙起来了，它会阻塞后面的代码，等着 promise 对象 resolve，然后得到 resolve 的值，作为 await 表达式的运算结果。
-<script>
-	function test(){
-        return new Promise(resolve=>{
-            sentTimeout(()=>{resolve('test'), 2000});
-        })
-    }
-    
-    const result=await test();
-    console.log(result);
-    console.log('end');
-</script>
-//打印结果: end test
 
 
-<script>
-	function say(){
-        return new Promise((resolve, reject)=>{
-            setTimeout(()=>{
-                let age=60;
-                reject(`发生了异常.今年我${age}岁`);
-            },1000);
-        });
-    }
-    async function demo(){
-        try{
-            const v = await say();
-            console.log(v);//
-        }catch(e){
-            console.log(e);
-        }
-    }
-    
-    demo();
-    
-    
-</script>
+```js
+await等的是右侧「表达式」的结果
+右侧如果是函数，那么函数的return值就是「表达式的结果」
+右侧如果是一个 'hello' 或者什么值，那表达式的结果就是 'hello'
+
+async function async1() {
+    console.log( 'async1 start' )
+    await async2()
+    console.log( 'async1 end' )
+}
+async function async2() {
+    console.log( 'async2' )
+}
+async1()
+console.log( 'script start' )
+
+上面例子中， 'async2' 和 'script start' 谁先打印呢？
+实践的结论是，从右向左的。先打印async2，后打印的script start
+
+await 等到之后,对于await来说，分2个情况:不是promise对象,是promise对象
+
+如果不是 promise , await会阻塞后面的代码，先执行async外面的同步代码，同步代码执行完，再回到async内部，把这个非promise的东西，作为 await表达式的结果
+
+如果它等到的是一个 promise 对象，await 也会暂停async后面的代码，先执行async外面的同步代码，等着 Promise 对象 fulfilled，然后把 resolve 的参数作为 await 表达式的运算结果。
+
+分析一下 await async2()
+前文提过await，1.它先计算出右侧的结果，2.然后看到await后，中断async函数
+
+先得到await右侧表达式的结果。执行async2()，打印同步代码console.log('async2'), 并且return Promise.resolve(undefined)
+await后，中断async函数，先执行async外的同步代码
+目前就直接打印 console.log('async2')
+
+回到async内部，执行await Promise.resolve(undefined)
+如果一个 Promise 被传递给一个 await 操作符，await 将等待 Promise 正常处理完成并返回其处理结果。
+在我们这个例子中，就是Promise.resolve(undefined)正常处理完成，并返回其处理结果。那么await async2()就算是执行结束了。
+目前这个promise的状态是fulfilled，等其处理结果返回就可以执行await下面的代码了。
+
+那何时能拿到处理结果呢？
+需要在then的第一个参数里，才能拿到结果。
+所以这里的 await Promise.resolve() 就类似于 Promise.resolve(undefined).then((undefined) => {})
+把then的第一个回调参数 (undefined) => {} 推入微任务队列。then执行完，才是await async2()执行结束。
+await async2()执行结束，才能继续执行后面的代码
+
 ```
 
 
@@ -5862,7 +5885,42 @@ await...后面的代码相当于放到成功的回调中
 
 
 
-#### 案例1
+#### 案例+++
+
+```js
+//https://www.cnblogs.com/fundebug/p/10095355.html
+
+async function async1() {
+    console.log("async1 start");
+    await async2();
+    console.log("async1 end");
+}
+
+async function async2() {
+    console.log("async2");
+}
+
+console.log("script start");
+
+setTimeout(function() {
+    console.log("setTimeout");
+}, 0);
+
+async1();
+
+new Promise(function(resolve) {
+    console.log("promise1");
+    resolve();
+}).then(function() {
+    console.log("promise2");
+});
+
+console.log("script end");
+```
+
+
+
+
 
 ```js
 //await右侧不是promise对象
@@ -5975,6 +6033,55 @@ btn.onclick=async function(){
 (2)	每次准备取出第一个宏任务执行前, 都要将所有的微任务一个一个取出来执行.微队列等级高于宏队列
 
 ```
+
+
+
+```js
+//因为是一道前端面试题，所以答案是以浏览器的eventloop机制为准的，在node平台上运行会有差异。
+// https://www.cnblogs.com/fundebug/p/10095355.html
+
+async function async1() {
+    console.log("async1 start");
+    await async2();
+    console.log("async1 end");
+}
+
+async function async2() {
+    console.log("async2");
+}
+
+console.log("script start");
+
+setTimeout(function() {
+    console.log("setTimeout");
+}, 0);
+
+async1();
+
+new Promise(function(resolve) {
+    console.log("promise1");
+    resolve();
+}).then(function() {
+    console.log("promise2");
+});
+
+console.log("script end");
+
+//打印结果:
+script start
+async1 start
+async2
+promise1
+script end
+async1 end
+promise2
+undefined
+setTimeout
+```
+
+
+
+
 
 
 

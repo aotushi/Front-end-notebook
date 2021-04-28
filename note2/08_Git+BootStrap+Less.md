@@ -500,6 +500,18 @@ GitHub 远程仓库使用流程较为简单，主要有以下几种场景：
    master 本地仓库的分支
    ```
 
+
+
+#### git本地分支关联远程仓库分支
+
+```js
+git pull origin develop
+获取远程仓库中 develop 分支上的 commits，然后把origin/develop merge 到你目前 checkout 下来的分支中
+
+```
+
+
+
 #### <span style="color:red">本地没有仓库</span>
 
 1. 注册并激活账号

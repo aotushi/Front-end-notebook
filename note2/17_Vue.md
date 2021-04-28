@@ -3644,13 +3644,13 @@ elment-ui中: Input/CheckBox/Radio/Select等表单项组件都封装了v-model
 
 ```js
 //本质: 
-绑定一个自定义事件监听, 用来接收子分组分发事件携带的最新数据来更新父组件的数据
+绑定一个自定义事件监听, 用来接收子组件分发事件携带的最新数据来更新父组件的数据
 
 //案例:
-1.不sync修饰符
- 子组件:
+1.不使用.sync修饰符
+ 子组件中:
 <button @click="$emit('update:money', money-100)">花钱</button>
- 父组件:
+ 父组件中:
 <Child :money="total" @update:money="total=$event"/> //父组件更新了money属性
     
 2.使用sync修饰符

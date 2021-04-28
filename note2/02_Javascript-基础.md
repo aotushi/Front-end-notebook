@@ -457,6 +457,24 @@ null == undefined  //正确
 
 
 
+| 类型      | 结果        |
+| --------- | ----------- |
+| undefined | 'undefined' |
+| Null      | 'object'    |
+| Boolean   | 'boolean'   |
+| Number    | 'number'    |
+| String    | 'string'    |
+| Function  | 'function'  |
+| BigInt    | 'bigint'    |
+| Symbol    | 'symbol'    |
+|           |             |
+
+
+
+
+
+
+
 ### Object.prototype.toString()
 
 ```js
@@ -518,7 +536,7 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 
 ```HTML
 基本类型:string, number, boolean, null, undefined, symbol
-引用类型:Object, Array, Function, RegExp, Date
+引用类型:Object, Array, Function,( RegExp, Date)
 
 两者区别:引用类型可以添加属性和方法,而基本类型不可以
 
@@ -4641,6 +4659,9 @@ arr.map(item=>'&a='+ item)
 
 ```
 filter 不会改变原数组，它返回过滤后的新数组。
+一个新的、由通过测试的元素组成的数组，如果没有任何数组元素通过测试，则返回空数组
+
+
 
 
 ```
