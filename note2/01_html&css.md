@@ -688,17 +688,32 @@ head标签中的script
 
 ##### 显示模式种类：
 
-###### 块级元素显示模式
+##### 块级元素
 
 * 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
 * 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
 
-###### 行内显示模式
+##### 行内
 
-* 特点: 无法设置宽高; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐)
+* 特点: 无法设置宽高; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐). 转换成块元素或行内块元素宽高可起作用.  
+
+* `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
+
+  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
+
 * 行内元素: **span b strong i em u ins s del a**
 
-###### 行内块显示模式
+```css
+多个span元素转换为inline-block后,会有一个左右间距. 可以span不换行解决这个问题.或者通过父元素添加font-size:0;
+span等行内元素是可以设置内边距 padding 的，只不过元素本身无法把父元素撑开，看上去就是设置的 padding 上下边距不起效了，而 margin 就只能设置 span 的左右边距。
+
+如果要给 span 设置边距，一般的方法就是给它设置一个 display: inline-block; ，把它变成行内块级元素就可以了
+
+```
+
+
+
+##### 行内块
 
 * 特点: 可以设置宽高; 一行可有多个行内块元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距; (宽高默认由图片的原始大小决定;)
 
@@ -984,6 +999,8 @@ font-size:0;
 
 #### 选择器权重比较
 
+![](https://justcode.ikeepstudying.com/wp-content/uploads/2016/07/css_weight.png)
+
   * | 权重值\权重类型 | 继承 | 标签 | 类/伪类 |  id  | 行内 | \!important |
     | --------------- | :--: | :--: | :-----: | :--: | :--: | :---------: |
     | 权重值          |  0   |  1   |   10    | 100  | 1000 |    无穷     |
@@ -994,7 +1011,6 @@ font-size:0;
 
   * 案例
 
-    * ######
 
 
 
@@ -1059,7 +1075,7 @@ font-size:0;
   :hover 鼠标移入状态
   :active 显示鼠标按下时超链接的状态
   
-
+  
   hover和active, 其他元素也有这个属性
   ```
   
@@ -2130,11 +2146,13 @@ white-space:nowrap 强制不换行
 
 
 
-* **行内元素横向布局的问题**:     由于行内元素是包裹文本的,文本在每行是沿着基线对齐,此时行内元素垂直方向的内外边距是不起作用的.[从案例上来看,加了内外边距后,底部依然能对齐]
-  * <font color="red">行内元素没有垂直方向的外边距</font>或者说不起作用不显示
-  * 在Chrome开发者工具中,垂直方向的外边距能显示数值,但不起作用
+* **行内元素横向布局的问题**:     由于行内元素是包裹文本的,文本在每行是沿着基线对齐,此时行内元素垂直方向的内外边距是不起作用的.
 
+  `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
 
+  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
+
+![](https://www.w3h5.com/zb_users/upload/2019/04/201904141555172075784072.png)
 
 
 
@@ -2932,7 +2950,7 @@ margin-top:-自身宽度一半;
             url('iconfont.ttf') format('truetype'),
           url('iconfont.svg#iconfont') format('svg');
       }
-    2.定义使用iconfont的样式
+      2.定义使用iconfont的样式
         <html>
             .iconfont {
               font-family: "iconfont" !important; /*避免覆盖需要提权； 一般是放在style的开始*/
@@ -2941,9 +2959,9 @@ margin-top:-自身宽度一半;
               -webkit-font-smoothing: antialiased; /* 字体抗锯齿渲染 */
               -moz-osx-font-smoothing: grayscale;
             }
-
+	  
         </html>
-
+	  
         3.挑选相应图标并获取字体编码，应用于页面
         <span class="iconfont">&#x33;</span>
       ```
@@ -2955,7 +2973,7 @@ margin-top:-自身宽度一半;
         步骤：
         1.引入项目下生成的fontclass代码：
         <link rel="stylesheet" type="text/css" href="./iconfont.css">
-
+	  
         2.挑选相应图标并获取类名，应用于页面
         <span class="iconfont icon-xxx"></span>
         ```
@@ -2977,7 +2995,7 @@ margin-top:-自身宽度一半;
 
 
 
-#### 1012
+### 1012
 
 ##### 尚品汇header
 
@@ -3103,9 +3121,9 @@ autoplay 自动播放 浏览器兼容性差不支持多
 
 
 
-##### css3
+### css3
 
-##### 交集选择器 <span name="jiaoji">.</span>
+#### 交集选择器 <span name="jiaoji">.</span>
 
 > 交集选择器,相交的部分就是看要设置属性值的标签
 
@@ -3126,9 +3144,9 @@ autoplay 自动播放 浏览器兼容性差不支持多
 
 
 
-##### 关系选择器
+#### 关系选择器
 
-###### 子元素选择器
+#### 子元素选择器
 
 概述: 当使用  `>` 选择符分隔两个元素时,它只会匹配那些作为第一个元素的**直接后代(**子元素)的元素
 
@@ -3166,7 +3184,7 @@ Span 3. Not in a div at all.
 
 
 
-###### 相邻兄弟选择器
+#### 相邻兄弟选择器
 
 > 概要: 相邻兄弟选择器(`+`) 介于两个选择器之间,当第二个元素 **紧跟** 在第一个元素之后,并且两个元素都是属于同一个`父元素` 的子元素,则第二个元素将被选中.
 
@@ -3204,7 +3222,7 @@ color:red;
 
 
 
-###### 通用兄弟选择器
+#### 通用兄弟选择器
 
 > 概述: 兄弟选择符，位置无须紧邻，只须同层级，`A~B` 选择`A`元素之后所有同层级`B`元素。
 
@@ -3220,7 +3238,7 @@ former_element ~ target_element { style properties }
 
 
 
-##### 属性选择器
+#### 属性选择器
 
 ```html
 <!---->
@@ -3279,13 +3297,36 @@ former_element ~ target_element { style properties }
 
 
 
-##### 伪类选择器
+#### 伪类选择器
 
-> 概要:
->
-> 不存在的类,来描述一个元素的特殊状态
->
-> 伪类一般情况下以":"开头
+> 概要: 不存在的类,来描述一个元素的特殊状态. 伪类一般情况下以":"开头
+
+
+
+| 类型 | 选择器 | 示例    | 示例说明                                    | css  |
+| ---- | ------ | ------- | ------------------------------------------- | ---- |
+| 伪类 | :root  | :root   | 选择文档的根元素                            | 3    |
+| 伪类 | :empty | p:empty | 选择每个没有任何子级的p元素（包括文本节点） | 3    |
+
+
+
+##### :root选择器
+
+```css
+//:root选择器用匹配文档的根元素,可以定义全局变量供多个属性使用.
+
+var()函数,用域插入自定义属性值,例如一个属性值在多出被使用
+calc() 函数用于动态计算长度值。
+
+:root{
+    --windowW:1000px;
+    --widowH:1000px;
+}
+.box{
+    width:var(--windowW);
+    height:cala(var(--windowH)-100px);
+}
+```
 
 
 
@@ -3305,7 +3346,7 @@ former_element ~ target_element { style properties }
 
 ========第二种: 不受其他元素的影响========
 第一个儿子元素  元素:first-of-type{}  /* 后面若有其他元素包含的目标元素,也算是第一个儿子元素 */
-最后一个儿子勇士 元素:last-of-child{}
+最后一个儿子元素 元素:last-of-type{}
 第编号个儿子元素  元素:nth-of-type(){}
 					odd 奇数
 					even 偶数
@@ -3323,7 +3364,9 @@ former_element ~ target_element { style properties }
 
 
 
-##### 伪类选择器-案例
+
+
+#### 伪类选择器-案例
 
 携程导航案例
 
@@ -3429,6 +3472,64 @@ former_element ~ target_element { style properties }
 
 
 
+#### 伪元素
+
+> 概述: 
+>
+> 伪元素:在盒子的内部,有一前一后两个盒子被称为伪元素, 伪元素默认是 ==<font color="red">**行内显示模式**</font>== 
+>
+> 文本用伪元素显示不合适      伪元素中的文本内容不会被搜索引擎抓取
+>
+> clear属性只能在块元素身上生效 1103讲解
+
+
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			.box{
+				width: 300px;
+				height: 300px;
+				background: pink;
+				overflow: hidden;
+				position: relative;
+			}
+			.box::before{
+				content:"before"; /* 必写项content */
+				width:100px;
+				height: 100px;
+				background: yellow;
+				/* display: block;
+				margin: 10px auto 0; */
+				float:left;
+			}
+			.box::after{
+				content:"after";
+				width: 100px;
+				height: 100px;
+				background: green;
+				position: absolute;
+				left:0;
+				right:0;
+				bottom:0;
+				top:0;
+				margin: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="box">
+			<i>box</i>
+			
+		</div>
+		
+	</body>
+</html>
+```
 
 
 
@@ -3437,7 +3538,8 @@ former_element ~ target_element { style properties }
 
 
 
-##### 圆角属性
+
+#### 圆角属性
 
 ###### div模拟三角形和右下角对号
 
@@ -3662,65 +3764,6 @@ former_element ~ target_element { style properties }
 
 
 
-
-##### 伪元素
-
-> 概述: 
->
-> 伪元素:在盒子的内部,有一前一后两个盒子被称为伪元素, 伪元素默认是 ==<font color="red">**行内显示模式**</font>== 
->
-> 文本用伪元素显示不合适      伪元素中的文本内容不会被搜索引擎抓取
->
-> clear属性只能在块元素身上生效 1103讲解
-
-
-
-```html
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title></title>
-		<style type="text/css">
-			.box{
-				width: 300px;
-				height: 300px;
-				background: pink;
-				overflow: hidden;
-				position: relative;
-			}
-			.box::before{
-				content:"before"; /* 必写项content */
-				width:100px;
-				height: 100px;
-				background: yellow;
-				/* display: block;
-				margin: 10px auto 0; */
-				float:left;
-			}
-			.box::after{
-				content:"after";
-				width: 100px;
-				height: 100px;
-				background: green;
-				position: absolute;
-				left:0;
-				right:0;
-				bottom:0;
-				top:0;
-				margin: auto;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="box">
-			<i>box</i>
-			
-		</div>
-		
-	</body>
-</html>
-```
 
 
 
@@ -5099,7 +5142,11 @@ transform-style:preserve-3d;
 
 ##### 动画属性animation
 
+动画是使元素从一种样式逐渐变化为另一种样式的效果。请用百分比来规定变化发生的时间，或用关键词 "from" 和 "to"，等同于 0% 和 100%。0% 是动画的开始，100% 是动画的完成。
+
 ```html
+动画复合属性: 
+ animation: 名称 持续时间 速度曲线(默认ease) 延迟时间(默认是0) 迭代次数(默认是1) 方向(默认normal)
 动画单属性:
 
 动画名称:
@@ -5108,11 +5155,12 @@ animation-name:
 动画持续时间
 animation-duration
 
-动画方式(和过渡方式一样)
+速度曲线(和过渡方式一样)
 animation-timing-function
 
 动画延时时间
 animation-delay
+定义动画开始前等待的时间，以秒或毫秒计。默认值为0;允许负值，-2s 使动画马上开始，但跳过 2 秒进入动画。
 
 动画次数
 animation-iteration-count
@@ -5125,11 +5173,9 @@ alternate 有来有去 需要2次
 alternate-reverse 先去后来  
 
 
-复合属性
-animation: 动画名称 动画时间 过渡方式 延时 次数 方向
-
-
 在所有选择器之外定位关键帧区间
+@keyframes 规则是创建动画。
+@keyframes 规则内指定一个 CSS 样式和动画将逐步从目前的样式更改为新的样式。
 定义关键帧区
 @keyframes name(动画名称对应animation-name){
 
@@ -5854,95 +5900,240 @@ portrait  竖屏   高度大于宽度
 
 #### 弹性布局
 
-> 概述:
->
-> 弹性布局: 弹性盒子 伸缩布局 flex布局
->
-> **弹性布局是父元素和子元素之间的关系  +子元素原有的属性消失** 例如块元素不再独占一行
->
-> 父元素是弹性空间, 子元素是弹性元素,弹性项
->
-> 主轴:默认是水平方向.左边是开始,右边是结束. 弹性元素是按照主轴从开始到结束的顺序依次排列
->
-> 侧轴(交叉轴 垂轴 辅轴): 默认是垂直方向 上边是开始 下边是结束.     <font color="red">弹性元素沿着侧轴换行</font>
+#### 介绍
 
+> Flex是Flexible Box的缩写，意为”弹性布局”，用来为盒状模型提供最大的灵活性。任何一个容器都可以指定为Flex布局。设为Flex布局以后，子元素的块级特性会消失;行内元素也可以设置flex布局;webkit内核的浏览器,必须加上`-webkit`前缀.
 
-
-##### 给父元素(弹性空间)设置开启弹性空间,设置主轴的方向
-
-```html
-02-弹性元素的主轴和侧轴的对调以及主轴的方向
-
-
-父元素{
-
-	display:flex;
-	flex-direction:主轴的方向
+```css
+//行内元素设置flex布局
+.box{
+    display:inline-flex;
 }
-//row 一行
+//webkit内核的浏览器,必须加上-webkit前缀.
+.box{
+    display:-webkit-flex;
+    display:flex;
+}
+```
 
-主轴的方向flex-direction:
+
+
+#### 基本概念
+
+采用flex布局的元素,成为flex容器(container). 它的所有子元素自动成为容器成员,称为flex项目(弹性元素)
+
+容器默认存在水平的主轴(main axis)和垂直的侧轴(cross axis).弹性元素默认沿主轴排列.
+
+![flex布局](https://www.runoob.com/wp-content/uploads/2015/07/3791e575c48b3698be6a94ae1dbff79d.png)
+
+
+
+#### 容器的6属性
+
+```markdown
+flex-direction
+flex-wrap
+flex-flow
+justify-content
+align-items
+align-content
+```
+
+
+
+##### flex-direction
+
+```js
+flex-direction属性决定主轴的方向（即项目的排列方向）
+
+flex-direction:row|row-reverse|column|column-reverse
 row 默认值.     主轴是水平方向,左边开始,右边结束. 侧轴是垂直方向,上边开始,下边结束
 row-reverse    主轴是水平方向,右边开始,左边结束. 侧轴是垂直方向,上边开始,下边结束
 
 column         主轴是垂直方向,上边开始,下边结束. 侧轴是水平方向,左边开始,右边结束   
-column-reverse 主轴是垂直方向,下边开始,上边结束. 侧轴是水平方向,左边开始,右边结束   
-
-复合属性:
-flex-flow:轴方向 是否换行;
-flow-flow:
-
+column-reverse 主轴是垂直方向,下边开始,上边结束. 侧轴是水平方向,左边开始,右边结束 
 ```
 
 
 
-##### 03-弹性元素在主轴方向的位置分布
+##### flex-wrap
 
-```html
-弹性元素在主轴方向的位置分布
+```js
+flex-wrap属性定义，如果一条轴线排不下，如何换行
 
-justify-content
+flex-wrap:nowrap|wrap|wrap-reverse
 
-取值类型:
-
-flex-start  居开始
-center 居中
-flex-end 居结束
-space-around 空间包含元素(左右间距相等,不包括头部和尾部)
-space-evenly 空间包含元素(左右间距相等,包括头部和尾部)
-space-between 元素包含空间(没有头部和尾部的间距,左右间距相等)
+nowrap(默认):不换行
+wrap:换行，第一行在上方
+wrap-reverse: 换行，第一行在下方
 ```
+
+
+
+##### flex-flow
+
+```js
+flex-direction属性和flex-wrap属性的简写形式，默认值为row nowrap。
+
+.box{
+    flex-flow:<flex-direction><flex-wrap>
+}
+```
+
+
+
+##### justify-content
+
+```js
+定义了项目在主轴上的对齐方式
+
+justify-content: flex-start|flex-end|center|space-between|space-around
+
+它可能取5个值，具体对齐方式与轴的方向有关。下面假设主轴为从左到右
+flex-start（默认值）：左对齐
+flex-end：右对齐
+center： 居中
+space-between：两端对齐，项目之间的间隔都相等。
+space-around：每个项目两侧的间隔相等。所以，项目之间的间隔比项目与边框的间隔大一倍。
+```
+
+![justify-content](https://www.runoob.com/wp-content/uploads/2015/07/c55dfe8e3422458b50e985552ef13ba5.png)
+
+##### align-items
+
+```js
+定义了项目在交叉轴上如何对齐
+
+align-items: flex-start | flex-end | center | baseline | stretch
+
+它可能取5个值。具体的对齐方式与交叉轴的方向有关，下面假设交叉轴从上到下
+
+flex-start：交叉轴的起点对齐。
+flex-end：交叉轴的终点对齐。
+center：交叉轴的中点对齐。
+baseline: 项目的第一行文字的基线对齐。
+stretch（默认值）：如果项目未设置高度或设为auto，将占满整个容器的高度。
+```
+
+![align-items](https://www.runoob.com/wp-content/uploads/2015/07/2b0c39c7e7a80d5a784c8c2ca63cde17.png)
+
+##### align-content
+
+```js
+定义了多根轴线的对齐方式。如果项目只有一根轴线，该属性不起作用。
+
+align-content: flex-start | flex-end | center | space-between | space-around | stretch
+
+该属性可能取6个值。
+
+flex-start：与交叉轴的起点对齐。
+flex-end：与交叉轴的终点对齐。
+center：与交叉轴的中点对齐。
+space-between：与交叉轴两端对齐，轴线之间的间隔平均分布。
+space-around：每根轴线两侧的间隔都相等。所以，轴线之间的间隔比轴线与边框的间隔大一倍。
+stretch（默认值）：轴线占满整个交叉轴。
+```
+
+![](https://www.runoob.com/wp-content/uploads/2015/07/f10918ccb8a13247c9d47715a2bd2c33.png)
+
+#### 弹性元素的6属性
+
+```js
+order
+flex-grow
+flex-shrink
+flex-basis
+flex
+align-self
+```
+
+##### order
+
+```js
+定义项目的排列顺序。数值越小，排列越靠前，默认为0
+
+.item{
+    order:<integer>  
+}
+```
+
+![](https://www.runoob.com/wp-content/uploads/2015/07/59e399c72daafcfcc20ede36bf32f266.png)
+
+
+
+##### flex-grow
+
+```css
+//定义项目的放大比例，默认为0，即如果存在剩余空间，也不放大
+//如果所有项目的flex-grow属性都为1，则它们将等分剩余空间（如果有的话）。如果一个项目的flex-grow属性为2，其他项目都为1，则前者占据的剩余空间将比其他项多一倍。
+.item{
+    flex-grow:<number> /*default 0*/
+}
+
+```
+
+![](https://www.runoob.com/wp-content/uploads/2015/07/f41c08bb35962ed79e7686f735d6cd78.png)
+
+
+
+##### flex-shrink
+
+```css
+//定义了项目的缩小比例，默认为1，即如果空间不足，该项目将缩小
+//如果所有项目的flex-shrink属性都为1，当空间不足时，都将等比例缩小。如果一个项目的flex-shrink属性为0，其他项目都为1，则空间不足时，前者不缩小。  负值对该属性无效。
+.item{
+    flex-shrink:<number> /*default 1 */
+}
+```
+
+![](https://www.runoob.com/wp-content/uploads/2015/07/240d3e960043a729bb3ff5e34987904f.jpg)
+
+
+
+##### flex-basis
+
+```css
+//属性定义了在分配多余空间之前，项目占据的主轴空间（main size）。浏览器根据这个属性，计算主轴是否有多余空间。它的默认值为auto，即项目的本来大小。
+//它可以设为跟width或height属性一样的值（比如350px），则项目将占据固定空间。
+
+.item {
+  flex-basis: <length> | auto; /* default auto */
+}
+```
+
+
+
+##### flex
+
+```css
+//属性是flex-grow, flex-shrink 和 flex-basis的简写，默认值为0 1 auto。后两个属性可选。
+//该属性有两个快捷值：auto (1 1 auto) 和 none (0 0 auto)。 建议优先使用这个属性，而不是单独写三个分离的属性，因为浏览器会推算相关值。
+.item {
+  flex: none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]
+}
+```
+
+
+
+##### align-self
+
+```css
+//属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的align-items属性，如果没有父元素，则等同于stretch。
+
+.item {
+  align-self: auto | flex-start | flex-end | center | baseline | stretch;
+}
+
+
+```
+
+![](https://www.runoob.com/wp-content/uploads/2015/07/55b19171b8b6b9487d717bf2ecbba6de.png)
+
+
 
 
 
 ### 1017
-
-#### 弹性元素换行
-
-> 弹性元素换行
->
-> flex-wrap: no-wrap|wrap
->
-> no-wrap: 默认值不换行  当主轴是水平方向时,父元素宽度不够,弹性元素的宽度会压缩;
->
-> ​										  当主轴是垂直方向时,父元素高度不够,弹性元素的高度会压缩.
->
-> wrap:  							  弹性元素会根据当前的侧轴的当前行进行换行
->
-> wrap-reverse:     			弹性元素会根据当前的侧轴的当前行进行反向换行
->
-> 
-
-
-
-```html
-.父元素{
-
-display:flex;   /*给子元素开启弹性空间*/
-flex-direction: row|row-reverse|column|column-reverse;  /* 子元素(弹性元素)在主轴上的排列方向 */
-flex-wrap:no-wrap|wrap
-}
-```
 
 
 
@@ -6035,145 +6226,6 @@ flex-wrap:no-wrap|wrap
 ```
 
 
-
-#### 弹性元素在侧轴方向上的位置分布(按当前行)
-
->.父元素{
->
->​	align-items: flex-start|center|flex-end|stretch
->
->}
-
-
-
-```html
-flex-start: 居当前行开始
-center:居当前行中间
-flex-end:居当前行结束
-stretch(默认值):  
-当主轴是水平方向时,弹性元素在不设置固定高度时,弹性元素的高度和当前行一样高
-当主轴是垂直方向时,弹性元素在不设置固定宽度时,弹性元素的宽度和当前行一样宽
-```
-
-
-
-
-
-#### 弹性元素在侧轴方向上的位置分布(整体)
-
->.父元素{
->
->​	align-content:flex-start|flex-end|center|space-around|space-evenly|space-betwen|stretch
->
->}
->
->
-
-```html
-flex-start 居开始
-center 居中
-flex-end 居结束
-space-around 空间包含元素
-space-evenly 空间包含元素(左右相等间距)
-space-between 元素包含空间
-stretch 当主轴是水平方向时,弹性元素不设置固定高度,弹性元素的高度和当前行的高度一样
-		当主轴是垂直方向时,弹性元素不设置固定宽度,弹性元素的宽度和当前行的宽度一样
-
-* 当align-center和align-items同时存在的时候,align-items失效
-```
-
-
-
-
-
-#### 弹性元素在侧轴方向上的位置分布(按个人设置)
-
-> .弹性元素(子元素){
->
-> ​	align-self: flex-start|center|flex-end|stretch
->
-> }
-
-
-
-```html
-flex-start 居当前行开始
-center 居当前行中间
-flex-end 居当前行结束
-stretch(默认值): 当主轴是水平方向,弹性元素不设置固定高度时,弹性元素的高度和当前行高度一样
-				当主轴是垂直方向,弹性元素不设置固定宽度时,弹性元素的宽度和当前行宽度一样
-```
-
-
-
-#### 弹性元素在主轴方向所占的份数
-
-> .弹性元素{
->
-> flex-grow:1;   /*  弹性元素把空间分成1分,然后占弹性空间的全部,其他没有设置份数比例的元素占自身宽度的范围*/
->
-> }
-
-
-
-```html
-给每个弹性元素分别设置 flow-grow:1 就是等分弹性空间
-```
-
-
-
-
-
-
-
-#### 弹性元素在主轴方向的排列顺序
-
-> .弹性元素{
->
-> ​	order:1;    在没有设置order属性元素的后面按照序号排列
->
-> }
-
-
-
-
-
-#### 弹性元素的压缩率(收缩因子)
-
-> flex-shrink: 可在父元素/子元素设置
->
-> 
->
-> 超出的宽度除以需要压缩的份数(自己可以定义的)=每份压缩的数值 可具体计算出弹性元素压缩后的宽度或者高度
-
-
-
-```html
-.父元素{
-	width:400px;
-	height:200px;
-	display:flex;
-	flex-direction:;
-	justify-content:;
-}
-.子元素{
-	width:200px;
-	height:200px;
-}
-子元素1.{
-	flex-shrink:1;
-}
-子元素2.{
-	flex-shrink:2;
-}
-子元素3.{
-	flex-shrink:3;
-}
-
-压缩率=父元素宽度/总压缩份数
-故,子元素的width=200px-压缩率*份数.
-故,压缩份数越小(大于0),压缩的值就越小,尺寸就比压缩份数大的元素大
-```
 
 
 
@@ -6563,7 +6615,7 @@ filter。
 
 
 
-### div居中的5种方法
+### div水平垂直居中的5种方法
 
 > https://juejin.cn/post/6844903821529841671
 
@@ -6579,8 +6631,8 @@ CSS 代码:
         height: 300px;           
         background-color: #ccc;            
         display: flex;            
-        display: -webkit-flex;            
-        justify-content: center;            
+        display: -webkit-flex;s            
+        justify-content: center;       
         align-items: center;        
     }        
     .box .a{            

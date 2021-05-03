@@ -147,7 +147,7 @@ script标签同时只能有一个功能,要么引入要么输出
   ```js
   let f = "abc";
   let 变量 = 值;
-let 变量 = 值, 变量 = 值;
+  let 变量 = 值, 变量 = 值;
   var 变量 = 值;
   ---------------------------
   
@@ -157,7 +157,6 @@ let 变量 = 值, 变量 = 值;
   b = 12; //相当于window.b = 12;
   
   ```
-  
 
 
 
@@ -267,7 +266,6 @@ console.log(foo);//5
   
   * \n 换行   document.write()需要使用标签\<br>进行换行
   * \t  制表符(缩进)
-  
 
 ##### 模板字符串
 
@@ -395,14 +393,14 @@ colors[-1];//undefined
 * 类型之间的比较
 
 * ```
-null == undefined  //正确
+  null == undefined  //正确
   undefined == false //错误 undefined换成布尔值是false,讲解说的是比较复杂没有转换类型
   ```
   
   
 
   ```js
-//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof
+  //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof
   
   typeof可能的共计8种返回值: undefined object string number boolean function + bigint symbol
   typeof undefined //'undefined' Chrome中可直接返回
@@ -584,7 +582,6 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 #### 类型转换
 
 > 将其他的数据类型转换为 字符串(string), 数值(number)或布尔值(boolean)
->
 
 
 
@@ -677,7 +674,7 @@ undefined.toString();// Uncaught TypeError: Cannot read property 'toString' of n
     
     * ```
       parseInt('123px'); //--> 123
-    parseInt('12px3'); //--> 12
+      parseInt('12px3'); //--> 12
       ```
     
   * parseFloat()
@@ -705,7 +702,7 @@ undefined.toString();// Uncaught TypeError: Cannot read property 'toString' of n
   
   a = undefined;
   console.log(a, typeof a); //undefined "undefined"
-a = Number(a);
+  a = Number(a);
   console.log(a, typeof a); //NaN "number"
   
   使用Number()函数:
@@ -1040,7 +1037,6 @@ console.log('a++ =',a++);
 ##### 逻辑非(!)
 
 > 可以用来对一个布尔值进行**取反**操作   true 变 false  false 变 true
->
 
 
 
@@ -1153,6 +1149,23 @@ result = null || undefined; //返回undefined
 
 
 
+#### 逻辑运算符的赋值操作
+
+```js
+score = score || 1;
+age = age && 24;
+
+可以简写成:
+score ||= 1; //等同于 score = score || 1
+age &&= 24;  // 等同于 age = age && 24
+```
+
+
+
+
+
+
+
 #### 关系运算符
 
 > 比较两个数值之间的关系是否成立,成立返回true,不成立返回false
@@ -1211,9 +1224,73 @@ result = 'blskdjf' < 'a'; //false  如果第一位b的Unicode编码大于a的,�
 
 
 
+#### 可选链运算符?
+
+```js
+//想要使用某个结构比较深的属性，同时又无法确定所有的父级一定存在时，我们需要进行一连串的判断
+例如:
+const student={
+    score:{math:98,},
+};
+获取最内层的math属性值时:
+if(student&&student.score){
+    console.log(student.score.math)
+}
+
+//可选链运算符会在链路上遇到 null 或者 undefined 时，直接返回 undefined，而不会抛出错误异常
+
+1.获取深层次属性
+console.log(student?.score?.math)
+            
+2.执行一个可选的方法
+// getScore 是一个可选参数，要么是 undefined，要么是一个函数            
+const student = ({getScore}:{getScore?:()=>void})=>{
+    useEffect(()=>{
+        getScore?.();
+    },[]);
+    return <div></div>;
+};    
+2.1 执行dom元素方法
+document.querySelector 会返回两种类型，当 dom 元素真实存在时会返回该元素，否则返回 null。
+const dom = document.querySelector('.score');
+if(dom){dom.getBoundingClientRect()};
+使用可选链操作符,直接调用:
+document.querySelector('.score')?.getBoundingClientRect();
+
+3.获取数组中的值
+arr?.[1]; //若 arr 存在时，则正常获取 arr[1]中的值
+                             
+const student = {
+    score:{
+        math:[98,97,()=>{return 99;}]
+    }
+}
+student?.score?.math?.[2]?.();
+                             
+4.无法进行赋值操作
+可选链运算符只能执行获取操作，是无法进行赋值操作的。
 
 
-  
+```
+
+
+
+####   双问号运算符
+
+```js
+//双问号运算符??，我理解是为了解决或运算符||而设计出来的。
+或运算符用法:当左侧的数据为假值(数字 0, 布尔类型的 false，空字符串，undefined, null)时，则执行右侧的语句。
+1.双问好运算符可以解决, false和0都是正常的值,或运算符出错的问题.
+
+const getScore=(score)=>{return score ?? 1;};
+getScore(0);                         
+
+2.双问好运算符可以与等号结合成一个赋值操作,当左侧为null或undefined时,则将右侧语句的结果赋值给左侧的变量.                 score ??= 1; //1
+
+
+```
+
+
 
 ##   1023
 
@@ -1245,7 +1322,7 @@ result = 'blskdjf' < 'a'; //false  如果第一位b的Unicode编码大于a的,�
   let result = 10;
   result 10 == '10'; //true
   result true == '1'; //true
-result = null == undefined; //true
+  result = null == undefined; //true
   ```
 
   
@@ -1667,7 +1744,7 @@ result = null == undefined; //true
   while(money < 5000){
       money *= 1.05;
       count++;
-}
+  }
   alert('count');
   
   
@@ -1797,7 +1874,7 @@ result = null == undefined; //true
             alert(`${i}不是质数`);
     }
     
-  
+    
      
      
      ================================================================
@@ -1832,7 +1909,6 @@ result = null == undefined; //true
         console.log(`${num}不是质数`);
     }
     ```
-    
     
     
 
@@ -2611,7 +2687,7 @@ y = fn(x);
   }
   
   obj.sayHello(); //运行alert函数
-
+  
   
   
   ```
@@ -2754,7 +2830,7 @@ y = fn(x);
   # 执行顺序及结果
   var a;
   function a(){alert(3);}
-
+  
   f a(){alert(3);}
   1
   2
@@ -2865,7 +2941,7 @@ y = fn(x);
   fn3();       // 为什么在这里,需要调用函数fn3才能访问变量c  理解:调用函数就是让函数内的代码运行
   console.log('c =', c);  //
   
-
+  
   =========================立即执行函数中的案例=========================
   var a = b = 10;   //等价于 var a = 10; b = 10;
   　　(function(){
@@ -3166,7 +3242,6 @@ console.log('a =', a);  //猪八戒
   之后调用的a(),以函数形式调用,相当于window.a
   
   ```
-  
 
 
 
@@ -4217,7 +4292,7 @@ t.doSomething(foo, 'Hi');
   
   浅复制:
   let arr = ['孙悟空', '猪八戒', '沙和尚'];
-function fn(array){
+  function fn(array){
       array = array.slice(0);
       array.push('唐僧');
       return array; //忘记返回了
@@ -4253,7 +4328,6 @@ function fn(array){
   
   
   ```
-  
 
 
 
@@ -6034,7 +6108,7 @@ str.split('');//['H', 'e', 'l', 'l', 'o']  //空字符串就是默认逗号
   量词
   {m} 正好出现m次
   {m,n} m-n次
-{m,} m次以上
+  {m,} m次以上
   + 至少一次,相当于{1,}
   ? 0-1次,相当于{0,1}
   * 任意次, 相当于{0,}           
