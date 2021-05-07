@@ -3498,6 +3498,35 @@ function creatPerson(name, age, gender){
 
 
 
+#### new操作符调用构造函数时具体做了什么
+
+1.创建一个新的对象
+
+2.将构造函数的this指向这个新的对象
+
+3.为这个对象添加属性,方法等
+
+4.最终返回一个新的对象
+
+```js
+var obj = {};
+obj.__proto__ = Foo.prototype;
+Foo.call(obj)
+```
+
+
+
+#### 构造函数显示return的情况
+
+```js
+1.return一个对象(返回复杂数据类型),那么this就指向这个返回的对象;
+2.return返回的不是一个对象(返回基本类型),this仍然指向实例.
+```
+
+
+
+
+
 #### 类与实例
 
 
@@ -4198,29 +4227,7 @@ t.doSomething(foo, 'Hi');
 
 
 
-
-
-
-
-
-
-
-
 ## 1028
-
-### 单词
-
-> splice 绞接，捻接(两段绳子); 胶接，粘接(胶片、磁带等);   n.	胶接处; 粘接处; 绞接处;
->
-> slice 切片
->
-> concat 连接
->
-> prototype  [ˈproʊtətaɪp]  原型
->
-> ceil 天花板
->
-> round  环绕
 
 
 

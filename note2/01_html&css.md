@@ -1684,6 +1684,25 @@ white-space:nowrap 强制不换行
 
 
 
+### 块级格式化上下文BFC
+
+```js
+1.定义: 是一个独立的渲染区域，让处于 BFC 内部的元素与外部的元素相互隔离，使内外元素的定位不会相互影响。
+
+2.如何开启?
+https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Block_formatting_context
+https://blog.csdn.net/QUSUPAO/article/details/109387695
+    
+3.脱离文档流是不是指该元素从dom树中脱离？
+不是，用浏览器的审查元素就可以看到脱离文档流的元素（例如被float了）依然会出现在dom树里
+
+4.总结:
+脱离文档流，也就是将元素从普通的布局排版中拿走，其他盒子在定位的时候，会当做脱离文档流的元素不存在而进行定位。需要注意的是，使用float脱离文档流时，其他盒子会无视这个元素，但其他盒子内的文本依然会为这个元素让出位置，环绕在周围。而对于使用absolute 
+positioning脱离文档流的元素，其他盒子与其他盒子内的文本都会无视它。
+
+链接：https://www.zhihu.com/question/24529373/answer/29135021
+```
+
 
 
 
