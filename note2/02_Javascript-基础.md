@@ -4817,11 +4817,30 @@ arr.every((item)=>{
 
 
 
-#### find()  findIndex()
+#### find()
+
+find() 方法返回数组中满足提供的测试函数的第一个元素的值。否则返回 undefined
 
 ```js
+const array1 = [1,2,3,4,5];
+const found = array1.find(item=>item>3);
+console.log(found); //4 5
+
+```
 
 
+
+#### findIndex()
+
+findIndex()方法返回数组中满足提供的测试函数的第一个元素的索引。若没有找到对应元素则返回-1。
+
+```js
+const array1 = [5, 12, 8, 130, 44];
+
+const isLargeNumber = (element) => element > 13;
+
+console.log(array1.findIndex(isLargeNumber));
+// expected output: 3
 ```
 
 

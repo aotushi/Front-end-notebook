@@ -11,7 +11,7 @@
 - [06_6_Vue3](./note/06_6_Vue3.md)
 - [07_React](./note/07_React.md)
 - [08_webpack](./note/08_webpack.md)
-- [09_面试问题(学生整理)](./note/09_面试问题(学生整理).md)
+- [09_面试问题(学生整理)](./note/09_面试问题.md)
 
 
 
