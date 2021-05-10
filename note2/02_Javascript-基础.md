@@ -1,46 +1,14 @@
-# Javascript
-
->
->
->日期标题 h2
->
->课程大小标题h3-h5
->
->标题下列表,代码块,表格
->
->字体的颜色,粗细,
->
->
-
-
-
-## 1020
-
 ### 语言介绍
 
 ## JS
 
-##### 单词
-
-> refactor 重构
->
-> Mozilla ||
->
-> reference  [ˈrefrəns]  参考
->
->  <font color="skyblue">browse [braʊz] v./n.  浏览/吃草,放牧</font>
->
-> identifier [aɪˈdentɪfaɪər]  标识符
-
-
-
-##### JS 3大组成部分
+### JS 3大组成部分
 
 * ECMAScript  (JS标准)
 * DOM  (Document Object Model 文档对象模型)
 * BOM  (Browse Object Model      浏览器对象模型)         //
 
-##### 输出语句
+### 输出语句
 
 ```js
 alert('');        //用来向浏览器弹出一个警告框
@@ -55,7 +23,7 @@ document.write(''); //用来向网页中写入一个内容
 
 
 
-##### 编写位置
+### 编写位置
 
 ```html
 JS代码可编写在script标签中<script></script>中
@@ -86,7 +54,7 @@ script标签同时只能有一个功能,要么引入要么输出
 
 
 
-##### JS基本语法
+### JS基本语法
 
 * script标签中注释:  单行注释(Ctrl+/) `//`    
 *  多行注释(Ctrl+Shift+/)       ` /* */`
@@ -96,9 +64,9 @@ script标签同时只能有一个功能,要么引入要么输出
 
 
 
-##### 字面量和变量
+### 字面量和变量
 
-###### 字面量
+#### 字面量
 
 字面量就是值,在JS中字面量可以直接使用.例如1,3,5,'hello', true,null
 
@@ -108,73 +76,83 @@ script标签同时只能有一个功能,要么引入要么输出
 
 
 
-###### 变量
+#### 变量
 
 变量可以用来存储字面量,并且变量中可以存储不同的字面量
 
-##### 使用变量
+JS中的变量,并不直接存储值,存储的是值的 ==内存地址==.   JS中变量更像是值的别名
 
-* 声明&赋值变量
+常量不可变,指的是地址不可变
 
-  ```js
-  
-  
-  let a;  //使用let关键字声明变量.  
-  		//一个变量声明却没有赋值,那么它的值就是undefined
-  
-  let b,c,d; //可同时声明多个变量 不能重复声明. var可以重复声明一个变量
-  
-  a=33; //赋值变量 可任意修改   将等号右边的值赋值给左边的变量,变量只有在等号左边的时候才是变量 
-  a=true; //后写覆盖先写
-  
-  ------------------------
-  声明常量
-  const声明的常量只能进行一次赋值,无法修改
-  const b=33;
-  ------------------------
-  使用MDN查询兼容性
-  
-  let是ES6新增的,兼容性较差. 
-  对于IE来说,let支持度不好.如果需要兼容IE,需要使用var代替,用法和let一样,也可以声明多个变量
-  
-  
-  ```
+**string number boolean null undefined**   
 
-  
-
-* 声明&赋值同时进行
-
-  ```js
-  let f = "abc";
-  let 变量 = 值;
-  let 变量 = 值, 变量 = 值;
-  var 变量 = 值;
-  ---------------------------
-  
-  在全局中:
-  var a = 10;
-  var a = 11; //var可以重新声明变量,也相当于window.a = 11;
-  b = 12; //相当于window.b = 12;
-  
-  ```
+JS中基本的数据类型,这些数据都是不可变类型, 这些数据一旦创建不可修改
 
 
 
-##### let和var的区别
+#### 使用变量
 
-* 概要
+声明&赋值变量
 
-  ```JavaScript
-  var和let的区别:
-  1.let声明的变量有块作用域,var声明的变量没有
-  2.let不能在初始化前访问变量 var可以
-  3.var声明的全局变量会添加到window对象中
-  4.let不能重复声明变量 var可以
-  ```
+```js
 
-  
 
-##### 标识符(identifier)
+let a;  //使用let关键字声明变量.  
+		//一个变量声明却没有赋值,那么它的值就是undefined
+
+let b,c,d; //可同时声明多个变量 不能重复声明. var可以重复声明一个变量
+
+a=33; //赋值变量 可任意修改   将等号右边的值赋值给左边的变量,变量只有在等号左边的时候才是变量 
+a=true; //后写覆盖先写
+
+------------------------
+声明常量
+const声明的常量只能进行一次赋值,无法修改
+const b=33;
+------------------------
+使用MDN查询兼容性
+
+let是ES6新增的,兼容性较差. 
+对于IE来说,let支持度不好.如果需要兼容IE,需要使用var代替,用法和let一样,也可以声明多个变量
+
+
+```
+
+
+
+声明&赋值同时进行
+
+```js
+let f = "abc";
+let 变量 = 值;
+let 变量 = 值, 变量 = 值;
+var 变量 = 值;
+---------------------------
+
+在全局中:
+var a = 10;
+var a = 11; //var可以重新声明变量,也相当于window.a = 11;
+b = 12; //相当于window.b = 12;
+
+```
+
+
+
+### let和var的区别
+
+概要
+
+```JavaScript
+var和let的区别:
+1.let声明的变量有块作用域,var声明的变量没有
+2.let不能在初始化前访问变量 var可以
+3.var声明的全局变量会添加到window对象中
+4.let不能重复声明变量 var可以
+```
+
+
+
+### 标识符(identifier)
 
 > 在JS中,所有自主命名的内容,都可以被认为是一个标识符.
 >
@@ -193,7 +171,7 @@ script标签同时只能有一个功能,要么引入要么输出
 
 
 
-#### 数据类型(字面量的类型)++
+### 数据类型(字面量的类型)++
 
 > 数据类型就是字面量的类型
 >
@@ -256,7 +234,7 @@ console.log(foo);//5
 
 
 
-##### **字符串(string)**
+#### **字符串(string)**
 
 * JS中字符串需要用引号引起来, 单双引号皆可, 不能混用,不能跨行使用.  新版使用反斜杠+n换行
 
@@ -267,7 +245,7 @@ console.log(foo);//5
   * \n 换行   document.write()需要使用标签\<br>进行换行
   * \t  制表符(缩进)
 
-##### 模板字符串
+#### 模板字符串
 
   > 以上特性是ES6新特性,老版本浏览器中不要使用
   >
@@ -287,7 +265,7 @@ console.log(foo);//5
       * 语法: ${变量} 
       * 范例: s=\` ${变量} 说今天天气好. ${变量} ${变量}${变量}   \`
 
-##### 数值(number)
+#### 数值(number)
 
 * 在JS 中所有的数字包括整数和浮点数都是number类型
 * JS中大部分整数可以精确表示,超过一定范围后可能得到一个近似值
@@ -306,7 +284,7 @@ console.log(foo);//5
   * 使用typeof检查一个大整数时,会返回类型 bigint
   * 大整数只能和大整数进行运算
 
-##### 布尔值(boolean) 
+#### 布尔值(boolean)
 
 * 布尔值进行逻辑判断
 * 布尔值只有两个 
@@ -316,7 +294,7 @@ console.log(foo);//5
 
 
 
-##### 空值(null)
+#### 空值(null)
 
 * 空值(null) 
   * 表示空的对象
@@ -333,8 +311,7 @@ console.log(foo);//5
 
 
 
-
-##### 未定义(undefined)
+#### 未定义(undefined)
 
 * 表示声明了但没有赋值的变量
 
@@ -379,79 +356,84 @@ colors[-1];//undefined
 
   
 
-  
+### 判断数据类型
 
-####   typeof
+###   typeof
 
-* typeof 运算符 可以用来检查一个变量的类型 返回的结果是 ==字符串==
+typeof 运算符 可以用来检查一个变量的数据类型 返回的结果是 ==字符串==
 
-  * 使用typeof检查一个数值(种类有整数和小数,先暂时这么记)时,会返回一个number
-  * 使用typeof检查一个字符串,会返回string
-  * `alert(typeof n)` 
-  * `console.log(n, typeof n)`  console可以添加多个值 console.log('a','b','c');
+```js
+- 使用typeof检查一个数值(种类有整数和小数,先暂时这么记)时,会返回一个number
+- 使用typeof检查一个字符串,会返回string
+- 检查null object array时,返回的都是object. 因为这几个是Ojbect重写的实例,他们有自己的toString方法. 按照原型链的思路会优先使用重写后的toString方法.
+```
 
-* 类型之间的比较
 
-* ```
-  null == undefined  //正确
-  undefined == false //错误 undefined换成布尔值是false,讲解说的是比较复杂没有转换类型
-  ```
-  
-  
 
-  ```js
-  //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof
-  
-  typeof可能的共计8种返回值: undefined object string number boolean function + bigint symbol
-  typeof undefined //'undefined' Chrome中可直接返回
-  typeof null //'object'         Chrome中可直接返回
-  typeof boolean类型 //'boolean'
-  typeof number类型 //'number'
-  typeof bigint类型 //'bigint'
-  typeof symbol类型// 'symbol'
-  typeof Function类型//'function'
-  typeof string类型 //'string'
-  其他任何对象 //'object'
-  
-  
-  typeof Number(1) === 'number' //true
-  
-  typeof undefined === 'undefined'
-  
-  //对象
-    typeof {a:1} === 'object'
-  
-    typeof [1,2,4] === 'object'
-  
-    //实例
-    typeof new Boolean(true) = 'object'
-    typeof new Number(1) = 'object'
-    typeof new String('ABC') === 'object'
-  
-    //函数
-    typeof function(){} = 'function'
-    typeof class C {} = 'function'
-    typeof Math.sin === 'function'
-  
-    //JS诞生以来便是如此
-    typeof null === 'object'
-  
-    //除Function外的所有构造函数的类型都是object
-    var str = new String('String');
-    var num = new Number(100);
-  
-    typeof str; // 返回 'object'
-    typeof num; // 返回 'object'
-    var func = new Function();
-    typeof func; //返回'function'
-  
-    //括号有无将决定表达式的类型
-    var iData = 99;
-    typeof iData + 'Wisen';// 'number Wisen'
-    typeof (iData + 'Wisen');//'string'
-  
-  
-  ```
+类型之间的比较
+
+```js
+null == undefined  //正确
+undefined == false //错误 undefined换成布尔值是false,讲解说的是比较复杂没有转换类型
+```
+
+
+
+```js
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof
+
+typeof可能的共计8种返回值: undefined object string number boolean function + bigint symbol
+typeof undefined //'undefined' Chrome中可直接返回         
+typeof boolean类型 //'boolean'
+typeof number类型 //'number'
+typeof bigint类型 //'bigint'
+typeof symbol类型// 'symbol'
+typeof Function类型//'function'
+typeof string类型 //'string'
+其他任何对象 //'object'
+typeof null //'object'
+typeof []   //'object'
+typeof {}   //'object'
+
+
+typeof Number(1) === 'number' //true
+
+typeof undefined === 'undefined'
+
+//对象
+  typeof {a:1} === 'object'
+
+  typeof [1,2,4] === 'object'
+
+  //实例
+  typeof new Boolean(true) = 'object'
+  typeof new Number(1) = 'object'
+  typeof new String('ABC') === 'object'
+
+  //函数
+  typeof function(){} = 'function'
+  typeof class C {} = 'function'
+  typeof Math.sin === 'function'
+
+  //JS诞生以来便是如此
+  typeof null === 'object'
+
+  //除Function外的所有构造函数的类型都是object
+  var str = new String('String');
+  var num = new Number(100);
+
+  typeof str; // 返回 'object'
+  typeof num; // 返回 'object'
+  var func = new Function();
+  typeof func; //返回'function'
+
+  //括号有无将决定表达式的类型
+  var iData = 99;
+  typeof iData + 'Wisen';// 'number Wisen'
+  typeof (iData + 'Wisen');//'string'
+
+
+```
 
 
 
@@ -469,23 +451,11 @@ colors[-1];//undefined
 
 
 
-
-
-
-
-### Object.prototype.toString()
+### Object.prototype.toString
 
 ```js
-
+- toString()方法能返回这个对象的类型(字符串形式)
 ```
-
-
-
-
-
-
-
-
 
 
 
@@ -526,11 +496,49 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 
 
 
+#### 变量是否为数组
+
+```js
+
+1.instacneof
+
+function isArray(obj){
+    return obj instanceof Array;
+}
+instanceof操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在2个以上不同的全局执行环境，从而存在2个以上不同版本的Array构造函数
+如果你从一个框架向另一个框架传人一个数组，那么传人的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
+
+为解决这个问题，ES5 新增了Array.isArray()方法
+
+
+2.对象的constuctor属性
+var arr = [1,2,3,1]
+alert(arr.constuctor===Array) //true
+
+第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
+
+由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
+    
+
+3.Object.prototype.toString
+function isArray(obj){
+    return Object.prototype.toString.call(obj)==='[object Array]'
+}
+
+4.Array.isArray()
+ECMAScript5将Array.isArray()正式引入JavaScript，目的就是准确地检测一个值是否为数组。在IE8之前的版本是不支持的。
+function (obj) {
+    return Array.isArray(obj)
+}
+
+
+```
 
 
 
 
-#### 基本类型和引用类型
+
+### 基本类型和引用类型
 
 ```HTML
 基本类型:string, number, boolean, null, undefined, symbol
@@ -553,82 +561,63 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 
 
 
-
-
-
-
-## 1021
-
-#### 单词
-
-> parse 解析
-
-#### 变量
-
->  JS中的变量,并不直接存储值,存储的是值的 ==内存地址==.   JS中变量更像是值的别名
->
->  常量不可变,指的是地址不可变
->
->  **string number boolean null undefined**   
->
->   JS中基本的数据类型,这些数据都是不可变类型, 这些数据一旦创建不可修改
-
-
-
-
-
-
-
-#### 类型转换
+### 类型转换
 
 > 将其他的数据类型转换为 字符串(string), 数值(number)或布尔值(boolean)
 
 
 
-#### 其他类型转换为字符串
+#### 其他类型转换为字符串类型
 
 ##### 方式一
 
-* 可以调用<u>被转换类型</u>的**to==S==tring()方法**来将其转换成字符串
+可以调用<u>被转换类型</u>的**to==S==tring()方法**来将其转换成字符串
 
-* 由于null和undefined中没有toString()方法,所以这种方式不适用于这两种,会报错
+由于null和undefined中没有toString()方法,所以这种方式不适用于这两种,会报错
 
-* 调用方法格式:  调用xxx的yyy方法   xxx.yyy()
+```js
+a = 10; 
 
-* ```js
-  a = 10; 
-  
-  console.log(a,typeof a);   //10 "number"
-  a = a.toString();
-  console.log(a, typeof a);  //10 "string"
-  ```
+console.log(a,typeof a);   //10 "number"
+a = a.toString();
+console.log(a, typeof a);  //10 "string"
+
+//多维数组也可以转换成字符串
+[1,2,[3,4,[5,6]]].toString()
+"1,2,3,4,5,6"
+```
+
+
 
 
 
 ##### 方式二
 
-* >  调用 **==S==tring()函数**,来将其转换为字符串 
-  >
-  > 原理:  对于有toString()方法的类型,也是在内部调用toString()完成转换
-  >
-  > ​		  对于null和undefined,没有toString()方法,会直接使用String()函数来完成转换
+```js
+调用 String()函数,来将其转换为字符串 
 
-* 调用函数:
+原理:  对于有toString()方法的类型,也是在内部调用toString()完成转换
 
-  * 调用xxx函数---> xxx()
+		  对于null和undefined,没有toString()方法,会直接使用String()函数来完成转换
 
-* ```js
-  a = null;  // null--> 'null'
-  a = undefined;  // undefined --> 'undefined'
-  
-  console.log(a, typeof a); // undefined "undefined"
-  
-  a = 10;
-  a=String(a);   //注意: 转换的是10,而不是变量a
-  
-  a = undefined;
-  console.log(a, typeof a);// undefined "undefined"
-  ```
+```
+
+
+
+```js
+a = null;  // null--> 'null'
+a = undefined;  // undefined --> 'undefined'
+
+console.log(a, typeof a); // undefined "undefined"
+
+a = 10;
+a=String(a);   //注意: 转换的是10,而不是变量a
+
+a = undefined;
+console.log(a, typeof a);// undefined "undefined"
+```
+
+
 
 
 
@@ -1764,153 +1753,185 @@ getScore(0);
 
 
 
-#### for循环
+### for循环
 
-* 语法:
+#### 语法:
 
-  ```JavaScript
-  for(1初始化表达式; 2条件表达式; 4更新表达式){
-      3语句...
-  }
-  ```
+```JavaScript
+for(1初始化表达式; 2条件表达式; 4更新表达式){
+    3语句...
+}
+```
 
-* **执行流程:**
+#### **执行流程:**
 
-  1. 先执行初始化表达式,初始化一个变量(只会执行一次)
+1. 先执行初始化表达式,初始化一个变量(只会执行一次)
 
-  2. 执行条件表达式进行求值判断
+2. 执行条件表达式进行求值判断
 
-     2.1 若结果为false, 语句结束
+   2.1 若结果为false, 语句结束
 
-  3. 若结果为true, 执行循环体
+3. 若结果为true, 执行循环体
 
-  4. 执行 更新表达式, 对变量进行更新
-  
-  5. 重复2.
+4. 执行 更新表达式, 对变量进行更新
 
-* 其他
+5. 重复2.
 
-  * 3个表达式都可以省略, 如果都不写, 则循环变成死循环, 慎用
+其他
 
-  * ```JavaScript
-    for(;;){
-        alert(123);  //关掉后会弹出窗口,一直运行
+3个表达式都可以省略, 如果都不写, 则循环变成死循环, 慎用
+
+```js
+for(;;){
+    alert(123);  //关掉后会弹出窗口,一直运行
+}
+```
+
+
+
+#### for循环案例
+
+求100以内所有的奇数之和
+
+```js
+let num = 0; //创建一个变量,用来存储结果
+for(let i=0; i<100; i++){   //获取100以内所有的整数
+    if(i % 2 !== 0){        // 判断i是否是奇数
+        num += i;			// 所有奇数 相加
     }
-    ```
+}
+console.log(num);
+====================================================
+let result = 0;
+for(let i=1; i<100; i+=2){   //通过更新表达式,获取奇数.
+    result += i;
+}
+console.log(result);
+```
 
-* 练习
 
-  * 求100以内所有的奇数之和
 
-  * ```JavaScript
-    let num = 0; //创建一个变量,用来存储结果
-    for(let i=0; i<100; i++){   //获取100以内所有的整数
-        if(i % 2 !== 0){        // 判断i是否是奇数
-            num += i;			// 所有奇数 相加
-        }
-    }
-    console.log(num);
-    ====================================================
-    let result = 0;
-    for(let i=1; i<100; i+=2){   //通过更新表达式,获取奇数.
-        result += i;
-    }
-    console.log(result);
-    ```
+求100以内所有7的倍数之和,以及个数
 
-  * 求100以内所有7的倍数之和,以及个数
+```js
+let num = 0;
+let count = 0;
+for(let i=0; i<100; i+=7){
+  num += i;
+  count++;
+}
+console.log(num,count);
+```
 
-  * ```JavaScript
-    let num = 0;
-    let count = 0;
-    for(let i=0; i<100; i+=7){
-      num += i;
-      count++;
-    }
-    console.log(num,count);
-    ```
-  
-  * 水仙花数.  水仙花数是指一个 n 位数（n≥3 ），它的每个位上的数字的 n 次幂之和等于它本身（例如：1\*\*3 + 5\*\*3 + 3\*\*3 = 153）编写代码，求 1000 以内所有的水仙花数！
-  
-  * ```JavaScript
-    //获取1000以内所有的3位数
-    for(let i=100; i<1000; i++){
-        //获得3位数的百位数,十位数和个位数. 没有思路就使用案例法,例如123求百位,是123除以100得1.
-        let hundred1 = parseInt(i / 100);
-        let sec2 = parseInt( (i - hundred1*100) / 10 ) ;
-        let thr3 = i % 10;
-        
-        if(hundred**3 + sec2**3 +thr3**3 === i){
-            console.log(i);
-        }
-        
-    }
-    ```
-  
-  * 获取用户输入的任何整数,判断其是否为质数.(质数也叫素数,一个数如果只能被1和它本身整除，那么这个数就是质数。1不是质数也不是合数。)   ==重点==
-  
-  * ```JavaScript
-     /* n是不是质数？
-                  - 要看n是不是质数，就是看n有没有除1和n以外的其他因数
-                    如果有，n就不是质数
-                    如果没有，n就是质数
-      
-                  - 获取所有可能整除n的数（除了1和n）
-                    2 3 4 5 6 ... n-1
-    */
+
+
+水仙花数.  水仙花数是指一个 n 位数（n≥3 ），它的每个位上的数字的 n 次幂之和等于它本身（例如：1\*\*3 + 5\*\*3 + 3\*\*3 = 153）编写代码，求 1000 以内所有的水仙花数！
+
+```js
+//获取1000以内所有的3位数
+for(let i=100; i<1000; i++){
+    //获得3位数的百位数,十位数和个位数. 没有思路就使用案例法,例如123求百位,是123除以100得1.
+    let hundred1 = parseInt(i / 100);
+    let sec2 = parseInt( (i - hundred1*100) / 10 ) ;
+    let thr3 = i % 10;
     
-    
-    let i = +prompt('请输入一个整数');   //创建一个变量表示数字
-    let flag = true;    //定义一个变量来记录i的状态,模式i是质数
-    for(let j=2; j<i; j++){  //获取所有可能整数i的数(除了1和i本身)
-        if(i % j ===0){      //i能被j整数,说明i一定不是质数
-            flag = false;   // 进入判断证明i不是质数,修改flag为false
-            break;
-        }
-    }
-    if(flag){					//判断 i 是否为质数
-            alert(`${i}是质数`);
-        }else{
-            alert(`${i}不是质数`);
+    if(hundred**3 + sec2**3 +thr3**3 === i){
+        console.log(i);
     }
     
-    
-     
-     
-     ================================================================
-     https://blog.csdn.net/yeyue1992/article/details/81348722
-     
-     方法1: 因子一定有2个
-     let num = +prompt('请输入一个整数');
-     let count = 0;
-     for(i=1; i<num; i++){
-         if(num%i === 0){
-             count++;
-         }
-     }
-     if(count === 2){
-         console.log(`${num}是质数`);
-     }else{
-         console.log(`${num}不是质数`);
-     }
-     
-     
-     方法2,因子和=num+1
-    let num = +prompt('请输入一个整数');
-    let sum = 0;
-    for(i=1; i<=num; i++){
-        if(num%i === 0){
-            sum +=i;
-        }      
+}
+```
+
+
+
+获取用户输入的任何整数,判断其是否为质数.(质数也叫素数,一个数如果只能被1和它本身整除，那么这个数就是质数。1不是质数也不是合数。)   ==重点==
+
+```js
+/* n是不是质数？
+             - 要看n是不是质数，就是看n有没有除1和n以外的其他因数
+               如果有，n就不是质数
+               如果没有，n就是质数
+ 
+             - 获取所有可能整除n的数（除了1和n）
+               2 3 4 5 6 ... n-1
+*/
+
+
+let i = +prompt('请输入一个整数');   //创建一个变量表示数字
+let flag = true;    //定义一个变量来记录i的状态,模式i是质数
+for(let j=2; j<i; j++){  //获取所有可能整数i的数(除了1和i本身)
+    if(i % j ===0){      //i能被j整数,说明i一定不是质数
+        flag = false;   // 进入判断证明i不是质数,修改flag为false
+        break;
     }
-    if(sum === num+1){
-        console.log(`${num}是质数`);
+}
+if(flag){					//判断 i 是否为质数
+        alert(`${i}是质数`);
     }else{
-        console.log(`${num}不是质数`);
+        alert(`${i}不是质数`);
+}
+
+
+ 
+ 
+ ================================================================
+ https://blog.csdn.net/yeyue1992/article/details/81348722
+ 
+ 方法1: 因子一定有2个
+ let num = +prompt('请输入一个整数');
+ let count = 0;
+ for(i=1; i<num; i++){
+     if(num%i === 0){
+         count++;
+     }
+ }
+ if(count === 2){
+     console.log(`${num}是质数`);
+ }else{
+     console.log(`${num}不是质数`);
+ }
+ 
+ 
+ 方法2,因子和=num+1
+let num = +prompt('请输入一个整数');
+let sum = 0;
+for(i=1; i<=num; i++){
+    if(num%i === 0){
+        sum +=i;
+    }      
+}
+if(sum === num+1){
+    console.log(`${num}是质数`);
+}else{
+    console.log(`${num}不是质数`);
+}
+```
+
+
+
+判断数组中某元素出现的次数
+
+```js
+let arr = ['Alice', 'Bob', 'Tiff', 'Bruce', 'Alice', 'Bruce', 'Alice'];
+let newArr = [];
+for(let i=0; i<arr.length; i++){
+    let temp = arr[i];
+    let count = 0;
+    for(let j=0; j<arr.length; j++){
+        if(arr[j]===temp){
+            count++;
+            arr[j]=-1;
+        }
     }
-    ```
-    
-    
+    if(temp!==-1){
+        newArr.push(temp+':'+count)
+    }
+}
+
+console.log(newArr)
+```
+
+
 
 
 
@@ -1922,192 +1943,181 @@ getScore(0);
 
 
 
-* ```JavaScript
-  * * * * *
-  * * * * *
-  * * * * *
-  * * * * *
-  * * * * *
-      
-  for(i=0; i<5; i++){        //外循环 对应的是高度
-      for(j=0; j<5; j++){    //内循环 对应的是宽度
-          document.write('*');
-      }
-      document.write('<br>');
-  }
-  
-  * * * * *
-  * * * * 
-  * * *
-  * * 
-  * 
-      
-  for(i=0; i<5; i++){
-      for(j=0; j<5-i; j++){
-          document.write('*');
-      }
-      document.write('<br>');
-  }
-  
-  * 
-  * *
-  * * * 
-  * * * * 
-  * * * * *
-      
-  for(i=0; i<5; i++){
-      for(j=0; j<i+1; j++){
-          document.write('*');
-      }
-      document.write('<br>');
-  }
-  
-  ```
+```js
+* * * * *
+* * * * *
+* * * * *
+* * * * *
+* * * * *
+    
+for(i=0; i<5; i++){        //外循环 对应的是高度
+    for(j=0; j<5; j++){    //内循环 对应的是宽度
+        document.write('*');
+    }
+    document.write('<br>');
+}
 
-* 练习:在浏览器窗口中打印99乘法表
+* * * * *
+* * * * 
+* * *
+* * 
+* 
+    
+for(i=0; i<5; i++){
+    for(j=0; j<5-i; j++){
+        document.write('*');
+    }
+    document.write('<br>');
+}
 
-  ```JavaScript
-  <script>
-      for(let i=1; i<10; i++){     //创建一个外循环,控制图形的高度
-          for(let j=1; j<i+1; j++){ //j<=i; 创建一个内循环,控制图形的宽度
-              document.write(`${j}×${i}`+'='+i*j);  //开始的时候,j和i的位置谁先谁后没有想.j是管宽度的，i是管高度的
-              // document.write(`${j}*${i}`+'='+Number(i)*Number(j); 这是开始的写法 完全没有必要使用Number()
-          }
-  		document.write('<br>');
-      }
-  </script>
-  ```
+* 
+* *
+* * * 
+* * * * 
+* * * * *
+    
+for(i=0; i<5; i++){
+    for(j=0; j<i+1; j++){
+        document.write('*');
+    }
+    document.write('<br>');
+}
 
-  
+```
 
-* 求100以内所有的质数
 
-  ```JavaScript
-  
-  for(i=2; i<100; i++){   //获取100以内所有的数
-      let flag = true;    //创建一个变量记录i的状态,默认i是质数
-      for(j=2; j<i; j++){ //获取所有可能整除i的数
-          if(i % j === 0){ //判断i能否被j整除
-              flag = false;  //进入判断说明i一定不是质数
-              			// 将flag修改为false
-          }
-      }
-       if(flag){console.log(i);} //如果i是质数则打印i
-  }
-  
-  ======================
-      将let flag = true; 放到外层循环的外面,程序还会实现效果吗?
-      打印结果只会有2和3
-  	4进入判断,非质数,flag的值变为false,再次循环的时候无论是否为质数,flag的值都是false了.
-   
-      
-      
-  //扩展 设计数据
-  例如设计flag数据,注意3项: 数据类型,名称, 位置
-  流程:界面变化->要有对应的数据
-  ```
-  
-  
+
+练习:在浏览器窗口中打印99乘法表
+
+```js
+<script>
+    for(let i=1; i<10; i++){     //创建一个外循环,控制图形的高度
+        for(let j=1; j<i+1; j++){ //j<=i; 创建一个内循环,控制图形的宽度
+            document.write(`${j}×${i}`+'='+i*j);  //开始的时候,j和i的位置谁先谁后没有想.j是管宽度的，i是管高度的
+            // document.write(`${j}*${i}`+'='+Number(i)*Number(j); 这是开始的写法 完全没有必要使用Number()
+        }
+		document.write('<br>');
+    }
+</script>
+```
+
+
+
+
+
+求100以内所有的质数
+
+```JavaScript
+
+for(i=2; i<100; i++){   //获取100以内所有的数
+    let flag = true;    //创建一个变量记录i的状态,默认i是质数
+    for(j=2; j<i; j++){ //获取所有可能整除i的数
+        if(i % j === 0){ //判断i能否被j整除
+            flag = false;  //进入判断说明i一定不是质数
+            			// 将flag修改为false
+        }
+    }
+     if(flag){console.log(i);} //如果i是质数则打印i
+}
+
+======================
+    将let flag = true; 放到外层循环的外面,程序还会实现效果吗?
+    打印结果只会有2和3
+	4进入判断,非质数,flag的值变为false,再次循环的时候无论是否为质数,flag的值都是false了.
+ 
+    
+    
+//扩展 设计数据
+例如设计flag数据,注意3项: 数据类型,名称, 位置
+流程:界面变化->要有对应的数据
+```
+
+
 
 ### break和continue
 
-* 概要
+概要
 
-  ```JavaScript
-  - break
-  * break可以用来结束 switch和循环语句
-  * break一旦执行,循环会立即结束
-  * break会离它最近的循环起作用
-  
-  - continue
-  * continue用来跳过当次循环
-  ```
+```JavaScript
+- break
+* break可以用来结束 switch和循环语句
+* break一旦执行,循环会立即结束
+* break会离它最近的循环起作用
 
-  
+- continue
+* continue用来跳过当次循环
+```
 
 
 
-* continue案例
 
-  ```JavaScript
-  for(let i=0; i<5; i++){
-      console.log('外层循环: ',i)
-      for(let j=0; j<5; j++){
-          if(j==2){
-              continue;
-          }
-          console.log('\t内层循环: ',j)
-      }
-  }
-  ```
 
-* break案例
+continue案例
 
-  ```JavaScript
-  for(i=0; i<5; i++){
-      console.log('外层循环: ',i);
-      for(j=0; j<5; j++){
-          if(j==2){
-              break;            //break不能用在if语句中,但是可以用在for循环里.
-          }
-          console.log('\t内层循环: ',j);
-      }
-  }
-  ```
+```JavaScript
+for(let i=0; i<5; i++){
+    console.log('外层循环: ',i)
+    for(let j=0; j<5; j++){
+        if(j==2){
+            continue;
+        }
+        console.log('\t内层循环: ',j)
+    }
+}
+```
 
-  
+break案例
+
+```JavaScript
+for(i=0; i<5; i++){
+    console.log('外层循环: ',i);
+    for(j=0; j<5; j++){
+        if(j==2){
+            break;            //break不能用在if语句中,但是可以用在for循环里.
+        }
+        console.log('\t内层循环: ',j);
+    }
+}
+```
+
+
 
 ### 优化console.time()
 
-* 概要
+概要
 
-  ```JavaScript
-  * console.time()可以开启一个计时器
-  * console.timeEnd()关闭计时器. 括号里的内容要么没有要么相同
-  ```
-
-  
-
-
-
-* 优化-案例质数
-
-  ```JavaScript
-  console.time();
-  for(let i=2; i<100000; i++){
-      let flag = true;
-      for(let j=2; j<=i**5; j++){ //第二次优化  当质数的因数开始重复的时候,后面就没有新的因数了.需要将j<i改为j<i**5,运行发现出现4,9这样的非因数.
-          if(i % j === 0){
-              flag = false;
-              break;      // 第一次优化
-          }
-      }
-      if(flag){
-          console.log(i); //打印是重复性工作,计时时可以省略
-      }
-  }
-  
-  console.timeEnd();
-  ```
+```JavaScript
+* console.time()可以开启一个计时器
+* console.timeEnd()关闭计时器. 括号里的内容要么没有要么相同
+```
 
 
 
 
-## 1026
 
-### 单词
+优化-案例质数
 
-> resume   resume script expression
->
-> source
->
-> debug
->
-> breakpoints
->
-> scope global
->
-> step over next function call
+```JavaScript
+console.time();
+for(let i=2; i<100000; i++){
+    let flag = true;
+    for(let j=2; j<=i**5; j++){ //第二次优化  当质数的因数开始重复的时候,后面就没有新的因数了.需要将j<i改为j<i**5,运行发现出现4,9这样的非因数.
+        if(i % j === 0){
+            flag = false;
+            break;      // 第一次优化
+        }
+    }
+    if(flag){
+        console.log(i); //打印是重复性工作,计时时可以省略
+    }
+}
+
+console.timeEnd();
+```
+
+
+
+<hr/>
 
 
 
@@ -3728,9 +3738,7 @@ console.log(per.name = '朝天阙'); //朝天阙
 
 #### 数组简介
 
-##### 创建数组
-
-```JavaScript
+```js
 # 数组Array    //A大写,是一个类,首字母需要大写
  * 数组也是一个对象    //对象主要是用来存储对象的
  * 数组用来存储有序的数据   //Object对象中存储的数据是无序的
@@ -3738,6 +3746,15 @@ console.log(per.name = '朝天阙'); //朝天阙
  * 数组中每一个元素都有一个唯一的序号,这个序号被称为 索引(index)
  * 索引是一组从0开始的整数
  * 使用typeof检查数组时,返回的是 'object'
+
+```
+
+
+
+#### 创建数组
+
+```JavaScript
+
 
 
 # 如何创建数组 //使用类来创建对象
@@ -3766,9 +3783,10 @@ function getArr(...args){} //...三点运算符 将伪数组转换为真数组
 ```
 
 
-##### 二维数组|非连续数组
 
 
+
+#### 二维数组|非连续数组
 
 ```JavaScript
 # 二维数组 //了解
@@ -3801,9 +3819,9 @@ arr[10] = 14;
 
 
 
-##### 数组操作
+### 数组操作
 
-###### 获取元素
+#### 获取元素
 
 ```JavaScript
 # 获取数组中的元素
@@ -3812,7 +3830,7 @@ arr[10] = 14;
 - 获取数组中没有的元素,不会报错,会返回undefined
 ```
 
-###### 向数组中添加元素
+#### 向数组中添加元素
 
 ```JavaScript
 * 向数组中添加元素
@@ -3825,7 +3843,7 @@ arr[6] = 15;
 
 
 
-###### 删除元素
+#### 删除元素
 
 ```JavaScript
 # 删除数组中的元素,但是位置还在
@@ -3835,7 +3853,7 @@ arr[6] = 15;
 
 
 
-###### 获取数组长度|length
+#### 获取数组长度|length
 
 ```JavaScript
 # 获取数组的长度
@@ -3850,7 +3868,7 @@ length的值实际就是数组的最大索引+1
 
 
 
-###### 数组最后添加元素
+#### 数组最后添加元素
 
 ```JavaScript
 # 向数组的最后添加元素
@@ -3860,7 +3878,7 @@ length的值实际就是数组的最大索引+1
 
 
 
-###### 访问数组最后一位
+#### 访问数组最后一位
 
 ```JavaScript
 # 访问数组最后一位
@@ -3870,9 +3888,9 @@ arr[arr.length-1] //可以理解最后一位是负1,倒数第二位是负2....
 
 
 
-#### 数组4方法
+### 数组4方法
 
-##### push()
+#### push()
 
 ```JavaScript
 push()
@@ -3892,7 +3910,7 @@ console.log(arr); //['孙悟空', '猪八戒', '沙和尚', '唐僧',Array()];
 
 
 
-##### unshift()
+#### unshift()
 
 ```JavaScript
 unshift()
@@ -3901,7 +3919,7 @@ unshift()
 
 
 
-##### pop()
+#### pop()
 
 ```JavaScript
 pop()
@@ -3910,7 +3928,7 @@ pop()
 
 
 
-##### shift()
+#### shift()
 
 ```JavaScript
 shift()
@@ -3919,42 +3937,13 @@ shift()
 
 
 
-
-
-
-
-  
-
-**案例**
-
-```JavaScript
-let arr = ['孙悟空', '猪八戒', '唐僧', '沙和尚'];
-let result = arr.push('牛魔王', '红孩儿');   //最后添加元素也可以使用arr[arr.length] = '元素名',但是一次只能加一个
-
-//let result = arr.unshift('牛魔王', '红孩儿'); 在arr数组的前面添加内容
-//let result = arr.pop();
-//let result = arr.shift();
-
-
-console.log('result =', result); //result = 6;
-console.log(arr);                //最后加上了push中的元素
-
-
-
-
-
-如何查看result的返回值?
- 在函数的返回值章节中强调,使用return返回函数的返回值,在这里是使用console.log()方法
-
-```
-
-
-
-#### 遍历数组(for for-in for-of forEach)
+### 遍历数组方法
 
 ```JavaScript
 遍历数组,就是将数组中的元素一个个取出来
 - 如果数组中有对象{}, 对象是没有迭代接口的,所以无法遍历获取的到.
+
+遍历数组(for for-in for-of forEach)
 ```
 
 
@@ -4019,543 +4008,188 @@ arr = ['孙悟空', '沙和尚', '猪八戒'];
   arr.forEach(function(item,index){
       console.log(item, index); // 打印的是0'孙悟空' 1'沙和尚' 2'猪八戒'
   })
-
-
-回调函数
-
--
-
 ```
 
  
 
-#### 回调函数
-
-```js
- 你定义,没调用自动执行,这种函数被称为回调函数(callback)
-```
 
 
+### 数组方法1
 
-### 判断变量为是否为一个数组
-
-```js
-
-1.instacneof
-
-function isArray(obj){
-    return obj instanceof Array;
-}
-instanceof操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在2个以上不同的全局执行环境，从而存在2个以上不同版本的Array构造函数
-如果你从一个框架向另一个框架传人一个数组，那么传人的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
-
-为解决这个问题，ES5 新增了Array.isArray()方法
-
-
-2.对象的constuctor属性
-var arr = [1,2,3,1]
-alert(arr.constuctor===Array) //true
-
-第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
-
-由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
-    
-
-3.Object.prototype.toString
-function isArray(obj){
-    return Object.prototype.toString.call(obj)==='[object Array]'
-}
-
-4.Array.isArray()
-ECMAScript5将Array.isArray()正式引入JavaScript，目的就是准确地检测一个值是否为数组。在IE8之前的版本是不支持的。
-function (obj) {
-    return Array.isArray(obj)
-}
-
-
-```
-
-
-
-
-
-
-
-#### 练习
+#### slice-截取
 
 ```JavaScript
-> 定义一个Person类，要求类中含有name和age属性，
-> 使用Person类创建几个对象，然后将对象存储到一个数组中
->
-> 定义一个函数，函数需要一个存有Person对象的数组作为参数，
->  函数可以将数组中的所有成年对象保存到一个新的数组中返回
+- 截取数组,该方法不会影响到原数组,而是将结果保存到一个新数组中返回
+- 参数:
+	第一个参数, 截取起始位置的索引(包含起始位置)
+	第二个参数, 截取结束位置索引(不包含结束位置)
+	如果省略第二个参数,则会一直截取到最后
+	
+ 如果使用负索引,则表示倒数第几个
+	 负1 表示倒数第一; 负2表示倒数第二, 以此类推
 
-
-//定义一个Person类
-function Person(name, age){
-    this.name = name;
-    this.age = age;
-}
-
-//创建对象
-let p1 = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 28);
-let p3 = new Person('牛魔王', 58);
-let p4 = new Person('红孩儿', 8);
-let p5 = new Person('白骨精', 16);
-let p6 = new Person('蜘蛛精', 14);
-
-//将对象添加到数组
-let arr = [p1, p2, p3, p4, p5, p6];
-
-
-
-let newArray = [];
-//定义一个函数
-function getArr(arr){
-    for(i=0; i<arr.length; i++){
-        if(arr[i].age > 18){      
-        	newArray.push(arr[i]);
-    	}
-    }
-    return newArray;
-}
-
-//getArr();
-let result = getArr(arr);
-console.log(result);
+- 复制整个数组的方法
+	arr.slice()
+	arr.slice('')
+	arr.slice(0)
 ```
 
 
 
-### 回调函数
-
-> 1104补充
-
-#### 定义:
-
-> A callback is a function that is passed as an argument to another function and is executed after its parent function has completed. (回调是指一个函数作为参数传递给另一个函数，并在其父函数完成后执行的函数。) 
->
-> 回调函数是一个函数，将会在另一个函数完成执行后立即执行。回调函数是一个作为参数传给另一个 JavaScript 函数的函数。这个回调函数会在传给的函数内部执行。
+```JavaScript
+let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
+let result = arr.slice(0,2); //'孙悟空', '猪八戒'
+result = arr.slice(1,2); // '猪八戒'
+result = arr.slice(1); //  ["猪八戒", "沙和尚", "唐僧"]
+result = arr.slice(1, -1) //["猪八戒", "沙和尚"]
 
 
-
+arr原数组不会被改变
 ```
-https://juejin.cn/post/6844903987771097102
-```
-
-
-
-
-
-#### 实例
-
-```js
-- 简单理解: 函数b是以参数形式传给函数a的,那么函数b就叫做回调函数.
-
-function a(callback){
-	callback();
-	console.log('父函数');
-}
-
-function b(){
-	setTimeout("console.log('子函数')", 3000); //延时操作
-}
-
-a(b); 
-//输出结果先后顺序是:父函数 子函数
-//父函数不用等回调函数执行完,可以接着执行自己的代码
-
-
-- 匿名函数形式,没有变量灵活性不高
-function a(a, callback){
-    alert(a);
-    if(typeof callback == 'function'){
-        callback();
-    }
-}
-
-a("回调函数", function(){alert('回调函数执行')})
-```
-
-
-
-#### 实例2
-
-```js
-- call()方法 回调函数
-
-function Thing(name){
-	this.name = name;
-    //this是谁? 实参赋值,this是Joe
-}
-
-Thing.prototype.doSomething = function(callback){
-    callback.call(this);
-    //this是谁?  
-    //构造函数创建的对象是 Thing{name:'Joe', doSomething:ƒ}
-}
-
-function foo(){
-    alert(this.name); //'Joe'
-}
-
-var t = new Thing('Joe');
-t.doSomething(foo);  
-//Thing.prototype.doSomething = t.doSomething = t.__proto__.doSomething
-
-- 更新:传参数
-function(name){
-    this.name = name;
-}
-Thing.prototype.doSomething = fucntion(callback, salutation){
-    callback.call(this,salutation);
-}
-
-function foo(salutation){
-    alert(salutation + "" + this.name);
-}
-
-var t = new Thing('Joe');
-t.doSomething(foo, 'Hi');
-
-```
-
-
-
-
-
-
-
-## 1028
-
-
-
-> 数组的方法:如果不改变原数组,那一定会返回新数组.
-
-### 数组方法-slice-截取
-
-* 概要
-
-  ```JavaScript
-  - 截取数组,该方法不会影响到原数组,而是将结果保存到一个新数组中返回
-  - 参数:
-  	第一个参数, 截取起始位置的索引(包含起始位置)
-  	第二个参数, 截取结束位置索引(不包含结束位置)
-  	如果省略第二个参数,则会一直截取到最后
-  	
-   如果使用负索引,则表示倒数第几个
-  	 负1 表示倒数第一; 负2表示倒数第二, 以此类推
-  
-  - 复制整个数组的方法
-  	arr.slice()
-  	arr.slice('')
-  	arr.slice(0)
-  ```
-
-  
-
-* 案例
-
-  ```JavaScript
-  let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-  let result = arr.slice(0,2); //'孙悟空', '猪八戒'
-  result = arr.slice(1,2); // '猪八戒'
-  result = arr.slice(1); //  ["猪八戒", "沙和尚", "唐僧"]
-  result = arr.slice(1, -1) //["猪八戒", "沙和尚"]
-  
-  
-  arr原数组不会被改变
-  ```
 
 
 
 #### slice-浅复制
 
-* 概要
+```JavaScript
+只复制对象本身,不复制对象的属性,元素
+通过slice可以对一个数组进行浅复制
 
-  ```JavaScript
-  只复制对象本身,不复制对象的属性,元素
-  通过slice可以对一个数组进行浅复制
-  
-  深复制,全部复制,但是性能比较差
-  ```
-
-* 案例
-
-  ```JavaScript
-  ===============重要====================
-  
-  let arr = ['孙悟空', '猪八戒', '沙和尚'];
-  
-  let arr2 = arr.slice();//arr.slice(0)同样效果   使用slice方法浅复制
-  
-  //浅复制后, arr2与arr是两个对象,但内部的内容相同
-  console.log(arr === arr2); //false
-  
-  //arr2与arr指向的是相同的属性
-  console.log(arr[1] === arr2[1]); //true
-  
-  
-  浅复制:
-  let arr = ['孙悟空', '猪八戒', '沙和尚'];
-  function fn(array){
-      array = array.slice(0);
-      array.push('唐僧');
-      return array; //忘记返回了
-  }
-  
-  fn(arr);
-  
-  let result = fn(arr);
-  console.log(result); //['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-  console.log(arr);  //['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-  
-  console.log(result === arr); //false 浅复制 通过slice方法只复制了属性的对象和元素
-  
-  
-  - 对象的赋值比较 在函数内将对象赋值给变量再返回 
-  let arr = {name:'孙悟空', age:18}
-  let arr2 = arr;
-  console.log(arr2 === arr); //true
-  
-  function copyObj(arr){
-      let arr3 =arr;
-      return arr3;
-  }
-  let arr3 = copyObj(arr);
-  console.log(arr3);
-  console.log(arr3 === arr); //true
-  
-  let arr = ['孙悟空', '猪八戒', '沙和尚'];
-  function fn(array){
-      let array2 = array.slice(0);
-      return array; 
-  }
-  
-  
-  ```
+深复制,全部复制,但是性能比较差
+```
 
 
 
+```JavaScript
+===============重要====================
+
+let arr = ['孙悟空', '猪八戒', '沙和尚'];
+
+let arr2 = arr.slice();//arr.slice(0)同样效果   使用slice方法浅复制
+
+//浅复制后, arr2与arr是两个对象,但内部的内容相同.
+console.log(arr === arr2); //false
+
+//arr2与arr指向的是相同的属性
+console.log(arr[1] === arr2[1]); //true
 
 
-### 数组方法-splice-删除添加替换
-
-* 概要
-
-  ```JavaScript
-  - 该方法用来删除,添加,替换数组中的元素, 该方法是一个破坏性方法 //delete删除后依然占位置 用于对象
-  - 调用后直接影响原数组
-  
-  - 参数:
-  	第一个,删除的起始位置
-  	第二个,删除的数量
-  	第三个,要添加的元素
-  
-  - 返回值:
-  	返回被删除的元素
-      
-  ```
-
-* 案例
-
-  ```JavaScript
-  let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-  let result = arr.splice(1,2); // ["猪八戒", "沙和尚"]
-  result = arr.splice(1,2, '白骨精', '蜘蛛精'); 
-  //arr ["孙悟空", "白骨精", "蜘蛛精", "唐僧"]
-  //result ["猪八戒", "沙和尚"]
-  
-  result = arr.splice(1,2, '白骨精');
-  //arr ["孙悟空", "白骨精", "唐僧"]
-  //result ["猪八戒", "沙和尚"]
-  
-  result = arr.splice(1,2, "白骨精", "蜘蛛精", "玉兔精");
-  //arr ["孙悟空", "白骨精", "蜘蛛精", "玉兔精", "唐僧"]
-  //result ["猪八戒", "沙和尚"]
-  
-  let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-  result = arr.splice(1,0);// result返回的是一个空数组
-  
-  result = arr.push( arr.splice(1,0) ); // 5
-  console.log(arr); 
-  //['孙悟空', '猪八戒', '沙和尚', '唐僧',Array()];
-  //['孙悟空', '猪八戒', '沙和尚', '唐僧',[]];
-  
-  
-  
-  ```
-
- 
-
-  
-
-  
-
-
-
-### 方法分类
-
-#### 破坏性方法
-
-splice reverse sort
-
-#### 非破坏性方法
-
-slice 
-
-### 练习-查询字符串中字母出现的次数1109
-
-```js
-var str = 'aalskdjfslkdjsdkjfsldkjfzz';
-var arr = str.split('');
-arr.sort();
-for(let i=0; i<arr.length; i++){
-    var fir = arr.indexOf(arr[i]);
-    var las = arr.lastIndexOf(arr[i]) + 1;
-    if(arr[i] != arr[i+1]){
-        var arrNew = arr.slice(fir, las);
-        console.log(arrNew);
+浅复制:
+let arr = ['孙悟空', '猪八戒', '沙和尚'];
+function fn(array){
+    array = array.slice(0);
+    array.push('唐僧');
+    return array; //忘记返回了
 }
-    
-========================方法2===============================    
-关系数组: 就是将字符串作为数组索引的一种使用数组的方式
-    
-var arr = [];
-for(var i=0; i<str.length; i++){
-    arr[str[i]] = arr[str[i]] + 1 || 1;
+
+fn(arr);
+
+let result = fn(arr);
+console.log(result); //['孙悟空', '猪八戒', '沙和尚', '唐僧'];
+console.log(arr);  //['孙悟空', '猪八戒', '沙和尚', '唐僧'];
+
+console.log(result === arr); //false 浅复制 通过slice方法只复制了属性的对象和元素
+
+
+- 对象的赋值比较 在函数内将对象赋值给变量再返回 
+let arr = {name:'孙悟空', age:18}
+let arr2 = arr;
+console.log(arr2 === arr); //true
+
+function copyObj(arr){
+    let arr3 =arr;
+    return arr3;
 }
-console.log(arr);
+let arr3 = copyObj(arr);
+console.log(arr3);
+console.log(arr3 === arr); //true
+
+let arr = ['孙悟空', '猪八戒', '沙和尚'];
+function fn(array){
+    let array2 = array.slice(0);
+    return array; 
+}
+
+
+```
+
+
+
+
+
+#### splice-删除添加替换
+
+```JavaScript
+- 该方法用来删除,添加,替换数组中的元素, 该方法是一个破坏性方法 //delete删除后依然占位置 用于对象
+- 调用后直接影响原数组
+
+- 参数:
+	第一个,删除的起始位置
+	第二个,删除的数量
+	第三个,要添加的元素
+
+- 返回值:
+	返回被删除的元素
     
 ```
 
 
 
-### 练习-数组去重2种方法
+```JavaScript
+let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
+let result = arr.splice(1,2); // ["猪八戒", "沙和尚"]
+result = arr.splice(1,2, '白骨精', '蜘蛛精'); 
+//arr ["孙悟空", "白骨精", "蜘蛛精", "唐僧"]
+//result ["猪八戒", "沙和尚"]
 
-* 概要: 嵌套循环+indexOf
+result = arr.splice(1,2, '白骨精');
+//arr ["孙悟空", "白骨精", "唐僧"]
+//result ["猪八戒", "沙和尚"]
 
-  ```JavaScript
-  # 去除数组中重复的数字
-  
-  
-  ==========================第1版=========================
-  let arr = [1,2,3,1,1,4,3,2,5,6,7];
-  
-  for(let i=0; i<arr.length; i++){
-      for(let j=i+1; j<arr.length; j++){
-          if(arr[i] === arr[j]){
-              arr.splice(j,1);   //这个地方写成了arr.splice(arr[j]);
-          }
-      }
-  }
-  
-  console.log(arr);
-  
-  存在的问题: 由于splice删除j位后,j+1位自动上移变成j位,所以会少检查一位.
-  
-  ==========================第1-2版==========================
-  let arr = [1,2,3,1,1,4,3,2,5,6,7];
-  
-  for(let i=0; i<arr.length; i++){
-      for(let j=i+1; j<arr.length; j++){
-          if(arr[i] === arr[j]){
-              arr.splice(j,1);
-              j--;
-          }
-          
-      }
-  }
-  console.log(arr);
-  
-  
-  ========================第2版====indexOf()=====================
-  let arr = [1,2,3,1,1,4,3,2,5,6,7];
-  let arr2 = [];
-  
-  for(let i=0; i<arr.length; i++){
-      if(arr2.indexOf(arr[i]) === -1){
-          arr2.push(arr[i]);
-      }
-  }
-  console.log(arr2);
-  ```
+result = arr.splice(1,2, "白骨精", "蜘蛛精", "玉兔精");
+//arr ["孙悟空", "白骨精", "蜘蛛精", "玉兔精", "唐僧"]
+//result ["猪八戒", "沙和尚"]
+
+let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
+result = arr.splice(1,0);// result返回的是一个空数组
+
+result = arr.push( arr.splice(1,0) ); // 5
+console.log(arr); 
+//['孙悟空', '猪八戒', '沙和尚', '唐僧',Array()];
+//['孙悟空', '猪八戒', '沙和尚', '唐僧',[]];
 
 
 
-### 练习-数组排序|冒泡排序
+```
 
-* 概要
+ 
 
-  ```JavaScript
-  # 编写代码，对arr进行排序
-  
-  # 嵌套for循环就是冒泡排序,也是最慢的排序方式
-  
-  ===========================第1版=============================
-  let arr = [3,1,4,6,5,2,9,7,8,0];
-  
-  for(let j=0; j<arr.length; j++){
-      for(let i=0; i<arr.length; i++){   //值大小比较,最后是倒数第二和倒数第一的比较,长度减1
-          if(arr[i] > arr[i+1]){
-              arr.splice(i,2,arr[i+1],arr[i]);
-          }
-  	}
-  }
-  console.log(arr);
-  
-  =========================第2版-老师版======================
-  let arr = [3,1,4,6,5,2,9,7,8,0];
-  
-  for(let j=0; j<arr.length-1; j++){  
-      //解释说是当把1排出来后,后面8个数的位置是正确的,那么0的位置肯定也是正确的.所以负1次结果和负2次结果一致
-      for(let i=0; i<arr.length-1; i++){   
-          //console.log(arr[i],arr[i+1]) 打印结果,最后一组是0和undefined.故循环长度减1
-          if(arr[i] > arr[i+1]){
-              //arr.splice(arr[i],2,arr[i+1],arr[i]);
-              let tem = arr[i];
-              arr[i] = arr[i+1];
-              arr[i+1] = temp;
-          }
-  	}
-  }
-  console.log(arr);
-  
-  ```
-
-  
-
-
-
-### 数组的方法2+++
+### 数组方法2
 
 #### concat()
 
-* 概要
+```JavaScript
+- 可以用来连接两个或多个数组
 
-  ```JavaScript
-  - 可以用来连接两个或多个数组
-  
-  - 不会影响到原数组,而是将元素添加到一个新数组中返回
-  ```
+- 不会影响到原数组,而是将元素添加到一个新数组中返回
+```
 
-* 案例
 
-  ```JavaScript
-  let arr = ['孙悟空', '猪八戒'];
-  let arr2 = ['白骨精', '蜘蛛精'];
-  let arr3 = ['张飞', '沙和尚'];
-  
-  let result = arr.concat(arr2); //["孙悟空", "猪八戒", "沙和尚", "白骨精", "蜘蛛精"]
-  result = arr.concat(arr2,arr3);//["孙悟空", "猪八戒", "白骨精", "蜘蛛精", "张飞", "沙和尚"]
-  
-  result = arr.concat(arr2, arr3, 'a');////["孙悟空", "猪八戒", "白骨精", "蜘蛛精", "张飞", "沙和尚", 'a']
-  
-  
-  # concat()方法为空,不添加任何数组
-  let arr4 = arr.concat(); //['孙悟空', '猪八戒'];
-  ```
+
+```JavaScript
+let arr = ['孙悟空', '猪八戒'];
+let arr2 = ['白骨精', '蜘蛛精'];
+let arr3 = ['张飞', '沙和尚'];
+
+let result = arr.concat(arr2); //["孙悟空", "猪八戒", "沙和尚", "白骨精", "蜘蛛精"]
+result = arr.concat(arr2,arr3);//["孙悟空", "猪八戒", "白骨精", "蜘蛛精", "张飞", "沙和尚"]
+
+result = arr.concat(arr2, arr3, 'a');////["孙悟空", "猪八戒", "白骨精", "蜘蛛精", "张飞", "沙和尚", 'a']
+
+
+# concat()方法为空,不添加任何数组
+let arr4 = arr.concat(); //['孙悟空', '猪八戒'];
+```
 
 
 
@@ -4587,7 +4221,7 @@ result = arr.indexOf('猪老九'); // -1
 
 
 
-#### indexOf()-数组去重
+##### indexOf()-数组去重
 
 ```JavaScript
 let arr = [1,2,3,1,1,4,3,2,5,6,7];
@@ -4743,8 +4377,6 @@ filter 不会改变原数组，它返回过滤后的新数组。
 一个新的、由通过测试的元素组成的数组，如果没有任何数组元素通过测试，则返回空数组
 
 
-
-
 ```
 
 
@@ -4753,15 +4385,148 @@ filter 不会改变原数组，它返回过滤后的新数组。
 
 ```
 -语法:
+reduce 为数组中的每一个元素依次执行回调函数，不包括数组中被删除或从未被赋值的元素，接受四个参数：初始值（或者上一次回调函数的返回值），当前元素值，当前索引，调用 reduce 的数组。
+
+
 arr.reduce((preValue, current,index,arr)=>{}, initialValue)
 arr:当前数组
-preValue:第一次执行回调时为给定的初始值initialValue,以后是上一次执行回调时的返回值.
-		 备注:若没有传入initialValue,则第一次的preValue值是数组中的第一个元素的值
+preValue:第一次执行回调时为给定的初始值initialValue,或者是上一次执行回调时的返回值(若没有传入initialValue,则第一次的     preValue值是数组中的第一个元素的值)
 current: 表示当前正在处理的元素
 index 表示当前正在处理的数组元素的索引,若传入了initialValue,则为0,否则为1.
 array 当前操作的数组(就是arr)
 initialValue 表示初始值.一般是做数学运算时设置为0.若为筛选值可以不传.
+
+
+//initialValue注意事项
+如果没有提供initialValue，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供initialValue，从索引0开始。
 ```
+
+```js
+//实例解析initialValue参数
+// 如果没有提供initialValue，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供initialValue，从索引0开始。
+let arr = [1,2,3,4];
+let sum = arr.reduce((prev,current,index,arr)=>{
+    console.log(prev,current,index);
+    return prev+current;
+})
+console.log(arr,sum)
+
+打印结果:
+1 2 1
+3 3 2
+6 4 3
+[1,2,3,4] 10
+
+上面的例子index是从1开始的，第一次的prev的值是数组的第一个值。数组长度是4，但是reduce函数循环3次。
+
+var  arr = [1, 2, 3, 4];
+var sum = arr.reduce(function(prev, cur, index, arr) {
+    console.log(prev, cur, index);
+    return prev + cur;
+}，0) //注意这里设置了初始值
+console.log(arr, sum);
+
+打印结果:
+0 1 0
+1 2 1
+3 3 2
+6 4 3
+[1,2,3,4] 10
+这个例子index是从0开始的，第一次的prev的值是我们设置的初始值0，数组长度是4，reduce函数循环4次。
+```
+
+
+
+##### reduce案例
+
+##### 1.计算数组中元素出现的次数
+
+```js
+let names = ['Alice', 'Bob', 'Tiff', 'Bruce', 'Alice','Bruce', 'Alice'];
+let nameNum = names.reduce((prev,current,index)=>{
+    if(current in prev){
+        prev[current]++;
+    }else{
+        prev[current]=1;
+    }
+    return prev;
+},{})
+console.log(nameNum)
+```
+
+
+
+##### 2.数组去重
+
+```js
+let arr = [1,2,3,4,4,1]
+let newArr = arr.reduce((prev,current)=>{
+    if(!prev.includes(current)){
+        return prev.concat(current)
+    }else{
+        return prev;
+    }
+},[])
+```
+
+
+
+##### 3. 二维数组转换成一维数组
+
+```js
+let arr = [[0, 1], [2, 3], [4, 5]]
+let newArr = arr.reduce((prev,current)=>{
+    return prev.concat(current)
+},[]);
+
+console.log(newArr)
+```
+
+
+
+##### 4.多维数组转换成一维数组
+
+```js
+let arr = [[0, 1], [2, 3], [4,[5,6,7]]]
+let newArr = function(arr){
+    return arr.reduce((prev,current)=>{
+        return prev.concat(Array.isArray(current)?newArr(current):current);
+    },[])
+}
+
+console.log(newArr[arr])
+```
+
+
+
+##### 5.对象里的属性求和
+
+```js
+var result = [
+    {
+        subject: 'math',
+        score: 10
+    },
+    {
+        subject: 'chinese',
+        score: 20
+    },
+    {
+        subject: 'english',
+        score: 30
+    }
+];
+
+let sum = result.reduce((prev, current) => {
+    return prev+current.score
+},0)
+
+console.log(sum)
+```
+
+
+
+##### 6.其他
 
 ```js
 let persons = [
@@ -4787,8 +4552,11 @@ const result=arr.reduce((preValue, current)=>{
 cont result=arr.reduce((preValue, current)=>{
     return Math.max(preValue, current);
 })
-
 ```
+
+
+
+
 
 
 
@@ -4847,11 +4615,209 @@ console.log(array1.findIndex(isLargeNumber));
 
 ### toString 数组转换成字符串
 
+
+
+
+
+### 数组练习
+
+#### 查询字符串中字母出现的次数
+
 ```js
-//多维数组也可以
-[1,2,[3,4,[5,6]]].toString()
-"1,2,3,4,5,6"
+var str = 'aalskdjfslkdjsdkjfsldkjfzz';
+var arr = str.split('');
+arr.sort();
+for(let i=0; i<arr.length; i++){
+    var fir = arr.indexOf(arr[i]);
+    var las = arr.lastIndexOf(arr[i]) + 1;
+    if(arr[i] != arr[i+1]){
+        var arrNew = arr.slice(fir, las);
+        console.log(arrNew);
+}
+    
+========================方法2===============================    
+关系数组: 就是将字符串作为数组索引的一种使用数组的方式
+    
+var arr = [];
+for(var i=0; i<str.length; i++){
+    arr[str[i]] = arr[str[i]] + 1 || 1;
+}
+console.log(arr);
+    
 ```
+
+
+
+#### 数组去重2种方法
+
+嵌套循环+indexOf
+
+```JavaScript
+# 去除数组中重复的数字
+
+
+==========================第1版=========================
+let arr = [1,2,3,1,1,4,3,2,5,6,7];
+
+for(let i=0; i<arr.length; i++){
+    for(let j=i+1; j<arr.length; j++){
+        if(arr[i] === arr[j]){
+            arr.splice(j,1);   //这个地方写成了arr.splice(arr[j]);
+        }
+    }
+}
+
+console.log(arr);
+
+存在的问题: 由于splice删除j位后,j+1位自动上移变成j位,所以会少检查一位.
+
+==========================第1-2版==========================
+let arr = [1,2,3,1,1,4,3,2,5,6,7];
+
+for(let i=0; i<arr.length; i++){
+    for(let j=i+1; j<arr.length; j++){
+        if(arr[i] === arr[j]){
+            arr.splice(j,1);
+            j--;
+        }
+        
+    }
+}
+console.log(arr);
+
+
+========================第2版====indexOf()=====================
+let arr = [1,2,3,1,1,4,3,2,5,6,7];
+let arr2 = [];
+
+for(let i=0; i<arr.length; i++){
+    if(arr2.indexOf(arr[i]) === -1){
+        arr2.push(arr[i]);
+    }
+}
+console.log(arr2);
+```
+
+
+
+#### 数组排序|冒泡排序
+
+```JavaScript
+# 编写代码，对arr进行排序
+
+# 嵌套for循环就是冒泡排序,也是最慢的排序方式
+
+===========================第1版=============================
+let arr = [3,1,4,6,5,2,9,7,8,0];
+
+for(let j=0; j<arr.length; j++){
+    for(let i=0; i<arr.length; i++){   //值大小比较,最后是倒数第二和倒数第一的比较,长度减1
+        if(arr[i] > arr[i+1]){
+            arr.splice(i,2,arr[i+1],arr[i]);
+        }
+	}
+}
+console.log(arr);
+
+=========================第2版-老师版======================
+let arr = [3,1,4,6,5,2,9,7,8,0];
+
+for(let j=0; j<arr.length-1; j++){  
+    //解释说是当把1排出来后,后面8个数的位置是正确的,那么0的位置肯定也是正确的.所以负1次结果和负2次结果一致
+    for(let i=0; i<arr.length-1; i++){   
+        //console.log(arr[i],arr[i+1]) 打印结果,最后一组是0和undefined.故循环长度减1
+        if(arr[i] > arr[i+1]){
+            //arr.splice(arr[i],2,arr[i+1],arr[i]);
+            let tem = arr[i];
+            arr[i] = arr[i+1];
+            arr[i+1] = temp;
+        }
+	}
+}
+console.log(arr);
+
+```
+
+
+
+
+
+### 回调函数
+
+#### 实例
+
+```js
+- 简单理解: 函数b是以参数形式传给函数a的,那么函数b就叫做回调函数.
+
+function a(callback){
+	callback();
+	console.log('父函数');
+}
+
+function b(){
+	setTimeout("console.log('子函数')", 3000); //延时操作
+}
+
+a(b); 
+//输出结果先后顺序是:父函数 子函数
+//父函数不用等回调函数执行完,可以接着执行自己的代码
+
+
+- 匿名函数形式,没有变量灵活性不高
+function a(a, callback){
+    alert(a);
+    if(typeof callback == 'function'){
+        callback();
+    }
+}
+
+a("回调函数", function(){alert('回调函数执行')})
+```
+
+
+
+#### 实例2
+
+```js
+- call()方法 回调函数
+
+function Thing(name){
+	this.name = name;
+    //this是谁? 实参赋值,this是Joe
+}
+
+Thing.prototype.doSomething = function(callback){
+    callback.call(this);
+    //this是谁?  
+    //构造函数创建的对象是 Thing{name:'Joe', doSomething:ƒ}
+}
+
+function foo(){
+    alert(this.name); //'Joe'
+}
+
+var t = new Thing('Joe');
+t.doSomething(foo);  
+//Thing.prototype.doSomething = t.doSomething = t.__proto__.doSomething
+
+- 更新:传参数
+function(name){
+    this.name = name;
+}
+Thing.prototype.doSomething = fucntion(callback, salutation){
+    callback.call(this,salutation);
+}
+
+function foo(salutation){
+    alert(salutation + "" + this.name);
+}
+
+var t = new Thing('Joe');
+t.doSomething(foo, 'Hi');
+
+```
+
+
 
 
 
@@ -5443,55 +5409,53 @@ fn(arr);
 
 #### 数组快速排序(更新)
 
-* 概要
 
-  ```JavaScript
-  上面快速排序方法存在的问题:
-   
-  如果目标数组是一个从0开始的有序数组的且元素多,所以排序的时候只会使用right函数,函数调用次数过多,崩溃.(教学案例数组的长度是10000)
-  
-  解决方案: 函数内的基准值采用随机数
-  ```
 
-  
+```JavaScript
+上面快速排序方法存在的问题:
+ 
+如果目标数组是一个从0开始的有序数组的且元素多,所以排序的时候只会使用right函数,函数调用次数过多,崩溃.(教学案例数组的长度是10000)
 
-* 案例更新
+解决方案: 函数内的基准值采用随机数
+```
 
-  ```JavaScript
-  let arr = [];
-  for(let i=1; i<10000; i++){
-      arr.push(i);
-  }
-  
-  function fn(nums){
-       if(nums.length<2){  //写错了没执行 内存溢出
-              return nums;
-          }
-      
-  	let str = Math.floor(Math.random()*nums.length);  
-      //nums.lenght/2 也可以用这种.
-      let basic = nums[str];
-  	let left=[], right=[];
+
+
+```JavaScript
+let arr = [];
+for(let i=1; i<10000; i++){
+    arr.push(i);
+}
+
+function fn(nums){
+     if(nums.length<2){  //写错了没执行 内存溢出
+            return nums;
+        }
     
-  	for(i=0; i<nums.length; i++){
-      	//if(basic === nums[i]){
-          //	continue;
-      	//}
-          if(str === i){
-              continue;
-          }
-          
-      	if(nums[i] < basic){
-          	left.push(nums[i]);
-      	}else{
-          	right.push(nums[i]);
-      	}
-  	}
-  	return fn(left).concat(basic, fn(right));
-  }
+	let str = Math.floor(Math.random()*nums.length);  
+    //nums.lenght/2 也可以用这种.
+    let basic = nums[str];
+	let left=[], right=[];
   
-  fn(arr);
-  ```
+	for(i=0; i<nums.length; i++){
+    	//if(basic === nums[i]){
+        //	continue;
+    	//}
+        if(str === i){
+            continue;
+        }
+        
+    	if(nums[i] < basic){
+        	left.push(nums[i]);
+    	}else{
+        	right.push(nums[i]);
+    	}
+	}
+	return fn(left).concat(basic, fn(right));
+}
+
+fn(arr);
+```
 
 
 
@@ -5499,191 +5463,176 @@ fn(arr);
 
 #### 快排|冒泡|sort比较
 
-* 概要
+```JavaScript
+快速排序, 冒泡排序, sort排序用时比较
+```
 
-  ```JavaScript
-  快速排序, 冒泡排序, sort排序用时比较
-  ```
 
-  
 
-* 案例
+```JavaScript
+let arr1 = [], arr2 = [], arr3 = [];
+for(let i=0; i<100000; i++){
+    let num = Math.round(Math.random()*100000);
+    arr1.push(num);
+    arr2.push(num);
+    arr3.push(num);
+}
+================冒泡排序========================
 
-  ```JavaScript
-  let arr1 = [], arr2 = [], arr3 = [];
-  for(let i=0; i<100000; i++){
-      let num = Math.round(Math.random()*100000);
-      arr1.push(num);
-      arr2.push(num);
-      arr3.push(num);
-  }
-  ================冒泡排序========================
-  
-  let arr = [1, 3, 4, 7, 9, 2, 0, 8, 5, 6];
-  function bubble(arr){
-      for(let j=0; j<arr.length-1; j++){
-          for(let i=0; i<arr.length-1; i++){
-      		if(arr[i] > arr[i+1]){
-          	let temp;
-              temp = arr[i+1];
-          	arr[i+1] = arr[i];
-          	arr[i] = temp;
-          	//arr.splice(i,2,arr[i],arr[i+1]); 另一种写法
-      		}
-  		}
-      }
-  console.log(arr);
-  }
-  bubble(arr);
-  ===================sort排序===============================
-  
-  console.time('sort');   //系统自带 时间最短
-  arr1.sort(function(a, b){
-      return a - b;
-  })
-  console.timeEnd('sort');
-  
-  
-  console.time('快排');  //用时其次,大概10倍sort
-  sortArr(arr2);
-  console.timeEnd('快排');
-  
-  console.time('冒泡');  //用时很大
-  bubble(arr3);
-  console.timeEnd('冒泡');
-  
-  ```
+let arr = [1, 3, 4, 7, 9, 2, 0, 8, 5, 6];
+function bubble(arr){
+    for(let j=0; j<arr.length-1; j++){
+        for(let i=0; i<arr.length-1; i++){
+    		if(arr[i] > arr[i+1]){
+        	let temp;
+            temp = arr[i+1];
+        	arr[i+1] = arr[i];
+        	arr[i] = temp;
+        	//arr.splice(i,2,arr[i],arr[i+1]); 另一种写法
+    		}
+		}
+    }
+console.log(arr);
+}
+bubble(arr);
+===================sort排序===============================
+
+console.time('sort');   //系统自带 时间最短
+arr1.sort(function(a, b){
+    return a - b;
+})
+console.timeEnd('sort');
+
+
+console.time('快排');  //用时其次,大概10倍sort
+sortArr(arr2);
+console.timeEnd('快排');
+
+console.time('冒泡');  //用时很大
+bubble(arr3);
+console.timeEnd('冒泡');
+
+```
 
 
 
 ### Date
 
-* 概要
+```JavaScript
+在JS中所有的和时间相关的信息都通过Date对象来表示
+```
 
-  ```JavaScript
-  在JS中所有的和时间相关的信息都通过Date对象来表示
-  ```
 
-* 案例
 
-  ```JavaScript
-  //创建一个Date对象
-  //如果直接使用new Date()则会表示当前时间的对象
-  
-  let dt = new Date();
-  
-  //可以通过传递时间字符串来指定要创建的时间
-  //格式: 月/日/四位年 时:分:秒
-  
-  dt = new Date('12/20/2020 14:33:22');
-  
-  
-  ```
+```JavaScript
+//创建一个Date对象
+//如果直接使用new Date()则会表示当前时间的对象
 
-  
+let dt = new Date();
+
+//可以通过传递时间字符串来指定要创建的时间
+//格式: 月/日/四位年 时:分:秒
+
+dt = new Date('12/20/2020 14:33:22');
+
+
+```
+
+
 
 #### Date的方法
 
-* 概要
+```JavaScript
+let dt = new Date();
 
-  ```JavaScript
-  let dt = new Date();
-  
-  - 获取当前日期是周几
-  getDay() 获取当前日期是周几
-  返回值 0-6
-  0 表示周日
-  1 表示周一 ...
-  
-  - 如何打印今天是周几?
-  let dd = dt.getDay();
-  let dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-  console.log(dayArr(dd));
-  
-  
-  - 获取当前对象是几月
-  getMonth()
-  返回值 0-11
-  0 表示1月
-  1 表示2月
-  依次类推
-  
-  
-  - 获取今天的日期是几号 
-  getDate()
-  
-  - 获取当前日期对象的年份
-  getFullYear()
-  
-  - getTime()
-   获取当前日期的时间戳
-   时间戳指自1970年1月1日0时0分0秒,到当前时间所经历的毫秒数
-   时间在计算机底层都是以时间戳形式存储
-   
-   - 使用时间戳来计算程序的执行时间
-  let begin = new Date().getTime();
-  函数
-  let end = new Date().getTime();
-  console.log(end - begin) ;
-   
-   - Date.now()  //类方法,静态方法
-   获取当前的时间戳
-  ```
+- 获取当前日期是周几
+getDay() 获取当前日期是周几
+返回值 0-6
+0 表示周日
+1 表示周一 ...
 
+- 如何打印今天是周几?
+let dd = dt.getDay();
+let dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+console.log(dayArr(dd));
+
+
+- 获取当前对象是几月
+getMonth()
+返回值 0-11
+0 表示1月
+1 表示2月
+依次类推
+
+
+- 获取今天的日期是几号 
+getDate()
+
+- 获取当前日期对象的年份
+getFullYear()
+
+- getTime()
+ 获取当前日期的时间戳
+ 时间戳指自1970年1月1日0时0分0秒,到当前时间所经历的毫秒数
+ 时间在计算机底层都是以时间戳形式存储
+ 
+ - 使用时间戳来计算程序的执行时间
+let begin = new Date().getTime();
+函数
+let end = new Date().getTime();
+console.log(end - begin) ;
+ 
+ - Date.now()  //类方法,静态方法
+ 获取当前的时间戳
+```
 
 
 
 #### Date混合使用
 
-* 案例
+```JavaScript
+- 显示当前年月日时间信息(使用模板字符串)
 
-  ```JavaScript
-  - 显示当前年月日时间信息(使用模板字符串)
-  
-  let d = new Date();
-  alert(`$(d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`);
-  ```
+let d = new Date();
+alert(`$(d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`);
+```
 
-  
+
 
 
 
 ### 包装类??
 
-* 说明: 有啥用
+```JavaScript
+- JS中有3个包装类: String() Number() Boolean()
+- 他们可以将一个基本数据类型包装为一个对象
+ String()可以包装字符串对象
+ Number()可以包装数值对象
+ Boolean()可以包装布尔值对象
+ -但是我们千万不能用它
 
-* 概要
+- 当我们调用一个基本数据类型的属性或方法时,
+  浏览器会临时使用包装类将基本数据类型转换为对象,
+  然后调用对象的属性或方法,操作完毕临时对象即销毁
 
-  ```JavaScript
-  - JS中有3个包装类: String() Number() Boolean()
-  - 他们可以将一个基本数据类型包装为一个对象
-   String()可以包装字符串对象
-   Number()可以包装数值对象
-   Boolean()可以包装布尔值对象
-   -但是我们千万不能用它
-  
-  - 当我们调用一个基本数据类型的属性或方法时,
-    浏览器会临时使用包装类将基本数据类型转换为对象,
-    然后调用对象的属性或方法,操作完毕临时对象即销毁
-  
-  
-  let s = new String('hello');
-  let s1 = new String('hello');
-  console.log(s === s1); //false  这是两个对象,内存地址不同
-  
-  let bool = new Boolean(false);
-  if(bool){
-      console.log('执行');// bool是个对象,只要是对象就是true
-  }
-  
-  let str = 'hello';//自动装箱,自动拆箱
-  str.name = '孙悟空';
-  alert(str.name);  
-  //str是没有name属性的,但是运行却没有报错
-  //str是基本数据类型,临时把字符串转换成对象,然后调用属性的属性和方法,加完属性就销毁了.alert输出的是另一个对象的属性,然后销毁.
-  ```
 
-  
+let s = new String('hello');
+let s1 = new String('hello');
+console.log(s === s1); //false  这是两个对象,内存地址不同
+
+let bool = new Boolean(false);
+if(bool){
+    console.log('执行');// bool是个对象,只要是对象就是true
+}
+
+let str = 'hello';//自动装箱,自动拆箱
+str.name = '孙悟空';
+alert(str.name);  
+//str是没有name属性的,但是运行却没有报错
+//str是基本数据类型,临时把字符串转换成对象,然后调用属性的属性和方法,加完属性就销毁了.alert输出的是另一个对象的属性,然后销毁.
+```
+
+
 
 ### 字符串方法
 
@@ -5696,7 +5645,7 @@ let str = 'Hello'; --> ['H', 'e', 'l', 'l', 'o'];
 因为字符串是不可变数据类型,所以数组的破坏性方法无法使用.
 ```
 
-##### str.charAt()
+#### str.charAt()
 
 > 根据索引获取指定的字符, 返回获得的字符结果.
 
@@ -5714,7 +5663,7 @@ str.charAt(9);//log:没有返回值
 
 
 
-##### str.charCodeAt()
+#### str.charCodeAt()
 
 > 根据索引获取指定字符的字符编码 需要变量接收
 
@@ -5729,7 +5678,7 @@ str.charCodeAt(10);//log:NaN
 
 
 
-##### String.fromCharCode()
+#### String.fromCharCode()
 
 > 根据字符编码返回字符 需要变量接收
 
@@ -5739,7 +5688,7 @@ String.fromCharCode(222);//
 
 
 
-##### str.concat()
+#### str.concat()
 
 > 连接字符串, 返回新字符串, 不改变原字符串
 >
@@ -5771,7 +5720,7 @@ String({});//'[object Object]'
 
 
 
-##### indexOf()
+#### indexOf()
 
 > 查询一个字符在字符串中第一次出现的位置, 如果未找到该值,返回-1
 >
@@ -5810,7 +5759,7 @@ fromIndex: 可选.规定字符串中开始检索的位置.它的合法取值范�
 'hello world'.indexOf('', 22) // returns 11
 ```
 
-##### indexOf实例
+#### indexOf实例
 
 ```HTML
 - 检测目标字符(串)是否存在被检查的字符串中
@@ -5832,7 +5781,7 @@ console.log(count); //4
 
 
 
-##### lastIndexOf()
+#### lastIndexOf()
 
 > 查询一个字符在字符串中最后一次出现的位置. 如果没有找到则返回-1.
 >

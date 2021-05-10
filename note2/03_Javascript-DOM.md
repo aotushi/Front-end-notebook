@@ -422,6 +422,22 @@ getElementsByName()
 
 
 
+### createDocumentFragment()
+
+```js
+//http://www.cnitblog.com/asfman/articles/32614.html
+//https://blog.csdn.net/qiao13633426513/article/details/80243058
+
+1.createdocumentfragment()方法创建了一虚拟的节点对象
+2.DocumentFragment节点不属于文档树，继承的parentNode属性总是null。
+3.当需要添加多个dom元素时，如果先将这些元素添加到DocumentFragment中，再统一将DocumentFragment添加到页面，会减少页面渲染dom的次数，效率会明显提升。
+4.如果使用appendChid方法将原dom树中的节点添加到DocumentFragment中时，会删除原来的节点。 
+
+
+```
+
+
+
 
 
 ### 兼容性封装获取元素文本
