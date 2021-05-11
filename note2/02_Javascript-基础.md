@@ -1,7 +1,3 @@
-### 语言介绍
-
-## JS
-
 ### JS 3大组成部分
 
 * ECMAScript  (JS标准)
@@ -80,13 +76,19 @@ script标签同时只能有一个功能,要么引入要么输出
 
 变量可以用来存储字面量,并且变量中可以存储不同的字面量
 
-JS中的变量,并不直接存储值,存储的是值的 ==内存地址==.   JS中变量更像是值的别名
+let a = b;发生了什么?
 
-常量不可变,指的是地址不可变
+**值传递**: 相当于一份全新的拷贝, 将这份拷贝放在另一个内存地址里.
 
-**string number boolean null undefined**   
+**引用传递**: 相当于为这两个变量指定同一个地址,即新变量对旧变量的一个引用.
 
-JS中基本的数据类型,这些数据都是不可变类型, 这些数据一旦创建不可修改
+JS作为弱类型语言(某一个变量被定义类型,该变量可以根据环境变化自动进行转换,不需要经过显性强制转换),它的赋值语句既有值传递,也有引用传递:
+
+对基本类型(string, number, boolean, null, undefined)使用值传递
+
+对引用类型(除基本类型外的其他类型)使用引用传递
+
+
 
 
 
@@ -496,7 +498,7 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 
 
 
-#### 变量是否为数组
+### 变量是否为数组
 
 ```js
 
@@ -1279,15 +1281,7 @@ getScore(0);
 
 ```
 
-
-
-##   1023
-
-#### 单词
-
->prompt  n.提示符 v.提示,促使
->
->
+<hr/>
 
 
 
@@ -2546,19 +2540,38 @@ console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,
 
 #### 函数参数
 
-* 概要
+JS中传递数据的方式:
+
+1.按值传递,分为两类:基本类型值的传递和函数参数的传递. 函数参数的传递又有基本类型值的参数传递和引用类型值的参数传递. 引用类型值的传递实际上传递的是对象的引用(引用=内存中的地址),而非传递的对象本身.
+
+2.按引用传递: 传递的是完整的对象本身.
+
+```js
+function setName(obj) {
+    obj.name = "Nicholas";
+    obj = new Object();
+    obj.name = "Greg";
+}
+
+var person = new Object();
+setName(person);
+alert(person.name); // "Nicholas"
+var person = new Object();
+setName(person);
+alert(person.name); // "Nicholas"
+
+如果对象在函数的参数传递中是按引用传递的，那么当解析器执行到：
+obj = new Object();
+这段代码的时候，person原先指向的那个对象将被删除，即obj和person都
+将指向新建的obj对象，而新建的obj对象的name属性时“Greg”,则弹出的应该是“Greg”，而结果却不是，说明： 对象在函数的参数传递中是按值传递！
+```
+
+
 
 ```JavaScript
-//创建一个求任意两个数的参数
-function(a,b){
-	console.log(a+b);
-}
-fn(a,b);
-
 # 形参(形式参数)
 定义函数时,可以在函数的()中定义数量不等的形参
-形参就相当于在函数中声明了对应的变量,但是没有实际的值. //返回的是undefined 怎么理解,相当于定义了变量但没有赋值
-
+形参就相当于在函数中声明了对应的变量,但是没有实际的值. //返回的是undefined
 function fn(a, b){
     console.log('a =', a);  //undefined
     console.log('b =', b);  //undefined
@@ -2570,11 +2583,11 @@ function fn(a, b){
 在调用函数时,可以向函数中传递数量不等的实参,
 实参会赋值给对应的形参
 在JS中不会检查实参的类型和数量
-	* 可以传递任意类型的实参
-	* 可以传递任意数量的实参
-		- 如果数量一样,则实参和形参一一对应
-		- 如果实参少,则没有对应的实参的形参是undefined
-		- 如果实参多,则多余的实参不会被使用
+ - 可传递任意类型的实参
+ - 可以传递任意数量的实参
+ - 如果数量一样,则实参和形参一一对应
+ - 如果实参少,则没有对应的实参的形参是undefined
+ - 如果实参多,则多余的实参不会被使用
 ```
 
 
@@ -2584,8 +2597,6 @@ function fn(a, b){
 
 
 #### 函数返回值(?)
-
-* 概要
 
 ```javascript
 * 返回值是函数的执行结果
@@ -2667,83 +2678,79 @@ y = fn(x);
 
 #### 方法(method)
 
-* 概要
 
-  ```JavaScript
-  * 对象的属性可以是一个函数
-  * 当一个对象的属性是函数时,我们就称这个函数是当前对象的方法
-    调用函数,称为调用对象的方法
-  
-  * 函数和方法只是称呼上的不同,没有什么太本质的区别
-  ```
 
-  
+```JavaScript
+* 对象的属性可以是一个函数
+* 当一个对象的属性是函数时,我们就称这个函数是当前对象的方法
+  调用函数,称为调用对象的方法
 
-* 案例
+* 函数和方法只是称呼上的不同,没有什么太本质的区别
+```
 
-  ```JavaScript
-  let obj = {};
-  
-  obj.name = '孙悟空';
-  obj.age = 18;
-  obj.sayHello = function(){     //没有设置函数名称
-      alert('大家好，我是孙悟空');
-  };
-  
-  console.log(obj.sayHello); // 打印效果 是一个匿名函数
-  
-  ƒ (){ 
-      alert('大家好，我是孙悟空');
-  }
-  
-  obj.sayHello(); //运行alert函数
-  
-  
-  
-  ```
-  
-  
+
+
+```JavaScript
+let obj = {};
+
+obj.name = '孙悟空';
+obj.age = 18;
+obj.sayHello = function(){     //没有设置函数名称
+    alert('大家好，我是孙悟空');
+};
+
+console.log(obj.sayHello); // 打印效果 是一个匿名函数
+
+ƒ (){ 
+    alert('大家好，我是孙悟空');
+}
+
+obj.sayHello(); //运行alert函数
+
+
+
+```
+
+
 
 
 
 #### 作用域(scope)
 
-* 概要
+```javascript 
+* 作用域就是指 变量的作用范围
 
-  ```javascript 
-  * 作用域就是指 变量的作用范围
-  
-  * JS中有两种作用域：
-  	- 全局作用域
-  	- 局部作用域
-  		* 块作用域
-  		* 函数作用域
-  
-  * 全局作用域
-  	- 全局作用域在网页打开时创建，在网页关闭时销毁
-  	- 所有直接写在script标签中的内容都位于全局作用域
-  		* 全局作用域中的所有变量，被称为全局变量，可以在页面的任意位置被访问
-  		* 全局作用域中的所有函数，被称为全局函数，可以在页面的任意位置被调用
-  	- 在JS中有一个全局对象(global object)叫做window，
-  		* 在全局作用域中所有使用var声明的变量都会作为window对象的 属性 保存
-  		* 在全局作用域中使用function定义的函数会作为window对象的 方法 保存
-  			* 函数实际上就相当于window对象的方法
-  
-  
-  
-  
-  var c = 44;
-  console.log('c =', c); //等价于 console.log(window.c);  这个特性不好 
-  
-  let d = 'haha';
-  console.log(window.d); //返回undefined
-  
-  
-  function fn2(){
-      alert('haha');
-  }
-  fn2();// 调用函数， 等价于window.fn2();
-  ```
+* JS中有两种作用域：
+	- 全局作用域
+	- 局部作用域
+		* 块作用域
+		* 函数作用域
+
+* 全局作用域
+	- 全局作用域在网页打开时创建，在网页关闭时销毁
+	- 所有直接写在script标签中的内容都位于全局作用域
+		* 全局作用域中的所有变量，被称为全局变量，可以在页面的任意位置被访问
+		* 全局作用域中的所有函数，被称为全局函数，可以在页面的任意位置被调用
+	- 在JS中有一个全局对象(global object)叫做window，
+		* 在全局作用域中所有使用var声明的变量都会作为window对象的 属性 保存
+		* 在全局作用域中使用function定义的函数会作为window对象的 方法 保存
+			* 函数实际上就相当于window对象的方法
+
+
+
+
+var c = 44;
+console.log('c =', c); //等价于 console.log(window.c);  这个特性不好 
+
+let d = 'haha';
+console.log(window.d); //返回undefined
+
+
+function fn2(){
+    alert('haha');
+}
+fn2();// 调用函数， 等价于window.fn2();
+```
 
 
 
@@ -2751,354 +2758,347 @@ y = fn(x);
 
 #### 变量提升和函数提升
 
-* 概要
+```javascript
+# 变量的提升
+ - 在JS中所有使用var声明的变量，会在所有的代码执行前被声明
+	也就是说我们可以在一个变量声明前就对其进行使用
+    变量的提升只会提前声明，而不会提前赋值
+ - 不使用var声明的变量不会被提升，所以不能在声明前使用
 
-  ```javascript
-  # 变量的提升
-   - 在JS中所有使用var声明的变量，会在所有的代码执行前被声明
-  	也就是说我们可以在一个变量声明前就对其进行使用
-      变量的提升只会提前声明，而不会提前赋值
-   - 不使用var声明的变量不会被提升，所以不能在声明前使用
-  
-  
-  # 函数的提升
-   - 在JS中所有以function开头的函数，会在所有的代码执行前被创建
-  	所以我们可以在函数声明前就对其进行调用
-   - 使用函数表达式所定义的函数不会被提升，所以无法在声明前进行调用
-  
-  
-  # JS的代码如何执行？
-   1. 预解析代码
-   	- 找到代码中所有使用var声明的变量，以function开头的函数
-  	- 对var声明的变量进行提前声明但不赋值，对于function开头的函数进行创建
-   2. 逐行执行代码
-   
-   
-   script标签下,使用var开头的变量都是window的属性,使用function开头的函数都是window的方法
-  
-  =====================debug调试模式下========================
-  var a = 10;       //window的属性
-  var b = 20;
-  c = 30;
-  
-  function fn() {    //是全局对象window的方法,被创建
-     alert('fn');
-  }
-  
-  var fn2 = function () {  //是全局对象window的方法,但未定义.因为是var开头
-        alert('fn2');
-  };
-  ```
 
-  
+# 函数的提升
+ - 在JS中所有以function开头的函数，会在所有的代码执行前被创建
+	所以我们可以在函数声明前就对其进行调用
+ - 使用函数表达式所定义的函数不会被提升，所以无法在声明前进行调用
 
-* 案例
 
-  ```javascript
-  var a = 10;
-  a = 10;   // 声明变量时，可以省略var和let，相当于windwo.a = 10; 但声明关键字必须写
-  ===============================
-  console.log(a);
-  var a = 10;   //a此时是undefined，只会提前声明但不会提前赋值。去掉var，会显示a没有定义报错
-  ================================
-  var a = 10； 
-  // 相当于var a； 优先执行
-  // a = 10;
-  
-  ====================================
-      
-  fn();  //函数会被执行
-  fn2(); //报错  'fn2 is not a function...'
-      
-  function fn(){              //function开头 函数提升，会被创建
-      console.log('我是函数fn');
-  }    
-  
-  var fn2 = function(){       //var开头，并非function开头
-      console.log('fn2()');
-  }
-  ```
+# JS的代码如何执行？
+ 1. 预解析代码
+ 	- 找到代码中所有使用var声明的变量，以function开头的函数
+	- 对var声明的变量进行提前声明但不赋值，对于function开头的函数进行创建
+ 2. 逐行执行代码
+ 
+ 
+ script标签下,使用var开头的变量都是window的属性,使用function开头的函数都是window的方法
 
-  
+=====================debug调试模式下========================
+var a = 10;       //window的属性
+var b = 20;
+c = 30;
 
-* 案例2
+function fn() {    //是全局对象window的方法,被创建
+   alert('fn');
+}
 
-  ```javascript
-  # 判断执行顺序
-  console.log(a);
-  var a = 1;
-  console.log(a);
-  var a = 2;
-  console.log(a);
-  function a(){alert(3)}
-  console.log(a);
-  a = function(){alert(4);}
-  console.log(a);
-  
-  ======================================
-      
-  # 执行顺序及结果
-  var a;
-  function a(){alert(3);}
-  
-  f a(){alert(3);}
-  1
-  2
-  2
-  f (){alert(4);}
-  
-  ```
-  
-* 案例3
+var fn2 = function () {  //是全局对象window的方法,但未定义.因为是var开头
+      alert('fn2');
+};
+```
 
-  ```js
-  - 1116添加 1112题目
-  
-  var a = 10;
-  function test(){
-  	a=100;
-  	console.log(a);
-      console.log(this.a);
-      var a;
-      console.log(a);
-  }
-  test();//100 10 100
-  
-  简化:
-  
-  function test(){
-      var a;
-      a = 100;
-      console.log(a);
-      console.log(this.a);
-      console.log(a);
-  }
-  var a;
-  a = 10;
-  
-  test();//预解析, 变量提升.  函数内的局部变量a,被赋值100.以函数形式调用的时候,this指的是window.
-  ```
 
-  
+
+案例
+
+```javascript
+var a = 10;
+a = 10;   // 声明变量时，可以省略var和let，相当于windwo.a = 10; 但声明关键字必须写
+===============================
+console.log(a);
+var a = 10;   //a此时是undefined，只会提前声明但不会提前赋值。去掉var，会显示a没有定义报错
+================================
+var a = 10； 
+// 相当于var a； 优先执行
+// a = 10;
+
+====================================
+    
+fn();  //函数会被执行
+fn2(); //报错  'fn2 is not a function...'
+    
+function fn(){              //function开头 函数提升，会被创建
+    console.log('我是函数fn');
+}    
+
+var fn2 = function(){       //var开头，并非function开头
+    console.log('fn2()');
+}
+```
+
+
+
+案例2
+
+```javascript
+# 判断执行顺序
+console.log(a);
+var a = 1;
+console.log(a);
+var a = 2;
+console.log(a);
+function a(){alert(3)}
+console.log(a);
+a = function(){alert(4);}
+console.log(a);
+
+======================================
+    
+# 执行顺序及结果
+var a;
+function a(){alert(3);}
+
+f a(){alert(3);}
+1
+2
+2
+f (){alert(4);}
+
+```
+
+案例3
+
+```js
+- 1116添加 1112题目
+
+var a = 10;
+function test(){
+	a=100;
+	console.log(a);
+    console.log(this.a);
+    var a;
+    console.log(a);
+}
+test();//100 10 100
+
+简化:
+
+function test(){
+    var a;
+    a = 100;
+    console.log(a);
+    console.log(this.a);
+    console.log(a);
+}
+var a;
+a = 10;
+
+test();//预解析, 变量提升.  函数内的局部变量a,被赋值100.以函数形式调用的时候,this指的是window.
+```
+
+
 
 #### debug
 
-* 概要
+概要
 
-  ```JavaScript
-  chrome
-  webstrome
-  
-  ```
+```JavaScript
+chrome
+webstrome
 
-  
+```
+
+
 
 
 
 #### 函数作用域(??)
 
-* 概要
+概要
 
-  ```JavaScript
-  # 函数的作用域由函数的定义位置决定,和函数的调用位置无关
-  
-  * 函数作用域在函数调用时创建，在调用结束时销毁  
-  * 函数每次调用都会产生一个新的函数作用域，函数作用域与函数作用域之间相互独立
-  * 在函数作用域中声明的变量是 局部变量
-   - 局部变量只能在函数内部访问，无法被外部访问
-  * 在函数内部，使用var声明的变量和使用function开头的函数也会被提升
-   - 函数作用域其实就是一个小的全局作用域
-  * 如果在函数内部声明变量时，省略var或let，则变量默认会成为全局变量(不希望出现的情况)
-  
-  
-  # 1106更新: 函数重新执行完,所有东西包括变量都会被销毁.
-  ```
+```JavaScript
+# 函数的作用域由函数的定义位置决定,和函数的调用位置无关
 
-  
+* 函数作用域在函数调用时创建，在调用结束时销毁  
+* 函数每次调用都会产生一个新的函数作用域，函数作用域与函数作用域之间相互独立
+* 在函数作用域中声明的变量是 局部变量
+ - 局部变量只能在函数内部访问，无法被外部访问
+* 在函数内部，使用var声明的变量和使用function开头的函数也会被提升
+ - 函数作用域其实就是一个小的全局作用域
+* 如果在函数内部声明变量时，省略var或let，则变量默认会成为全局变量(不希望出现的情况)
 
-* 案例
 
-  ```javascript
-  function fn(){
-      let b = 20;
-      console.log('函数内部: b =', b);
-      
-      function tt(){
-          let c = 30;    //函数fn无法访问变量c
-          console.log('函数内部的函数: b =', b);   //函数tt可以访问上一级函数fn里的变量
-      }
-      tt();
-  }
-  
-  fn();
-  
-  
-  ========================================================
-      
-  function fn2(){
-      console.log(c);   //显示undefined  表明var c有在函数内部有变量提升
-      tt();			  //显示'tt' 表明函数tt() 在函数fn2()中提升
-      var c = 10;
-      function tt(){console.log('tt');}
-  }    
-     
-  
-  =========================================================
-      
-  function fn3(){
-      c = 10;    //变量c变成全局变量 相当于window.c = 10;
-  }    
-  fn3();       // 为什么在这里,需要调用函数fn3才能访问变量c  理解:调用函数就是让函数内的代码运行
-  console.log('c =', c);  //
-  
-  
-  =========================立即执行函数中的案例=========================
-  var a = b = 10;   //等价于 var a = 10; b = 10;
-  　　(function(){
-  　　var a=b=20
-  　　})();
-  console.log(b);
-  代码简化:
-  var a = 10;
-  b =10;
-  (function(){
-  　　var a=20;
-      b=20;
-  　　})();
-  console.log(b);//b的值开始是10,后来被立即执行函数输出的20覆盖.
-  
-  var a = b = 10;
-  (function(){
-      var b = 20;
-  })();
-  console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,只能再内部访问    
-  ```
-  
-  
+# 1106更新: 函数重新执行完,所有东西包括变量都会被销毁.
+```
+
+
+
+案例
+
+```javascript
+function fn(){
+    let b = 20;
+    console.log('函数内部: b =', b);
+    
+    function tt(){
+        let c = 30;    //函数fn无法访问变量c
+        console.log('函数内部的函数: b =', b);   //函数tt可以访问上一级函数fn里的变量
+    }
+    tt();
+}
+
+fn();
+
+
+========================================================
+    
+function fn2(){
+    console.log(c);   //显示undefined  表明var c有在函数内部有变量提升
+    tt();			  //显示'tt' 表明函数tt() 在函数fn2()中提升
+    var c = 10;
+    function tt(){console.log('tt');}
+}    
+   
+
+=========================================================
+    
+function fn3(){
+    c = 10;    //变量c变成全局变量 相当于window.c = 10;
+}    
+fn3();       // 为什么在这里,需要调用函数fn3才能访问变量c  理解:调用函数就是让函数内的代码运行
+console.log('c =', c);  //
+
+
+=========================立即执行函数中的案例=========================
+var a = b = 10;   //等价于 var a = 10; b = 10;
+　　(function(){
+　　var a=b=20
+　　})();
+console.log(b);
+代码简化:
+var a = 10;
+b =10;
+(function(){
+　　var a=20;
+    b=20;
+　　})();
+console.log(b);//b的值开始是10,后来被立即执行函数输出的20覆盖.
+
+var a = b = 10;
+(function(){
+    var b = 20;
+})();
+console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,只能再内部访问    
+```
+
 
 
 
 
 ## 1027
 
-### 单词
-
->
-
 ### 作用域链
 
-* 概要
+概要
 
-  ```JavaScript
-  # 作用域链
-  * 当我们访问一个变量时,JS会先先在当前的作用域中寻找
-    如果有,则直接使用
-    如果没有,则去上一层作用域中寻找:如果有,则使用;如果没有,则继续去上一层寻找,依次向上类推
-    直到找到全局作用域,如果依然没有找到,则报错: 'xxx is not defined'
-  	
-  ```
+```JavaScript
+# 作用域链
+* 当我们访问一个变量时,JS会先先在当前的作用域中寻找
+  如果有,则直接使用
+  如果没有,则去上一层作用域中寻找:如果有,则使用;如果没有,则继续去上一层寻找,依次向上类推
+  直到找到全局作用域,如果依然没有找到,则报错: 'xxx is not defined'
+	
+```
 
-* 案例
+案例
 
-  ```JavaScript
-  let a = 10;
-  function fn(){
-      console.log(a);  //10
-  }
-  fn();
-  ==========================================
-  let a = 10;
-  function fn(){
-      a = 20;           //全局只有a一个变量,在函数内部更改a的值后,同样是全局修改.
-      console.log(a);  //20
-  }
-  fn();
-  console.log(a); //20 
-  ==========================================
-  
-  let a = 10;
-  function fn(){
-      let a = 20;  
-      console.log(a); // 20
-  }
-  fn();
-  console.log(a); // 10
-  =========================================
-  var a = 10;
-  function fn(){
-      console.log(a); // undefined
-      var a = 20;//var变量声明使得变量提升,预解析,但是没有赋值.调用变量的时候是已经声明,但没赋值,故返回undefined
-  
-  }
-  fn();
-  console.log(a); // 10
-  =========================================================
-  let a = 10;
-  function fn(){
-      console.log(a); // 报错 跟let声明的特点有关,虽然let也会使变量提升,但是无法访问.
-      let a = 20;
-  
-  }
-  fn();
-  console.log(a);
-  ========================================================
-  let a = 10;
-  function fn(a){     //形参相当于函数中声明了对应的变量
-      a = 20;
-      console.log(a); // 20
-  }
-  fn();
-  console.log(a); // 10
-  
-  =====================重要============================
-  let a = 10;
-  function fn(a){
-      console.log(a); // undefined
-      a = 20;
-      console.log(a); // 20
-  }
-  fn();
-  console.log(a); // 10
-  ===================================
-  
-  let a = 10;
-  function fn(a){
-      console.log(a); // 33
-      a = 20;
-      console.log(a); // 20
-  }
-  fn(33);
-  console.log(a); // 10
-  ```
+```JavaScript
+let a = 10;
+function fn(){
+    console.log(a);  //10
+}
+fn();
+==========================================
+let a = 10;
+function fn(){
+    a = 20;           //全局只有a一个变量,在函数内部更改a的值后,同样是全局修改.
+    console.log(a);  //20
+}
+fn();
+console.log(a); //20 
+==========================================
 
-  
+let a = 10;
+function fn(){
+    let a = 20;  
+    console.log(a); // 20
+}
+fn();
+console.log(a); // 10
+=========================================
+var a = 10;
+function fn(){
+    console.log(a); // undefined
+    var a = 20;//var变量声明使得变量提升,预解析,但是没有赋值.调用变量的时候是已经声明,但没赋值,故返回undefined
+
+}
+fn();
+console.log(a); // 10
+=========================================================
+let a = 10;
+function fn(){
+    console.log(a); // 报错 跟let声明的特点有关,虽然let也会使变量提升,但是无法访问.
+    let a = 20;
+
+}
+fn();
+console.log(a);
+========================================================
+let a = 10;
+function fn(a){     //形参相当于函数中声明了对应的变量
+    a = 20;
+    console.log(a); // 20
+}
+fn();
+console.log(a); // 10
+
+=====================重要============================
+let a = 10;
+function fn(a){
+    console.log(a); // undefined
+    a = 20;
+    console.log(a); // 20
+}
+fn();
+console.log(a); // 10
+===================================
+
+let a = 10;
+function fn(a){
+    console.log(a); // 33
+    a = 20;
+    console.log(a); // 20
+}
+fn(33);
+console.log(a); // 10
+```
+
+
 
 ### 作用域 | 函数
 
-* 概要
+概要
 
-  ```javascript
-  # 函数的作用域由函数的定义位置决定，和函数的调用位置无关
-  
-  ```
+```javascript
+# 函数的作用域由函数的定义位置决定，和函数的调用位置无关
 
-  
+```
 
-* 案例
 
-  ```javascript
-  let a = 10;
-  function fn(){
-      console.log(a);
-  }
-  function fn2(){
-      let a = 20;
-      fn();      // 函数是在全局中定义的
-  }
-  fn2(); //调用函数fn2后，打印的值是10
-  ```
 
-  
+案例
+
+```javascript
+let a = 10;
+function fn(){
+    console.log(a);
+}
+function fn2(){
+    let a = 20;
+    fn();      // 函数是在全局中定义的
+}
+fn2(); //调用函数fn2后，打印的值是10
+```
+
+
 
 ### 参数
 
@@ -3153,105 +3153,105 @@ console.log('a =', a);  //猪八戒
 
 ### 对象|this
 
-* 概要
+概要
 
-  ```javascript
-  我们希望根据调用对象的不同，fn()函数打印的结果也不同
-  
-  在 函数 执行时，浏览器每次都会传递进一个隐含的参数
-  这个参数叫 this
-  
-  根据函数调用的方式不同，this的值也不同：   //函数定义的时候看不出来this是谁
-  	1.当以函数形式调用时，this就是window //1和2可以合并，因为函数可以被称为window的方法
-      2.当以方法形式调用时，this就时调用方法的对象
-      3.以构造函数形式调用时,this就是新建对象
-  
-  
-  
-  
-  =======================1102日更新==============================
-  # this到底是谁?
-   0.函数体中,简单调用该函数(非显示/隐式绑定下),严格模式下this绑定undefined,否则绑定到全局对象window/global
-   1.以函数形式调用,this是window
-   2.以方法形式调用,this就是调用方法的对象
-   3.以构造函数形式调用,this是新建的实例化对象(对象)
-   4.以call和apply调用,this是他们的第一个参数
-   5.箭头函数的this, 由外层作用域决定
-  
-   6.this在dom事件(回调函数)中,指向当前触发事件的事件源
-  ```
+```javascript
+我们希望根据调用对象的不同，fn()函数打印的结果也不同
 
-* 案例
+在 函数 执行时，浏览器每次都会传递进一个隐含的参数
+这个参数叫 this
 
-  ```javascript
-  var name = '我是全局中的name';
-  
-  function fn(){
-      console.log(this.name);
-      //console.log(this); 看看这个隐含参数this的值是什么 谁调用打印的就是谁.例如fn()调用打印的是window
-  }
-  
-  let obj = {
-      name: 'swk',
-      sayHello: fn   //sayHello === fn  使用全等判断返回true
-  };
-  let obj2 = {
-      name: 'zbj',
-      sayHello: fn
-  };
-  
-  console.log(fn === obj.sayHello); //true
-  
-  fn(); //以函数形式调用 this.name是'我是全局中的name'
-  obj.sayHello(); //以方法形式调用, 'swk'
-  obj2.sayHello();//以方法形式调用, 'zbj'
-  ```
-  
-* 案例2
+根据函数调用的方式不同，this的值也不同：   //函数定义的时候看不出来this是谁
+	1.当以函数形式调用时，this就是window //1和2可以合并，因为函数可以被称为window的方法
+    2.当以方法形式调用时，this就时调用方法的对象
+    3.以构造函数形式调用时,this就是新建对象
 
-  ```JavaScript
-  var a = {n: 1}  
-  var b = a;  
-  a.x = a = {n: 2} 
-  console.log(a.x);   
-  console.log(b.x);
-  
-  简化:
-  var a = {n:1}; //将变量a的值(地址)链接向对象的地址
-  var b = a;	   //变量a赋值给变量b, 将变量b的值(地址)链接向对象的地址
-  a.x = {n:2}; a = {n:2}; //第一句的意思是向a代表的对象{n:1}中添加新的属性,那么现在的对象就是{n:1,x:{n:2}}. 第二句的意思是将一个新的对象地址赋值给变量a,此时原变量a覆盖.
-  
-  console.log(a.x); //此时变量a指向的新对象中没有名为x的属性,所以返回undefined
-  console.log(b.x); //{n:2}
-  
-  ```
 
-* 案例3
 
-  ```JavaScript
-  var x= 0;
-  var foo = {
-      x:1,
-      bar:{
-          x:2,
-          baz: function () {
-              console. log(this.x)
-          }
-      }
-  }
-  var a = foo. bar. baz;
-  foo.bar.baz(); //2
-  a();  //0
-  
-  简化:
-  foo = {x:1, bar:{}}
-  bar = {x:2, baz:f}
-  baz : f
-  
-  先执行的是foo.bar.baz(); 即调用baz对应的函数
-  之后调用的a(),以函数形式调用,相当于window.a
-  
-  ```
+
+=======================1102日更新==============================
+# this到底是谁?
+ 0.函数体中,简单调用该函数(非显示/隐式绑定下),严格模式下this绑定undefined,否则绑定到全局对象window/global
+ 1.以函数形式调用,this是window
+ 2.以方法形式调用,this就是调用方法的对象
+ 3.以构造函数形式调用,this是新建的实例化对象(对象)
+ 4.以call和apply调用,this是他们的第一个参数
+ 5.箭头函数的this, 由外层作用域决定
+
+ 6.this在dom事件(回调函数)中,指向当前触发事件的事件源
+```
+
+案例
+
+```javascript
+var name = '我是全局中的name';
+
+function fn(){
+    console.log(this.name);
+    //console.log(this); 看看这个隐含参数this的值是什么 谁调用打印的就是谁.例如fn()调用打印的是window
+}
+
+let obj = {
+    name: 'swk',
+    sayHello: fn   //sayHello === fn  使用全等判断返回true
+};
+let obj2 = {
+    name: 'zbj',
+    sayHello: fn
+};
+
+console.log(fn === obj.sayHello); //true
+
+fn(); //以函数形式调用 this.name是'我是全局中的name'
+obj.sayHello(); //以方法形式调用, 'swk'
+obj2.sayHello();//以方法形式调用, 'zbj'
+```
+
+案例2
+
+```JavaScript
+var a = {n: 1}  
+var b = a;  
+a.x = a = {n: 2} 
+console.log(a.x);   
+console.log(b.x);
+
+简化:
+var a = {n:1}; //将变量a的值(地址)链接向对象的地址
+var b = a;	   //变量a赋值给变量b, 将变量b的值(地址)链接向对象的地址
+a.x = {n:2}; a = {n:2}; //第一句的意思是向a代表的对象{n:1}中添加新的属性,那么现在的对象就是{n:1,x:{n:2}}. 第二句的意思是将一个新的对象地址赋值给变量a,此时原变量a覆盖.
+
+console.log(a.x); //此时变量a指向的新对象中没有名为x的属性,所以返回undefined
+console.log(b.x); //{n:2}
+
+```
+
+案例3
+
+```JavaScript
+var x= 0;
+var foo = {
+    x:1,
+    bar:{
+        x:2,
+        baz: function () {
+            console. log(this.x)
+        }
+    }
+}
+var a = foo. bar. baz;
+foo.bar.baz(); //2
+a();  //0
+
+简化:
+foo = {x:1, bar:{}}
+bar = {x:2, baz:f}
+baz : f
+
+先执行的是foo.bar.baz(); 即调用baz对应的函数
+之后调用的a(),以函数形式调用,相当于window.a
+
+```
 
 
 
@@ -3409,69 +3409,63 @@ doIt(thing.logFoo);//undefined
 
 ### 垃圾回收(GC garbage collection)
 
-* 概要
+概要
 
-  ```javascript
-  垃圾回收（GC）
-          *       - 就和现实生活一样，生活总会产生一些生活垃圾，
-          *           垃圾的存在会严重的影响到生活的质量
-          *       - 程序运行了一段时间也会产生垃圾，垃圾的存在会严重的影响到程序的性能
-          *           必须对程序中的垃圾进行及时的清理
-          *       - 如果一个对象没有任何的变量对其进行引用那么这个对象就是垃圾对象
-          *           垃圾对象我们无法获取，但是依然占据内存必须及时清理
-          *       - JS中拥有自动的垃圾回收机制，垃圾对象会被JS引擎自动回收，
-          *           我们不需要手动处理，我们只需要将不再使用变量的值设置为null即可
-  
-  
-  let a = {};
-  b = a;
-  a = null;
-  b = null;
-  ```
+```javascript
+垃圾回收（GC）
+JS中拥有自动的垃圾回收机制，垃圾对象会被JS引擎自动回收，
+我们不需要手动处理，我们只需要将不再使用变量的值设置为null即可
 
-  
+
+let a = {};
+b = a;
+a = null;
+b = null;
+```
+
+
 
 ### 创建对象(工厂函数方法)
 
-* 概要-工厂方法
+概要-工厂方法
 
-  ```javascript
-  1.它是一个函数。
-  2，它用来创建对象。
-  3，它像工厂一样，“生产”出来的函数都是“标准件”（拥有同样的属性）
-  
-  使用工厂方法来创建对象  //创建大量的对象
-  
-  工厂方法不推荐使用,用构造函数来代替.代码复杂度上升后,无法区分各个函数的区别.
-  
-  工厂方法创建的对象没有类型,构造函数创建的对象有类型 //?
-  
-  对象的属性重复的话很繁琐，可将经常变化的属性代码存储，所以延伸到了能存储代码的函数，再通过参数传递那些变化的属性。
-  ```
+```javascript
+1.它是一个函数。
+2，它用来创建对象。
+3，它像工厂一样，“生产”出来的函数都是“标准件”（拥有同样的属性）
+
+使用工厂方法来创建对象  //创建大量的对象
+
+工厂方法不推荐使用,用构造函数来代替.代码复杂度上升后,无法区分各个函数的区别.
+
+工厂方法创建的对象没有类型,构造函数创建的对象有类型 //?
+
+对象的属性重复的话很繁琐，可将经常变化的属性代码存储，所以延伸到了能存储代码的函数，再通过参数传递那些变化的属性。
+```
 
 
 
 #### 方法1-return 字面量对象
 
-* 概要
+概要
 
-  ```JavaScript
-  function creatPerson(name, age, gender){
-      return{
-          name: name,
-          age: age,
-          gender: gender
-      };
-  }
-  
-  let per1 = creatPerson('孙悟空', '18', '男');
-  let per2 = creatPerson('猪八戒', '28', '男');
-  
-  console.log(per1);  //{name: "孙悟空", age: 18, gender: "男"}
-  console.log(per2); 
-  ```
+```JavaScript
+function creatPerson(name, age, gender){
+    return{
+        name: name,
+        age: age,
+        gender: gender
+    };
+}
 
-  
+let per1 = creatPerson('孙悟空', '18', '男');
+let per2 = creatPerson('猪八戒', '28', '男');
+
+console.log(per1);  //{name: "孙悟空", age: 18, gender: "男"}
+console.log(per2); 
+```
+
+
 
 #### 方法2-return 变量对象
 
@@ -3754,9 +3748,6 @@ console.log(per.name = '朝天阙'); //朝天阙
 #### 创建数组
 
 ```JavaScript
-
-
-
 # 如何创建数组 //使用类来创建对象
 const arr = new Array(); //使用const之后,不能改变的是变量arr,而其中的属性是可以更改的.函数同理
 
@@ -5266,10 +5257,6 @@ x-y之间的随机数
 
 
 
-
-
-## 1030
-
 ### 递归函数
 
 ```JavaScript
@@ -6421,12 +6408,6 @@ obj.say.Hello();
 #### 案例
 
 ```JavaScript
-let arr = ['孙悟空', '猪八戒', '沙和尚'];
-arr.forEach(function(item){  //回调函数
-    alert(item);
-})
-arr.forEach(item => alert(item)); 
-
 
 let fn = a => a + 10;  //a就是形参
 fn(a, b) => a + b;
@@ -6511,5 +6492,29 @@ var b = obj.get;
 console.log(b()())
 
 
+```
+
+
+
+```js
+
+//函数的参数
+function fn(a,b) {
+     return (...rest) => {
+        console.log(argumnets)  //argumnets访问的是外层作用域的
+    }
+}
+
+fn(1, 2)(3,4)
+
+
+
+// function fn1(a, b) {
+//     return function (c, d) {
+//         console.log(arguments)
+//     }
+// }
+
+// fn1(1,2)(2,3)
 ```
 
