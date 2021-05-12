@@ -3558,65 +3558,35 @@ calc() 函数用于动态计算长度值。
 
 
 
-#### 圆角属性
-
-###### div模拟三角形和右下角对号
-
-```html
-<style type="text/css">
-			/* 
-			模拟三角形: 将元素的宽高设置成0,将边框其中三条设置成透明,形成三角形
-			 */
-			.box{
-				width: 0px;
-				height: 0px;
-				/* background: pink; */
-				border-left:50px solid red;
-				border-top:50px solid transparent;
-				border-right:50px solid transparent;
-				border-bottom:50px solid transparent;
-			}
-		</style>
 
 
-延伸:
-两个边组成的三角形:
-<style>
-    .box{
-        width:0;
-        height:0;
-        border:10px solid;
-        border-color:transparent red red transparent;
-    }
-</style>
+#### 模拟三角形
 
-延伸:
-两边组成的三角形,里面显示对号.
-<style>
-    .box_father{
-        position:relative;
-    }
-	.box::after{
-        content:"✔";
-        width:0;
-        height:0;
-        position:absolute;
-        right:0;
-        bottom:0;
-        color:#fff;
-        
-        font-size:10px;
-        line-height:8px;
-        border:10px solid;
-        border-color:transparent red red transparent;
-	
-}
-</style>
+
+
+三角形实现原理: 
+
+1.宽度width为0,高度height为0. 
+
+1.1 有一条横竖边设为: border-方向: 长度 solid 颜色;其他三个边设为: border-方向: 长度 solid transparent;
+
+1.2 有两个横竖边的设置, 设置top或bottom.如果右边是直角,设置右边width为0; 如果左边是直角,设置左边width为0.
+
+```css
+//https://www.zhihu.com/question/35180018/answer/61554144
+//https://www.cnblogs.com/chengxs/p/11406278.html
+
 ```
 
 
 
-###### 圆角属性
+
+
+
+
+
+
+#### 圆角属性
 
 ```html
 圆角单属性 
