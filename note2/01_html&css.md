@@ -3562,9 +3562,30 @@ calc() 函数用于动态计算长度值。
 
 #### 模拟三角形
 
+border四个边公平划分效果图:
+
+![border-display](https://pic1.zhimg.com/80/051f92f55023deb4542e6745c88edb03_720w.jpg?source=1940ef5c)
+
+当我们把上, 左,右三条边隐藏掉(颜色设为transparent),效果如下:
+
+```css
+border-color:transparent transparent rgb(0,0,0) transparent;
+border-width:10px 10px 10px 10px;
+```
 
 
-三角形实现原理: 
+
+![border-bottom](https://pic2.zhimg.com/80/a9c9de26d2d5c18f5844fc7e360bbd67_720w.jpg?source=1940ef5c)
+
+
+
+这个border-bottom呈梯形状, 上面这条边的长度等于div的宽度.所以当div的宽度为0的时候,border-bottom就能呈现出三角形状态.边框的width也能理解为三角形的高度.
+
+当设置直角三角形的时候,除了显示边框的width属性(高度)需要大于0,也需要宽度大于0,要不然不会显示. 宽度就是对应其左右两侧的宽度,一侧为0,一侧设置大于0的数值.或者是为0的边框数值省略不写也是可以的.
+
+
+
+**一.三角形实现原理:** 
 
 1.宽度width为0,高度height为0. 
 
@@ -3578,7 +3599,81 @@ calc() 函数用于动态计算长度值。
 
 ```
 
+**二.实现**
 
+2.1 triangle up
+
+![triangle-up](https://www.mwcxs.top/static/upload/pics/2019/3/29UWmsYL8T8oUqP3A5RBQc7Wf4.png)
+
+```css
+#triangle-up{
+	width:0;
+    height:0;
+    border-left:50px solid transparent;
+    border-right:50px solid transparent;
+    border-bottom:100px solid red;
+}
+```
+
+
+
+2.2 triangle-left
+
+![triangle-left](https://www.mwcxs.top/static/upload/pics/2019/3/29alsovh624Mb0bNQCzy5PqStS.png)
+
+```css
+#triangle-left{
+    width:0;
+    height:0;
+    border-top:50px solid transparent;
+    border-bottom:50px solid transparent;
+    border-right:100px solid red;
+}
+```
+
+
+
+2.3 trangle-top-left
+
+![triangle-top-left](https://www.mwcxs.top/static/upload/pics/2019/3/290aJgMTaALP0v3rkk7F-89ouQ.png)
+
+```css
+#triangle-top-left{
+    width:0;
+    height:0;
+    border-right:50px solid transparent;
+    border-top:50px solid red;
+}
+
+等同于:
+#triangle-top-left{
+    width:0;
+    height:0;
+    border-right:50px solid transparent;
+    border-top:50px solid transparent;
+    border-bottom:0 solid transparent;
+    border-left:0 solid transparent;
+}
+```
+
+
+
+2.4 triangle-bottom-left
+
+![triangle-bottom-left](https://www.mwcxs.top/static/upload/pics/2019/3/29FH81Y4G7Uo9bPbr2NBZHJEla.png)
+
+```css
+#triangle-bottom-left{
+    width:0;
+    height:0;
+    border-bottom:50px solid red;
+    border-right:50px solid red;
+}
+```
+
+
+
+<hr/>
 
 
 
