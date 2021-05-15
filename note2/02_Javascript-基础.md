@@ -298,36 +298,38 @@ console.log(foo);//5
 
 #### 空值(null)
 
-* 空值(null) 
-  * 表示空的对象
-  * 空值只有一个就是null
-  * 使用typeof检查空值 **会返回object (历史遗留)**
-  
-* ```HTML
-  - 出现null的几种情况
-  
-  1. 在JS的dom元素获取中,如果没有获取到指定的元素对象,结果一般是null
-  2. Object.prototype.__proto__的值是null
-  3. 在正则捕获时, 如果没有捕获到结果,默认是null
-  ```
+* 表示空的对象
+* 空值只有一个就是null
+* 使用typeof检查空值 **会返回object (历史遗留)**
+
+```js
+- 出现null的几种情况
+
+1. 在JS的dom元素获取中,如果没有获取到指定的元素对象,结果一般是null
+2. Object.prototype.__proto__的值是null  Object.getPrototype(Object.prototype)->null
+3. 在正则捕获时, 如果没有捕获到结果,默认是null
+4. JSON数据格式不支持undefined,只支持null
+ JSON.stringify({a:undefined, b:null})// '{'b':null}'
+```
+
+
 
 
 
 #### 未定义(undefined)
 
 * 表示声明了但没有赋值的变量
-
 * 未定义类型的值只有一个  undefined
-
 * 使用typeof检查未定义值,会返回undefined. 
-
-* ```HTML
-  - 判断一个对象是否定义?
-  
-  'undefined'===typeof 变量
-  ```
-
 * 不会主动使用,浏览器自己用.
+
+```js
+- 判断一个对象是否定义?
+
+'undefined'===typeof 变量
+```
+
+
 
 
 
@@ -350,6 +352,11 @@ favoriteMovie.actors;//undefined
 const colors = ['blue', 'white', 'red'];
 colors[5];//undefined
 colors[-1];//undefined
+
+5.可选链
+obj?.someProp返回undefined,前提是obj是undefined或null
+undefined?.someProp
+null?.someProp
 ```
 
   
@@ -2183,13 +2190,14 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-### 对象中的方法
+### 对象中的方法 in/delete
 
 ```Markdown
 in 
-	可以用来检查对象是否含有某个属性
+	如果指定的属性在指定的对象或其原型链中，则in 运算符返回true。参数prop是指属性名或者数组索引
 	语法: '属性名' in 对象   //注意加引号,是字符串.不加引号会被认为是一个变量
 	如果对象中有这个属性名,返回true.如果没有返回false
+	
 	
 delete
 	用来删除对象中的指定属性
@@ -3766,7 +3774,8 @@ let ojb = {};
 数组中的元素可以是任意的数据类型.数组长度可以任意修改 一般我们在使用数组时,同一个数组只放同一类型的数据
 
 # 数组中的数据存储的也是数据的内存地址
-
+let arr = new Array(4); //创建长度为4的数组,值为空
+console.log(arr, arr.length); //empty*4  4
 
 var a = [,,]; 每一项的值是undefined
 function getArr(...args){} //...三点运算符 将伪数组转换为真数组
@@ -3819,6 +3828,24 @@ arr[10] = 14;
 - 数组[索引]
 - 获取数组中没有的元素,不会报错,会返回undefined
 ```
+
+
+
+#### 判断是否存在数组中 in
+
+```js
+如果指定的属性在指定的对象或其原型链中，则in 运算符返回true。 参数prop是指属性名或者数组索引
+
+//数组
+let trees = new Array('redwood', 'bay', 'cedar', 'oak');
+1 in trees //返回true
+2 in trees //返回true
+'bay' in trees //false
+```
+
+
+
+
 
 #### 向数组中添加元素
 
@@ -4375,14 +4402,23 @@ filter 不会改变原数组，它返回过滤后的新数组。
 
 ```
 -语法:
-reduce 为数组中的每一个元素依次执行回调函数，不包括数组中被删除或从未被赋值的元素，接受四个参数：初始值（或者上一次回调函数的返回值），当前元素值，当前索引，调用 reduce 的数组。
+reduce为数组中的每一个元素依次执行callback函数，不包括数组中被删除或从未被赋值的元素，接受四个参数：
 
+accumulator 累计器
+currentValue 当前值
+currentIndex 当前索引
+array 数组
 
-arr.reduce((preValue, current,index,arr)=>{}, initialValue)
+回调函数第一次执行时，accumulator 和currentValue的取值有两种情况：
+ 如果调用reduce()时提供了initialValue，accumulator取值为initialValue，currentValue取数组中的第一个值；
+ 如果没有提供 initialValue，那么accumulator取数组中的第一个值，currentValue取数组中的第二个值。
+
+arr.reduce((accumulator, currentValue,currentIndex,arr)=>{}, initialValue)
+
 arr:当前数组
-preValue:第一次执行回调时为给定的初始值initialValue,或者是上一次执行回调时的返回值(若没有传入initialValue,则第一次的     preValue值是数组中的第一个元素的值)
-current: 表示当前正在处理的元素
-index 表示当前正在处理的数组元素的索引,若传入了initialValue,则为0,否则为1.
+accumulator:第一次执行回调时为给定的初始值initialValue,或者是上一次执行回调时的返回值(若没有传入initialValue,则第一次的preValue值是数组中的第一个元素的值)
+currentValue: 表示当前正在处理的元素
+currentIndex 表示当前正在处理的数组元素的索引,若传入了initialValue,则为0,否则为1.
 array 当前操作的数组(就是arr)
 initialValue 表示初始值.一般是做数学运算时设置为0.若为筛选值可以不传.
 
@@ -4399,7 +4435,7 @@ let sum = arr.reduce((prev,current,index,arr)=>{
     console.log(prev,current,index);
     return prev+current;
 })
-console.log(arr,sum)
+//console.log(arr,sum)
 
 打印结果:
 1 2 1
@@ -4414,7 +4450,7 @@ var sum = arr.reduce(function(prev, cur, index, arr) {
     console.log(prev, cur, index);
     return prev + cur;
 }，0) //注意这里设置了初始值
-console.log(arr, sum);
+//console.log(arr, sum);
 
 打印结果:
 0 1 0
@@ -4441,7 +4477,18 @@ let nameNum = names.reduce((prev,current,index)=>{
     }
     return prev;
 },{})
-console.log(nameNum)
+console.log(nameNum); //[ Alice: 3, Bob: 1, Tiff: 1, Bruce: 2 ] ??
+
+如果数组是数字类型或数字型字符串,reduce的初始值是数组的话会有一个empty item.需要使用对象解决.
+let arr = [1,2,3,4,1,2,3];
+let obj = arr.reduce((prev,current)=>{
+  if(current in prev){
+    prev[current]++;
+  }else{
+    prev[current]=1;
+  }
+},{})
+console.log(obj); //{ '1': 2, '2': 2, '3': 1, '4': 2 }
 ```
 
 
@@ -4542,6 +4589,86 @@ const result=arr.reduce((preValue, current)=>{
 cont result=arr.reduce((preValue, current)=>{
     return Math.max(preValue, current);
 })
+```
+
+
+
+##### 7.数组转换成对象
+
+```js
+//数组1
+let arr = ['1', '2', '3', '4', '1', '2', '4'];
+let obj = arr.reduce((prev,current,index)=>{
+  return Object.assign(prev,{[index]:current});
+},{});
+
+console.log(obj);
+{
+  '0': '1',
+  '1': '2',
+  '2': '3',
+  '3': '4',
+  '4': '1',
+  '5': '2',
+  '6': '4'
+}
+
+//数组2
+将它转化为一个根据id值作为key，将数组每项作为value的对象
+const userList = [
+  {
+    id: 1,
+    username: 'john',
+    sex: 1,
+    email: 'john@163.com'
+  },
+  {
+    id: 2,
+    username: 'jerry',
+    sex: 1,
+    email: 'jerry@163.com'
+  },
+  {
+    id: 3,
+    username: 'nancy',
+    sex: 0,
+    email: ''
+  }
+];
+
+let obj = userList.reduce((prev,current)=>{
+  return {...prev,[current.id]:current}
+},{})
+console.log(obj)
+```
+
+##### 8.按属性对object分类
+
+```js
+var people = [
+    { name: 'Alice', age: 21 },
+    { name: 'Max', age: 20 },
+    { name: 'Jane', age: 20 }
+];
+  
+function groupBy(objArray, property) {
+    return objArray.reduce((acc, current) => {
+        let key = current[property];
+        if (!acc[key]) {
+            acc[key]=[]
+        }
+        acc[key].push(current);
+        return acc;
+    },{})
+}
+
+let a = groupBy(people, 'age')
+console.log(a)
+
+{
+  '20': [ { name: 'Max', age: 20 }, { name: 'Jane', age: 20 } ],
+  '21': [ { name: 'Alice', age: 21 } ]
+}
 ```
 
 

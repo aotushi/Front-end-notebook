@@ -404,7 +404,7 @@ obj.fn2()//fn2 is not a defined;
 
 ![终极原型链](https://i.loli.net/2020/11/11/FEKHg4ewqOSCWYR.png)
 
-
+![chian prototype](https://programmer.help/images/blog/d59acf5d5aca9dad1461354443dd7c17.jpg)
 
 #### 原型链理解流程:
 

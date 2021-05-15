@@ -1,5 +1,3 @@
-##   1102
-
 ### DOM介绍
 
 ```html
@@ -203,7 +201,7 @@ btnNode.onclick = function(){
 
 > 案例:点击按钮修改多选框 选中
 
-#### 案例:input多选框切换
+#### 案例:input表单输入之复选框
 
 ```html
 - 案例,点击按钮,使input多选框来回切换
@@ -325,9 +323,21 @@ window.onload = function(){
 
 #### document.getElementByTagName 数组
 
-#### document.querySelector()  #id .className  
+#### document.querySelector()  #id .className 返回单个DOM对象
 
 #### document.querySelectorAll(#id)
+
+返回与指定的选择器组匹配的文档中的元素列表 (使用深度优先的先序遍历文档的节点)。返回的对象是 [`NodeList`](https://developer.mozilla.org/zh-CN/docs/Web/API/NodeList) 。
+
+NodeList:
+
+`NodeList` 对象是节点的集合，通常是由属性，如[`Node.childNodes`](https://developer.mozilla.org/zh-CN/docs/Web/API/Node/childNodes) 和 方法，如[`document.querySelectorAll`](https://developer.mozilla.org/zh-CN/docs/Web/API/Document/querySelectorAll) 返回的。
+
+`NodeList` **不是一个数组**，是一个类似数组的对象(*Like Array Object*)。虽然 `NodeList` 不是一个数组，但是可以使用 `forEach()` 来迭代。你还可以使用 [`Array.from()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from) 将其转换为数组。
+
+不过，有些浏览器较为过时，没有实现 `NodeList.forEach()` 和 `Array.from()`。你可以用 [`Array.prototype.forEach()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach) 来规避这一问题。
+
+`NodeList`是一个实时集合,如果文档中的节点书发生变化,`NodeList`也会随之变化. 例如`Node.childNodes`是实时的.其他情况下,NodeList是一个静态集合,也就是说随后对文档对象模型的任何改动都不会影响集合的内容. 例如document.querySelectorAll返回一个静态NodeList.
 
 ```html
 <body>
@@ -360,7 +370,7 @@ window.onload = function(){
         
         //推荐方式 querySelector querySelectorAll 直接使用选择器来查询元素
         //querySelector 查找单个元素 返回结果 直接为dom对象 就算选择器的范围是一个集合,只返回第一个  ****
-        //querySelectorAll 用来查询元素集合 无论查询结果几个 都是讲匹配的dom对象,放在伪数组中       ****
+        //querySelectorAll 用来查询元素集合 无论查询结果几个 都是将匹配的dom对象,放在伪数组中       ****
         
         var pNode = document.querySelector('#p2');
         
@@ -395,9 +405,10 @@ getElementsByName()
 
 
 
-### 修改元素内容
+### 获取和修改元素内容
 
 ```html
+//获取元素内容
 - innerText 
 	获取元素内容,但只会获取文本,不会获取内部标签
 	设置元素内容,如果文本中有标签,会作为文本被渲染,标签不会被解析
@@ -409,11 +420,13 @@ getElementsByName()
 	这也是我们向页面中添加元素的方法之一
 	
 
+//修改元素内容
 - 当设置或读取的内容为纯文本,两种方法没有区别
 
 - innerText
 	获取或设置元素的内容  标签不会被渲染或者获取  所有浏览器都认识   只对可见元素有效
-- textContent
+- Node.textContent
+  Node 接口的 textContent 属性表示一个节点及其后代的文本内容;返回值是一个字符串或null.
 	获取或设置元素的内容  标签不会被渲染或者获取  高级浏览器都认识   对隐藏元素也有效 但依然不显示
 
 以上两个属性指的对可见元素是否有效,说的是占位隐藏(display:none; visibility:hidden;)
@@ -504,8 +517,8 @@ window.onload = function(){
                for(var i=0; i<pList.length; i++){
                    pList[i].innerHTML = '呵呵呵';
                }
+             	 this.innerHTML = 'gegege';
            }
-           this.innerHTML = 'gegege';
            //this在事件回调当中,指向当前触发事件的事件源
            //在使用排它思路,去处理如高亮切换等逻辑 一定是先操作集合后操作当前事件源
        }
@@ -520,23 +533,19 @@ window.onload = function(){
 ### this是什么
 
 ```html
-- this在事件的回调中,指向当前触发事件的事件源
+- 直接调用,this是window
+- 以方法形式调用,this是调用方法的对象
+- new调用,this是新建的对象
+- 通过函数对象的call/apply/bind调用,this是第一个参数
 
-- 以函数方式调用时,this是window
-- 以方法形式调用时,this是调用方法的对象
-- 以构造函数调用时,this是新创建的对象
-- 以apply()和call(),bind()函数调用时,this是它们的第一个参数
-- 箭头函数的this,由外层作用域决定
+- 回调函数形式
+ - this指触发事件的事件源或window
+ - vue控制的回调函数,this是组件的实例
+ - react控制的生命周期回调,事件监听回调,this是组件对象/undefined
 
 ```
 
-
-
-
-
-
-
-## 1103
+<hr/>
 
 ### 移入移出事件
 
@@ -544,10 +553,9 @@ window.onload = function(){
 - 与css当中使用hover伪类实现的移入移出相比,JS当中的移入和移出是分开操作的,如果移入修改了某些内容,移出时是不会自动还原的
 ```
 
-
+#### onmounseenter&onmouseleave||onmouseover&onmouseouter
 
 ```JavaScript
-
 - 第一种方法
 window.onload = function(){
     var boxNode = document.querySelector('.box');
@@ -573,29 +581,114 @@ boxNode.onmouseouter = function(){
 
 -两种区别:经过子元素,是否会重复触发一个事件
 
-onmouseover和onmouseouter 可以触发事件流
+onmouseover和onmouseouter 鼠标移动到自身时候会触发事件，同时移动到其子元素身上也会触发事件
 
-nomouseenter和onmouseleave 日常使用的多
+onmouseenter和onmouseleave 鼠标移动到自身是会触发事件，但是移动到其子元素身上不会触发事件. onmouseenter事件不支持冒泡.
 
+```
+
+
+
+#### onmouseenter与onmouseover区别
+
+//事件冒泡: 即在子元素上触发的事件会向上传递至父级元素，并触发绑定在父级元素上的相应事件。
+
+在事件触发时，浏览器会产生一个event对象，在这个对象上有一个target属性，指向了触发事件的最底层的DOM，通过target我们可以准确的找到事件触发的元素。
+
+**mouseenter不支持冒泡, mouseover支持冒泡**
+
+```html
+//原文链接：https://blog.csdn.net/weixin_41072247/article/details/79315402
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>onmouseover&onmouseenter</title>
+    <style> 
+        #outer{
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 100px;
+            border: 1px solid #ccc;
+        }
+        #inner{
+            position: absolute;
+            left: -50px;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+        }       
+    </style>
+</head>
+<body>
+    <div id="outer">    
+        <div id="inner"></div>
+    </div>
+    <script>
+        outer.onmouseenter = function(e){
+            console.log(e.target.id) // outer
+        }
+        outer.onmouseover = function(e){
+            console.log(e.target.id) // inner
+        }
+    </script>
+</body>
+</html>
 ```
 
 
 
 ### 事件流
 
+![DOM事件流](https://images2015.cnblogs.com/blog/315302/201606/315302-20160621155328756-279009443.png)
+
+
+
+#### 1.基本认识
+
 ```JavaScript
+//https://www.cnblogs.com/starof/p/4066381.html
+0.含义:描述了页面接受事件的顺序.分为事件冒泡流,事件捕获流.
+1.两种事件流模型:
+ 冒泡型事件流: 事件定位为从最具体的元素(文档树种最深的节点)开始触发,然后向上传播至没有那么具体的元素(文档).
+ 捕获型事件流: 最不具体的节点应该最先收到事件,最具体的节点最后收到事件.
+ 
+2.note:
+ 2.1.现代浏览器都支持冒泡,IE5.5及更早版本事件冒泡会跳过<html>元素(从body直接跳到document);IE9,FireFox,Chrome,Safari将事件一直冒泡到window对象.
+ 2.2.IE9,FireFox,Chrome,Safari都支持事件捕获.尽管DOM标准要求事件应该从doucment对象开始传播,但这些浏览器都是从window对象开始捕获事件的.
+ 2.3.由于老版本不支持,基本很少使用事件捕获. 建议事件事件冒泡.
+ 
+3.DOM事件流
+3.1 DOM事件流的3个阶段:事件捕获阶段,处于目标阶段,事件冒泡阶段.
+    目标div在捕获阶段不会接受事件(图中1-3);
+    处于目标阶段:事件在div上发生并处理,但事件处理会被看成冒泡阶段的一部分;
+    冒泡阶段:事件又传回文档.
+3.2 note:
+    - 尽管“DOM2级事件”标准规范明确规定事件捕获阶段不会涉及事件目标，但是在IE9、Safari、Chrome、Firefox和Opera9.5及更高版本都会在捕获阶段触发事件对象上的事件。结果，就是有两次机会在目标对象上面操作事件。
+    - 并非所有的事件都会经过冒泡阶段 。所有的事件都要经过捕获阶段和处于目标阶段，但是有些事件会跳过冒泡阶段：如，获得输入焦点的focus事件和失去输入焦点的blur事件。
 
-.boxNode = document.querySelector('.box');
-boxNode.onmouseover = function(){
-    console.log('移入');
-}
-boxNode.onmouseouter = function(){
-    console.log('移出');
-}
-
-- 事件流:
-当一个元素触发某些事件时,会向上一级传播,哪一层有回调函数,哪一层回应. 叫做事件流
 ```
+
+![捕获和冒泡事件](https://images0.cnblogs.com/blog/315302/201411/052135036896502.png)
+
+```js
+// addEventListener('事件', 函数, false)  false默认开启冒泡模式
+var innerCircle= document.getElementById("inner");
+    innerCircle.addEventListener("click", function () {
+        alert("innerCircle的click事件在捕获阶段被触发");
+    },true);
+    innerCircle.addEventListener("click", function () {
+        alert("innerCircle的click事件在冒泡阶段被触发");
+    },false);
+```
+
+
+
+#### 2.事件流典型应用事件代理
+
+
 
 
 
@@ -607,11 +700,7 @@ boxNode.onmouseouter = function(){
 - 通过JS修改的样式,都为行内样式 //选择器权重高
 - 设置样式会出现在行内,读取样式也只能读取行内样式(能读非行内样式,但是需要加操作)
 - css中所有原本样式名称上带有横杠的,一律使用小驼峰命名法
-```
 
-
-
-```JavaScript
 - 格式:
  对象.style.属性 = '新值';
 例: 变量.style.backgroundColor = '新值';
