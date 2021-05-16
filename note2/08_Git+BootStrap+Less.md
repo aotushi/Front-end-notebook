@@ -206,7 +206,10 @@ Changes not staged for commit:  为登上舞台修改提交
 ```js
 1.使用git log 查看每次的提交记录
 2.借助id来回退
-git reset --hard commit_id  //id可以只简写为前7位
+git reset --hard commit_id  //id可以只简写为前7位. 返回某个节点,不保留修改.
+
+git commit之后,撤销commit提交,却保留代码:
+git reset --soft HEAD^ //HEAD^是上一个版本,也可以写成HEAD~1
 ```
 
 #### 3. 回退到某个文件之后,又需要返回最近更新的某个版本
@@ -215,6 +218,16 @@ git reset --hard commit_id  //id可以只简写为前7位
 1. git reflog 查看每一次命令记录
 2. git reset --hard commit_id 返回相应的版本
 ```
+
+#### 4.放弃所有本地修改
+
+```js
+git checkout . //在add之前使用,撤销所有的更改. 在add之后使用,无效.
+```
+
+
+
+
 
 
 
@@ -245,13 +258,25 @@ git和 svn不同，仅仅跟踪文件的变动，不跟踪目录。
 3. 编辑器生成的配置文件  (.idea)
 4. npm 安装的第三方模块
 
-```sh
-# 忽略所有的 .idea 文件夹
+```js
+//以#开始的行,被视为注释
+
+//忽略所有的 .idea 文件夹
 .idea
-# 忽略所有以 .test 结尾的文件
+//忽略所有以 .test 结尾的文件
 *.test
-# 忽略 node_modules 文件和文件夹 斜杠加不加都可以
+//忽略 node_modules 文件和文件夹 斜杠加不加都可以
 /node_modules
+
+//忽略掉所有文件名是foo.txt的文件
+foo.txt
+
+//忽略所有生成的html文件,除了foo.html
+*.html
+!foo.html
+
+//忽略所有.o和.a文件
+*.[oa]
 ```
 
 > .gitignore 可以在子文件夹下创建
