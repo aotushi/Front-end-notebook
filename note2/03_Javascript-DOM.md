@@ -405,9 +405,9 @@ getElementsByName()
 
 
 
-### 获取和修改元素内容
+### 获取和修改元素内容 innerHTML/innerText
 
-```html
+```js
 //获取元素内容
 - innerText 
 	获取元素内容,但只会获取文本,不会获取内部标签
@@ -637,60 +637,6 @@ onmouseenter和onmouseleave 鼠标移动到自身是会触发事件，但是移�
 </body>
 </html>
 ```
-
-
-
-### 事件流
-
-![DOM事件流](https://images2015.cnblogs.com/blog/315302/201606/315302-20160621155328756-279009443.png)
-
-
-
-#### 1.基本认识
-
-```JavaScript
-//https://www.cnblogs.com/starof/p/4066381.html
-0.含义:描述了页面接受事件的顺序.分为事件冒泡流,事件捕获流.
-1.两种事件流模型:
- 冒泡型事件流: 事件定位为从最具体的元素(文档树种最深的节点)开始触发,然后向上传播至没有那么具体的元素(文档).
- 捕获型事件流: 最不具体的节点应该最先收到事件,最具体的节点最后收到事件.
- 
-2.note:
- 2.1.现代浏览器都支持冒泡,IE5.5及更早版本事件冒泡会跳过<html>元素(从body直接跳到document);IE9,FireFox,Chrome,Safari将事件一直冒泡到window对象.
- 2.2.IE9,FireFox,Chrome,Safari都支持事件捕获.尽管DOM标准要求事件应该从doucment对象开始传播,但这些浏览器都是从window对象开始捕获事件的.
- 2.3.由于老版本不支持,基本很少使用事件捕获. 建议事件事件冒泡.
- 
-3.DOM事件流
-3.1 DOM事件流的3个阶段:事件捕获阶段,处于目标阶段,事件冒泡阶段.
-    目标div在捕获阶段不会接受事件(图中1-3);
-    处于目标阶段:事件在div上发生并处理,但事件处理会被看成冒泡阶段的一部分;
-    冒泡阶段:事件又传回文档.
-3.2 note:
-    - 尽管“DOM2级事件”标准规范明确规定事件捕获阶段不会涉及事件目标，但是在IE9、Safari、Chrome、Firefox和Opera9.5及更高版本都会在捕获阶段触发事件对象上的事件。结果，就是有两次机会在目标对象上面操作事件。
-    - 并非所有的事件都会经过冒泡阶段 。所有的事件都要经过捕获阶段和处于目标阶段，但是有些事件会跳过冒泡阶段：如，获得输入焦点的focus事件和失去输入焦点的blur事件。
-
-```
-
-![捕获和冒泡事件](https://images0.cnblogs.com/blog/315302/201411/052135036896502.png)
-
-```js
-// addEventListener('事件', 函数, false)  false默认开启冒泡模式
-var innerCircle= document.getElementById("inner");
-    innerCircle.addEventListener("click", function () {
-        alert("innerCircle的click事件在捕获阶段被触发");
-    },true);
-    innerCircle.addEventListener("click", function () {
-        alert("innerCircle的click事件在冒泡阶段被触发");
-    },false);
-```
-
-
-
-#### 2.事件流典型应用事件代理
-
-传统事件处理种,需要为每一个元素添加事件处理. js事件代理,通过事件冒泡,可以将事件处理器添加到一个父级元素上.
-
-**事件代理的原理用到的是事件冒泡和目标元素.** 把事件处理器添加到父元素，等待子元素事件冒泡，并且父元素能够通过target（IE为srcElement）判断是哪个子元素，从而做相应处理
 
 
 
@@ -931,10 +877,6 @@ function checkAll(){
 ```
 
 
-
-
-
-## 1104
 
 
 
@@ -1398,17 +1340,163 @@ element.cloneNode(true) 能对一个节点进行深度克隆
 
 
 
-### DOM0级事件绑定解绑
+### 事件
 
-```markdown 
-- 事件是JavaScript和HTML交互的基础,任何文档或者浏览器窗口发生的交互,都要通过绑定事件进行交互.
+**事件是文档或者浏览器窗口中发生的，特定的交互瞬间**
 
-- 事件有DOM0, DOM2, DOM3的区分
+事件是用户或浏览器自身执行的某种动作，如click,load和mouseover都是事件的名字。
 
-- DOM0直接通过onclick写在html里面的事件
+事件是javaScript和DOM之间交互的桥梁。
 
-- DOM2是通过addEventListener绑定的事件,还有IE下的DOM2事件通过attachEvent绑定
 
+
+### 事件流
+
+> **事件流描述的是从页面中接收事件的顺序。**
+
+
+
+![DOM事件流](https://images2015.cnblogs.com/blog/315302/201606/315302-20160621155328756-279009443.png)
+
+
+
+#### 1.基本认识
+
+```JavaScript
+//https://www.cnblogs.com/starof/p/4066381.html
+0.含义:描述了页面接受事件的顺序.分为事件冒泡流,事件捕获流.
+1.两种事件流模型:
+ 冒泡型事件流: 事件定位为从最具体的元素(文档树种最深的节点)开始触发,然后向上传播至没有那么具体的元素(文档).
+ 捕获型事件流: 最不具体的节点应该最先收到事件,最具体的节点最后收到事件.
+ 
+2.note:
+ 2.1.现代浏览器都支持冒泡,IE5.5及更早版本事件冒泡会跳过<html>元素(从body直接跳到document);IE9,FireFox,Chrome,Safari将事件一直冒泡到window对象.
+ 2.2.IE9,FireFox,Chrome,Safari都支持事件捕获.尽管DOM标准要求事件应该从doucment对象开始传播,但这些浏览器都是从window对象开始捕获事件的.
+ 2.3.由于老版本不支持,基本很少使用事件捕获. 建议事件事件冒泡.
+ 
+3.DOM事件流
+3.1 DOM事件流的3个阶段:事件捕获阶段,处于目标阶段,事件冒泡阶段.
+    目标div在捕获阶段不会接受事件(图中1-3);
+    处于目标阶段:事件在div上发生并处理,但事件处理会被看成冒泡阶段的一部分;
+    冒泡阶段:事件又传回文档.
+3.2 note:
+    - 尽管“DOM2级事件”标准规范明确规定事件捕获阶段不会涉及事件目标，但是在IE9、Safari、Chrome、Firefox和Opera9.5及更高版本都会在捕获阶段触发事件对象上的事件。结果，就是有两次机会在目标对象上面操作事件。
+    - 并非所有的事件都会经过冒泡阶段 。所有的事件都要经过捕获阶段和处于目标阶段，但是有些事件会跳过冒泡阶段：如，获得输入焦点的focus事件和失去输入焦点的blur事件。
+
+```
+
+![捕获和冒泡事件](https://images0.cnblogs.com/blog/315302/201411/052135036896502.png)
+
+```js
+// addEventListener('事件', 函数, false)  false默认开启冒泡模式
+var innerCircle= document.getElementById("inner");
+    innerCircle.addEventListener("click", function () {
+        alert("innerCircle的click事件在捕获阶段被触发");
+    },true);
+    innerCircle.addEventListener("click", function () {
+        alert("innerCircle的click事件在冒泡阶段被触发");
+    },false);
+```
+
+
+
+#### 2.事件流典型应用事件代理
+
+传统事件处理种,需要为每一个元素添加事件处理. js事件代理,通过事件冒泡,可以将事件处理器添加到一个父级元素上,避免把事件处理器添加到多个子级元素上.
+
+##### 2.1事件代理/委托
+
+事件委托(委派), 就是将原本应该绑定给子元素的事件,绑定给父元素. 当父元素的 ==回调函数==触发时, 根据 ==事件目标(event.target)==来 ==处理子元素==的逻辑. 我们能够使用事件委托,是基于事件冒泡的机制.
+
+**事件代理的原理用到的是事件冒泡和目标元素.** 把事件处理器添加到父元素，等待子元素事件冒泡，并且父元素能够通过target（IE为srcElement）判断是哪个子元素，从而做相应处理. 更多target内容请参考[javaScript事件（四）event的公共成员（属性和方法）](http://www.cnblogs.com/starof/p/4096198.html) .
+
+```html
+<body>
+  <ul id='color-list'>
+    <li>red</li>
+    <li>yellow</li>
+    <li>blue</li>
+    <li>green</li>
+    <li>orange</li>
+    <li>purple</li>
+  </ul>
+  <script>
+  	(function(){
+      let colorList = document.getElementById('color-list');
+      colorList.addEventListener('click',showCase,false);
+      function showCase(e){
+        e = e||window.event;
+        let targetElement = e.target || e.srcElement;
+        if(targetElement.nodeName.toLowerCase() === 'li'){
+          alert(targetElement.innerHTML)
+        }
+      }
+    }())
+  </script>
+</body>
+```
+
+
+
+##### 2.2 事件代理的好处
+
+- 将多个事件处理器减少到一个，因为事件处理器要驻留内存，这样就提高了性能
+- DOM更新无需重新绑定事件处理器，因为事件代理对不同子元素可采用不同处理方法。如果新增其他子元素（a,span,div等），直接修改事件代理的事件处理函数即可，不需要重新绑定处理器，不需要再次循环遍历。
+
+
+
+##### 2.3 事件代理的问题
+
+代码如下: 事件代理同事绑定了li和span标签,当点击span的时候,li和span都会冒泡.
+
+```html
+<li><span>li中的span内容</span></li>
+<script>
+	$(document).on('click','li', function(e){
+    alert('li li')
+  });
+  $(document).on('click','span',function(e){
+    alert('li span')
+  })
+</script>
+```
+
+解决方法:
+
+1.span的事件处理中中阻止冒泡
+
+```js
+$(document).on('click','span',function(e){
+  alert('li span');
+  e.stopPropagation();
+})
+```
+
+2.li的事件处理程序中检测target元素
+
+```js
+$(document).on('click', 'li', function(e){
+  if(e.target.nodeName === 'SPAN'){
+    e.stopPropagation();
+    return;
+  }
+  alert('li li')
+})
+```
+
+
+
+##### 2.4 事件代理的一个有趣应用
+
+```js
+let ul = document.querySelector('ul');
+let lis = document.querySelectorAll('ul li');
+ul.addEventListener('click', function(e){
+  let target = e.target;
+  if(target.nodeName.toUpperCase() === 'LI'){
+    alert([].indexOf.call(lis,target));
+  }
+})
 ```
 
 
@@ -1418,67 +1506,92 @@ element.cloneNode(true) 能对一个节点进行深度克隆
 
 
 ```HTML
-来源:https://www.cnblogs.com/diligenceday/p/4175721.html
-
-<input onclick="alert(event)" />
-<form>
-    <input name="hehe" value="hehe" />
-    <input onclick="alert(hehe.value)">
-    所有DOM0的事件作用域被扩展了;
-</form>    
+- 事件流传播过程是客观存在的, 不论元素身上是否有事件的回调函数, 回调函数只决定了当事件触发时是否会给予反馈.
+- 事件传播过程中,是相同类型的事件回调函数能执行
 ```
 
 
 
 
+
+#### 3. 阻止事件冒泡
+
+```HTML
+- 阻止事件冒泡 当我们在事件的传播过程中,需要禁止事件传播, 需要使用事件对象上的stopPropagation()方法
+- 阻止事件冒泡 在谁的回调函数中调用这个方法 ,就是阻止这个元素的时间不再向上传
+
+```
+
+
+
+
+
+### 事件处理程序
+
+事件是用户或浏览器自身执行的某种动作，如click,load和mouseover都是事件的名字。响应某个事件的函数就叫**事件处理程序**（也叫**事件处理函数**、**事件句柄**）。事件处理程序的名字以"on"开头，因此click事件的事件处理程序就是onclick,load事件的事件处理程序就是onload。
+
+#### 1.html事件处理程序
+
+事件直接添加在html元素上.这种方法已经过时了。因为动作(javascript代码)和内容(html代码)紧密耦合，修改时即要修改html也要修改js.
+
+note:
+
+* 通过event可以直接访问事件本身,
+* this值等于事件的目标元素.
+
+1.第一种: 直接在html中定义事件处理程序及包含的动作
+
+```html
+<input type="button" value="click me" onclick='alert('clicked')'/>
+```
+
+2.第二种: html中定义事件处理程序,执行的动作则调用其他地方定义的脚本.
+
+```html
+<input type="button" value="click me" onclick='showMessage()'/>
+<script>
+	function showMessage(){
+    alert('clicked');
+  }
+</script>
+```
+
+
+
+#### 2.DOM0级事件处理程序
+
+**把一个函数赋值给一个事件处理程序属性。**
+
+这种方法简单而且跨浏览器，但是只能为一个元素添加一个事件处理函数。因为这种方法为元素添加多个事件处理函数，则后面的会覆盖前面的。
 
 **绑定**:  DOM0级事件中,我们就是对一个元素的事件属性赋值一个回调函数.所以也只能设置一个回调函数.如果设置多个,就是覆盖操作,只能最后一个生效.  不可以同时添加同一类事件多次,如果添加后面覆盖前面的.
 
 **解绑**: DOM0级事件解绑的本质, 就是断开事件属性与回调函数的链接
 
+```html
+<input id="myBtn" type="button" value="click me!"/>
+<script>
+    var myBtn=document.getElementById("myBtn");
+    myBtn.onclick=function(){
+        alert("clicked!");
+    }
+</script>
 
-
-```HTML
-<html>
-    <head>
-        <meta charset='utf-8'>
-    	<title>title</title>
-        <style>
-        *{
-            margin: 0;
-            padding: 0;
-        }
-        .box{
-            width: 200px;
-            height: 200px;
-            background: pink;
-        }
-    </style>
-    </head>
-    <body>
-        <div class="box"></div>
-        <script>
-        	window.onload = function(){
-                var boxNode = document.querySelector('.box');
-                boxNode.onclick = function(){
-                    console.log('点击1');  //会被覆盖
-                };
-                boxNode.onclick = function(){
-                    console.log('点击2');  //会执行
-                };
-                
-                //解绑
-                boxNode.onclick = null;
-            }
-        
-        </script>
-    </body>
-</html>
+//删除事件处理程序:
+myBtn.onclick = null;
 ```
 
 
 
-### DOM2级事件绑定解绑
+#### 3.DOM2级事件处理程序
+
+DOM2级事件处理程序可以为一个元素添加多个事件处理程序。其定义了两个方法用于添加和删除事件处理程序：addEventListener()和removeEventListener()。
+
+**所有的DOM节点都包含这2个方法。**
+
+这两个方法都需要3个参数：事件名，事件处理函数，布尔值。
+
+这个布尔值为true,在捕获阶段处理事件，为false，在冒泡阶段处理事件，**默认为false**。
 
 有些事件是不能通过DOM0级事件的绑定方式去绑定,只能用DOM2级事件.比如transitionEnd
 
@@ -1489,8 +1602,6 @@ element.cloneNode(true) 能对一个节点进行深度克隆
 2.回调函数
 
 3.事件是否冒泡
-
-
 
 **解绑**:
 
@@ -1503,6 +1614,37 @@ DOM2级事件的解绑 一共可接受3个参数:
 3.事件是否冒泡
 
 在DOM2事件的解绑中,必须和绑定时传入的参数一模一样,函数地址必须保持一致. 所以若解绑DOM2事件, 回调函数必须在外边定义成 有名称的函数.
+
+```html
+<input id="myBtn" type="button" value="click me!"/>
+<script>
+    var myBtn=document.getElementById("myBtn");
+    myBtn.addEventListener("click",function(){
+        alert("hello");
+    },false);
+    myBtn.addEventListener("click",function(){
+        alert("world");
+    },false);
+</script>
+```
+
+**删除事件处理程序**：通过addEventListener添加的事件处理程序必须通过removeEventListener删除，且参数一致。
+
+**note**:**通过addEventListener添加的匿名函数将无法删除。**
+
+
+
+#### 4.其他-IE事件处理程序
+
+```html
+https://www.cnblogs.com/starof/p/4067121.html
+```
+
+
+
+
+
+
 
 
 
@@ -1604,213 +1746,66 @@ boxNode.detachEvent('onclick', fn2);
 
 
 
-## 1106
-
-
-
-### 事件流
-
-> 事件流是客观存在的,不论元素身上是否有事件的回调函数. 回调函数只决定了当事件触发时,是否会给与反馈.
-
-
-
-#### 事件流图
-
-![事件流图](https://images0.cnblogs.com/blog/497865/201412/201817210161425.png)
-
-
-
-
-
-#### 事件流程
-
-> 捕获阶段  由外向内 进行事件传播
->
-> 目标阶段  
->
-> 冒泡阶段  由目标元素的回调函数最先执行 然后逐层向上传播(由内向外); 
-
-
-
-```HTML
-- 事件流传播过程是客观存在的, 不论元素身上是否有事件的回调函数, 回调函数只决定了当事件触发时是否会给予反馈.
-- 事件传播过程中,是相同类型的事件回调函数能执行
-```
-
-
-
-
-
-#### 阻止事件冒泡
-
-```HTML
-- 阻止事件冒泡 当我们在事件的传播过程中,需要禁止事件传播, 需要使用事件对象上的stopPropagation()方法
-- 阻止事件冒泡 在谁的回调函数中调用这个方法 ,就是阻止这个元素的时间不再向上传播
-
-```
-
-
-
-#### 实例
-
-```HTML
-
-
-<style>
-    *{
-        margin: 0;
-        padding: 0;
-    }
-    .laoda{
-        width: 300px;
-        height: 300px;
-        background: yellowgreen;
-    }
-    .laoer{
-        width: 200px;
-        height: 200px;
-        background: skyblue;
-    }
-    .laosan{
-        width: 100px;
-        height: 100px;
-        background: pink;
-    }
-</style>
-
-<div class="laoda">
-    <div class="laoer">
-        <div class="laosan"></div>
-    </div>
-</div>
-
-
-<script>
-	window.onload = function(){
-        var laoda = function.querySelector('.laoda');
-        var laoer = function.querySelector('.laoda');
-        var laosan = function.querySelector('.laoda');
-        
-        laoda.onclick = function(){ 
-            event.stopPropagation();
-            console.log('老大');
-        };
-        laoer.onclick = function(event){
-         //用DOM对象laoer代替事件对象event 也可以运行.
-        //不能使用this,this代表的是事件对象,
-            event.stopPropagation();
-            console.log('老二'); //此步会执行.阻止事件冒泡是阻止了冒泡的传播,父元素回调函数不会被执行
-        };
-        laosan.onclick = function(){
-            console.log('老三');
-        };
-    }
-</script>
-```
-
-
-
-
-
-
-
-### 事件委托
-
-#### 概要
-
-> 事件委托(委派), 就是将原本应该绑定给子元素的事件,绑定给父元素. 当父元素的 ==回调函数==触发时, 根据 ==事件目标(event.target)==来 ==处理子元素==的逻辑. 我们能够使用事件委托,是基于事件冒泡的机制.
->
-> 事件委托必须委托给一个一直都存在的父元素. 尽量离着目标元素近一点.
-
-#### 优势:
-
-1. 减少了事件绑定的次数
-2. 新增元素也会有绑定过的事件响应. 因为我们将事件的回调函数,设置为那些原本就存在于页面当中的父元素或祖先元素.
-
-
-
-#### event.target
-
-> 事件目标, 就是真正触发事件的那个离你最近的元素,  target是事件对象上的一个属性
-
-
-
-#### 实例
-
-```HTML
-<ul>
-    <li>11111</li>
-    <li>22222</li>
-    <li>33333</li>
-    <li>44444</li>
-    <li>55555</li>
-</ul>
-<button id="btn">新增标签内容</button>
-
-============================第一版=============================
-- 存在的问题: 点击ul范围内非li范围,会出现ul背景颜色全部发生变化的现象
-- 改进: 使用事件对象属性
-<script>
-	window.onload = function(){
-        var ulNode = document.querySelector('ul');
-        var btnNode = document.querySelector('#btn');
-        
-        ulNode.onclick = function(event){
-            event.target.style.background = 'pink';
-          
-        }
-        btnNode.conclick = function(event){
-            var liNode = document.createElement('li');
-            liNode.innerHTML = '新增元素内容';
-            ulNode.appendChild(liNode);
-            };
-        }
-</script>
-
-
-============================第二版=============================
-<script>
-	window.onload = function(){
-        var ulNode = document.querySelector('ul');
-        var btnNode = document.querySelector('#btn');
-        
-        ulNode.onclick = function(event){
-            if(event.target.nodeName === 'LI'){    
-                //使用节点的nodeName来判断是否是相应的元素. 从而用 事件委托 将背景色的改变控制在元素节点内,而非整个绑定事件中.
-                event.target.style.background = 'pink';
-            }
-        };
-        
-        btnNode.conclick = function(event){
-            var liNode = document.createElement('li');
-            liNode.innerHTML = '新增元素内容';
-            ulNode.appendChild(liNode);
-            };
-        }
-</script>
-```
-
-
-
-#### 实例2-学生管理系统
-
-```html 
-
-```
-
-
-
 
 
 ### 事件对象
 
-#### 概要
+**什么是事件对象？在触发DOM上的事件时都会产生一个对象。**
 
-> 事件对象event及目标元素属性target存在高级低级浏览器兼容问题
+#### 1.认识
+
+事件在浏览器中是以对象的形式存在的，即event。触发一个事件，就会产生一个事件对象event，该对象**包含着所有与事件有关的信息**。包括导致事件的元素、事件的类型以及其他与特定事件相关的信息。
+
+#### 2.html事件处理程序中的event
+
+```html
+<input id="btn" type="button" value="click" onclick=" console.log('html事件处理程序'+event.type)"/>
+```
 
 
 
-**事件对象**在高级浏览器中会作为**事件回调函数**的**第一个形参**供我们使用.但是在低级浏览器中, 它会作为window的一个属性存在.这个属性叫做==event==.(  事件对象第一次出现是在1103日键盘事件中)
+#### 3.DOM中的事件对象
+
+DOM0级和DOM2级事件处理程序都会把event作为参数传入。
+
+DOM中事件对象重要属性和方法.
+
+属性:
+
+- type属性，用于获取事件类型
+- target属性 用户获取事件目标 事件加在哪个元素上。（更具体target.nodeName）
+
+方法:
+
+- stopPropagation()方法 用于阻止事件冒泡
+- preventDefault()方法 阻止事件的默认行为 移动端用的多
+
+```html
+<body>
+<input id="btn" type="button" value="click"/>
+<script>
+    var btn=document.getElementById("btn");
+    btn.onclick=function(event){
+        console.log("DOM0 & click");
+        console.log(event.type);    //click
+    }
+    btn.addEventListener("click", function (event) {
+        console.log("DOM2 & click");
+        console.log(event.type);    //click
+    },false);
+</script>
+</body>
+```
+
+
+
+#### 4.IE中的事件对象
+
+
+
+#### 事件对象兼容
+
+**事件对象**在高级浏览器中会作为**事件回调函数**的**第一个形参**供我们使用.但是在低级浏览器中, 它会作为window的一个属性存在.这个属性叫做==event==.
 
 事件对象上目标元素的属性 ==target== 也是存在兼容问题的,高级浏览器使用target, 低级浏览器需要通过事件对象上一个叫做 ==target.srcElement==  的属性
 
@@ -1862,6 +1857,215 @@ var target = event.target || target.srcElement;
     }
 </script>
 ```
+
+
+
+### 事件对象的公共成员
+
+event对象包含与创建它的特定事件有关的属性和方法。触发的事件类型不一样，可用的属性和方法不一样。但是，DOM中所有事件都有以下公共成员。【注意bubbles属性和cancelable属性】
+
+| 属性/方法                  | 类型         | 读/写 | 说明                                                         |
+| -------------------------- | ------------ | ----- | ------------------------------------------------------------ |
+| bubbles                    | Boolean      | 只读  | 表明事件是否冒泡                                             |
+| **stopPropagation()**      | Function     | 只读  | 取消事件的进一步捕获或冒泡。如果bubbles为true,则可以使用这个方法 |
+| stopImmediatePropagation() | Function     | 只读  | 取消事件的进一步捕获或冒泡**，同时阻止任何事件处理程序被调用**（DOM3级事件中新增） |
+| cancelable                 | Boolean      | 只读  | 表明是否可以取消事件的默认行为                               |
+| **preventDefault()**       | Function     | 只读  | 取消事件的默认行为。如果cancelable是true，则可以使用这个方法 |
+| defaultPrevented           | Boolean      | 只读  | 为true表示已经调用了preventDefault()(DOM3级事件中新增)       |
+| **currentTarget**          | Element      | 只读  | 其事件处理程序当前正在处理事件的那个元素（**currentTarget始终===this,即处理事件的元素**） |
+| **target**                 | Element      | 只读  | 直接事件目标，**真正触发事件的目标**                         |
+| detail                     | Integer      | 只读  | 与事件相关的细节信息                                         |
+| **eventPhase**             | Integer      | 只读  | 调用事件处理程序的阶段：1表示捕获阶段，2表示处于目标阶段，3表示冒泡阶段 |
+| trusted                    | Boolean      | 只读  | 为true表示事件是由浏览器生成的。为false表示事件是由开发人员通过JavaScript创建的（DOM3级事件中新增） |
+| **type**                   | String       | 只读  | 被触发的事件的类型                                           |
+| view                       | AbstractView | 只读  | 与事件关联的抽象视图。等同于发生事件的window对象             |
+
+#### 1.currentTarget和target
+
+在事件处理程序内部，对象this始终等于currentTarget的值，而target则只是包含事件的实际目标。
+
+举例：页面有个按钮，在body（按钮的父节点）中注册click事件，点按钮时click事件会冒泡到body进行处理。
+
+```html
+<body>
+<input id="btn" type="button" value="click"/>
+<script>
+    document.body.onclick=function(event){
+        console.log("body中注册的click事件");
+        console.log("this===event.currentTarget? "+(this===event.currentTarget)); //true
+        console.log("currentTarget===document.body?"+(event.currentTarget===document.body)); //true
+        console.log('event.target===document.getElementById("btn")? '+(event.target===document.getElementById("btn"))); //true
+    }
+</script>
+</body>
+```
+
+
+
+#### 2.通过type属性,可以在一个函数中处理多个事件
+
+原理：通过检测event.type属性，对不同事件进行不同处理。
+
+举例：定义一个handler函数用来处理3种事件：click,mouseover,mouseout。
+
+```html
+<body>
+  <input type='button' id='btn' value='click'/>
+  <script>
+  	let handler = function(event){
+      switch(event.type){
+        case 'click':
+          alert('clicked');
+          break;
+        case 'mouseover':
+          event.target.style.backgroundColor='pink';
+          break;
+        case 'mouseout':
+          event.target.style.backgroundColor="";
+      }
+    };
+    let btn = document.getElementById('btn');
+    btn.onclick = handler;
+    btn.onmouseover = handler;
+    btn.onmouseout = handler;
+  </script>
+</body>
+```
+
+
+
+#### 3.stopPropagation()和stopImmediatePropagation()对比
+
+同：stopPropagation()和 stopImmediatePropagation()都可以用来取消事件的进一步捕获或冒泡。
+
+异：二者的区别在于当一个事件有多个事件处理程序时，stopImmediatePropagation()可以阻止之后事件处理程序被调用。
+
+```html
+<body>
+<input id="btn" type="button" value="click"/>
+<script>
+    var btn=document.getElementById("btn");
+    btn.addEventListener("click",function(event){
+        console.log("buttn click listened once");
+//    event.stopPropagation();//取消注释查看效果
+//    event.stopImmediatePropagation();//取消注释查看效果
+    },false);
+    btn.addEventListener("click",function(){
+        console.log("button click listened twice");
+    },false);
+    document.body.onclick= function (event) {
+        console.log("body clicked");
+    }
+</script>
+</body>
+```
+
+![stopPropagation()与stopImmediatePropagation()](https://images0.cnblogs.com/blog/315302/201411/142318286782479.jpg)
+
+
+
+#### 4.eventPhase
+
+eventPhase值在捕获阶段为1，处于目标阶段为2，冒泡阶段为3。
+
+| 常量                  | 值   |
+| --------------------- | ---- |
+| Event.CAPTURING_PHASE | 1    |
+| Event.AT_TARGET       | 2    |
+| Event.BUBBLING_PHASE  | 3    |
+
+```html
+let btn = document.getElementById('btn');
+btn.onclick=function(event){
+	console.log(event.CAPTURING_PHASE);
+  console.log(event.AT_TARGET);
+  console.log(event.BUBBLING_PHASE); //3
+}
+```
+
+
+
+#### 5.IE中event公共成员
+
+```js
+https://www.cnblogs.com/starof/p/4096198.html
+```
+
+
+
+
+
+### 鼠标事件
+
+[DOM0, DOM2, DOM3介绍](https://www.jianshu.com/p/3acdf5f71d5b)
+
+DOM3级事件中定义了9个鼠标事件。
+
+- mousedown:鼠标按钮被按下（左键或者右键）时触发。不能通过键盘触发。
+- mouseup:鼠标按钮被释放弹起时触发。不能通过键盘触发。
+- click:单击鼠标**左键**或者按下回车键时触发。这点对确保易访问性很重要，意味着onclick事件处理程序既可以通过键盘也可以通过鼠标执行。
+- dblclick:双击鼠标**左键**时触发。
+- mouseover:鼠标移入目标元素上方。鼠标移到其后代元素上时会触发。
+- mouseout:鼠标移出目标元素上方。
+- mouseenter:鼠标移入元素范围内触发，**该事件不冒泡**，即鼠标移到其后代元素上时不会触发。
+- mouseleave:鼠标移出元素范围时触发，**该事件不冒泡**，即鼠标移到其后代元素时不会触发。
+- mousemove:鼠标在元素内部移到时不断触发。不能通过键盘触发。
+
+**note**:
+
+在一个元素上相继触发mousedown和mouseup事件，才会触发click事件。两次click事件相继触发才会触发dblclick事件。
+
+如果取消 了mousedown或mouseup中的一个，click事件就不会被触发。直接或间接取消了click事件，dblclick事件就不会被触发了。
+
+#### 1.事件触发的顺序
+
+举例：通过双击按钮，看一下上面触发的事件。
+
+```html
+<body>
+<input id="btn" type="button" value="click"/>
+<script>
+    var btn=document.getElementById("btn");
+    btn.addEventListener("mousedown",function(event){
+        console.log("mousedown");
+    },false);
+    btn.addEventListener("mouseup",function(){
+        console.log("mouseup");
+    },false);
+    btn.addEventListener("click", function () {
+        console.log("click");
+    },false);
+    btn.addEventListener("dblclick", function () {
+        console.log("dblclick");
+    },false);
+</script>
+</body>
+```
+
+![双击鼠标,事件触发顺序](https://images0.cnblogs.com/blog/315302/201411/182134449882507.jpg)
+
+#### 2.mouseenter和mouseover
+
+ 区别：
+
+mouseover事件会冒泡，这意味着，鼠标移到其后代元素上时会触发。
+
+mouseenter事件不冒泡，这意味着，鼠标移到其后代元素上时不会触发。
+
+一般情况下mouseover即可，特殊情况才用mousemove，mousemove更耗资源，比如要监控鼠标坐标的变化等
+
+```html
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
