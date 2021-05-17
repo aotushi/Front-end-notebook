@@ -2124,7 +2124,7 @@ console.timeEnd();
 
 ### 对象
 
-
+### 基本认识
 
 ```js
 * 对象是一种新的数据类型
@@ -2135,6 +2135,12 @@ console.timeEnd();
 * 对象中可以存储不同类型的数据
 	- 对象中存储的数据被称为属性(property)
 ```
+
+
+
+### 特点
+
+比较两个对象是否相等(全等),比较的是两个对象的 内存地址 是否相同.
 
 
 
@@ -2190,7 +2196,9 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-### 对象中的方法 in/delete
+### 对象中的方法
+
+####  in/delete
 
 ```Markdown
 in 
@@ -2219,75 +2227,31 @@ obj.test.tt = Object();
 
 ```
 
-打印看效果
-  ```
-### 可变类型
+ 
 
-* 对象属于可变类型,对象中所存储的属性是可以被修改的  //不可变类型,5种数据类型是不可变的
+#### Object.assign()
 
-* 修改一个对象时,如果有其他的变量也指向该对象,则其他的变量也会被影响到
+**Object.assign()** 方法用于将所有可枚举属性的值从一个或多个源对象分配到目标对象。它将返回目标对象. 同时它也可以实现浅拷贝.因为 `Object.assign()`拷贝的是（可枚举）属性值。
 
-  ```JavaScript
-  let obj = Object(); //变量obj指向对象的内存地址
-  obj.name = '孙悟空'; //给对象添加了属性和属性值
-  let obj2 = obj;		//变量obj2也指向了对象的内存地址
-  obj2.name = '猪八戒'; //更改obj2指向对象的属性值
-  
-  console.log(obj.name);  // '猪八戒'
-  console.log(obj2.name); // '猪八戒'
-  
-  
-  ====================================================
-  修改对象的形式(赋值和递增递减)
-  a.b = xxx
-  a.b++
-  ```
+```js
+const target = {a:1,b:2};
+const source = {b:3,c:3};
 
-  
+const returnTarget = Object.assign(target,source);
 
-
-
-```JavaScript
-修改变量时,由于变量与其他变量是相互独立的,修改一个绝对不会影响其他变量
-let a = 10;  // 变量a指向10的内存地址
-let b = a;   // 变量b指向10的内存地址
-a++;		//  变量a指向11的内存地址
-
-console.log('a =', a);  //11
-console.log('b =', b);  //10
-
-=========================================
-修改变量的形式(赋值和递增递减)
-x = y
-x++
-x += yy
+console.log(target);//{ a: 1, b: 4, c: 5 }
+console.log(returnTarget);//{ a: 1, b: 4, c: 5 }
 ```
 
 
 
+#### Object.keys
 
 
-```JavaScript
-# 比较两个对象是否相等(全等),比较的是两个对象的 内存地址 是否相同
 
-let obj = Object();   //修改变量,变量obj指向对象的内存地址
-obj.name = '孙悟空';	//为对象添加属性和属性值
-let obj2 = obj;		  //将变量obj2指向对象的内存地址
-obj = Object();		  //修改变量,将变量obj指向新的对象的内存地址
-obj.name = '猪八戒';	//修改对象 为变量obj对应的对象添加属性和属性值
 
-console.log('obj =', obj);  // obj={name:'猪八戒'}
-console.log('obj2 =', obj2);//obj2={name:'孙悟空'}
 
-------------------
-let obj3 = Object();
-obj3.name = '沙和尚';
-let obj4 = Object();   //变量obj4对应的地址是一个新的内存地址
-obj4.name = '沙和尚';
 
-console.log(obj3 == obj4);  //false
-console.log(obj3 === obj4); // false
-```
 
 
 
@@ -3758,6 +3722,7 @@ console.log(per.name = '朝天阙'); //朝天阙
 # 如何创建数组 //使用类来创建对象
 const arr = new Array(); //使用const之后,不能改变的是变量arr,而其中的属性是可以更改的.函数同理
 
+let arr = Array();
 let arr = new Array();
 let arr = [];  //let arr = [元素1, 元素2, 元素3, ...];
 
@@ -3779,6 +3744,29 @@ console.log(arr, arr.length); //empty*4  4
 
 var a = [,,]; 每一项的值是undefined
 function getArr(...args){} //...三点运算符 将伪数组转换为真数组
+```
+
+
+
+#### 创建数组方式的区别
+
+```js
+let a = Array();
+let b = new Array();
+let c = [];
+
+各自创建了一个length=0的JS数组.
+//new Array();
+new只是一个语法糖。new Array()创建了一个对象，新建的对象a.__proto__ == Array.prototype。这是标准的一个由Class到实例的创建步骤.
+//Array();
+Array()和new Array()完全一致
+//[]也被称为literal syntax，它同样会创建一个空数组。得到的结果和new Array()，以及Array全部一样。
+
+//使用区别:
+1.从性能上来讲，new Array() 在初始化大数组的时候，性能更加优异，在之前大数组创建的文章中已经提到了这个内容。当初始化一个空数组时候，两者性能几乎没有差异。因此优先使用Array()或者new Array()
+
+2.虽然使用new，会增加多一层的对象包裹，而使得内存冗余。但使用new后更加符合了对象化继承的概念
+
 ```
 
 
@@ -3956,6 +3944,70 @@ shift()
 
 ### 遍历数组方法
 
+#### for循环正序
+
+```js
+for(let i=0; i<arr.length; i++){}
+```
+
+
+
+#### for循环倒叙
+
+```js
+for(let i=arr.length;i>0;i--){
+  
+}
+```
+
+
+
+#### forEach
+
+- forEach()是数组对象的方法,可以用来对数组进行遍历,它需要一个函数作为参数. //没有返回值
+- 传递给数组的函数会调用多次,数组中有几个元素就调用几次
+- 每次调用时,会将元素的信息以参数的形式传递进函数
+
+forEach() 被调用时，不会改变原数组，也就是调用它的数组
+forEach返回值是undefined,没有返回值.
+
+```js
+forEach的回调函数有三个参数:
+第一个: item 当前遍历的元素
+第二个: index 当前遍历的元素的索引
+第三个: array 当前正在遍历的元素
+    
+数组.forEach(function(item, index, array){ //顺序很重要
+    console.log(item, index, array); 
+})    
+    
+arr = ['孙悟空', '沙和尚', '猪八戒'];     
+
+  arr.forEach(function(a, b, c){
+      console.log(a); //孙悟空 沙和尚 猪八戒
+  })
+
+  arr.forEach(function(a,b,c){
+      console.log(b); //0 1 2 3 
+  })
+
+  arr.forEach(function(a,b,c){
+      console.log(c); //当前遍历的数组  有几个就显示几 次数组
+  })
+
+  arr.forEach(function(item,index){
+      console.log(item, index); // 打印的是0'孙悟空' 1'沙和尚' 2'猪八戒'
+  })
+```
+
+
+
+#### for...of
+
+#### for...in
+
+#### for...await
+
 ```JavaScript
 遍历数组,就是将数组中的元素一个个取出来
 - 如果数组中有对象{}, 对象是没有迭代接口的,所以无法遍历获取的到.
@@ -3989,45 +4041,20 @@ let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧', '白骨精', '蜘蛛
 
 
 
-#### 遍历数组forEach | 回调函数
+####  遍历方法快慢的比较
 
-```JavaScript
-- forEach()是数组对象的方法,可以用来对数组进行遍历,它需要一个函数作为参数. //没有返回值
-- 传递给数组的函数会调用多次,数组中有几个元素就调用几次
-- 每次调用时,会将元素的信息以参数的形式传递进函数
+```js
+for循环倒叙是最快的.
 
-forEach() 被调用时，不会改变原数组，也就是调用它的数组
-forEach返回值是undefined,没有返回值.
+const million=1000000;
+const arr = Array(million);
 
-forEach的回调函数有三个参数:
-	第一个: item 当前遍历的元素
-    第二个: index 当前遍历的元素的索引
-    第三个: array 当前正在遍历的元素
-    
-数组.forEach(function(item, index, array){ //顺序很重要
-    console.log(item, index, array); 
-})    
-    
-arr = ['孙悟空', '沙和尚', '猪八戒'];     
+//const arr = [...Array(million)]
 
-  arr.forEach(function(a, b, c){
-      console.log(a); //孙悟空 沙和尚 猪八戒
-  })
 
-  arr.forEach(function(b){
-      console.log(b); //0 1 2 3 
-  })
-
-  arr.forEach(function(c){
-      console.log(c); //当前遍历的数组  有几个就显示几 次数组
-  })
-
-  arr.forEach(function(item,index){
-      console.log(item, index); // 打印的是0'孙悟空' 1'沙和尚' 2'猪八戒'
-  })
 ```
 
- 
+
 
 
 
@@ -4958,6 +4985,17 @@ t.doSomething(foo, 'Hi');
 
 - arguments是用来存储实参的对象,所有的实参都存储在arguments对象
 - 通过arguments,我们不定义形参就可以直接使用实参
+```
+
+
+
+```js
+function getAge(...agrs){
+  console.log(typeof args);
+}
+getAge(21); // 'object'
+
+扩展运算符返回实参组成的数组. 数组是对象.
 ```
 
 
@@ -6443,7 +6481,6 @@ let obj2 = JSON.parse(str);//log结果:
  闭包在外部函数调用时创建,调用一次产生一个
  相同对象调用,形成闭包.
  闭包在内部函数被垃圾回收时销毁
- 
  
 ```
 
