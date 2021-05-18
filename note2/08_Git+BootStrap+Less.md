@@ -51,47 +51,9 @@ Vim 是一款命令行下的文本编辑器，编辑方式跟图形化编辑器�
 
 ## Git 使用
 
-### 起始配置
+### 基本介绍
 
-第一次使用 Git 的时候，会要求我们配置用户名和邮箱，用于表示开发者的信息
-
-```
-git config --global user.name "Your Name" 
-
-git config --global user.email "email@example.com" 
-```
-
-> 注意命令之间的空格
-
-可以使用 `git config -l `命令来查看配置信息
-
-### 基本操作
-
-Git 的起始操作包括以下几个步骤
-
-1. 创建并进入空文件夹
-2. 右键 -> 点击 Git Bash Here 启动命令行
-3. `git init` 仓库初始化
-4. 创建一个初始化文件 index.html
-5. `git add index.html` 将文件加入到暂存区
-6. `git commit -m '注释'`   提交到仓库  m 是 message 单词的缩写
-
-![Git 步骤情况介绍](D:/0922frontend/习题&笔记/笔记/assets/Git 步骤情况介绍.jpg)
-
-
-
-### 撤销操作
-
-```JS
-//撤销 git add -A 命令
-git reset HEAD
-
-//
-```
-
-
-
-### .git 目录
+#### .git 目录
 
 ![1576587724690](D:/0922frontend/习题&笔记/笔记/assets/1576587724690.png)
 
@@ -107,7 +69,7 @@ git reset HEAD
 
 > 切记： <span style="color:red">不要手动去修改 .git 文件夹中的内容</span>
 
-### <span style="color:red">版本库的三个区域</span>
+#### 版本库的三个区域
 
 * 工作区（代码编辑区）
 * 暂存区（修改待提交区）
@@ -115,9 +77,242 @@ git reset HEAD
 
 ![img](https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2469289094,3249956923&fm=26&gp=0.jpg)
 
+#### 空文件夹无法提交
+
+git和 svn不同，仅仅跟踪文件的变动，不跟踪目录。
+
+```HTML
+最主流的做法是，在空目录下创建 .gitkeep 或者 .keep 空文件，或者 .gitignore 文件，这只是一个约定俗成的空目录识别文件名，其实除了占位识别空目录
+```
 
 
-### 查看暂存区文件
+
+#### 关于颜色
+
+* 红色   红色的文件 修改只存在于『工作区』
+* 绿色   绿色的文件 此修改存在于『工作区与暂存区』
+
+
+
+### 使用配置
+
+#### 起始配置用户名和邮箱
+
+第一次使用 Git 的时候，会要求我们配置用户名和邮箱，用于表示开发者的信息
+
+```
+git config --global user.name "Your Name" 
+
+git config --global user.email "email@example.com" 
+```
+
+> 注意命令之间的空格
+
+可以使用 `git config -l `命令来查看配置信息
+
+
+
+#### 代理配置
+
+##### HTTP
+
+运行git config之后,可以看到options信息. 在config file location中可以看到又global,system,local,blob等关键字及解释.
+
+global 即是读/写当前用户全局的配置文件(~/.gitconfig 文件，属于某个计算机用户).  --glboal 选项指的是修改 Git 的全局配置文件 ~/.gitconfig，而非各个 Git 仓库里的配置文件 .git/config。protocol 指的是代理的协议，如 http，https，socks5 等。port 则为端口号。
+
+system 即是读写系统全局的配置文件(/etc/gitconfig 文件，属于计算机)
+
+local 即是当前 clone 仓库 的配置文件(位于 clone 仓库下 .git/config)
+
+```js
+https://ericclose.github.io/git-proxy-config.html
+
+//查看全局的http https代理
+git config --global --get http.proxy
+git config --global --get https.proxy
+
+
+
+#http代理
+// HTTP 代理 针对所有域名
+git config --global http.proxy http://127.0.0.1:1080
+git config --global https.proxy http://127.0.0.1:1080
+
+// Socks5 代理
+git config --global http.proxy socks5://127.0.0.1:1080
+git config --global https.proxy socks5://127.0.0.1:1080
+这里的 socks5 仅仅是代理使用的协议，它依然是针对 http 设置的，所以仅对 http 协议的仓库有效。使用 git@xxx 这种 ssh 连接的不会使用代理。
+
+//域名代理  git config –global http.url.proxy protocol://127.0.0.1:port Git 不认 https.proxy ，设置 http.proxy 就可以支持 https 了。
+
+git config --global http.https://github.com.proxy http://127.0.0.1:1080
+
+
+//取消http https代理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+
+
+
+##### SSH
+
+```js
+在这种情况下，Git 依靠 ssh 处理连接； 为了通过代理进行连接，您必须配置 ssh 本身，在 ~/.ssh/config 文件中设置 ProxyCommand 选项。Linux 和 macOS 是通过 nc 来执行 ProxyCommand 的，Windows 下则是通过 connect。
+
+//https代理
+1.编辑 ~/.ssh/config文件
+2.文件添加如下内容
+ Host github.com
+ 	User git
+  ProxyCommand connect -H 127.0.0.1:7890 %h %p
+
+
+Host 后面 接的 github.com 是指定要走代理的仓库域名。
+在 ProxyCommand 中，Windows 用户用的是 connect 。
+-H 选项的意思是 HTTP 代理。
+在调用 ProxyCommand 时，％h 和 ％p 将会被自动替换为目标主机名和 SSH 命令指定的端口（ %h 和 %p 不要修改，保留原样即可）。
+
+//socks5代理
+1.编辑 ~/.ssh/config 文件
+vim ~/.ssh/config
+
+2.给文件加上如下内容：
+Host github.com
+    User git
+    ProxyCommand connect -S 127.0.0.1:7891 %h %p
+
+
+解释：
+Host 后面 接的 github.com 是指定要走代理的仓库域名。
+在 ProxyCommand 中，Windows 用户用的是 connect。
+单独的 -S 选项指的就是 socks5 代理
+在调用 ProxyCommand 时，％h 和 ％p 将会被自动替换为目标主机名和 SSH 命令指定的端口（ %h 和 %p 不要修改，保留原样即可）。
+```
+
+
+
+
+
+#### 使用ssh或https方式pull/push
+
+```js
+//https://www.cnblogs.com/zhoumiao/p/10493403.html
+
+切换成https访问
+git remote set-url origin https://...
+
+切换成ssh方法
+git remote set-url origin git@...
+```
+
+
+
+#### 查看本机ssh key公钥
+
+```js
+cat ~/.ssh/id_rsa.pub
+```
+
+
+
+#### 远程仓库
+
+```js
+//显示所有远程仓库
+git remote -v
+
+//添加远程版本库
+git remote add [shortname][url] //shortname为本地的版本库: git rmeote add origin git@github.com:..
+
+//删除远程仓库
+git remote rm name
+
+//修改远程仓库名称
+git remote rename old_name new_name
+```
+
+
+
+
+
+
+
+#### 配置忽略文件.gitigonre
+
+.gitignore 可以在子文件夹下创建
+
+##### 仓库中没有提交该文件
+
+项目中有些文件不应该存储到版本库中，Git 中需要创建一个文件 『.gitignore』 配置忽略，一般与 .git 目录同级。
+
+常见情况有：
+
+1. 临时文件.     
+2. 多媒体文件，如音频，视频
+3. 编辑器生成的配置文件  (.idea)
+4. npm 安装的第三方模块
+
+```js
+//以#开始的行,被视为注释
+
+//忽略所有的 .idea 文件夹
+.idea
+//忽略所有以 .test 结尾的文件
+*.test
+//忽略 node_modules 文件和文件夹 斜杠加不加都可以
+/node_modules
+
+//忽略掉所有文件名是foo.txt的文件
+foo.txt
+
+//忽略所有生成的html文件,除了foo.html
+*.html
+!foo.html
+
+//忽略所有.o和.a文件
+*.[oa]
+```
+
+
+
+
+
+##### 仓库中已经提交该文件
+
+```js
+//1.对于已经加入到版本库的文件，可以在版本库中删除该文件
+git rm --cached .idea
+
+//然后在 .gitignore 中配置忽略
+.idea
+
+//最后
+add  和 commit 提交即可
+```
+
+
+
+
+
+
+
+### 基本操作
+
+Git 的起始操作包括以下几个步骤
+
+1. 创建并进入空文件夹
+2. 右键 -> 点击 Git Bash Here 启动命令行
+3. `git init` 仓库初始化
+4. 创建一个初始化文件 index.html
+5. `git add index.html` 将文件加入到暂存区
+6. `git commit -m '注释'`   提交到仓库  m 是 message 单词的缩写
+
+
+
+
+
+#### 查看暂存区文件
 
 ```git
 git ls-files
@@ -127,19 +322,26 @@ git ls-files
 
 
 
-### 常用命令
+#### 常用命令
 
-* <span style="color:red">git status</span> 版本状态查看 
-* <span style="color:red">git add -A</span> 添加所有新文件到**暂存区**
-* <span style="color:red">git commit -m '注释 '</span> 提交修改并注释
-* `git diff`  查看工作区与暂存区的差异（不显示新增文件） 显示做了哪些修改
-* `git diff --cached` 查看暂存区与仓库的差异
+```js
+- git status 版本状态查看 
+- git add -A 添加所有新文件到暂存区
+- git commit -m '注释 ' 提交修改并注释
+- git diff  查看工作区与暂存区的差异（不显示新增文件） 显示做了哪些修改
+- git diff --cached 查看暂存区与仓库的差异
+
+```
 
 
 
-### 状态查看
 
-#### status 状态
+
+
+
+
+
+#### 状态查看
 
 git status 查看当前 Git 仓库的状态
 
@@ -178,12 +380,11 @@ Changes not staged for commit:  为登上舞台修改提交
 
 在工作区对这几个文件进行了内容修改.
 
-### 关于颜色
 
-* 红色   红色的文件 修改只存在于『工作区』
-* 绿色   绿色的文件 此修改存在于『工作区与暂存区』
 
-### 历史版本回滚
+### git高级
+
+#### 历史版本回滚
 
 > HEAD指向的版本就是当前的版本,因此git允许我们在版本的历史之间穿梭.
 >
@@ -231,73 +432,11 @@ git checkout . //在add之前使用,撤销所有的更改. 在add之后使用,�
 
 
 
-### 空文件夹无法提交
-
-git和 svn不同，仅仅跟踪文件的变动，不跟踪目录。
-
-```HTML
-最主流的做法是，在空目录下创建 .gitkeep 或者 .keep 空文件，或者 .gitignore 文件，这只是一个约定俗成的空目录识别文件名，其实除了占位识别空目录
-```
 
 
 
 
-
-
-
-### <span style="color:red">配置忽略文件.gitigonre</span>
-
-##### 仓库中没有提交该文件
-
-项目中有些文件不应该存储到版本库中，Git 中需要创建一个文件 『.gitignore』 配置忽略，一般与 .git 目录同级。
-
-常见情况有：
-
-1. 临时文件.     
-2. 多媒体文件，如音频，视频
-3. 编辑器生成的配置文件  (.idea)
-4. npm 安装的第三方模块
-
-```js
-//以#开始的行,被视为注释
-
-//忽略所有的 .idea 文件夹
-.idea
-//忽略所有以 .test 结尾的文件
-*.test
-//忽略 node_modules 文件和文件夹 斜杠加不加都可以
-/node_modules
-
-//忽略掉所有文件名是foo.txt的文件
-foo.txt
-
-//忽略所有生成的html文件,除了foo.html
-*.html
-!foo.html
-
-//忽略所有.o和.a文件
-*.[oa]
-```
-
-> .gitignore 可以在子文件夹下创建
-
-##### 仓库中已经提交该文件
-
-1. 对于已经加入到版本库的文件，可以在版本库中删除该文件
-
-   ```sh
-   git rm --cached .idea
-   ```
-
-2. 然后在 .gitignore 中配置忽略
-
-   ```sh
-   .idea
-   ```
-
-3. add  和 commit 提交即可
-
-### <span style="color:red">分支</span>
+#### 分支
 
 分支是 Git 重要的功能特性之一，开发人员可以在主开发线的基础上分离出新的开发线。branch
 
@@ -375,7 +514,7 @@ git checkout -b name
 
 
 
-#### <span style="color:red">冲突</span>
+#### 冲突
 
 当多个分支修改同一个文件后，合并分支的时候就会产生冲突。冲突的解决非常简单，『将内容修改为最终想要的结果』，然后继续执行 git add 与 git commit 就可以了。
 
@@ -681,7 +820,13 @@ GitHub 团队协作开发也比较容易管理，可以创建一个组织
 
 同分支冲突一样的处理，将代码调整成最终的样式，提交代码即可。
 
-##### 
+
+
+
+
+
+
+
 
 ### GitFlow
 
