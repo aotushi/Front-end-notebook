@@ -11,7 +11,7 @@
 - [06_6_Vue3](./note/06_6_Vue3.md)
 - [07_React](./note/07_React.md)
 - [08_webpack](./note/08_webpack.md)
-- [09_面试问题(学生整理)](./note/09_面试问题.md)
+- [09_面试问题](./note/09_面试问题.md)
 
 
 
@@ -25,7 +25,7 @@
 * [06_BOM](./note2/06_BOM.md)
 * [07_jQuery](./note2/07_jQuery.md)
 * [08_Git+BootStrap+Less](./note2/08_Git+BootStrap+Less.md)
-* [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝 .md.md)
+* [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝 .md)
 * [10_Nodejs+Promise+模块化+gulp+存储 ](./note2/10_Nodejs+Promise+模块化+gulp+存储.md)
 * [11_webpack配置教程](./note2/11_webpack配置教程.md)
 * [12_react](./note2/12_react.md)
@@ -41,5 +41,6 @@
 * [21_组件间通信](./note2/21_组件间通信.md)
 * [22_Vue项目后台](./note2/22_Vue项目后台.md)
 * [23_小程序uniapp](./note2/23_小程序uniapp.md)
-* [24_实战](./note2/24_实战.md)
+* [24_其他](./note2/24_实战.md)
 * [HTML5+CSS3 视频教程](./note2/HTML5+CSS3视频教程.md)
+

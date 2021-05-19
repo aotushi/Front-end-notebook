@@ -1621,7 +1621,7 @@ console.log(c, typeof c); // true string
 
 
 
-### 流程控制语句
+## 流程控制语句
 
 > JS代码默认是从上到下执行的,可以通过 流程控制语句 来改变程序的执行顺序
 >
@@ -1837,8 +1837,6 @@ console.log(c, typeof c); // true string
   ```
 
   
-
-## 1024
 
 
 
@@ -2263,7 +2261,7 @@ console.timeEnd();
 
 ### 对象
 
-### 基本认识
+#### 基本认识
 
 ```js
 * 对象是一种新的数据类型
@@ -2277,13 +2275,13 @@ console.timeEnd();
 
 
 
-### 特点
+#### 特点
 
 比较两个对象是否相等(全等),比较的是两个对象的 内存地址 是否相同.
 
 
 
-### 创建对象3种方法
+#### 创建对象3种方法
 
 ```js
 * 创建对象(3种方法)
@@ -2298,7 +2296,7 @@ let ojb = {};
 
 
 
-### 读取对象属性2种方法
+#### 读取对象属性2种方法
 
 ```js
 对象.属性名
@@ -2318,7 +2316,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-### 向对象种添加属性
+#### 向对象种添加属性
 
 ```js
 * 向对象中添加属性
@@ -2335,7 +2333,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-### 对象中的方法
+#### 对象中的方法
 
 ####  in/delete
 
@@ -2427,6 +2425,14 @@ let obj = {         //左边的花括号表示字面量的开始
 
 
 ### 对象属性枚举for-in
+
+`for...in`语句以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性。//直接赋值和属性初始化<==>Object.definedProperty
+
+`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`
+
+
+
+
 
 ```Markdown
 * 获取对象中的属性
@@ -3094,8 +3100,6 @@ console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,
 
 
 
-
-## 1027
 
 ### 作用域链
 
@@ -4171,7 +4175,12 @@ shift()
 
 
 
-### 遍历数组方法
+### 遍历数组的5种方法
+
+```html
+```
+
+
 
 #### for循环正序
 
@@ -4184,9 +4193,7 @@ for(let i=0; i<arr.length; i++){}
 #### for循环倒叙
 
 ```js
-for(let i=arr.length;i>0;i--){
-  
-}
+for(let i=arr.length;i>0;i--){}
 ```
 
 
@@ -4232,6 +4239,10 @@ arr = ['孙悟空', '沙和尚', '猪八戒'];
 
 
 #### for...of
+
+`for…of` 是在 ES6（ECMAScript 6）中实现标准化的。它会对一个可迭代的对象（例如 `array`、`map`、`set`、`string` 等）创建一个循环
+
+
 
 #### for...in
 

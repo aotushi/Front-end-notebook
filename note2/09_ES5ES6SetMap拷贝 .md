@@ -416,7 +416,7 @@ if (true) {
 
 
 
-### 字符串的迭代与解构 补充1204
+### 字符串的迭代与解构
 
 > 字符串原型上暴露了一个@@iterator方法,表示可以迭代字符串的每个字符.
 >
@@ -1413,15 +1413,79 @@ replace方法
 
 ### 迭代器
 
-> 在JS中是一种特殊的方法
->
-> 迭代器(Iterator)是一种接口, 为各种不同的数据结构提供统一的访问机制.==任何数据结构==只要部署iterator接口,就可以完成遍历操作.
->
-> 1.ES6创造了一种新的遍历命令for...of循环, 
->
-> 2.原生具备iterator接口的数据(可用for of遍历): Array Arguments Set Map String TypeArray NodeList
+在JS中是一种特殊的方法
+
+迭代器(Iterator)是一种接口, 为各种不同的数据结构提供统一的访问机制.==任何数据结构==只要部署iterator接口,就可以完成遍历操作.
+
+1.ES6创造了一种新的遍历命令for...of循环, 
+
+2.原生具备iterator接口的数据(可用for of遍历): Array Arguments Set Map String TypeArray NodeList
 
 ==需要自定义遍历数据的时候, 要想到迭代器==
+
+
+
+### for...of
+
+**`for...of`语句**在[可迭代对象](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)（包括 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)，[`Map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map)，[`Set`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Set)，[`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)，[`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)，[arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions_and_function_scope/arguments) 对象等等）上创建一个迭代循环，调用自定义迭代钩子，并为每个不同属性的值执行语句
+
+```js
+//语法
+for(variable of iterable){
+  //statements
+}
+variable 在每次迭代中,将不同属性的值分配给变量
+iterable 被迭代枚举其属性的对象
+```
+
+迭代Array
+
+```js
+let iterable = [10,20,30];
+for(const value of iterable){
+  value += 1;
+  console.log(value);
+}//11 21 31
+
+如果你不想修改语句块中的变量 , 也可以使用const代替let
+```
+
+迭代string
+
+```js
+let iterable = 'boo';
+for(let value of iterable){
+  console.log(value);
+}//'b' 'o' 'o'
+```
+
+迭代Map
+
+```js
+let iterable = new Map([["a", 1], ["b", 2], ["c", 3]]);
+
+for (let entry of iterable) {
+  console.log(entry);
+}
+// ["a", 1]
+// ["b", 2]
+// ["c", 3]
+
+for (let [key, value] of iterable) {
+  console.log(value);
+}
+// 1
+// 2
+// 3
+```
+
+
+
+关闭迭代器
+
+对于`for...of`的循环，可以由`break`, `throw continue `  或`return`终止。在这些情况下，迭代器关闭。
+
+
 
 
 
@@ -1532,8 +1596,6 @@ for(let i of team2['members']){
 
 
 
-
-## 1202
 
 ### set集合
 
