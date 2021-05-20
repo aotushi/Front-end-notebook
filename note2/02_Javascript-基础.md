@@ -1226,7 +1226,7 @@ age &&= 24;  // 等同于 age = age && 24
 
 #### in
 
-in运算符用来判断对象是否用友给定属性
+如果指定的属性在指定的对象或其原型链中，则**`in` 运算符**返回`true`
 
 ```js
 //语法
@@ -1252,7 +1252,7 @@ let myObj = {make: "Honda", model: "Accord", year: 1998};
 
 
 
-对被删除或值为 undefined 的属性使用in
+对被删除的属性使用in,返回false
 
 ```js
 var mycar = {make: "Honda", model: "Accord", year: 1998};
@@ -1264,7 +1264,7 @@ delete trees[3];
 3 in trees; // 返回false
 ```
 
-如果你只是将一个属性的值赋值为[`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，而没有删除它，则 `in` 运算仍然会返回`true`
+属性的值赋值为[`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，而没有删除它，则 `in` 运算仍然会返回`true`
 
 ```js
 var mycar = {make: "Honda", model: "Accord", year: 1998};
@@ -1282,6 +1282,8 @@ trees[3] = undefined;
 
 ```js
 "toString" in {}; // 返回true
+
+String方法是是谁身上的，无论是Object还是Function，都是返回的false.
 ```
 
 
@@ -1377,8 +1379,39 @@ result = 'blskdjf' < 'a'; //false  如果第一位b的Unicode编码大于a的,�
 
 
 
+### 运算符
 
-#### 可选链运算符?
+#### 运算符优先级
+
+> 和数学一样,JS中的运算符也有优先级
+>
+> JS中有一个优先级的表格, 所有的运算符的优先级可以在表格中查询
+>
+> ​	表格中位置越靠上的优先级越高,优先级越高越先计算,  优先级一样,自左向右运算
+>
+> ​	优先级表格不需要记忆,如果遇到拿不准的,使用()改变优先级
+>
+> [查询网址](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
+
+
+
+#### 运算符介绍
+
+#### 可选链?
+
+> 调用一个属性或方法,如果有就调用,没有就返回undefined  避免报错.  注意兼容性
+
+```JavaScript
+let b = null;
+b = b.toString();
+console.log(b, typeof b); // 报错
+
+let b = null;
+b = b?.toString();
+console.log(b, typeof b); // undefined;
+```
+
+
 
 ```js
 //想要使用某个结构比较深的属性，同时又无法确定所有的父级一定存在时，我们需要进行一连串的判断
@@ -1429,7 +1462,21 @@ student?.score?.math?.[2]?.();
 
 
 
-####   双问号运算符
+
+
+#### 双问号运算符??
+
+<kbd>??</kbd> 空值合并  注意兼容性
+
+```js
+let c = "haha";
+c = null; //没值
+c = undefined; //没值
+c = NaN; //是一个值
+//如果c有值就赋值给d,如果c没值就把空值合并后的  
+let d = c ?? 'c没有值';
+console.log(d);
+```
 
 ```js
 //双问号运算符??，我理解是为了解决或运算符||而设计出来的。
@@ -1445,52 +1492,6 @@ getScore(0);
 ```
 
 
-
-
-
-### 运算符优先级
-
-> 和数学一样,JS中的运算符也有优先级
->
-> JS中有一个优先级的表格, 所有的运算符的优先级可以在表格中查询
->
-> ​	表格中位置越靠上的优先级越高,优先级越高越先计算,  优先级一样,自左向右运算
->
-> ​	优先级表格不需要记忆,如果遇到拿不准的,使用()改变优先级
->
-> [查询网址](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence)
-
-
-
-运算符介绍
-
-* <kbd>?</kbd> 可选链
-
-  > 调用一个属性或方法,如果有就调用,没有就返回undefined  避免报错.  注意兼容性
-
-  ```JavaScript
-  let b = null;
-  b = b.toString();
-  console.log(b, typeof b); // 报错
-  
-  let b = null;
-  b = b?.toString();
-  console.log(b, typeof b); // undefined;
-  ```
-
-  
-
-* <kbd>??</kbd> 空值合并  注意兼容性
-
-* ```Javascript
-  let c = "haha";
-  c = null; //没值
-  c = undefined; //没值
-  c = NaN; //是一个值
-  //如果c有值就赋值给d,如果c没值就把空值合并后的  
-  let d = c ?? 'c没有值';
-  console.log(d);
-  ```
 
 
 
@@ -1593,11 +1594,7 @@ console.log(c, typeof c); // true string
 
 ### 代码块
 
-> JS中使用{}创建代码块
->
-> 代码块用来为代码进行 分组
->
-> 统一代码块中代码为一组代码, 要么都执行,要么都不执行
+JS中使用{}创建代码块 代码块用来为代码进行 分组 统一代码块中代码为一组代码, 要么都执行,要么都不执行
 
 
 
@@ -1633,25 +1630,25 @@ console.log(c, typeof c); // true string
 
 #### if语句(条件判断语句)
 
-* 语法: 
+语法: 
 
-  ```JavaScript
-  if(条件表达式){
-      语句...
-  }
-  ========================  
-  if(!isNaN(i)){
-      语句...
-  }
-  ```
+```JavaScript
+if(条件表达式){
+    语句...
+}
+========================  
+if(!isNaN(i)){
+    语句...
+}
+```
 
-* 执行流程:
+执行流程:
 
-  * if语句在执行时,先对条件表达式进行 求值判断.
-    * 如果为true, 则执行if后的语句
-    * 如果为false, 则不执行
-  * if语句会控制紧随其后的那条语句, 如果希望可以控制多条语句,可以将语句放入一个代码块
-  * 如果if的条件表达式不是一个布尔值,它会将其先转换为布尔值然后判断
+* if语句在执行时,先对条件表达式进行 求值判断.
+  * 如果为true, 则执行if后的语句
+  * 如果为false, 则不执行
+* if语句会控制紧随其后的那条语句, 如果希望可以控制多条语句,可以将语句放入一个代码块
+* 如果if的条件表达式不是一个布尔值,它会将其先转换为布尔值然后判断
 
 
 
@@ -1661,20 +1658,21 @@ console.log(c, typeof c); // true string
 
 ##### if-else语句
 
-* 语法:
+语法:
 
-  ```JavaScript
-  if(条件表达式){
-      语句...
-  }else{
-      语句...
-  }
-  ```
+```JavaScript
+if(条件表达式){
+    语句...
+}else{
+    语句...
+}
+```
 
-* 执行流程:
-  * if-else语句在执行时,会先对条件表达式进行求值判断,
-    * 如果为true, 则执行if后的条件表达式
-    * 如果为false, 则执行else后的条件表达式
+执行流程:
+
+if-else语句在执行时,会先对条件表达式进行求值判断,
+* 如果为true, 则执行if后的条件表达式
+* 如果为false, 则执行else后的条件表达式
 
 
 
@@ -1682,51 +1680,51 @@ console.log(c, typeof c); // true string
 
 #####  if-else if-else语句
 
-* 语法:
+语法:
 
-  ```JavaScript
-  if(条件表达式){
-      语句...
-  }else if(条件表达式){
-      语句...
-  }else if(条件表达式){
-      语句...
-  }else if(条件表达式){
-      语句...
-  }else{
-      语句...
-  }
-  ```
+```JavaScript
+if(条件表达式){
+    语句...
+}else if(条件表达式){
+    语句...
+}else if(条件表达式){
+    语句...
+}else if(条件表达式){
+    语句...
+}else{
+    语句...
+}
+```
 
-* 执行流程
-  * if-else if-else在执行时,自上向下依次对if后的条件表达式进行求值判断,
-    * 如果结果为true,则执行当前if后的语句,执行完毕语句结束.
-    * 如果结果为false,则继续向下判断,直到找到true为止,
-    * 如果没有true,则执行else后的语句.
-  * ==if-else if-else中只会有一个代码块会执行,一旦符合条件其余代码块都不会执行==
+执行流程
+* if-else if-else在执行时,自上向下依次对if后的条件表达式进行求值判断,
+  * 如果结果为true,则执行当前if后的语句,执行完毕语句结束.
+  * 如果结果为false,则继续向下判断,直到找到true为止,
+  * 如果没有true,则执行else后的语句.
+* ==if-else if-else中只会有一个代码块会执行,一旦符合条件其余代码块都不会执行==
 
-* 案例
+案例
 
-  ```JavaScript
-  //练习1:编写一个程序，获取一个用户输入的整数。然后通过程序显示这个数是奇数还是偶数。
-  
-  <script>
-      let num = +prompt('请输入一个整数');   //注意,prompt函数如果不填写值会直接返回一个字符串
-  	if(num > 0){
-          if (num % 2 === 0){
-          	alert('偶数');
-      	}else{
-          	alert('奇数');
-      	}
-      }else{
-          alert('非法数值,请重新输入');
-      }
-      
-  </script>   
-  
-  ```
+```JavaScript
+//练习1:编写一个程序，获取一个用户输入的整数。然后通过程序显示这个数是奇数还是偶数。
 
-  
+<script>
+    let num = +prompt('请输入一个整数');   //注意,prompt函数如果不填写值会直接返回一个字符串
+	if(num > 0){
+        if (num % 2 === 0){
+        	alert('偶数');
+    	}else{
+        	alert('奇数');
+    	}
+    }else{
+        alert('非法数值,请重新输入');
+    }
+    
+</script>   
+
+```
+
+
 
 
 
@@ -1742,50 +1740,51 @@ console.log(c, typeof c); // true string
 
 #### switch语句
 
-* 语法:
+语法:
 
-  ```JavaScript
-  switch (条件表达式) {
-          case 表达式:
-          	语句...;
-          	break;
-          case 表达式:
-          	语句...;
-          	break;
-          case 表达式:
-          	语句...;
-          	break;
-          default:
-          	语句...;
-          	break;
-          }
-  
-  ===================================
-  switch (num) {
-      case 1:
-          alert('a');
-          break;
-      case 2:
-          alert('b');
-          break;
-      case 3:
-          alert('c');
-          break;
-      case 'b':
-      case 'c':
-      case 'd':
-          alert('输错了');
-          break;   // b,c,d共用c的内容.
-  }
-  ```
+```JavaScript
+switch (条件表达式) {
+        case 表达式:
+        	语句...;
+        	break;
+        case 表达式:
+        	语句...;
+        	break;
+        case 表达式:
+        	语句...;
+        	break;
+        default:
+        	语句...;
+        	break;
+        }
 
-  
+===================================
+switch (num) {
+    case 1:
+        alert('a');
+        break;
+    case 2:
+        alert('b');
+        break;
+    case 3:
+        alert('c');
+        break;
+    case 'b':
+    case 'c':
+    case 'd':
+        alert('输错了');
+        break;   // b,c,d共用c的内容.
+}
+```
 
-* 执行流程
-  * switch-case在执行时，会自上向下依次将switch后的条件表达式和case后的表达式进行全等比较,
-  * 如果比较结果为true, 则自当前case处开始向下执行代码(执行完一个case后会接着执行),
-  * 如果比较结果为false,则继续向下比较直到找到true为止,
-  * 如果所有的比较结果都是false,则自default处开始向下执行代码.所以如果default代码在首部,需要加break,故无论哪个位置,加上.
+
+
+执行流程
+* switch-case在执行时，会自上向下依次将switch后的条件表达式和case后的表达式进行全等比较,
+* 如果比较结果为true, 则自当前case处开始向下执行代码(执行完一个case后会接着执行),
+* 如果比较结果为false,则继续向下比较直到找到true为止,
+* 如果所有的比较结果都是false,则自default处开始向下执行代码.所以如果default代码在首部,需要加break,故无论哪个位置,加上.
+
 * 注意:
   * switch-case条件满足时,自当前case处开始向下执行代码
   * 只要代码在case的后边,即使代码在其他的case后边也会执行
@@ -1802,41 +1801,41 @@ console.log(c, typeof c); // true string
 
 #### while循环
 
-* 语法:
+语法:
 
-  ```JavaScript
-  while(条件表达式){
-      语句...
-  }
-  ```
-
-  
-
-* 执行流程
-  * while语句在执行时,先对条件表达式进行求值判断
-  * 如果判断结果为false,则语句结束
-  * 如果结果为true,则只带代码块(循环体)中的代码
-    * 执行完毕继续对条件表达式进行求值判断,以此类推
+```JavaScript
+while(条件表达式){
+    语句...
+}
+```
 
 
 
-* 条件表达式恒为true的循环,是死循环,会一直执行
+执行流程
+* while语句在执行时,先对条件表达式进行求值判断
+* 如果判断结果为false,则语句结束
+* 如果结果为true,则只带代码块(循环体)中的代码
+  * 执行完毕继续对条件表达式进行求值判断,以此类推
 
 
 
-* ```JavaScript
-  // 初始化表达式,初始化一个变量
-  let i = 0;
-  
-  //条件表达式, 设置循环运行的条件
-  while(i < 5){
-      //执行语句
-      //更新表达式,对初始化变量进行修改
-      i++;
-  }
-  ```
+条件表达式恒为true的循环,是死循环,会一直执行
 
-  
+```js
+// 初始化表达式,初始化一个变量
+let i = 0;
+
+//条件表达式, 设置循环运行的条件
+while(i < 5){
+    //执行语句
+    //更新表达式,对初始化变量进行修改
+    i++;
+}
+```
+
+
+
+
 
 
 
@@ -1846,48 +1845,50 @@ console.log(c, typeof c); // true string
 
 #### do-while循环
 
-* 语法:
+语法:
 
-  ```JavaScript
-  do{
-      语句...
-  }while(条件表达式)
-  ```
+```JavaScript
+do{
+    语句...
+}while(条件表达式)
+```
 
-* 执行流程:
+执行流程:
 
-  * do-while在执行时,它会先执行do后的循环体,
-    * 执行完毕对对while后的条件表达式进行求值判断
-      * 如果为false,则语句直接结束
-      * 如果为true, 则继续执行循环体,以此类推
+* do-while在执行时,它会先执行do后的循环体,
+  * 执行完毕对对while后的条件表达式进行求值判断
+    * 如果为false,则语句直接结束
+    * 如果为true, 则继续执行循环体,以此类推
 
 * while是先判断后执行,do-while是先执行后判断, 可以确保循环体至少执行一次
 
-* 案例:
 
-  ```JavaScript
-  let money = 1000;
-  let count = 0;
-  while(money < 5000){
-      money *= 1.05;
-      count++;
-  }
-  alert('count');
-  
-  
-  ============================
-  let money = 1000;
-  let count = 0;
-  
-  do{
-      money *= 1.05;
-      count++;
-  }while(money < 5000);
-  
-  alert(count);
-  ```
-  
-  
+
+案例:
+
+```JavaScript
+let money = 1000;
+let count = 0;
+while(money < 5000){
+    money *= 1.05;
+    count++;
+}
+alert('count');
+
+
+============================
+let money = 1000;
+let count = 0;
+
+do{
+    money *= 1.05;
+    count++;
+}while(money < 5000);
+
+alert(count);
+```
+
+
 
 
 
@@ -1958,6 +1959,15 @@ for(let i=0; i<100; i+=7){
   num += i;
   count++;
 }
+
+
+for(let i=0;i<100;i++){
+  if(i%7===0){
+    num += i;
+    count++;
+  }
+}
+
 console.log(num,count);
 ```
 
@@ -1976,7 +1986,6 @@ for(let i=100; i<1000; i++){
     if(hundred**3 + sec2**3 +thr3**3 === i){
         console.log(i);
     }
-    
 }
 ```
 
@@ -4630,7 +4639,15 @@ arr.sort(function (a, b) {
 }); 
 console.log(arr);
 
-
+arr.sort((a,b)=>{
+  if(a>b){
+    return 1;
+  }else if(a<b){
+    return -1;
+  }else{
+    return 0;
+  }
+})
 
 
 
