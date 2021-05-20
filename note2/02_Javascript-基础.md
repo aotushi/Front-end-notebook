@@ -2075,7 +2075,7 @@ for(let i=0; i<arr.length; i++){
     }
 }
 
-console.log(newArr)
+console.log(newArr) sd
 ```
 
 
