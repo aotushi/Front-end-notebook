@@ -2187,7 +2187,7 @@ for(i=2; i<100; i++){   //获取100以内所有的数
 
 ```JavaScript
 - break
-* break可以用来结束 switch和循环语句
+* break可以用来结束 switch和循环语句,不能用在if语句中
 * break一旦执行,循环会立即结束
 * break会离它最近的循环起作用
 
@@ -2274,7 +2274,7 @@ console.timeEnd();
 
 ```js
 * 对象是一种新的数据类型
-* 之前学习的数据类型是一个个独立的值,它们不适合表示一些更复杂的数据
+* 之前了解的数据类型是一个个独立的值,它们不适合表示一些更复杂的数据
 * 对象就相当于一个容器,在对象中可以存放多种不同类型的数据
 * 对象是一种复合数据类型
 * 使用typeof检查一个对象时,会返回object
@@ -2354,8 +2354,10 @@ in
 	
 	
 delete
-	用来删除对象中的指定属性
-	语法: delete 对象.属性名
+	用来删除对象中的指定属性,无论有没有这个属性,返回true 
+	语法: 
+  delete obj.username
+  delete obj['a-b']   
 	
 ```
 
@@ -2375,6 +2377,14 @@ obj.test.tt = Object();
 
  
 
+#### 对象静态方法
+
+```js
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object#%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95
+```
+
+
+
 #### Object.assign()
 
 **Object.assign()** 方法用于将所有可枚举属性的值从一个或多个源对象分配到目标对象。它将返回目标对象. 同时它也可以实现浅拷贝.因为 `Object.assign()`拷贝的是（可枚举）属性值。
@@ -2389,13 +2399,107 @@ const returnTarget = Object.assign(target,source);
 
 console.log(target);//{ a: 1, b: 4, c: 5 }
 console.log(returnTarget);//{ a: 1, b: 4, c: 5 }
+
+//浅拷贝测试
+target['e']=5;
+console.log(returnTarget.e) //5
 ```
 
 
 
 #### Object.keys
 
+返回一个由一个给定对象的自身可枚举属性组成的数组，数组中属性名的排列顺序和正常循环遍历该对象时返回的顺序一致.
 
+**不保证对象属性的顺序**,mdn上没有直接说明,只是说明和手动遍历相同.因为迭代的顺序是依赖于浏览器实现的，结论是不保证.
+
+```js
+// simple array
+var arr = ['a', 'b', 'c'];
+console.log(Object.keys(arr)); // console: ['0', '1', '2']
+
+// array like object
+var obj = { 0: 'a', 1: 'b', 2: 'c' };
+console.log(Object.keys(obj)); // console: ['0', '1', '2']
+
+// array like object with random key ordering
+var anObj = { 100: 'a', 2: 'b', 7: 'c' };
+console.log(Object.keys(anObj)); // console: ['2', '7', '100']
+```
+
+
+
+```js
+//对象中的属性排序,新对象
+var anObj = { 100: 'a', 2: 'b', 7: 'c' };
+let arr = Object.keys(anObj);
+let newObj = {};
+for(let i=0;i<arr.length;i++){
+  newObj[arr[i]]=anObj[arr[i]]
+}
+console.log(newObj); //{ '2': 'b', '7': 'c', '100': 'a' }
+```
+
+```js
+https://juejin.cn/post/6844903796062191624
+
+//保证对象属性顺序的迭代方式
+js内部的ownPropertyKeys方法,定义了对象属性遍历的顺序.
+基于内部ownPropertyKeys方法实现的方法有Object.hasOwnPropertyNames()和Reflect.ownKeys(),这两种都保证对象属性的顺序.
+Reflect.ownKeys()返回的结果等价于Object.hasOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target))包括直接挂在目标对象上的可枚举、不可枚举、Symbols的属性组成的数组。但是要考虑兼容性（ES6提出，ie不支持)
+
+Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不可枚举属性组成的，在ES5提出，兼容性更好，支持IE9+：
+
+
+//为Object.keys()添加顺序
+Object.keys.sort()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Object.is
+
+判断两个值是否为[同一个值](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness). 
+
+与`==`运算符不通,`Object.is`不会强制转换两边的值.
+
+与`===`运算符不同,`Object.is`会将`-0`和`+0`视为不相等,将`Number.NaN`与`NaN`视为相等.
+
+```js
+Object.is(value1,value2)
+
+返回值:布尔值
+
+//判断条件:
+
+
+
+//示例
+Object.is([], []);           // false
+
+var foo = { a: 1 };
+var bar = { a: 1 };
+Object.is(foo, foo);         // true
+Object.is(foo, bar);         // false
+
+Object.is(null, null);       // true
+
+Object.is(0, -0);            // false
+Object.is(0, +0);            // true
+Object.is(-0, -0);           // true
+Object.is(NaN, 0/0);         // true
+Object.is(NaN,NaN);          //true
+```
 
 
 
@@ -2435,43 +2539,65 @@ let obj = {         //左边的花括号表示字面量的开始
 
 ### 对象属性枚举for-in
 
-`for...in`语句以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性。//直接赋值和属性初始化<==>Object.definedProperty
+`for...in`语句以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
 
-`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`
+数组迭代和for...in
+
+for...in不应该用于迭代一个关注索引顺序的Array
+
+`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`.
+
+处理有`key-value`数据（比如属性用作“键”），需要检查其中的任何键是否为某值的情况时，还是推荐用`for ... in`
+
+仅迭代自身的属性?
+
+如果你只要考虑对象本身的属性，而不是它的原型，那么使用 [`Object.getOwnPropertyNames()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames) 或执行 [`Object.prototype.hasOwnProperty()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty) 来确定某属性是否是对象本身的属性（也能使用[`propertyIsEnumerable`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/propertyIsEnumerable)）
 
 
 
-
-
-```Markdown
+```js
 * 获取对象中的属性
 
-* for-in
-for-in 来枚举对象中的属性
+for-in 来枚举对象中的属性及原型上的属性
 语法:
 	for(let 变量 in 对象){
 		语句...
 	}
 	
-for-in会执行多次,对象中有几个属性名就执行几次.每次执行都会将一个属性名赋值给变量
-
-for(let n in obj){
-console.log(n, obj.n); //返回的是undefined,n是变量,obj中也没有为n的属性
+//示例 for...in遍历自身及原型上的属性
+let obj ={a:1, b:2, c:3};
+function addObj(){
+	this.d = 4;
 }
-
-for(let n in obj){
-	console.log(n, obj[n])
+addObj.prototype = obj;
+let newObj = new addObj;
+for(let i in newObj){
+  console.log(i);  //d a b c
+};
+ 
+//示例 hasOwnProperty+for...in
+let obj = {a:1,b:2,c:3};
+function addObj(){
+  this.d = 4;
+}
+addObj.prototype = obj;
+let newObj = new addObj;
+for(let i in newObj){
+  if(newObj.hasOwnProperty(i)){
+    console.log(i); //d
+  }
 }
 ```
 
 
 
-```JavaScript
-for(let n in obj){
-    console.log(obj.n); // 错误.因为这种写法是找obj中属性名为n的属性值
-    console.log(obj[n]); //如何理解这句话? 因为console.log(n)打印的是属性名.故通过obj[]可以打印出属性值
-}
-```
+
+
+
+
+
+
+
 
 
 
@@ -6707,35 +6833,20 @@ JSON.parse(json串)
 
 
 
-#### stringify() | parse()
+#### stringify() |
 
 ```javascript
-let jsonObj = '{"name":"孙悟空", "age":18, "a":true, "b":null}';
-let jsonArr = '[1, 2, 3]';
-=================================================
-obj = {
-    name:'孙悟空',
-    age:18,
-    brother:[
-        {
-            name:'猪八戒',
-            age:28
-        },
-        {
-            name:'沙和尚',
-            age:38
-        }
-    ]
-};
+JSON.stringify(NaN); //null
 
-let str = JSON.stringify(obj);//log结果:{"name":"孙悟空","age":18,"brother":[{"name":"猪八戒","age":28},{"name":"沙和尚","age":38}]}
-
-let obj2 = JSON.parse(str);//log结果:
-
-
+JSON.stringify()处理object值，不保证object的属性顺序
 ```
 
 
+
+####  parse()
+
+```js
+```
 
 
 
