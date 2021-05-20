@@ -4730,15 +4730,36 @@ arr.reverse(); // ["e", "d", "c", "b", "a"]
 
 ```
 
-####   sort() <
+####   sort() 
+
+用[原地算法](https://en.wikipedia.org/wiki/In-place_algorithm)对数组的元素进行排序，并返回数组。默认排序顺序是在将元素转换为字符串，然后比较它们的UTF-16代码单元值序列时构建的. 
+
+可以用来对一个数组进行排序,它是一个破坏性的方法..调用后,原数组的顺序就会被改变.
+
+可以通过传递一个 回调函数 来自定义排序规则
 
 ```JavaScript
-- 用来对一个数组进行排序,它是一个破坏性的方法
-- 调用后,原数组的顺序就会被改变
+//语法
+arr.sort([copareFunction]) []标识可选
+返回值:排序后的数组。请注意，数组已原地排序，并且不进行复制
 
-- 它默认的排序顺序是按照Unicode编码进行排序, 即使是数字排序. 
-- 可以通过传递一个 回调函数 来自定义排序规则
 
+当指明了compareFunction,那么数组会按照调用该函数的返回值排序.即a和b是两个将要被比较的元素:
+- 如果compareFunction(a,b)小于0,那么a会被排到b前面.
+- 如果compareFunction(a,b)等于0,那么a和b的位置不变.(备注:标准和浏览器都不保证,具体看mdn)
+- 如果compareFunction(a,b)大于0,那么a在b之后.
+比较函数格式:
+function compare(a,b){
+  if(a<b){
+    return -1;
+  }
+  if(a>b){
+    return 1;
+  }
+  return 0;
+}
+
+要比较数字而非字符串，比较函数可以简单的以 a 减 b
 - 如果希望 升序 排列(从小到大),传:
 	function(a, b){
         return a - b;
@@ -4755,7 +4776,7 @@ arr.reverse(); // ["e", "d", "c", "b", "a"]
     }
 ```
 
-
+示例:
 
 ```JavaScript
 //arr = ['c', 'd', 'a', 'b', 'e']; 字符串排序方式
@@ -4778,6 +4799,27 @@ arr.sort((a,b)=>{
 
 
 ```
+
+使用映射map改善排序
+
+基本思想是首先将数组中的每个元素比较的实际值取出来，排序后再将数组恢复.降低复杂数据的负载.
+
+```js
+let arr = ['Delta', 'alpha', 'CHARLIE', 'bravo'];
+let mappedObj = arr.map((item,index)=>{
+  return {index:index,value:item.toLowerCase()};
+})
+
+mappedObj.sort((a,b)=>{
+  return +(a.value>b.value)||+(a.value===b.value)=-1
+})
+
+let result = mappedObj.map((item)=>{
+  return list[item.index]
+})
+```
+
+
 
 
 
