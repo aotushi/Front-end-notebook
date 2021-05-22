@@ -2296,12 +2296,26 @@ console.timeEnd();
 * 创建对象(3种方法)
 let obj = new Object();
 let obj = Object(); // new可以省略
-let ojb = {};
+let ojb = {};       //对象字面量
 工厂函数
 
 属性名没有任何要求,任何值都可以作为对象的属性名
 如果属性名太过特殊,则需要使用一个特殊的方式来设置:
 ```
+
+#### 对象字面量
+
+使用**字面量**创建对象,可以在创建对象的同时向对象中添加属性. 使用**大括号{}**创建一个对象, 以在对象中指定需要的属性, 属性名和属性值以 **冒号** 连接,以 **逗号** 结尾, 最后一个属性最好不要写逗号
+
+```JavaScript
+let obj = {         //左边的花括号表示字面量的开始
+    name:'孙悟空',
+    age:18,
+    gender:'男'
+};
+```
+
+
 
 
 
@@ -2440,6 +2454,10 @@ for(let i=0;i<arr.length;i++){
 console.log(newObj); //{ '2': 'b', '7': 'c', '100': 'a' }
 ```
 
+
+
+如何保证对象属性的顺序?
+
 ```js
 https://juejin.cn/post/6844903796062191624
 
@@ -2454,14 +2472,6 @@ Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不�
 //为Object.keys()添加顺序
 Object.keys.sort()
 ```
-
-
-
-
-
-
-
-
 
 
 
@@ -2503,45 +2513,11 @@ Object.is(NaN,NaN);          //true
 
 
 
-
-
-
-
-### 对象字面量
-
-使用**字面量**创建对象,可以在创建对象的同时向对象中添加属性
-
-使用**大括号{}**创建一个对象
-
-可以在对象中指定需要的属性
-
-属性名和属性值以 **冒号** 连接,以 **逗号** 结尾, 最后一个属性最好不要写逗号
-
-```JavaScript
-let obj = {         //左边的花括号表示字面量的开始
-    name:'孙悟空',
-    age:18,
-    gender:'男'
-};
-```
-
-
-
-**注意**:
-
-```Markdown
-- 大括号后的分号带不带?
-代码块之后不需要带
-
-```
-
-
-
 ### 对象属性枚举for-in
 
-`for...in`语句以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
+`for...in`语句以任意顺序遍历一个对象的除了[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
 
-数组迭代和for...in
+**数组迭代和for...in的关系**
 
 for...in不应该用于迭代一个关注索引顺序的Array
 
@@ -2549,7 +2525,7 @@ for...in不应该用于迭代一个关注索引顺序的Array
 
 处理有`key-value`数据（比如属性用作“键”），需要检查其中的任何键是否为某值的情况时，还是推荐用`for ... in`
 
-仅迭代自身的属性?
+**仅迭代自身的属性?**
 
 如果你只要考虑对象本身的属性，而不是它的原型，那么使用 [`Object.getOwnPropertyNames()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames) 或执行 [`Object.prototype.hasOwnProperty()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty) 来确定某属性是否是对象本身的属性（也能使用[`propertyIsEnumerable`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/propertyIsEnumerable)）
 
@@ -2563,6 +2539,13 @@ for-in 来枚举对象中的属性及原型上的属性
 	for(let 变量 in 对象){
 		语句...
 	}
+    
+//for...in无法对symbol私有属性遍历
+let sys = Symbol();
+const obj = {name:'jack'}
+for(let i in obj){
+  
+}
 	
 //示例 for...in遍历自身及原型上的属性
 let obj ={a:1, b:2, c:3};
@@ -2591,16 +2574,6 @@ for(let i in newObj){
 
 
 
-
-
-
-
-
-
-
-
-
-
 ### 遍历对象的方法
 
 ```js
@@ -2624,41 +2597,36 @@ Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中
 
 #### 概要
 
-```Markdown
-函数也是一个对象,也是用来存储数据的  // 例如console.log(),和对象的a.b的属性值 函数是对象但是typeof返回'function'
-和普通对象不同,函数中可以用来存储代码 //
-而且可以在需要时对其中的代码进行调用
- 
-## 定义函数的2种方式
-* 函数声明
-* 函数表达式
-```
+在 JavaScript中，函数是**头等(**first-class**)**对象，因为它们可以像任何其他**对象**一样具有属性和方法。它们与其他对象的区别在于函数可以被调用。简而言之，它们是`Function`对象. 要使用一个函数，你必须将其定义在你希望调用它的作用域内。
 
-#### 函数声明3种方式
+#### 函数声明(定义,语句)3种方式
 
-##### 使用函数的构造函数
+在函数体中改变了参数中的值. 如果参数是原始数据类型,那么不会影响到全局;如果参数是引用数据类型,例如对象或数组,这种改变对函数外部是可见的.
 
-##### 使用函数表达式
+##### 函数声明
 
-通常这种方法与变量分配相同.  简言之,函数主题被视为一个表达式,并且该表达式被分配给一个变量.使用这种语法定义的函数可以是命名函数或匿名函数.
-
-没有名称的函数被称为匿名函数.匿名函数是自调用的,这意味着它会自动调用自身.这种行为也称为立即调用的函数表达式(IIFE).
+在关键字'function'之后,必须指定函数的名称. 在函数体中,函数必须将一个值返回给调用方.遇到return语句后,该函数会立即停止执行
 
 ```js
-let b = function(){}
+function fn(n){
+  return n;
+}
 ```
 
 
 
-##### 使用函数声明
+##### 函数表达式
 
-在关键字'function'之后,必须指定函数的名称. 在函数体中,函数必须将一个值返回给调用方.遇到return语句后,该函数会立即停止执行.
+通常这种方法与变量分配相同.  简言之,函数主题被视为一个表达式,并且该表达式被分配给一个变量.使用这种语法定义的函数可以是命名函数或匿名函数. 函数表达式提供函数名后,可以用于在函数内部代指其本身.
 
 ```js
-function fn(){}
+const fn = function fun(n){
+  return n<2?1:n*fn(n-1)
+}
+console.log(fn(3))
 ```
 
-
+当函数作为参数传递给另一个函数时,函数表达式很方便.
 
 ##### Function
 
