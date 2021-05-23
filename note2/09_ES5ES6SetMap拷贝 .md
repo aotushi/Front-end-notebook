@@ -1301,13 +1301,8 @@ console.log(args, [...args]);
 >
 > symbol值不能跟任何值进行计算. 
 >
-> ==动态属性==需要使用对象[中括号]的形式提取
+> 使用for..in或者for...of循环遍历的时候,遍历不到symbol属性.  可以使用Object.getOwnpropertySymbols()获取对象的symbol属性,使用 **Reflect.ownKeys**(对象)来遍历获取对象所有的属性.
 >
-> 使用for..in循环遍历的时候,遍历不到symbol属性. 
->
-> 获取对象所有的键名: let keys = Reflect.ownKeys(对象)
->
-> for(let)
 
 ```js
 const s1 = Symbol();

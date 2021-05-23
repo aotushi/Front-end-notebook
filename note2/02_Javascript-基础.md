@@ -2268,9 +2268,9 @@ console.timeEnd();
 
 
 
-### 对象
+## 对象
 
-#### 基本认识
+### 基本认识
 
 ```js
 * 对象是一种新的数据类型
@@ -2284,13 +2284,13 @@ console.timeEnd();
 
 
 
-#### 特点
+### 特点
 
 比较两个对象是否相等(全等),比较的是两个对象的 内存地址 是否相同.
 
 
 
-#### 创建对象3种方法
+### 创建对象3种方法
 
 ```js
 * 创建对象(3种方法)
@@ -2319,7 +2319,7 @@ let obj = {         //左边的花括号表示字面量的开始
 
 
 
-#### 读取对象属性2种方法
+### 读取对象属性2种方法
 
 ```js
 对象.属性名
@@ -2339,7 +2339,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-#### 向对象种添加属性
+### 向对象种添加属性
 
 ```js
 * 向对象中添加属性
@@ -2356,7 +2356,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-#### 对象中的方法
+### 对象中的方法
 
 ####  in/delete
 
@@ -2391,7 +2391,43 @@ obj.test.tt = Object();
 
  
 
-#### 对象静态方法
+
+
+#### 方法函数
+
+```JavaScript
+* 对象的属性可以是一个函数
+* 当一个对象的属性是函数时,我们就称这个函数是当前对象的方法. 调用函数,称为调用对象的方法
+
+* 函数和方法只是称呼上的不同,没有什么太本质的区别
+```
+
+
+
+```JavaScript
+let obj = {};
+
+obj.name = '孙悟空';
+obj.age = 18;
+obj.sayHello = function(){     //没有设置函数名称
+    alert('大家好，我是孙悟空');
+};
+
+console.log(obj.sayHello); // 打印效果 是一个匿名函数
+
+ƒ (){ 
+    alert('大家好，我是孙悟空');
+}
+
+obj.sayHello(); //运行alert函数
+
+
+
+```
+
+
+
+### 对象静态方法
 
 ```js
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object#%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95
@@ -2532,19 +2568,21 @@ for...in不应该用于迭代一个关注索引顺序的Array
 
 
 ```js
-* 获取对象中的属性
-
+//作用
 for-in 来枚举对象中的属性及原型上的属性
-语法:
+//语法:
 	for(let 变量 in 对象){
 		语句...
 	}
     
 //for...in无法对symbol私有属性遍历
 let sys = Symbol();
-const obj = {name:'jack'}
+const obj = {
+  name:'jack',
+  [symbol]:'objSymbol'
+}
 for(let i in obj){
-  
+  console.log(i); //只能打印name属性
 }
 	
 //示例 for...in遍历自身及原型上的属性
@@ -2591,205 +2629,107 @@ Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中
 
 
 
+### 对象类型介绍
+
+```javascript
+# 对象分类
+
+* 内建对象
+ - 由ES标准所定义的对象.例如string, number, boolean, Math, Date
+
+* 宿主对象
+ - 由JS的运行环境所提供的对象 //浏览器
+ - BOM, DOM(window, document, alert, ....)
+
+* 自定义对象
+ - 由我们自己定义的对象
+```
 
 
-### 函数
 
-#### 概要
+## 函数
+
+### 概要
 
 在 JavaScript中，函数是**头等(**first-class**)**对象，因为它们可以像任何其他**对象**一样具有属性和方法。它们与其他对象的区别在于函数可以被调用。简而言之，它们是`Function`对象. 要使用一个函数，你必须将其定义在你希望调用它的作用域内。
 
-#### 函数声明(定义,语句)3种方式
+### 定义函数的3种方式
+
+函数创建有3种方式: 函数声明,函数表达式,及Function声明.
 
 在函数体中改变了参数中的值. 如果参数是原始数据类型,那么不会影响到全局;如果参数是引用数据类型,例如对象或数组,这种改变对函数外部是可见的.
 
-##### 函数声明
+#### 函数声明
 
-在关键字'function'之后,必须指定函数的名称. 在函数体中,函数必须将一个值返回给调用方.遇到return语句后,该函数会立即停止执行
+在关键字'function'之后,必须指定函数的名称. 在函数体中,函数必须将一个值返回给调用方.遇到return语句后,该函数会立即停止执行.
+
+- 原始数据作为值传递给函数,如果函数改变了这个参数,不会影响到全局或调用函数.
+- 引用数据作为值传递给函数,如果函数改变了这个对象的属性,这种外边对函数外部是可见的.
 
 ```js
 function fn(n){
   return n;
 }
-```
 
-
-
-##### 函数表达式
-
-通常这种方法与变量分配相同.  简言之,函数主题被视为一个表达式,并且该表达式被分配给一个变量.使用这种语法定义的函数可以是命名函数或匿名函数. 函数表达式提供函数名后,可以用于在函数内部代指其本身.
-
-```js
-const fn = function fun(n){
-  return n<2?1:n*fn(n-1)
+let obj = {};
+function fn(obj){
+  obj.newpro = 'typora'
 }
-console.log(fn(3))
-```
-
-当函数作为参数传递给另一个函数时,函数表达式很方便.
-
-##### Function
-
-function Function(){}
-
-
-
-#### 函数声明&调用(?)
-
-```JavaScript
-## 函数声明
-语法:
-	function 函数名(){
-        语句...
-    }   //函数是代码块,所以大括号之外没有分号
-或        
-    function 函数名([形参1,形参2,.....]){}   //中括号都表示是可选的
-    
-    
-## 调用函数
-
-* 调用函数就是让函数中存储的代码执行  //要理解这句话.如果直接使用函数名相当于引用了整个函数块(自己理解)
-* 语法
-        函数对象();    //函数对象不一定是函数名称
-        
-        
-## 
-使用typeof检查一个函数时,会返回 'function'
-        typeof fn   //不是fn() 是函数对象 并非是 执行函数语句
-        
----------------------------------------------------------        
-function fn(){
-    console.log('aaa');
-}   
-console.log(fn); //打印整个函数
-
-打印效果:
-'ƒ fn(){
-    console.log('aaa');
-}'
+fn(obj)
+console.log(obj.newpro, obj['newpro'])
 ```
 
 
 
 #### 函数表达式
 
-```JavaScript
-## 语法
+通常这种方法与变量分配相同.  简言之,函数主题被视为一个表达式,并且该表达式被分配给一个变量.
 
-let 变量 = function(){   //没有函数名称
-    语句...
-};   				//注意分号,因为这是一个表达式
-    
-一般多用const来代替let,因为函数一经定义,较少修改
-    
-const 变量 = function(){
-    语句...
-};
+使用这种语法定义的函数可以是**命名函数或匿名函数**.
 
-```
-
-
-
-#### 立即执行函数(IIEF)/匿名函数
-
-##### 匿名函数
-
-```JavaScript
-## 匿名函数
-* 没有函数名的函数被称为匿名函数 function之后直接跟括号
-	function(){console.log('aaa')};
-* 匿名函数可以用一个变量来保存
-	let fn = function(){console.log('aaa')};  //这是一个赋值语句,注意有分号 
-* 如何调用上面这个匿名函数
-	fn();
-	
-
-* 匿名函数的打印效果:
-	console.log(fn);
-'
-	ƒ (){console.log('aaa')}  //可以看出没有函数名
-'
-```
-
-
-
-##### 立即执行函数
-
-```JavaScript
-* 立即执行函数,在函数定义完毕后立即调用,只会调用一次
-* 语法:
-	(function(){语句...})() //调用括号放在里外都可以
-    (function(){console.log(语句);}())
-                
-* 其他
- (fucntion(){
-  	console.log('我是一个匿名函数');
-  }());
-(function(){语句...}());
-```
-
-
-
-```JavaScript
-var a = b = 10;   //等价于 var a = 10; b = 10;
-　　(function(){
-　　var a=b=20
-　　})();
-console.log(b);
-代码简化:
-var a = 10;
-b =10;
-(function(){
-　　var a=20;
-    b=20;
-　　})();
-console.log(b);//b的值开始是10,后来被立即执行函数输出的20覆盖.
-
-var a = b = 10;
-(function(){
-    var b = 20;
-})();
-console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,只能再内部访问
-
-```
-
-
-
-
-
-
-
-#### 函数参数
-
-JS中传递数据的方式:
-
-1.按值传递,分为两类:基本类型值的传递和函数参数的传递. 函数参数的传递又有基本类型值的参数传递和引用类型值的参数传递. 引用类型值的传递实际上传递的是对象的引用(引用=内存中的地址),而非传递的对象本身.
-
-2.按引用传递: 传递的是完整的对象本身.
+函数表达式提供函数名后,可以用于在函数内部代指其本身.
 
 ```js
-function setName(obj) {
-    obj.name = "Nicholas";
-    obj = new Object();
-    obj.name = "Greg";
+//一般使用const而非let来声明函数表达式的变量
+
+const fn = function fun(n){
+  return n<2?1:n*fn(n-1)
 }
+console.log(fn(3))
 
-var person = new Object();
-setName(person);
-alert(person.name); // "Nicholas"
-var person = new Object();
-setName(person);
-alert(person.name); // "Nicholas"
+//函数表达式提供了函数名
+const factorial = function fac(n){return n<2?1:n*fac(n-1)};
+console.log(factorial(3))
 
-如果对象在函数的参数传递中是按引用传递的，那么当解析器执行到：
-obj = new Object();
-这段代码的时候，person原先指向的那个对象将被删除，即obj和person都
-将指向新建的obj对象，而新建的obj对象的name属性时“Greg”,则弹出的应该是“Greg”，而结果却不是，说明： 对象在函数的参数传递中是按值传递！
+//函数表达式中的函数名只能在函数体内使用,在函数提外使用函数名会报错.
+let y =function x(){};
+console.log(x); //x is not defined;
+```
+
+当函数作为参数传递给另一个函数时,函数表达式很方便.
+
+#### Function构造函数
+
+```js
+let fn = new Function()
+fn()
 ```
 
 
 
-```JavaScript
+### 函数参数
+
+#### 形参与实参🔸
+
+**实参**: 调用函数时，传递给函数的值被称为函数的实参（值传递).
+
+**形参**: 调用函数时，传递给函数的值对应位置的函数参数名叫作形参.
+
+如果**<font color="yellowgreen">实参是一个包含原始值</font>**(数字，字符串，布尔值)的变量，则就算函数在内部改变了对应形参的值，返回后，该实参变量的值也不会改变。
+
+如果**<font color="yellowgreen">实参是一个对象引用</font>**，则对应形参会和该实参指向同一个对象。假如函数在内部改变了对应形参的值，返回后，实参指向的对象的值也会改变.
+
+```js
 # 形参(形式参数)
 定义函数时,可以在函数的()中定义数量不等的形参
 形参就相当于在函数中声明了对应的变量,但是没有实际的值. //返回的是undefined
@@ -2813,11 +2753,527 @@ function fn(a, b){
 
 
 
+#### 函数参数的传递方式🔸:
+
+```js
+函数参数都是传递,只是因为不同的内存分配机制带来了不同的访问机制.
+原始数据类型值都存放在栈内存中,引用数据类型值都存放在堆内存中,但不可以直接操作存在堆内存中的对象,因此在栈内存中存放了对象的地址.
+当传参的时候也就是直接把栈内存的值复制了一份,只是复制的值对原始值来说直接就是原始值,但对对象来说就是其引用.
+```
+
+
+
+js高级程序中写到,函数的参数都是按值传递的“.
+
+1.按值传递,分为两类:基本类型值的传递和函数参数的传递. 函数参数的传递又有基本类型值的参数传递和引用类型值的参数传递. 
+
+引用类型值的传递实际上传递的是对象的引用(引用=内存中的地址=值),而非传递的对象本身. 因为执行的操作是复制保存操作.
+
+2.按引用传递: 传递的是完整的对象本身.
+
+```js
+//证明对象在函数的参数传递中是按值传递的代码
+
+function setName(obj) {
+    obj.name = "Nicholas";
+    obj = new Object();
+    obj.name = "Greg";
+}
+
+var person = new Object();
+setName(person);
+alert(person.name); // "Nicholas"
+var person = new Object();
+setName(person);
+alert(person.name); // "Nicholas"
+
+如果对象在函数的参数传递中是按引用传递的，那么当解析器执行到：
+obj = new Object();
+这段代码的时候，person原先指向的那个对象将被删除，即obj和person都
+将指向新建的obj对象，而新建的obj对象的name属性时“Greg”,则弹出的应该是“Greg”，而结果却不是，说明： 对象在函数的参数传递中是按值传递！
+
+//资料来源: https://www.cnblogs.com/superdg003/p/5946727.html 
+```
+
+
+
+#### 默认参数
+
+从ECMAScript 6开始，有两个新的类型的参数：默认参数，剩余参数
+
+在JavaScript中，函数参数的默认值是`undefined`.  使用默认参数，在函数体的检查就不再需要了
+
+```js
+//未使用默认参数
+function multiplay(a,b){
+	b=(typeof b!=='undefined'?b:1);
+  return a*b;
+}
+multiplay(5)
+
+//使用默认参数
+function multiplay(a,b=1){
+  return a*b;
+}
+multiply(5)
+```
+
+
+
+#### 剩余参数
+
+[剩余参数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Rest_parameters)语法允许将不确定数量的参数表示为数组
+
+
+
+#### 隐藏参数-arguments
+
+数的实际参数会被保存在一个类似数组的arguments对象中.
+
+在函数内，你可以按如下方式找出传入的参数：第一个传来的参数会是`arguments[0]`。参数的数量由`arguments.length`表示. `arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个索引编号和`length`属性。尽管如此，它并不拥有全部的Array对象的操作方法。
+
+```JavaScript
+- 除了this,函数中还有一个隐含参数:arguments
+- arguments是一个类数组对象(伪数组)
+
+- 它具有length属性,同时也可以通过 索引 来操作元素,可以遍历,不能使用数组的方法,它的类型不是数组Array
+
+- arguments是用来存储实参的对象,所有的实参都存储在arguments对象
+- 通过arguments,我们不定义形参就可以直接使用实参
+```
+
+
+
+```JavaScript
+//案例
+
+function fn(){
+    alert(arguments);
+    alert(arguments.length); //0
+    alert(arguments instanceof Array); // fasel 伪数组 可以求长度,遍历,获取某个元素.但是数组的方法无法使用.
+}
+fn(); //和this类似,是存在可以被输出的. 输出的结果是[object Arguments]
+==============================================================
+
+//定义一个函数,求任意数量数字的和
+      
+  function fn(){
+      let sum = 0; //定义变量,存储结果
+      for(let i=0; i<arguments.length; i++){ //遍历arguments中的值
+          sum += arguments[i];
+      }
+      return sum;
+  }
+
+  console.log(fn(1,2,3));
+```
+
+
+
+#### 隐藏参数-this
+
+```javascript
+我们希望根据调用对象的不同，fn()函数打印的结果也不同
+
+在 函数 执行时，浏览器每次都会传递进一个隐含的参数,这个参数叫 this
+
+根据函数调用的方式不同，this的值也不同：   //函数定义的时候看不出来this是谁
+	1.当以函数形式调用时，this就是window //1和2可以合并，因为函数可以被称为window的方法
+  2.当以方法形式调用时，this就时调用方法的对象
+  3.以构造函数形式调用时,this就是新建对象
 
 
 
 
-#### 函数返回值(?)
+=======================1102日更新==============================
+# this到底是谁?
+ 0.函数体中,简单调用该函数(非显示/隐式绑定下),严格模式下this绑定undefined,否则绑定到全局对象window/global
+ 1.以函数形式调用,this是window
+ 2.以方法形式调用,this就是调用方法的对象
+ 3.以构造函数形式调用,this是新建的实例化对象(对象)
+ 4.以call和apply调用,this是他们的第一个参数
+ 5.箭头函数的this, 由外层作用域决定
+
+ 6.this在dom事件(回调函数)中,指向当前触发事件的事件源
+```
+
+案例
+
+```javascript
+var name = '我是全局中的name';
+
+function fn(){
+    console.log(this.name);
+    //console.log(this); 看看这个隐含参数this的值是什么 谁调用打印的就是谁.例如fn()调用打印的是window
+}
+
+let obj = {
+    name: 'swk',
+    sayHello: fn   //sayHello === fn  使用全等判断返回true
+};
+let obj2 = {
+    name: 'zbj',
+    sayHello: fn
+};
+
+console.log(fn === obj.sayHello); //true
+
+fn(); //以函数形式调用 this.name是'我是全局中的name'
+obj.sayHello(); //以方法形式调用, 'swk'
+obj2.sayHello();//以方法形式调用, 'zbj'
+```
+
+案例2
+
+```JavaScript
+var a = {n: 1}  
+var b = a;  
+a.x = a = {n: 2} 
+console.log(a.x);   
+console.log(b.x);
+
+简化:
+var a = {n:1}; //将变量a的值(地址)链接向对象的地址
+var b = a;	   //变量a赋值给变量b, 将变量b的值(地址)链接向对象的地址
+a.x = {n:2}; a = {n:2}; //第一句的意思是向a代表的对象{n:1}中添加新的属性,那么现在的对象就是{n:1,x:{n:2}}. 第二句的意思是将一个新的对象地址赋值给变量a,此时原变量a覆盖.
+
+console.log(a.x); //此时变量a指向的新对象中没有名为x的属性,所以返回undefined
+console.log(b.x); //{n:2}
+
+```
+
+案例3
+
+```JavaScript
+var x= 0;
+var foo = {
+    x:1,
+    bar:{
+        x:2,
+        baz: function () {
+            console. log(this.x)
+        }
+    }
+}
+var a = foo. bar. baz;
+foo.bar.baz(); //2
+a();  //0
+
+简化:
+foo = {x:1, bar:{}}
+bar = {x:2, baz:f}
+baz : f
+
+先执行的是foo.bar.baz(); 即调用baz对应的函数
+之后调用的a(),以函数形式调用,相当于window.a
+
+```
+
+ **this指向实例**
+
+```js
+来源: https://segmentfault.com/a/1190000002640298
+
+- prototype this
+ - 以构造函数形式调用时,this指向新建的实例化对象.
+=====================================================
+function Thing(){
+    console.log(this.foo);
+}
+Thing.prototype.foo = 'bar';
+
+var thing = new Thing();
+console.log(thing.foo); //bar
+
+=======================================================
+构造函数创建多个实例,实例会共享prototype值. 实例
+function Thing(){}
+Thing.prototype.foo = 'bar';
+Thing.prototype.logFoo = function(){
+    console.log(this.foo);
+}
+Thing.prototype.setFoo = function(newFoo){
+    this.foo = newFoo;
+}
+
+var thing1 = new Thing();
+var thing2 = new Thing();
+
+thing1.logFoo();//bar
+thing2.logFoo();//bar
+
+thing1.setFoo('foo');
+thing1.logFoo();//foo 为thing1添加了新属性  {foo: "foo"}
+thing2.logFoo();//bar
+
+=======================================================
+函数创建的实例会共享函数的prototype属性的值.如果给这个函数的prototype赋值一个Array,所有的实例都会共享这个Array.除非你在这个实例里重写了这个Array,这种情况下,函数的prototype的Array就会被隐藏掉.
+function Thing(){}
+Thing.prototype.things = [];
+var thing1 = new Thing();
+var thing2 = new Thing();
+thing1.things.push('foo');
+console.log(thing2.things);//['foo']
+
+=======================================================
+多个函数链接
+function Thing1(){}
+Thing1.prototype.foo = 'bar';
+function Thing2(){}
+Thing2.prototype = new Thing1();
+
+var thing = new Thing2();
+console.log(thing.foo); //bar
+
+=========================================================
+原型链
+functtion Thing1(){}
+Thing1.prototype.foo = 'bar';
+function.Thing2(){
+    this.foo = 'foo';
+}
+Thing2.prototype = new Thing1();
+function Thing3(){}
+Thing3.prototype = new Thing2();
+
+var thing = new Thing3();
+console.log(thing.foo);//foo
+
+==========================================================
+
+function Thing1(){}    
+Thing1.prototype.foo = 'bar';
+Thing1.prototype.logFoo = function(){
+    console.log(this.foo);
+}
+function Thing2(){
+    this.foo = 'foo';
+}
+Thing2.prototype = new Thing1();
+
+var thing = new Thing2();
+thing.logFoo();//foo
+
+
+======================================================
+嵌套函数
+function Thing(){}
+Thing.prototype.foo = 'bar';
+Thing.prototype.logFoo = function(){
+    var info = 'attempting to log this.foo:';
+    function doIt(){
+        console.log(info, this.foo);
+    }
+    doIt();
+}
+
+var thing = new Thing();
+thing.logFoo();//undefined 
+
+====================================================
+function Thing(){}    
+Thing.prototype.foo = 'bar';
+Thing.prototype.logFoo = function(){
+    console.log(this.foo);
+};
+function doIt(method){
+    method();
+}
+
+var thing = new Thing();
+thing.logFoo();//bar
+doIt(thing.logFoo);//undefined
+
+```
+
+
+
+
+
+
+
+### 函数调用
+
+定义一个函数并不会自动的执行它。定义了函数仅仅是赋予函数以名称并明确函数被调用时该做些什么。**调用**函数才会以给定的参数真正执行这些动作.
+
+函数一定要处于调用它们的域中,因为函数的声明可以被提升,所以可以在声明之前调用.函数提升只适用于函数声明,而不适应于函数表达式.
+
+如果一个函数中没有使用return语句，则它默认返回`undefined`。要想返回一个特定的值，则函数必须使用 `return` 语句来指定一个要返回的值。(使用[new](https://developer.mozilla.org/zh-cn/docs/JavaScript/Reference/Operators/new)关键字调用一个[构造函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)除外)
+
+```JavaScript
+//it's work;
+cosole.log(square(5))
+function square(n){return n*n};
+
+
+console.log(square); //square is hoisted with an initial value undefined;
+console.log(square(5)); //Uncaught TypeError: square is not a function
+const square = function(n){return n*n};
+```
+
+
+
+#### 函数调用1-递归
+
+函数可以被递归，就是说函数可以调用其本身
+
+```js
+//阶乘
+function factorial(n){
+  if(n===0||n===1) return 1;
+  return factorial(n-1)*n;
+}
+
+factorial(5); 120
+```
+
+
+
+#### 函数调用2-其他方式🔸
+
+常见的一些情形是某些地方需要动态调用函数，或者函数的实参数量是变化的，或者调用函数的上下文需要指定为在运行时确定的特定对象。显然，函数本身就是对象，因此这些对象也有方法（参考[`Function`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function) ）。作为此中情形之一，[`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)方法可以实现这些目的
+
+
+
+#### call()/apply()方法调用
+
+```JavaScript
+call() 
+ - 当我们调用函数call()方法时,函数会立即执行就好像我们直接调用了函数
+ - call()方法的第一个参数会自动成为函数中的this
+ - call()的实参是从第二个参数一个一个传递
+ 
+
+apply()
+ - apply()的作用和call()方法是一样的,都可以指定函数的this
+ - apply()的实参是直接传递一个数组作用于第二个参数
+ - 使用apply()方法传递需要使用数组
+
+
+- 使用场景:
+ - es5,原型继承. 父类.call(this,属性1,属性2);
+
+- 第一个参数传入null或undefined时, this指向的是window.
+
+
+# this到底是谁?
+ 1.以函数形式调用,this是window
+ 2.以方法形式调用,this就是调用方法的对象
+ 3.以构造函数形式调用,this是新建的对象
+ 4.以call和apply调用,this是他们的第一个参数
+```
+
+
+
+```js
+- call方法的参数,应该是对象obj.如果参数为空或null或undefined, 则默认传参全局对象.
+
+var obj={};
+var f=function(){return this};
+console.log(f()===window);//log: true
+console.log(f.call(obj)===obj);//log: true
+
+- 如果call传参不是以上的类型,则转换成相应的包装对象,然后传入方法.例如,5转成number实例.
+var f=function(){return this};
+f.call(5);//log:Number {5}
+```
+
+
+
+```js
+//示例 mdn
+1.使用call方法调用父构造函数
+function Product(name,price){
+    this.name = name;
+    this.price = price;
+}
+
+function Food(name,price){
+    Product.call(this,name,price);
+    this.category = 'food';
+}
+function Toy(name,price){
+    Product.call(this, name, price);
+    this.category = 'toy';
+}
+
+let cheese = new Food('feta',5);
+let fun = new Toy('robot',40);
+
+console.log(cheese.name, cheese.price)
+
+//使用call方法调用匿名函数
+var animals = [
+  { species: 'Lion', name: 'King' },
+  { species: 'Whale', name: 'Fail' }
+];
+
+for(let i=0;i<animals.length;i++){
+    (function(i){
+        this.print=function(){
+            console.log('#'+i+''+this.species+':'+this.name)
+        }
+    }).call(animals[i],i)
+}
+//使用 call 方法调用函数并且指定上下文的 'this'
+function greet(){
+    let reply = [this.animal, 'typically sleep between',this.sleepDuration].join('');
+    console.log(reply);
+}
+let obj = {animal:'cats', sleepDuration:'12 and 16 hours'};
+greet.call(obj); // cats typically sleep between 12 and 16 hours
+
+//使用 call 方法调用函数并且不指定第一个参数（argument）
+let sData = 'wisen';
+function display(){
+    console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
+}
+display.call(); //sData value is 
+
+//在严格模式下，this 的值将会是 undefined
+'use strict'
+let sData = 'wisen';
+function display(){
+    console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
+}
+display.call(); //can't read the property of 'sData' of undefined 
+```
+
+
+
+#### Function.prototype.call()
+
+`call()` 方法使用一个指定的 `this` 值和单独给出的一个或多个参数来调用一个函数
+
+```js
+//语法
+function.call(thisArg,arg1,arg2,...)
+
+thisArg
+可选的。在 function 函数运行时使用的 this 值.
+请注意，this可能不是该方法看到的实际值：如果这个函数处于非严格模式下，则指定为 null 或 undefined 时会自动替换为指向全局对象，原始值会被包装。
+              
+arg1,arg2...
+指定的参数列表
+
+//返回值
+使用调用者提供的 this 值和参数调用该函数的返回值。若该方法没有返回值，则返回 undefined 
+              
+
+//描述
+call() 允许为不同的对象分配和调用属于一个对象的函数/方法
+call() 提供新的 this 值给当前调用的函数/方法。你可以使用 call 来实现继承：写一个方法，然后让另外一个新的对象来继承它（而不是在新对象中再写一次这个方法）
+```
+
+
+
+
+
+
+
+
+
+### 函数返回值
 
 ```javascript
 * 返回值是函数的执行结果
@@ -2848,10 +3304,6 @@ function fn(){
 ```
 
 
-
-
-
-* 案例
 
 ```javascript
 function fn(){
@@ -2897,38 +3349,105 @@ y = fn(x);
 
 
 
-#### 方法(method)
+### 递归函数
 
+一个函数可以指向并调用自身.调用自身的函数我们称之为**递归函数**. 有三种方法可以达到这个目的:
 
+* 函数名
+* arguments.callee
+* 作用域下的一个指向该函数的变量名
 
-```JavaScript
-* 对象的属性可以是一个函数
-* 当一个对象的属性是函数时,我们就称这个函数是当前对象的方法
-  调用函数,称为调用对象的方法
-
-* 函数和方法只是称呼上的不同,没有什么太本质的区别
-```
-
-
-
-```JavaScript
-let obj = {};
-
-obj.name = '孙悟空';
-obj.age = 18;
-obj.sayHello = function(){     //没有设置函数名称
-    alert('大家好，我是孙悟空');
-};
-
-console.log(obj.sayHello); // 打印效果 是一个匿名函数
-
-ƒ (){ 
-    alert('大家好，我是孙悟空');
+```js
+let foo = function bar(){
+  //statement
 }
 
-obj.sayHello(); //运行alert函数
+//在函数体内以下语句是等价的
+bar()
+arguments.callee() //ES5禁止在严格模式下使用此属性
+foo()
+```
+
+某种意义上说，递归近似于循环。两者都重复执行相同的代码，并且两者都需要一个终止条件（避免无限循环或者无限递归）
+
+```js
+//循环
+let x= 0;
+while(x<10){
+  x++;
+}
+//递归
+function loop(x){
+  if(x>=10) return {console.log(x)};
+  return loop(x+1)
+}
+
+loop(0)
+```
 
 
+
+
+
+### 立即执行函数(IIEF)/匿名函数
+
+#### 匿名函数
+
+没有函数名的函数被称为匿名函数 function之后直接跟括号
+
+```JavaScript
+* 匿名函数可以用一个变量来保存
+	let fn = function(){console.log('aaa')};  //这是一个赋值语句,注意有分号 
+* 匿名函数的调用
+	fn();
+	
+
+* 匿名函数的打印效果:
+	console.log(fn);
+'
+	ƒ (){console.log('aaa')}  //可以看出没有函数名
+'
+```
+
+
+
+#### 立即执行函数
+
+```JavaScript
+* 立即执行函数,在函数定义完毕后立即调用,只会调用一次
+* 语法:
+	(function(){语句...})() //调用括号放在里外都可以
+    (function(){console.log(语句);}())
+                
+* 其他
+ (fucntion(){
+  	console.log('我是一个匿名函数');
+  }());
+(function(){语句...}());
+```
+
+
+
+```JavaScript
+var a = b = 10;   //等价于 var a = 10; b = 10;
+　　(function(){
+　　var a=b=20
+　　})();
+console.log(b);
+代码简化:
+var a = 10;
+b =10;
+(function(){
+　　var a=20;
+    b=20;
+　　})();
+console.log(b);//b的值开始是10,后来被立即执行函数输出的20覆盖.
+
+var a = b = 10;
+(function(){
+    var b = 20;
+})();
+console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,只能再内部访问
 
 ```
 
@@ -2936,7 +3455,168 @@ obj.sayHello(); //运行alert函数
 
 
 
-#### 作用域(scope)
+### 箭头函数
+
+#### 概要
+
+```JavaScript
+- 语法:
+形参 => 返回值
+(参数1, 参数2) => 返回值
+形参 => {
+    语句..
+    return 值;
+}
+
+箭头函数,主要是用来设置回调函数的
+箭头函数,主要是设置简单的函数
+箭头函数有多个返回值时,需要使用return
+箭头函数,只有一行表达式,表示自带return
+```
+
+
+
+#### 箭头函数-this
+
+```JavaScript
+this:
+根据函数的调用方式不同,this的值也不同:
+1.以函数方式调用时,this是window
+2.以方法形式调用时,this就是调用方法的对象
+3.以构造函数形式调用时,this就是新创建的对象
+4.以call和apply形式调用,this是它们的第一个参数
+5.箭头函数this, 由外层作用域决定
+
+function fn(){
+    alert(this); //window
+}
+fn();
+
+let obj = {
+    name:'孙悟空',
+    sayHello:function(){
+        alert(this); //obj
+    }
+};
+obj.say.Hello();
+```
+
+
+
+#### 案例
+
+```JavaScript
+let fn = a => a + 10;  //a就是形参
+fn(a, b) => a + b;
+fn(a, b){   		//多个形参
+    console.log('hello'); 
+    return a + b;    //当有多个返回值,需要使用return
+}
+
+
+箭头函数-数组排序
+arr = [3, 1, 2, 4, 5, 7, 8, 9, 6];
+arr.sort((a,b) => a - b); 从小到大,升序排列
+
+箭头函数-返回值是个对象 格式需要加括号
+fn = () => {name:'孙悟空'};
+alert(fn()); //返回值是undefined  原因:对象是大括号,返回值也有大括号,浏览器无法分清.
+
+更新:
+fn = () => ({name:'孙悟空'});
+alert(fn()); //[object Object]
+
+
+
+箭头函数- this是谁
+fn=()=>alert(this); 
+fn(); 
+//[object window] 以函数形式调用,this是window
+//fn的外层作用域是全局,全局作用域的this是谁?是window.所以fn的this也是window.箭头函数没有权利设置自己的this,完全看外层作用域是谁,外层作用域是谁,this是谁.
+
+fn=()=>alert(this);
+let ojb= {
+    name:'孙悟空',
+    tt:fn
+}
+obj.tt();  //this是谁? 以方法的形式调用,应是obj.但是
+
+
+fn=()=>alert(this);
+let obj={
+    name:'孙悟空',
+    tt:fn,
+    sayHello:function(){
+        function inner(){ 
+            alert(this); //this是谁?看inner的this是谁,看inner的调用方式:函数, 故window.
+        }
+        inner();
+    }
+}
+obj.sayHello();
+
+
+let obj = {
+    name:'孙悟空',
+    tt:fn,
+    say.Hello(){
+        let inner = () => alert(this);//inner的外层作用域是say.Hello,say.Hello这个函数的this是谁,是obj,那么箭头函数的this的就是obj
+        inner();
+    }
+}
+obj.sayHello();
+```
+
+
+
+```js
+var foo = 'aaa';
+var obj = {
+  foo:'bbb',
+  get:function () {
+    var foo = 'ccc';
+    var that = this;
+    return function () {
+      return that.foo
+    }
+  }
+}
+
+
+console.log(obj.get()())
+
+var b = obj.get;
+console.log(b()())
+
+
+```
+
+
+
+```js
+//函数的参数
+function fn(a,b) {
+     return (...rest) => {
+        console.log(argumnets)  //argumnets访问的是外层作用域的
+    }
+}
+
+fn(1, 2)(3,4)
+
+
+
+// function fn1(a, b) {
+//     return function (c, d) {
+//         console.log(arguments)
+//     }
+// }
+
+// fn1(1,2)(2,3)
+```
+
+
+
+### 作用域(scope)
 
 ```javascript 
 * 作用域就是指 变量的作用范围
@@ -2958,26 +3638,13 @@ obj.sayHello(); //运行alert函数
 			* 函数实际上就相当于window对象的方法
 
 
-
-
-var c = 44;
-console.log('c =', c); //等价于 console.log(window.c);  这个特性不好 
-
-let d = 'haha';
-console.log(window.d); //返回undefined
-
-
-function fn2(){
-    alert('haha');
-}
-fn2();// 调用函数， 等价于window.fn2();
 ```
 
 
 
 
 
-#### 变量提升和函数提升
+### 变量提升和函数提升
 
 ```javascript
 # 变量的提升
@@ -3107,21 +3774,31 @@ test();//预解析, 变量提升.  函数内的局部变量a,被赋值100.以函
 
 
 
-#### debug
+### 预定义函数
 
-概要
+#### eval()
 
-```JavaScript
-chrome
-webstrome
+`eval()`方法会对一串字符串形式的JavaScript代码字符求值
 
-```
+#### isFinite()
+
+#### isNaN()
+
+#### parseFloat()
+
+#### parseInt()
 
 
 
 
 
-#### 函数作用域(??)
+
+
+### 函数作用域
+
+- 在函数内定义的变量不能在函数之外的任何地方访问 || 一个函数可以访问定义在其范围内的任何变量和函数
+- 定义在全局域中的函数可以访问所有定义在全局域中的变量。
+- 在一个函数中定义的函数也可以访问在其父函数中定义的所有变量和父函数有权访问的任何其他变量
 
 概要
 
@@ -3137,7 +3814,7 @@ webstrome
 * 如果在函数内部声明变量时，省略var或let，则变量默认会成为全局变量(不希望出现的情况)
 
 
-# 1106更新: 函数重新执行完,所有东西包括变量都会被销毁.
+#  函数重新执行完,所有东西包括变量都会被销毁.
 ```
 
 
@@ -3197,10 +3874,19 @@ var a = b = 10;
 (function(){
     var b = 20;
 })();
-console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,只能再内部访问    
+console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,只能再内部访问
+
+//
+let a = 10;
+function fn(){
+    console.log(a);
+}
+function fn2(){
+    let a = 20;
+    fn();      // 函数是在全局中定义的
+}
+fn2(); //调用函数fn2后，打印的值是10
 ```
-
-
 
 
 
@@ -3292,340 +3978,6 @@ console.log(a); // 10
 
 
 
-### 作用域 | 函数
-
-概要
-
-```javascript
-# 函数的作用域由函数的定义位置决定，和函数的调用位置无关
-
-```
-
-
-
-案例
-
-```javascript
-let a = 10;
-function fn(){
-    console.log(a);
-}
-function fn2(){
-    let a = 20;
-    fn();      // 函数是在全局中定义的
-}
-fn2(); //调用函数fn2后，打印的值是10
-```
-
-
-
-### 参数
-
-```JavaScript
-function fn(a){
-    console.log('a =', a);
-}
-
-let str = 'hello';
-fn(str); //等价于fn('hello'),因为变量str是作为值使用的
-
-
-function fn(a){
-    console.log('a =', a);  //hello
-    a = 'hi';               //改的是变量a,给变量a重新赋值. 跟str没有关系
-    console.log('a =', a); //hi
-}
-
-let str = 'hello';
-fn(str); 
-console.log('a =', a);  //hello
-
-======================================================================
-function fn(a){
-    console.log('a =', a);  //hello
-    a = 'hi';               //改的是变量a,给变量a重新赋值. 跟str没有关系
-    console.log('a =', a); //hi
-}
-
-let a = 'hello';
-fn(a); 
-console.log('a =', a);  //hello
-
-
-===============================================================
-function fn(a){
-    console.log('a =', a);  //孙悟空
-    a.name = '猪八戒';       //改的是对象的值,联系到可变类型.变量指向的是同一个对象,一个变量更改了对象,另一个也受影响
-    console.log('a =', a); //猪八戒
-}
-
-let a = {name:'孙悟空'};
-fn(a); 
-console.log('a =', a);  //猪八戒
-```
-
-
-
-
-
-
-
-### 对象|this
-
-概要
-
-```javascript
-我们希望根据调用对象的不同，fn()函数打印的结果也不同
-
-在 函数 执行时，浏览器每次都会传递进一个隐含的参数
-这个参数叫 this
-
-根据函数调用的方式不同，this的值也不同：   //函数定义的时候看不出来this是谁
-	1.当以函数形式调用时，this就是window //1和2可以合并，因为函数可以被称为window的方法
-    2.当以方法形式调用时，this就时调用方法的对象
-    3.以构造函数形式调用时,this就是新建对象
-
-
-
-
-=======================1102日更新==============================
-# this到底是谁?
- 0.函数体中,简单调用该函数(非显示/隐式绑定下),严格模式下this绑定undefined,否则绑定到全局对象window/global
- 1.以函数形式调用,this是window
- 2.以方法形式调用,this就是调用方法的对象
- 3.以构造函数形式调用,this是新建的实例化对象(对象)
- 4.以call和apply调用,this是他们的第一个参数
- 5.箭头函数的this, 由外层作用域决定
-
- 6.this在dom事件(回调函数)中,指向当前触发事件的事件源
-```
-
-案例
-
-```javascript
-var name = '我是全局中的name';
-
-function fn(){
-    console.log(this.name);
-    //console.log(this); 看看这个隐含参数this的值是什么 谁调用打印的就是谁.例如fn()调用打印的是window
-}
-
-let obj = {
-    name: 'swk',
-    sayHello: fn   //sayHello === fn  使用全等判断返回true
-};
-let obj2 = {
-    name: 'zbj',
-    sayHello: fn
-};
-
-console.log(fn === obj.sayHello); //true
-
-fn(); //以函数形式调用 this.name是'我是全局中的name'
-obj.sayHello(); //以方法形式调用, 'swk'
-obj2.sayHello();//以方法形式调用, 'zbj'
-```
-
-案例2
-
-```JavaScript
-var a = {n: 1}  
-var b = a;  
-a.x = a = {n: 2} 
-console.log(a.x);   
-console.log(b.x);
-
-简化:
-var a = {n:1}; //将变量a的值(地址)链接向对象的地址
-var b = a;	   //变量a赋值给变量b, 将变量b的值(地址)链接向对象的地址
-a.x = {n:2}; a = {n:2}; //第一句的意思是向a代表的对象{n:1}中添加新的属性,那么现在的对象就是{n:1,x:{n:2}}. 第二句的意思是将一个新的对象地址赋值给变量a,此时原变量a覆盖.
-
-console.log(a.x); //此时变量a指向的新对象中没有名为x的属性,所以返回undefined
-console.log(b.x); //{n:2}
-
-```
-
-案例3
-
-```JavaScript
-var x= 0;
-var foo = {
-    x:1,
-    bar:{
-        x:2,
-        baz: function () {
-            console. log(this.x)
-        }
-    }
-}
-var a = foo. bar. baz;
-foo.bar.baz(); //2
-a();  //0
-
-简化:
-foo = {x:1, bar:{}}
-bar = {x:2, baz:f}
-baz : f
-
-先执行的是foo.bar.baz(); 即调用baz对应的函数
-之后调用的a(),以函数形式调用,相当于window.a
-
-```
-
-
-
-
-
-
-
-### this到底是什么
-
-```HTML
-- https://juejin.cn/post/6844903680446038023
-
-1.查看函数在哪被调用。
-2.点左侧有没有对象？如果有，它就是 “this” 的引用。如果没有，继续第 3 步。
-3.该函数是不是用 “call”、“apply” 或者 “bind” 调用的？如果是，它会显式地指明 “this” 的引用。如果不是，继续第 4 步。
-4.该函数是不是用 “new” 调用的？如果是，“this” 指向的就是 JavaScript 解释器新创建的对象。如果不是，继续第 5 步。
-5.是否在“严格模式”下？如果是，“this” 就是 undefined，如果不是，继续第 6 步。
-6.JavaScript 很奇怪，“this” 会指向 “window” 对象。
-
-
-```
-
-
-
-
-
-
-
-### this指向实例
-
-```js
-来源: https://segmentfault.com/a/1190000002640298
-
-- prototype this
- - 以构造函数形式调用时,this指向新建的实例化对象.
-=====================================================
-function Thing(){
-    console.log(this.foo);
-}
-Thing.prototype.foo = 'bar';
-
-var thing = new Thing();
-console.log(thing.foo); //bar
-
-=======================================================
-构造函数创建多个实例,实例会共享prototype值. 实例
-function Thing(){}
-Thing.prototype.foo = 'bar';
-Thing.prototype.logFoo = function(){
-    console.log(this.foo);
-}
-Thing.prototype.setFoo = function(newFoo){
-    this.foo = newFoo;
-}
-
-var thing1 = new Thing();
-var thing2 = new Thing();
-
-thing1.logFoo();//bar
-thing2.logFoo();//bar
-
-thing1.setFoo('foo');
-thing1.logFoo();//foo 为thing1添加了新属性  {foo: "foo"}
-thing2.logFoo();//bar
-
-=======================================================
-函数创建的实例会共享函数的prototype属性的值.如果给这个函数的prototype赋值一个Array,所有的实例都会共享这个Array.除非你在这个实例里重写了这个Array,这种情况下,函数的prototype的Array就会被隐藏掉.
-function Thing(){}
-Thing.prototype.things = [];
-var thing1 = new Thing();
-var thing2 = new Thing();
-thing1.things.push('foo');
-console.log(thing2.things);//['foo']
-
-=======================================================
-多个函数链接
-function Thing1(){}
-Thing1.prototype.foo = 'bar';
-function Thing2(){}
-Thing2.prototype = new Thing1();
-
-var thing = new Thing2();
-console.log(thing.foo); //bar
-
-=========================================================
-原型链
-functtion Thing1(){}
-Thing1.prototype.foo = 'bar';
-function.Thing2(){
-    this.foo = 'foo';
-}
-Thing2.prototype = new Thing1();
-function Thing3(){}
-Thing3.prototype = new Thing2();
-
-var thing = new Thing3();
-console.log(thing.foo);//foo
-
-==========================================================
-
-function Thing1(){}    
-Thing1.prototype.foo = 'bar';
-Thing1.prototype.logFoo = function(){
-    console.log(this.foo);
-}
-function Thing2(){
-    this.foo = 'foo';
-}
-Thing2.prototype = new Thing1();
-
-var thing = new Thing2();
-thing.logFoo();//foo
-
-
-======================================================
-嵌套函数
-function Thing(){}
-Thing.prototype.foo = 'bar';
-Thing.prototype.logFoo = function(){
-    var info = 'attempting to log this.foo:';
-    function doIt(){
-        console.log(info, this.foo);
-    }
-    doIt();
-}
-
-var thing = new Thing();
-thing.logFoo();//undefined 
-
-====================================================
-function Thing(){}    
-Thing.prototype.foo = 'bar';
-Thing.prototype.logFoo = function(){
-    console.log(this.foo);
-};
-function doIt(method){
-    method();
-}
-
-var thing = new Thing();
-thing.logFoo();//bar
-doIt(thing.logFoo);//undefined
-
-```
-
-
-
-
-
-
-
-
-
-
-
 ### 垃圾回收(GC garbage collection)
 
 概要
@@ -3644,14 +3996,14 @@ b = null;
 
 
 
-### 创建对象(工厂函数方法)
+### 工厂函数
 
 概要-工厂方法
 
 ```javascript
 1.它是一个函数。
-2，它用来创建对象。
-3，它像工厂一样，“生产”出来的函数都是“标准件”（拥有同样的属性）
+2.它用来创建对象。
+3.它像工厂一样，“生产”出来的函数都是“标准件”（拥有同样的属性）
 
 使用工厂方法来创建对象  //创建大量的对象
 
@@ -3752,8 +4104,6 @@ Foo.call(obj)
 
 #### 类与实例
 
-
-
 ```JavaScript
 # 其他
 - 一个构造函数也称为是一个类,通过该构造函数所创建的对象称为该类实例
@@ -3779,8 +4129,6 @@ let per2 = new Person(); //per和per2是同一类对象
 
 
 #### 普通与构造函数返回值
-
-
 
 ```JavaScript
 普通函数返回值
@@ -3844,14 +4192,6 @@ new Parent().num的执行顺序是: new Parent(),括号的优先级大于点号,
 
 new的构造函数后跟括号优先级会提升.
 ```
-
-
-
-
-
-
-
-
 
 
 
@@ -3927,29 +4267,11 @@ console.log(per.name = '朝天阙'); //朝天阙
 
 
 
-### 对象类型介绍
-
-**介绍**
-
-```javascript
-# 对象分类
-
-* 内建对象
- - 由ES标准所定义的对象.例如string, number, boolean, Math, Date
-
-* 宿主对象
- - 由JS的运行环境所提供的对象 //浏览器
- - BOM, DOM(window, document, alert, ....)
-
-* 自定义对象
- - 由我们自己定义的对象
-```
 
 
+## 数组
 
-### 数组
-
-#### 数组简介
+### 数组简介
 
 ```js
 # 数组Array    //A大写,是一个类,首字母需要大写
@@ -4041,7 +4363,7 @@ entries()、keys()、values()、find()和findIndex()会将空位处理成undefin
 
 
 
-#### 创建数组
+### 创建数组
 
 ```JavaScript
 # 如何创建数组 //使用类来创建对象
@@ -4050,16 +4372,6 @@ const arr = new Array(); //使用const之后,不能改变的是变量arr,而其�
 let arr = Array();
 let arr = new Array();
 let arr = [];  //let arr = [元素1, 元素2, 元素3, ...];
-
-           
-和对象设置类似:
-创建对象(3种方法)
-let obj = new Object();
-let obj = Object(); // new可以省略
-let ojb = {};           
-           
-
-
 
 数组中的元素可以是任意的数据类型.数组长度可以任意修改 一般我们在使用数组时,同一个数组只放同一类型的数据
 
@@ -4098,7 +4410,7 @@ Array()和new Array()完全一致
 
 
 
-#### 二维数组|非连续数组
+### 二维数组|非连续数组
 
 ```JavaScript
 # 二维数组 //了解
@@ -4280,7 +4592,39 @@ shift()
 
 ### 遍历数组的5种方法
 
-```html
+```js
+//https://www.cnblogs.com/goloving/p/8686780.html
+1.定义
+稀疏数组:数组中的元素之间可以有空隙empty,
+密集数组:每个元素都有值,即使是undefiend.
+2.创建
+2.1创建稀疏数组:数组元素实际只有2个，但是长度确实3.当你遍历这个数组的时候,不同的方法会有差异.
+let arr = new Array(3);
+arr[0]=0;
+arr[2]=2;
+
+2.2创建密集数组:有真实元素了，虽然元素的值是undefined，但是你可以遍历到这些数组元素
+let arr = Array.apply(null,Array(3)); //等同于let arr = Array(undefined,undefined,undefined);
+
+
+
+
+
+//https://juejin.cn/post/6930973929452339213
+for循环倒叙是最快的.
+
+const million=1000000;
+const arr = Array(million);  //产生的是empty元素,值未undefined
+
+//这是稀疏数组，应该为其指定内容，否则不同方式的循环对其的处理方式会不同
+//const arr = [...Array(million)]  打印arr值,数组元素均为undefined.
+
+console.time();
+for(let i=arr.length;i>0;i--){}  //-1.5ms
+for(let i=0;i<arr.length;i++){}  //-1.6ms
+arr.forEach(v=>v)                //-2.1ms
+for(const v of arr){}            //11.7ms
+console.timeEnd();
 ```
 
 
@@ -4345,59 +4689,45 @@ arr = ['孙悟空', '沙和尚', '猪八戒'];
 
 `for…of` 是在 ES6（ECMAScript 6）中实现标准化的。它会对一个可迭代的对象（例如 `array`、`map`、`set`、`string` 等）创建一个循环
 
+```js
+const arr = [3, 5, 7];
+const str = 'hello';
+for (const i of arr) {
+   console.log(i); // 输出 3, 5, 7
+}
+for (const i of str) {
+   console.log(i); // 输出 'h', 'e', 'l', 'l', 'o'
+}
+
+```
+
 
 
 #### for...in
 
-#### for...await
-
-```JavaScript
-遍历数组,就是将数组中的元素一个个取出来
-- 如果数组中有对象{}, 对象是没有迭代接口的,所以无法遍历获取的到.
-
-遍历数组(for for-in for-of forEach)
-```
-
-
-
-```JavaScript
-let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧', '白骨精', '蜘蛛精'];
-
-============================方法1----for循环---建议使用====================
-    for(i=0; i<arr.length; i++){
-        console.log(arr[i]);
-    }
-
-
----------------------------方法2----属性枚举for-in------------------
-	for(let i in arr){
-        console.log(arr[i]);   //对应的是索引 了解,老IE浏览器不兼容
-    }
-
-
----------------------------方法3----遍历数组for-of------------------
-
-	for(let i of arr){
-        console.log(i);       //对应的是元素也就是值
-    }
-```
-
-
-
-####  遍历方法快慢的比较
+`for…in` 会在对象的所有可枚举属性上迭代指定的变量.对于每个不同的属性，`for…in` 语句除返回数字索引外，还将返回用户定义的属性的名称。 因此，在遍历数组时最好使用带有数字索引的传统 `for` 循环。 因为 `for…in` 语句还会迭代除数组元素之外的用户定义属性，就算我们修改了数组对象（例如添加自定义属性或方法），依然如此
 
 ```js
-for循环倒叙是最快的.
-
-const million=1000000;
-const arr = Array(million);
-
-//const arr = [...Array(million)]
-
-
+// for…in 循环遍历对象的属性，而 for…of 循环遍历可迭代对象的值。
+let arr = [1,2,3];
+for(let i in arr){
+  console.log(i); //'0','1','2'
+}
 ```
 
 
+
+#### for await ...of
+
+**`for await...of` 语句**创建一个循环，该循环遍历异步可迭代对象以及同步可迭代对象，包括: 内置的 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String), [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)，类似数组对象 (例如 [`arguments`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/arguments) 或 [`NodeList`](https://developer.mozilla.org/zh-CN/docs/Web/API/NodeList))，[`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray), [`Map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map), [`Set`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Set) 和用户定义的异步/同步迭代器。
+
+类似于 [`await`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await) 运算符一样，该语句只能在一个[async function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function#异步函数) 内部使用
+
+```JavaScript
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for-await...of
+
+
+```
 
 
 
@@ -4405,15 +4735,30 @@ const arr = Array(million);
 
 #### slice-截取
 
+Array.prototype.slice()
+
+`slice` 会提取原数组中索引从 `begin` 到 `end` 的所有元素（包含 `begin`，但不包含 `end`）
+
+`slice()` 方法,不会改变原始数组,返回一个新的数组对象. 这一对象是一个由 `begin` 和 `end` 决定的原数组的**浅拷贝**（包括 `begin`，不包括`end`）
+
 ```JavaScript
-- 截取数组,该方法不会影响到原数组,而是将结果保存到一个新数组中返回
-- 参数:
-	第一个参数, 截取起始位置的索引(包含起始位置)
-	第二个参数, 截取结束位置索引(不包含结束位置)
-	如果省略第二个参数,则会一直截取到最后
-	
- 如果使用负索引,则表示倒数第几个
-	 负1 表示倒数第一; 负2表示倒数第二, 以此类推
+//语法
+arr.slice([begin,[,end]])
+-begin 可选参数: 提取起始处的索引（从 0 开始），从该索引开始提取原数组元素
+如果省略该参数,则slice从索引0开始.
+如果该参数为负数,则表示从原数组的倒数第几个元素开始提取.例如slice(-2),提取原数组中的倒数第2个到最后1个元素(包含最后一个)
+如果该参数超出数组索引范围,则返回空数组.
+
+-end 可选参数:提取终止处的索引（从 0 开始），在该索引处结束提取原数组元素
+如果省略该参数,则 slice 会一直提取到原数组末尾
+如果该参数为负数, 则它表示在原数组中的倒数第几个元素结束抽取
+如果end大于数组长度,slice会提取到原数组末尾.
+
+//描述
+slice 不会修改原数组，只会返回一个浅复制了原数组中的元素的一个新数组。原数组的元素会按照下述规则拷贝：
+-如果该元素是个对象引用 （不是实际的对象），slice 会拷贝这个对象引用到新的数组里。两个对象引用都引用了同一个对象。如果被引用的对象发生改变，则新的和原来的数组中的这个元素也会发生改变。
+-对于字符串、数字及布尔值来说（不是 String、Number 或者 Boolean 对象），slice 会拷贝这些值到新的数组里。在别的数组里修改这些字符串或数字或是布尔值，将不会影响另一个数组
+- 如果向两个数组任一中添加了新元素，则另一个不会受到影响.
 
 - 复制整个数组的方法
 	arr.slice()
@@ -4423,79 +4768,27 @@ const arr = Array(million);
 
 
 
-```JavaScript
-let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-let result = arr.slice(0,2); //'孙悟空', '猪八戒'
-result = arr.slice(1,2); // '猪八戒'
-result = arr.slice(1); //  ["猪八戒", "沙和尚", "唐僧"]
-result = arr.slice(1, -1) //["猪八戒", "沙和尚"]
+```js
+//示例
+slice 方法可以用来将一个类数组（Array-like）对象/集合转换成一个新数组。你只需将该方法绑定到这个对象上。 一个函数中的  arguments 就是一个类数组对象的例子. 
 
-
-arr原数组不会被改变
-```
-
-
-
-#### slice-浅复制
-
-```JavaScript
-只复制对象本身,不复制对象的属性,元素
-通过slice可以对一个数组进行浅复制
-
-深复制,全部复制,但是性能比较差
-```
-
-
-
-```JavaScript
-===============重要====================
-
-let arr = ['孙悟空', '猪八戒', '沙和尚'];
-
-let arr2 = arr.slice();//arr.slice(0)同样效果   使用slice方法浅复制
-
-//浅复制后, arr2与arr是两个对象,但内部的内容相同.
-console.log(arr === arr2); //false
-
-//arr2与arr指向的是相同的属性
-console.log(arr[1] === arr2[1]); //true
-
-
-浅复制:
-let arr = ['孙悟空', '猪八戒', '沙和尚'];
-function fn(array){
-    array = array.slice(0);
-    array.push('唐僧');
-    return array; //忘记返回了
+function list(){
+  return Array.prototype.slice.call(arguments);
 }
+let list1 = list(1,2,3); //[1,2,3]
 
-fn(arr);
-
-let result = fn(arr);
-console.log(result); //['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-console.log(arr);  //['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-
-console.log(result === arr); //false 浅复制 通过slice方法只复制了属性的对象和元素
-
-
-- 对象的赋值比较 在函数内将对象赋值给变量再返回 
-let arr = {name:'孙悟空', age:18}
-let arr2 = arr;
-console.log(arr2 === arr); //true
-
-function copyObj(arr){
-    let arr3 =arr;
-    return arr3;
+除了使用 Array.prototype.slice.call(arguments)，你也可以简单的使用 [].slice.call(arguments) 来代替。另外，你可以使用 bind 来简化该过程
+let unboundSlice = Array.prototype.slice;
+let slice = Function.prototype.call.bind(unboundSlice)
+function list(){
+  return slice(arguments);
 }
-let arr3 = copyObj(arr);
-console.log(arr3);
-console.log(arr3 === arr); //true
+let list1 = list(1,2,3);[1,2,3]
 
-let arr = ['孙悟空', '猪八戒', '沙和尚'];
-function fn(array){
-    let array2 = array.slice(0);
-    return array; 
-}
+
+//Function.prototype.call.bind
+//https://www.cnblogs.com/gaoht/p/10978751.html
+在JavaScript中，有时候需要在一个不同的对象上重用一个函数，而不是在定义它的对象或者原型中。通过使用call()，applay（）和bind()，我们可以很方便地从不同的对象借用方法，而不需要继承它们 – 这是一个在专业JavaScript开发者的工具箱中很有用的工具
 
 
 ```
@@ -4549,9 +4842,7 @@ console.log(arr);
 
 ```
 
- 
 
-### 数组方法2
 
 #### concat()
 
@@ -5383,176 +5674,6 @@ t.doSomething(foo, 'Hi');
 
 
 
-
-
-
-### 函数参数arguments
-
-```JavaScript
-- 除了this,函数中还有一个隐含参数:arguments
-- arguments是一个类数组对象(伪数组)
-
-- 它具有length属性,同时也可以通过 索引 来操作元素,可以遍历,不能使用数组的方法,它的类型不是数组Array
-
-- arguments是用来存储实参的对象,所有的实参都存储在arguments对象
-- 通过arguments,我们不定义形参就可以直接使用实参
-```
-
-
-
-```js
-function getAge(...agrs){
-  console.log(typeof args);
-}
-getAge(21); // 'object'
-
-扩展运算符返回实参组成的数组. 数组是对象.
-```
-
-
-
-
-
-```JavaScript
-//案例
-
-function fn(){
-    alert(arguments);
-    alert(arguments.length); //0
-    alert(arguments instanceof Array); // 伪数组 可以求长度,遍历,获取某个元素.但是数组的方法无法使用.
-}
-fn(); //和this类似,是存在可以被输出的. 输出的结果是[object Arguments]
-==============================================================
-function fn(){
-    alert(arguments.length)
-}
-fn('hello'); // 1
-fn('hello', true, 123); //3
-
-//定义一个函数,求任意数量数字的和
-      
-  function fn(){
-      let sum = 0; //定义变量,存储结果
-      for(let i=0; i<arguments.length; i++){ //遍历arguments中的值
-          sum += arguments[i];
-      }
-      return sum;
-  }
-
-  console.log(fn(1,2,3));
-
-
-```
-
-
-
-
-
-  
-
-###   函数方法call()和apply()
-
-```JavaScript
-call() 
- - 当我们调用函数call()方法时,函数会立即执行就好像我们直接调用了函数
- - call()方法的第一个参数会自动成为函数中的this
- - call()的实参是从第二个参数一个一个传递
- 
-
-apply()
- - apply()的作用和call()方法是一样的,都可以指定函数的this
- - apply()的实参是直接传递一个数组作用于第二个参数
- - 使用apply()方法传递需要使用数组
-
-
-- 使用场景:
- - es5,原型继承. 父类.call(this,属性1,属性2);
-
-- 第一个参数传入null或undefined时, this指向的是window.
-
-
-# this到底是谁?
- 1.以函数形式调用,this是window
- 2.以方法形式调用,this就是调用方法的对象
- 3.以构造函数形式调用,this是新建的对象
- 4.以call和apply调用,this是他们的第一个参数
-```
-
-
-
-```js
-- call方法的参数,应该是对象obj.如果参数为空或null或undefined, 则默认传参全局对象.
-
-var obj={};
-var f=function(){return this};
-console.log(f()===window);//log: true
-console.log(f.call(obj)===obj);//log: true
-
-- 如果call传参不是以上的类型,则转换成相应的包装对象,然后传入方法.例如,5转成number实例.
-var f=function(){return this};
-f.call(5);//log:Number {5}
-```
-
-
-
-```js
-//示例 mdn
-1.使用call方法调用父构造函数
-function Product(name,price){
-    this.name = name;
-    this.price = price;
-}
-
-function Food(name,price){
-    Product.call(this,name,price);
-    this.category = 'food';
-}
-function Toy(name,price){
-    Product.call(this, name, price);
-    this.category = 'toy';
-}
-
-let cheese = new Food('feta',5);
-let fun = new Toy('robot',40);
-
-console.log(cheese.name, cheese.price)
-
-//使用call方法调用匿名函数
-var animals = [
-  { species: 'Lion', name: 'King' },
-  { species: 'Whale', name: 'Fail' }
-];
-
-for(let i=0;i<animals.length;i++){
-    (function(i){
-        this.print=function(){
-            console.log('#'+i+''+this.species+':'+this.name)
-        }
-    }).call(animals[i],i)
-}
-//使用 call 方法调用函数并且指定上下文的 'this'
-function greet(){
-    let reply = [this.animal, 'typically sleep between',this.sleepDuration].join('');
-    console.log(reply);
-}
-let obj = {animal:'cats', sleepDuration:'12 and 16 hours'};
-greet.call(obj); // cats typically sleep between 12 and 16 hours
-
-//使用 call 方法调用函数并且不指定第一个参数（argument）
-let sData = 'wisen';
-function display(){
-    console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
-}
-display.call(); //sData value is 
-
-//在严格模式下，this 的值将会是 undefined
-'use strict'
-let sData = 'wisen';
-function display(){
-    console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
-}
-display.call(); //can't read the property of 'sData' of undefined 
-```
 
 
 
@@ -6862,6 +6983,19 @@ JSON.stringify()处理object值，不保证object的属性顺序
 
 ### 闭包
 
+你可以在一个函数里面嵌套另外一个函数。嵌套（内部）函数对其容器（外部）函数是私有的。它自身也形成了一个闭包。一个闭包是一个可以自己拥有独立的环境与变量的表达式（通常是函数). 嵌套函数可以”继承“容器函数的参数和变量。换句话说，内部函数包含外部函数的作用域。
+
+由于内部函数可以访问外部函数的作用域，因此当内部函数生存周期大于外部函数时，外部函数中定义的变量和函数的生存周期将比内部函数执行时间长。当内部函数以某一种方式被任何一个外部函数作用域访问时，一个闭包就产生了
+
+可以总结如下:
+
+* 允许函数嵌套
+
+- 内部函数只可以在外部函数中访问
+- 内部函数形成了一个闭包：它可以访问外部函数的所有参数和变量及外部函数能访问的所有变量和函数，但是外部函数却不能使用它的参数和变量。
+
+
+
 #### 概要
 
 ```JavaScript
@@ -6876,9 +7010,54 @@ JSON.stringify()处理object值，不保证object的属性顺序
 - 闭包的生命周期
  闭包在外部函数调用时创建,调用一次产生一个
  相同对象调用,形成闭包.
- 闭包在内部函数被垃圾回收时销毁
- 
+ 闭包在内部函数被垃圾回收时销毁.
 ```
+
+
+
+#### 保存变量
+
+一个闭包必须保存它可见作用域中所有参数和变量。因为每一次调用传入的参数都可能不同，每一次对外部函数的调用实际上重新创建了一遍这个闭包。只有当返回的嵌套函数没有再被引用时，内存才会被释放.
+
+
+
+#### 多层嵌套函数
+
+函数可以被多层嵌套。例如，函数A可以包含函数B，函数B可以再包含函数C。B和C都形成了闭包，所以B可以访问A，C可以访问B和A。因此，闭包可以包含多个作用域；他们递归式的包含了所有包含它的函数作用域。这个称之为**作用域链**
+
+```js
+function A(x){
+  function B(y){
+    function C(z){
+      console.log(x+y+z)
+    }
+    C(3);
+  }
+  B(2);
+}
+A(1)
+```
+
+#### 命名冲突🔸
+
+如果一个闭包的函数定义了一个和外部函数的某个变量名称相同的变量，那么这个闭包将无法引用外部函数的这个变量.
+
+当同一个闭包作用域下两个参数或者变量同名时，就会产生命名冲突。更近的作用域有更高的优先权，所以最近的优先级最高，最远的优先级最低。这就是作用域链。链的第一个元素就是最里面的作用域，最后一个元素便是最外层的作用域。
+
+```js
+function outside(){
+  var x = 5;
+  return function inside(x){
+    return x*2;
+  }
+}
+outside()(10); //20
+
+//解析:
+命名冲突发生在return x上，inside的参数x和outside变量x发生了冲突。这里的作用链域是{inside, outside, 全局对象}。因此inside的x具有最高优先权，返回了20（inside的x）而不是10（outside的x）
+```
+
+
 
 
 
@@ -6904,164 +7083,9 @@ result = null; //内部函数会被垃圾回收
 
 
 
-### 箭头函数
-
-#### 概要
-
-```JavaScript
-- 语法:
-形参 => 返回值
-(参数1, 参数2) => 返回值
-形参 => {
-    语句..
-    return 值;
-}
-
-箭头函数,主要是用来设置回调函数的
-箭头函数,主要是设置简单的函数
-箭头函数有多个返回值时,需要使用return
-箭头函数,只有一行表达式,表示自带return
-```
 
 
 
-#### 箭头函数-this
-
-```JavaScript
-this:
-根据函数的调用方式不同,this的值也不同:
-1.以函数方式调用时,this是window
-2.以方法形式调用时,this就是调用方法的对象
-3.以构造函数形式调用时,this就是新创建的对象
-4.以call和apply形式调用,this是它们的第一个参数
-5.箭头函数this, 由外层作用域决定
-
-function fn(){
-    alert(this); //window
-}
-fn();
-
-let obj = {
-    name:'孙悟空',
-    sayHello:function(){
-        alert(this); //obj
-    }
-};
-obj.say.Hello();
-```
 
 
-
-#### 案例
-
-```JavaScript
-
-let fn = a => a + 10;  //a就是形参
-fn(a, b) => a + b;
-fn(a, b){   		//多个形参
-    console.log('hello'); 
-    return a + b;    //当有多个返回值,需要使用return
-}
-
-
-箭头函数-数组排序
-arr = [3, 1, 2, 4, 5, 7, 8, 9, 6];
-arr.sort((a,b) => a - b); 从小到大,升序排列
-
-箭头函数-返回值是个对象 格式需要加括号
-fn = () => {name:'孙悟空'};
-alert(fn()); //返回值是undefined  原因:对象是大括号,返回值也有大括号,浏览器无法分清.
-
-更新:
-fn = () => ({name:'孙悟空'});
-alert(fn()); //[object Object]
-
-
-
-箭头函数- this是谁
-fn=()=>alert(this); 
-fn(); 
-//[object window] 以函数形式调用,this是window
-//fn的外层作用域是全局,全局作用域的this是谁?是window.所以fn的this也是window.箭头函数没有权利设置自己的this,完全看外层作用域是谁,外层作用域是谁,this是谁.
-
-fn=()=>alert(this);
-let ojb= {
-    name:'孙悟空',
-    tt:fn
-}
-obj.tt();  //this是谁? 以方法的形式调用,应是obj.但是
-
-
-fn=()=>alert(this);
-let obj={
-    name:'孙悟空',
-    tt:fn,
-    sayHello:function(){
-        function inner(){ 
-            alert(this); //this是谁?看inner的this是谁,看inner的调用方式:函数, 故window.
-        }
-        inner();
-    }
-}
-obj.sayHello();
-
-
-let obj = {
-    name:'孙悟空',
-    tt:fn,
-    say.Hello(){
-        let inner = () => alert(this);//inner的外层作用域是say.Hello,say.Hello这个函数的this是谁,是obj,那么箭头函数的this的就是obj
-        inner();
-    }
-}
-obj.sayHello();
-```
-
-
-
-```js
-var foo = 'aaa';
-var obj = {
-  foo:'bbb',
-  get:function () {
-    var foo = 'ccc';
-    var that = this;
-    return function () {
-      return that.foo
-    }
-  }
-}
-
-
-console.log(obj.get()())
-
-var b = obj.get;
-console.log(b()())
-
-
-```
-
-
-
-```js
-
-//函数的参数
-function fn(a,b) {
-     return (...rest) => {
-        console.log(argumnets)  //argumnets访问的是外层作用域的
-    }
-}
-
-fn(1, 2)(3,4)
-
-
-
-// function fn1(a, b) {
-//     return function (c, d) {
-//         console.log(arguments)
-//     }
-// }
-
-// fn1(1,2)(2,3)
-```
 
