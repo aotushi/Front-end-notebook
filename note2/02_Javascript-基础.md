@@ -4601,7 +4601,7 @@ shift()
 2.1创建稀疏数组:数组元素实际只有2个，但是长度确实3.当你遍历这个数组的时候,不同的方法会有差异.
 let arr = new Array(3);
 arr[0]=0;
-arr[2]=2;
+arr[2]=2;  //中间一项是empty,这个arr数组是稀疏数组.
 
 2.2创建密集数组:有真实元素了，虽然元素的值是undefined，但是你可以遍历到这些数组元素
 let arr = Array.apply(null,Array(3)); //等同于let arr = Array(undefined,undefined,undefined);
@@ -4741,6 +4741,8 @@ Array.prototype.slice()
 
 `slice()` 方法,不会改变原始数组,返回一个新的数组对象. 这一对象是一个由 `begin` 和 `end` 决定的原数组的**浅拷贝**（包括 `begin`，不包括`end`）
 
+
+
 ```JavaScript
 //语法
 arr.slice([begin,[,end]])
@@ -4769,21 +4771,22 @@ slice 不会修改原数组，只会返回一个浅复制了原数组中的元�
 
 
 ```js
-//示例
-slice 方法可以用来将一个类数组（Array-like）对象/集合转换成一个新数组。你只需将该方法绑定到这个对象上。 一个函数中的  arguments 就是一个类数组对象的例子. 
-
-function list(){
-  return Array.prototype.slice.call(arguments);
+//代码实现
+Array.prototype.slice = function(start,end){
+  let result = new Array();
+  let start = start || 0;
+  let end = end || this.length;
+  for(let i=start;i<end;i++){
+    result.push(this[i])
+  }
+  return result;
 }
-let list1 = list(1,2,3); //[1,2,3]
 
-除了使用 Array.prototype.slice.call(arguments)，你也可以简单的使用 [].slice.call(arguments) 来代替。另外，你可以使用 bind 来简化该过程
-let unboundSlice = Array.prototype.slice;
-let slice = Function.prototype.call.bind(unboundSlice)
-function list(){
-  return slice(arguments);
-}
-let list1 = list(1,2,3);[1,2,3]
+//拓展
+slice()方法可将伪数组转换为真数组,用法如下:
+let arr = Array.prototype.slice.call(obj); //此处obj就是伪数组
+let arr = [].slice.call(obj);
+
 
 
 //Function.prototype.call.bind
@@ -4799,18 +4802,16 @@ let list1 = list(1,2,3);[1,2,3]
 
 #### splice-删除添加替换
 
+**`splice()`** 方法通过删除或替换现有元素或者原地添加新的元素来修改数组,并以数组形式返回被修改的内容。此方法会改变原数组。
+
 ```JavaScript
-- 该方法用来删除,添加,替换数组中的元素, 该方法是一个破坏性方法 //delete删除后依然占位置 用于对象
-- 调用后直接影响原数组
+//语法
+arr.splice(start[,deleteCount[,item1[,item2[,...]]]])
 
-- 参数:
-	第一个,删除的起始位置
-	第二个,删除的数量
-	第三个,要添加的元素
+start
+ 指定修改的开始位置（从0计数）
+ 
 
-- 返回值:
-	返回被删除的元素
-    
 ```
 
 
@@ -5463,9 +5464,105 @@ console.log(array1.findIndex(isLargeNumber));
 
 
 
+#### Array.from()
+
+`Array.from()` 方法从一个类似数组或可迭代对象创建一个新的，浅拷贝的数组实例
+
+```js
+//语法
+Array.from(arrayLike[,mapFn[,thisArg]])
+arrayLike 要转换成数组的伪数组对象或可迭代对象
+mapFn 如果指定了该参数，新数组中的每个元素会执行该回调函数
+thisArg 可选参数，执行回调函数 mapFn 时 this 对象
+
+//返回值
+一个新的数组
+
+//描述
+Array.from() 可以通过以下方式来创建数组对象：
+ - 伪数组对象（拥有一个 length 属性和若干索引属性的任意对象）
+ - 可迭代对象（可以获取对象中的元素,如 Map和 Set 等）
+```
+
+```js
+//示例
+从String生成数组
+Array.from('foo');
+//['f','o','o']
+
+从Set生成数组
+const set = new Set(['foo','bar','baz','foo']);
+Array.from(set);
+//['foo','bar','baz']
+
+从Map生成数组
+
+从类数组对象(arguments)生成数组
+function fn(){
+  return Array.from(arguments);
+}
+fn(1,2,3); //[1,2,3]
+
+在Array.from中使用箭头函数
+Array.from([1,2,3],x=>x+x);  //等同于 Array.from(arrLike).map(x=>x+x)
+//[2,4,6]
+
+数组去重合并
+let m =[1,2,3]; let n = [2,3,4];
+function combine(){
+  let arr = [].concat.apply([],arguments);
+  return Array.from(new Set(arr));
+}
+console.log(combine(m,n))
+
+其他
+Array.from({legnth:2},()=>'jack');
+//['jack','jack']
+
+
+Array.from()的另一个应用是，将字符串转为数组，然后返回字符串的长度。因为它能正确处理各种 Unicode 字符，可以避免 JavaScript 将大于\uFFFF的 Unicode 字符，算作两个字符的 bug。
+```
+
+
+
+
+
+#### Array.prototype.xxx.call()
+
+>  [来源](https://github.com/getify/You-Dont-Know-JS): 通过“借用”数组的方法可以很方便的处理字符串。可以“借用”数组的非变更方法，但不能“借用”数组的可变更方法.
+
+```js
+//https://www.jianshu.com/p/0362b6cd90d6
+
+let a = 'foo';
+//数组的非变更方法,就是不改变原有数组的方法
+let b = Array.prototype.join.call(a,'-'); //'f-o-o'
+let c = Array.prototype.map.call(a,i=>i.toUpperCase()).join(); //'FOO'
+let c = Array.prototype.slice.call(a);//['f','o','o']
+
+//数组的可变更方法,就是会改变原有数组的方法
+let e = Array.prototype.reverse.call(a);
+//chrome: Uncaught TypeError: Cannot assign to read only property '0' of object '[object String]'
+
+
+```
+
 
 
 ### 数组练习
+
+#### 伪数组转换为真数组的3种方法
+
+```js
+1.slice方法
+let realArr = Array.prototype.slice.call(arr);
+2.ES6的扩展运算符
+let realArr = [...arr];
+3.ES6方法From,任何有length属性的对象，都可以通过Array.from方法转为数组，而此时扩展运算符就无法转换
+let realArr = Array.from(arr);
+```
+
+
 
 #### 查询字符串中字母出现的次数
 
