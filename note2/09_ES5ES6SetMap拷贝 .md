@@ -1302,7 +1302,6 @@ console.log(args, [...args]);
 > symbol值不能跟任何值进行计算. 
 >
 > 使用for..in或者for...of循环遍历的时候,遍历不到symbol属性.  可以使用Object.getOwnpropertySymbols()获取对象的symbol属性,使用 **Reflect.ownKeys**(对象)来遍历获取对象所有的属性.
->
 
 ```js
 const s1 = Symbol();
@@ -2403,10 +2402,10 @@ JSON.parse() 将对象转换成字符串
 
 //源对象  
 const school = {
-    name: '尚硅谷',
+    name: 'abc',
     pos: ['北京','上海','深圳'],
     founder: {
-        name:'刚哥',
+        name:'创始人',
         age: 45
     },
     improve: function(){
@@ -2439,10 +2438,10 @@ const result=JSON.parse(JSON.stringify(school));
 - 普通方法
 
 const school = {
-    name: '尚硅谷',
+    name: 'aaa',
     pos: ['北京','上海','深圳'],
     founder: {
-        name:'刚哥',
+        name:'创始人',
         age: 45
     },
     improve: function(){
@@ -2478,10 +2477,10 @@ result.improve=school.improve.bind(result);
 - 递归方法
 
 const school = {
-            name: '尚硅谷',
+            name: 'aaa',
             pos: ['北京','上海','深圳'],
             founder: {
-                name:'刚哥',
+                name:'创始人',
                 age: 45
             },
             improve: function(){

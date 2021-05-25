@@ -3648,15 +3648,7 @@ const db=require('./db/db');
 
 
 
-## 1214
-
 ## 原生AJAX
-
-
-
-
-
-
 
 ### AJAX简介
 

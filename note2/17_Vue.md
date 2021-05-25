@@ -1886,8 +1886,8 @@ data(){},
 props:{
 	username:{       //usename和被传递的属性要保持一致
 		type:String, //类型
-        required:true,//必需要传, 不传报错.
-        default:'默认值' //默认值
+    required:true,//必需要传, 不传报错.
+    default:'默认值' //默认值
                 
 	}
 }
