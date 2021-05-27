@@ -4830,22 +4830,137 @@ item1,item2... 可选
 
 
 
+```js
+//代码实现  https://blog.csdn.net/weixin_43523913/article/details/106021147
+https://blog.csdn.net/lunahaijiao/article/details/112645946
+
+
+Array.prototype.splice = function (start, deleteCount) {
+  // 参数个数
+  let argLen = arguments.length;
+  // 数组
+  let array = Object(this);
+  // 数组的长度
+  let len = array.length;
+  // 添加元素的个数
+  let addCount = argLen > 2 ? argLen - 2 : 0;
+
+  // 计算有效的start
+  let startIndex = computeSpliceStartIndex(start, len);
+  // 计算有效的deleteCount
+  let delCount = computeSpliceDeleteCount(startIndex, deleteCount, len);
+  // 记录删除的数组元素
+  let deletedElements = new Array(delCount);
+
+  // 将删除的元素记录到deleteArray
+  recordDeleteElements(startIndex, delCount, array, deletedElements)
+
+  // 移动数组元素
+  moveElements(startIndex, delCount, array, addCount)
+
+  let i = startIndex
+  let argumentsIndex = 2
+
+  // 插入新元素
+  while (argumentsIndex < argLen) {
+    array[i+1]=arguments[argumentsIndex++]
+  }
+
+  array.length = len - delCount + addCount
+
+  return deletedElements;
+}
+
+// 计算真实的start
+function computeSpliceStartIndex(start, len) {
+  // 处理负值,如果负值的绝对值大于数组的长度,则表示开始位置为第0位
+  if (start < 0){
+    start += len;
+    return start < 0 ? 0 : start;
+  }
+  // 处理超出边界问题
+  return start > len - 1 ? len - 1 : start;
+}
+
+// 计算真实的deleteCount
+function computedSpliceDeleteCount(startIndex, deleteCount, len) {
+  // 超出边界问题
+  if (deleteCount > len - startIndex) deleteCount = len - startIndex;
+  // 负值问题
+  if (deleteCount < 0) deleteCount = 0;
+  return deleteCount;
+}
+
+// 记录删除元素,用于返回结果数组
+function moveElements(startIndex, delCount, array, addCount) {
+  for (let i = 0; i < delCount; i++){
+    deletedElements[i] = array[startIndex + i];
+  }
+}
+
+// 移动数组元素,便于插入新元素
+function moveElements(startIndex, delCount, array, addCount) {
+  let realAddCount = addCount - delCount;
+  if (realAddCount) {
+    // 向后移动
+    for (let i = array.length - 1; i >= startIndex + delCount; i--){
+      array[i+realAddCount]=array[i]
+    }
+  } else if (realAddCount < 0) {
+    // 向前移动
+    for (let i = startIndex + delCount; i <= array.length - 1; i++){
+      if (i + Math.abs(realAddCount) > array.length - 1) {
+        // 删除冗余元素
+        delete array[i];
+        continue;
+      }
+      array[i]=array[i+Math.abs(realAddCount)]
+    }
+  }
+}
+```
+
+
+
+
+
+
+
 ```JavaScript
 //示例
 
-1.从第2位开始删除0个元素,插入'drum'
+1.从第2位开始删除1个元素,插入'drum'
 let myFish = ['angel',"clown", "mandarin", "sturgeon"]
 myFish.splice(2,1,'drum')
+
+2.从倒数第2位开始删除1个元素
+var myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
+var removed = myFish.splice(-2, 1);
+// 运算后的 myFish: ["angel", "clown", "sturgeon"]
+// 被删除的元素: ["mandarin"]
+
+3.从第 2 位开始删除所有元素
+var myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
+var removed = myFish.splice(2);
+
+// 运算后的 myFish: ["angel", "clown"]
+// 被删除的元素: ["mandarin", "sturgeon"]
 ```
 
 
 
 #### concat()
 
-```JavaScript
-- 可以用来连接两个或多个数组
+**`concat()`** 方法用于合并两个或多个数组。此方法不会更改现有数组，而是返回一个新数组
 
-- 不会影响到原数组,而是将元素添加到一个新数组中返回
+```JavaScript
+//语法
+var new_array = old_array.concat(value1[, value2[, ...[, valueN]]])
+
+//valueN可选
+数组和/或值，将被合并到一个新的数组中。如果省略了所有 valueN 参数，则 concat 会返回调用此方法的现存数组的一个浅拷贝
+
+
 ```
 
 
