@@ -25,7 +25,7 @@
 * [06_BOM](./note2/06_BOM.md)
 * [07_jQuery](./note2/07_jQuery.md)
 * [08_Git+BootStrap+Less](./note2/08_Git+BootStrap+Less.md)
-* [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝 .md)
+* [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝.md)
 * [10_Nodejs+Promise+模块化+gulp+存储 ](./note2/10_Nodejs+Promise+模块化+gulp+存储.md)
 * [11_webpack配置教程](./note2/11_webpack配置教程.md)
 * [12_react](./note2/12_react.md)
