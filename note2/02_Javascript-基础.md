@@ -4959,25 +4959,92 @@ var new_array = old_array.concat(value1[, value2[, ...[, valueN]]])
 
 //valueN可选
 数组和/或值，将被合并到一个新的数组中。如果省略了所有 valueN 参数，则 concat 会返回调用此方法的现存数组的一个浅拷贝
+-concat()方法对需要拷贝的对象的每个元素进行拷贝时，若该元素为基础类型，则对该元素进行的是深拷贝（如array1[1]属性）；若该元素是引用类型，则对该元素进行的是浅拷贝（如array2[1].name属性）
 
 
+//描述
+concat方法创建一个新的数组，它由被调用的对象中的元素组成，每个参数的顺序依次是该参数的元素（如果参数是数组）或参数本身（如果参数不是数组）。它不会递归到嵌套数组参数中。
+
+concat方法不会改变this或任何作为参数提供的数组，而是返回一个浅拷贝，它包含与原始数组相结合的相同元素的副本。 原始数组的元素将复制到新数组中
+ - 对象引用（而不是实际对象）：concat将对象引用复制到新数组中。 原始数组和新数组都引用相同的对象。 也就是说，如果引用的对象被修改，则更改对于新数组和原始数组都是可见的。 这包括也是数组的数组参数的元素。
+ - 数据类型如字符串，数字和布尔（不是String，Number 和 Boolean 对象）：concat将字符串和数字的值复制到新数组中
+ 
+注意：数组/值在连接时保持不变。此外，对于新数组的任何操作（仅当元素不是对象引用时）都不会对原始数组产生影响，反之亦然。
 ```
 
 
 
+```js
+//代码实现
+
+Array.prototype.concat=function(){
+  let length = arguments.length;
+  let result = this;
+  if(length===0){
+    return result;
+  }else{
+    for(let i=0;i<length;i++){
+      if(Array.isArray(arguments[i])){
+        result.push(...arguments[i])
+      }else{
+        result.push(arguments[i])
+      }
+    }
+    return result;
+  }
+}
+```
+
+
+
+
+
 ```JavaScript
-let arr = ['孙悟空', '猪八戒'];
-let arr2 = ['白骨精', '蜘蛛精'];
-let arr3 = ['张飞', '沙和尚'];
+//连接两个数组
+var alpha = ['a', 'b', 'c'];
+var numeric = [1, 2, 3];
+alpha.concat(numeric);
+// result in ['a', 'b', 'c', 1, 2, 3]
 
-let result = arr.concat(arr2); //["孙悟空", "猪八戒", "沙和尚", "白骨精", "蜘蛛精"]
-result = arr.concat(arr2,arr3);//["孙悟空", "猪八戒", "白骨精", "蜘蛛精", "张飞", "沙和尚"]
+//将值连接到数组
+var alpha = ['a', 'b', 'c'];
+var alphaNumeric = alpha.concat(1, [2, 3]);
+console.log(alphaNumeric);
+// results in ['a', 'b', 'c', 1, 2, 3]
 
-result = arr.concat(arr2, arr3, 'a');////["孙悟空", "猪八戒", "白骨精", "蜘蛛精", "张飞", "沙和尚", 'a']
+//合并嵌套数组
+var num1 = [[1]];
+var num2 = [2, [3]];
+var num3=[5,[6]];
+
+var nums = num1.concat(num2);
+
+console.log(nums);
+// results is [[1], 2, [3]]
+
+var nums2=num1.concat(4,num3);
+console.log(nums2)
+// results is [[1], 4, 5,[6]]
+
+// modify the first element of num1
+num1[0].push(4);
+
+console.log(nums);
+// results is [[1, 4], 2, [3]]
 
 
-# concat()方法为空,不添加任何数组
-let arr4 = arr.concat(); //['孙悟空', '猪八戒'];
+//合并对象
+let obj ={a:2}
+let arr=[1,2,3]
+let result = arr.concat(obj);
+console.log(result);//[1,2,3,{a:2}]
+
+//浅拷贝 conat()实现的浅拷贝:基本类型是深拷贝,引用类型是浅拷贝(数组中的元素是对象才起作用)
+let arr=[1,2,3,{a:4}];
+let result=arr.concat();
+arr[3].a=5;
+console.log(arr, result);
+//[1, 2, 3,{a:5}] [1, 2, 3,{a:5}]
 ```
 
 
