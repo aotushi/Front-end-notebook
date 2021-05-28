@@ -7305,6 +7305,45 @@ JSON.stringify()处理object值，不保证object的属性顺序
 
 
 
+```js
+//https://www.zhihu.com/question/460940032?utm_source=com.microsoft.todos&utm_medium=social&utm_oi=41541510889472
+
+function createIncrement() {
+  let count = 0;
+  function increment() { 
+    count++;
+  }
+
+  let message = `Count is ${count}`;
+  function log() {
+    console.log(message);
+  }
+ 
+  return [increment, log];
+}
+
+const [increment, log] = createIncrement();
+increment(); 
+increment(); 
+increment(); 
+log(); // 0
+
+
+在①处调用 createIncrement 时，②处的 message 实际上已经创建出来了，那就相当于是字符串不变量了
+把函数log写成:
+function log(){
+  console.log(`Count is ${count}`)
+}
+```
+
+![](https://pic1.zhimg.com/80/v2-c518a99960e698edba1c3dca36e11804_720w.jpg?source=1940ef5c)
+
+
+
+
+
+
+
 #### 保存变量
 
 一个闭包必须保存它可见作用域中所有参数和变量。因为每一次调用传入的参数都可能不同，每一次对外部函数的调用实际上重新创建了一遍这个闭包。只有当返回的嵌套函数没有再被引用时，内存才会被释放.
