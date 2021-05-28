@@ -594,6 +594,11 @@ console.log(a, typeof a);  //10 "string"
 //多维数组也可以转换成字符串
 [1,2,[3,4,[5,6]]].toString()
 "1,2,3,4,5,6"
+
+
+//数组中的undefined,null转换成空值,但直接转换为字符串形式
+[1,2,,undefined,null].toString() // "1,2,,,"
+String([1,2,,undefined,null])   // "1,2,,,"
 ```
 
 
@@ -4733,6 +4738,20 @@ for(let i in arr){
 
 ### 数组方法1
 
+#### toString
+
+`**toString()**` 返回一个字符串，表示指定的数组及其元素
+
+```js
+Array.prototype.toString()
+
+//描述
+-Array对象覆盖了Object的 toString 方法。对于数组对象，toString 方法连接数组并返回一个字符串，其中包含用逗号分隔的每个数组元素。
+-当一个数组被作为文本值或者进行字符串连接操作时，将会自动调用其 toString 方法
+```
+
+
+
 #### slice-截取
 
 Array.prototype.slice()
@@ -5149,27 +5168,58 @@ console.log(newArr)
 
 #### join()
 
+`**join()**` 方法将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该项目而不使用分隔符。
+
 ```JavaScript
-- 将一个数组连接为一个字符串,并返回
-- 参数:
-	- 可以指定一个分隔符作为参数
-	- 如果不指定,默认使用逗号作为分隔符
+//语法
+arr.join([separator])
+separator 可选
+指定一个字符串来分隔数组的每个元素。如果需要，将分隔符转换为字符串。如果缺省该值，数组元素用逗号（,）分隔。如果separator是空字符串("")，则所有元素之间都没有任何字符
 
--使用 空串 则没有分隔符
--使用 空值 则使用默认的逗号
+//返回值
+一个所有数组元素连接的字符串。如果 arr.length 为0，则返回空字符串。
 
-- 非破坏性方法
+//描述
+- 有的数组元素被转换成字符串，再用一个分隔符将这些字符串连接起来
+- 如果一个元素为 undefined 或 null，它会被转换为空字符串   //不是用的String(null)吗? 'null'
+
+
 ```
 
 
 
+```js
+//手写代码
+当数组调用toString(),String()方法的时候,底层代码也调用了join(),所以使用转换字符换方法重写函数会出现死循环.
+
+Array.prototype.join=function(sep){
+  if(!sep){
+    sep=','
+  }
+  let arr = this;
+  let newStr = '';
+  for(let i=0;i<arr.length;i++){
+    newStr += (arr[i]===arr[length-1]?'':sep)
+  }
+  return newStr
+}
+let arr = [1,2,3]
+let result = arr.join()
+```
+
+
+
+
+
 ```JavaScript
-arr = ['a', 'b', 'c'];
-result = arr.join('-'); //a-b-c
-result = arr.join('@-@'); //a@-@b@-@c
-result = arr.join('');  //abc
-result = arr.join(); //a,b,c
-console.log(arr); //不改变
+//示例
+
+1.连接类数组对象
+function f(a,b,c){
+  let s = Array.prototype.join.call(arguments);
+  console.log(s); //'1,a,true'
+}
+f(1,'a',true)
 ```
 
 
@@ -5178,21 +5228,19 @@ console.log(arr); //不改变
 
 #### reverse()
 
+`**reverse()**` 方法将数组中元素的位置颠倒，并返回该数组。数组的第一个元素会变成最后一个，数组的最后一个元素变成第一个。该方法会改变原数组。
+
 ```JavaScript
-- 反转数组,它是一个破坏性的方法
-- 调用后原数组会受到影响
+//语法
+arr.reverse()
+
+//描述
+reverse方法是特意类化的；此方法可被 called 或 applied于类似数组对象。对象如果不包含反映一系列连续的、基于零的数值属性中的最后一个长度的属性，则该对象可能不会以任何有意义的方式运行
 ```
 
 
 
 ```JavaScript
-arr = ['孙悟空', '猪八戒', '沙和尚']; 
-arr.reverse();
-console.log(arr); //["沙和尚", "猪八戒", "孙悟空"]
-arr = ['a', 'b', 'c', 'd', 'e'];  
-arr.reverse(); // ["e", "d", "c", "b", "a"]
-
-
 
 ```
 
