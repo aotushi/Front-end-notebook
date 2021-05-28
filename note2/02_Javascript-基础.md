@@ -4738,6 +4738,42 @@ for(let i in arr){
 
 ### 数组方法1
 
+```js
+1.实现浅拷贝方法
+slice() concat()
+
+
+```
+
+
+
+| 非破坏性方法名称           | 返回值                                                       |
+| -------------------------- | ------------------------------------------------------------ |
+| Array.prototype.toString() | 字符串                                                       |
+| Array.prototype.slice()    | 对数组进行截取,返回截取的数组                                |
+| Array.prototype.concat()   | 连接2个或多个数组,并返回结果                                 |
+| Array.prototype.indexOf()  | 查询元素第一次出现在数组的位置并返回,没有返回-1              |
+| Array.prototype.join()     | 将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串 |
+| Array.prototype.some()     | 检测数组中是否有元素符合指定条件                             |
+| Array.prototype.every()    | 检测数组元素是否都符合条件                                   |
+| Array.prototype.filter()   | 返回符合检测条件的元素并返回符合条件的所有元素组成的数组     |
+| Array.prototype.map()      | 通过指定函数处理每个元素,并解放者处理后的数组                |
+| Array.prototype.valueOf()  | 返回数组对象的原始值                                         |
+
+
+
+| 破坏性方法                | 返回值                                       |
+| ------------------------- | -------------------------------------------- |
+| Array.prototype.splice()  | 用于插入,删除或替换数组的元素                |
+| Array.prototype.push()    | 向数组末尾添加1个或多个元素,返回数组新的长度 |
+| Array.prototype.pop()     | 删除并返回数组最后一个元素                   |
+| Array.prototype.unshift() | 向数组开头添加1个或多个元素,返回数组新的长度 |
+| Array.prototype.shift()   | 删除并返回数组的第一个元素                   |
+| Array.prototype.reverse() | 反转数组的元素顺序                           |
+| Array.prototype.sort()    | 对数组元素进行排序                           |
+
+
+
 #### toString
 
 `**toString()**` 返回一个字符串，表示指定的数组及其元素
@@ -5199,7 +5235,7 @@ Array.prototype.join=function(sep){
   let arr = this;
   let newStr = '';
   for(let i=0;i<arr.length;i++){
-    newStr += (arr[i]===arr[length-1]?'':sep)
+    newStr += arr[i]+ (arr[i]===arr[length-1]?'':sep)
   }
   return newStr
 }
@@ -5241,12 +5277,27 @@ reverse方法是特意类化的；此方法可被 called 或 applied于类似数
 
 
 ```JavaScript
+//示例
+
+1.颠倒数组中的元素
+const a = [1,2,3];
+a.reverse();
+console.log(a) //[3,2,1]
+
+2.颠倒类数组中的元素 必须有length属性
+const a = {0: 1, 1: 2, 2: 3, length: 3};
+Array.prototype.reverse.call(a); //same syntax for using apply()
+console.log(a); // {0: 3, 1: 2, 2: 1, length: 3}
 
 ```
 
-####   sort() 
 
-用[原地算法](https://en.wikipedia.org/wiki/In-place_algorithm)对数组的元素进行排序，并返回数组。默认排序顺序是在将元素转换为字符串，然后比较它们的UTF-16代码单元值序列时构建的. 
+
+
+
+####   sort()
+
+用[原地算法](https://en.wikipedia.org/wiki/In-place_algorithm)对数组的元素进行排序，并返回数组。默认排序顺序是在将元素转换为字符串，然后比较它们的**UTF-16**代码单元值序列时构建的. 
 
 可以用来对一个数组进行排序,它是一个破坏性的方法..调用后,原数组的顺序就会被改变.
 
@@ -5254,7 +5305,7 @@ reverse方法是特意类化的；此方法可被 called 或 applied于类似数
 
 ```JavaScript
 //语法
-arr.sort([copareFunction]) []标识可选
+arr.sort([copareFunction]) //[]标识可选
 返回值:排序后的数组。请注意，数组已原地排序，并且不进行复制
 
 
