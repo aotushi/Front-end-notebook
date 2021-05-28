@@ -5078,6 +5078,28 @@ indexOf 使用strict equality (无论是 ===, 还是 triple-equals操作符都�
 ```js
 //手动实现
 
+Array.prototype.indexOf=function(item,index){
+  let start;
+  let flag=false;
+  let length = this.length;
+  if(!start){
+    start=0;
+  }else if(start>length){
+    start=length;
+  }else if(start<0){
+    start=length+start;
+  }
+  
+  for(let i=start;i<length;i++){
+    if(arr[i]===item){
+      flag = true;
+      return i;
+    }
+  }
+  if(!flag){
+    return -1;
+  }
+}
 ```
 
 
@@ -5122,15 +5144,6 @@ console.log(newArr)
 ```
 
 
-
-```JavaScript
-let arr = ['孙悟空', '猪八戒', '猪八戒', '猪八戒'];
-
-result = arr.lastIndexOf('猪八戒'); //3
-result = arr.lastIndexOf('猪八戒', 2); //返回的是1
-
-console.log(result);
-```
 
 
 
