@@ -5055,42 +5055,58 @@ console.log(arr, result);
 
 #### indexOf()
 
-```JavaScript
-- 返回元素在数组中第一次出现的位置
-- 参数:
-	第一个参数: 要查询的元素,包括这个元素自身
-  第二个元素: 查询的起始位置,默认为0
+`indexOf()`方法返回在数组中可以找到一个给定元素的第一个索引，如果不存在，则返回-1
 
-- 返回值:
+```JavaScript
+//语法
+arr.indexOf(searchElement[, fromIndex])
+searchElement: 要查询的元素
+fromIndex: 
+  查询的起始位置,默认为0,表示查询整个数组.
+  如果参数中提供的索引值是一个负值，则将视为从数组末尾的偏移.例如,如果是-1,从最后一位开始搜索
+  
+返回值:
 	如果找到了,返回其第一次出现的位置
 	如果没找到,返回-1
+
+//描述
+indexOf 使用strict equality (无论是 ===, 还是 triple-equals操作符都基于同样的方法)进行判断 searchElement与数组中包含的元素之间的关系
 ```
 
 
 
-```JavaScript
-arr = ['孙悟空', '猪八戒', '猪八戒', '猪八戒'];
-result = arr.indexOf('猪八戒'); //1
-result = arr.indexOf('猪八戒', 2); //2
-result = arr.indexOf('猪老九'); // -1
+```js
+//手动实现
+
 ```
 
 
 
-##### indexOf()-数组去重
+
 
 ```JavaScript
+//示例
+1.找出指定元素所在的位置
+let indices=[];
+let array=['a', 'b', 'a', 'c', 'a', 'd'];
+let element='a';
+let idx = array.indexOf(element);
+while(idx!==-1){
+  indices.push(idx);
+  array.indexOf(element,idx+1)
+}
+console.log(indices)
+
+2.数组去重
 let arr = [1,2,3,1,1,4,3,2,5,6,7];
 let newArr = [];
-for(i=0; i<arr.length; i++){
-    if(newArr.indexOf(arr[i]) === -1){   //太聪明了! // lastIndexOf 
-        newArr.push(arr[i]);
-    }
-}
-console.log(newArr);
+arr.forEach((item,index)=>{
+  if(newArr.indexOf(item)===-1){
+    newArr.push(arr[index])
+  }
+})
+console.log(newArr)
 ```
-
-
 
 
 
