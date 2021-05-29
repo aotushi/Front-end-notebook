@@ -6011,7 +6011,7 @@ for(let i=0; i<arr.length; i++){
 console.log(arr2);
 
 
-reduce方法
+//reduce方法
 let arr = [1,2,3,4,4,1]
 let newArr = arr.reduce((prev,current)=>{
   if(!prev.includes(current)){
@@ -6020,6 +6020,17 @@ let newArr = arr.reduce((prev,current)=>{
     return prev;
   }
 },[])
+
+let arr=[1,2,2,4,null,null].reduce(prev,current)=>{
+  return prev.includes(current)?prev:prev.concat(current)
+,[]}
+
+
+//filter方法
+let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index)
+
+//set方法
+let arr=[...new Set([1,2,2,4,null,null])]
 ```
 
 
