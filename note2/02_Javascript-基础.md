@@ -1937,7 +1937,7 @@ for(;;){
 
 #### for循环案例
 
-求100以内所有的奇数之和
+##### 求100以内所有的奇数之和
 
 ```js
 let num = 0; //创建一个变量,用来存储结果
@@ -1957,7 +1957,7 @@ console.log(result);
 
 
 
-求100以内所有7的倍数之和,以及个数
+##### 求100以内所有7的倍数之和,以及个数
 
 ```js
 let num = 0;
@@ -1979,6 +1979,8 @@ console.log(num,count);
 ```
 
 
+
+##### 水仙花数
 
 水仙花数.  水仙花数是指一个 n 位数（n≥3 ），它的每个位上的数字的 n 次幂之和等于它本身（例如：1\*\*3 + 5\*\*3 + 3\*\*3 = 153）编写代码，求 1000 以内所有的水仙花数！
 
@@ -2063,7 +2065,7 @@ if(sum === num+1){
 
 
 
-判断数组中某元素出现的次数
+##### 判断数组中某元素出现的次数
 
 ```js
 let arr = ['Alice', 'Bob', 'Tiff', 'Bruce', 'Alice', 'Bruce', 'Alice'];
@@ -5496,19 +5498,8 @@ console.log(filterItems('an')); // ['banana', 'mango', 'orange']
 
 `**reduce()**` 方法对数组中的每个元素执行一个由您提供的**reducer**函数(升序执行)，将其结果汇总为单个返回值。
 
-```
+```js
 -语法:
-reduce为数组中的每一个元素依次执行callback函数，不包括数组中被删除或从未被赋值的元素，接受四个参数：
-
-accumulator 累计器
-currentValue 当前值
-currentIndex 当前索引
-array 数组
-
-回调函数第一次执行时，accumulator 和currentValue的取值有两种情况：
- 如果调用reduce()时提供了initialValue，accumulator取值为initialValue，currentValue取数组中的第一个值；
- 如果没有提供 initialValue，那么accumulator取数组中的第一个值，currentValue取数组中的第二个值。
-
 arr.reduce((accumulator, currentValue,currentIndex,arr)=>{}, initialValue)
 
 arr:当前数组
@@ -5518,9 +5509,10 @@ currentIndex 表示当前正在处理的数组元素的索引,若传入了initia
 array 当前操作的数组(就是arr)
 initialValue 表示初始值.一般是做数学运算时设置为0.若为筛选值可以不传.
 
-
-//initialValue注意事项
-如果没有提供initialValue，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供initialValue，从索引0开始。
+//描述
+回调函数第一次执行时，accumulator 和currentValue的取值有两种情况：
+ 如果调用reduce()时提供了initialValue，accumulator取值为initialValue，currentValue取数组中的第一个值；
+ 如果没有提供 initialValue，那么accumulator取数组中的第一个值，currentValue取数组中的第二个值。
 ```
 
 ```js
@@ -5578,13 +5570,14 @@ console.log(nameNum); //[ Alice: 3, Bob: 1, Tiff: 1, Bruce: 2 ] ??
 如果数组是数字类型或数字型字符串,reduce的初始值是数组的话会有一个empty item.需要使用对象解决.
 let arr = [1,2,3,4,1,2,3];
 let obj = arr.reduce((prev,current)=>{
-  if(current in prev){
+  if(prev.includes(current)){
     prev[current]++;
   }else{
     prev[current]=1;
   }
-},{})
-console.log(obj); //{ '1': 2, '2': 2, '3': 1, '4': 2 }
+  return prev;
+},[]); //[ <1 empty item>, 2, 2, 1, 1 ]
+
 ```
 
 
@@ -5627,7 +5620,7 @@ let newArr = function(arr){
     },[])
 }
 
-console.log(newArr[arr])
+console.log(newArr(arr))
 ```
 
 
@@ -5822,13 +5815,6 @@ const isLargeNumber = (element) => element > 13;
 
 console.log(array1.findIndex(isLargeNumber));
 // expected output: 3
-```
-
-
-
-#### toString 数组转换成字符串
-
-```js
 ```
 
 
