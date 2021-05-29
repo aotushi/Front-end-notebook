@@ -6294,24 +6294,6 @@ console.log(p.sayHello === p2.sayHello); //true 现在只有一个函数,故相�
 以后在创建构造函数时,
  对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
  对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
-
-function Myclass(){
-    
-}
-console.log(Myclass.prototype);
-
-let mc = new Myclass();
-let mc2 = new Myclass();
-
-//向Myclass的原型中添加name属性
-Myclass.prototype.name = '原型中的name';
-
-mc.name = '孙悟空';
-
-console.log(mc.name); //'孙悟空
-console.log(mc2.name);//'原型中的name'
-
-
 ```
 
 
@@ -6393,6 +6375,8 @@ Myclass.prototype
 
 
 ### 对象Math
+
+**`Math`** 是一个内置对象，它拥有一些数学常数属性和数学函数方法。`Math` 不是一个函数对象
 
 #### 简介
 
@@ -6974,7 +6958,7 @@ fromIndex默认值是+Infinity.
 
 
 
-##### lastIndexOf()实例
+#### lastIndexOf()实例
 
 ```HTML
 'abadefgacm'.lastIndexOf('ab', 7);// 返回0. 两个条件,字符串'ab',从第7位回向查找.
@@ -6982,7 +6966,7 @@ fromIndex默认值是+Infinity.
 
 
 
-##### str.slice()
+#### str.slice()
 
 > 截取字符串的一部分,并返回一个新的字符串, 不改动原字符串.
 
@@ -7014,7 +6998,7 @@ str.slice(0);
 
 
 
-##### str.substr()
+#### str.substr()
 
 > 返回一个字符串从指定位置开始到指定数量的字符.
 >
@@ -7042,7 +7026,7 @@ length: 可选.提取的字符数. 如果length为0或负值,则返回一个空�
 
 
 
-##### str.substring()
+#### str.substring()
 
 > 返回一个字符串在开始索引到结束索引之间的一个子集,或从开始索引直到字符串末尾的一个子集.
 
@@ -7111,7 +7095,7 @@ function replaceString(oldS, newS, fullS){
 
 
 
-##### str.split()
+#### str.split()
 
 > 将一个字符串拆分成一个数组
 
@@ -7133,13 +7117,13 @@ str.split('');//['H', 'e', 'l', 'l', 'o']  //空字符串就是默认逗号
 
 
 
-##### str.toUpperCase()
+#### str.toUpperCase()
 
 > 将一个字符/字符串转换为大写
 
 
 
-##### str.toLowerCase()
+#### str.toLowerCase()
 
 > 将一个字符/字符串转换为小写
 
@@ -7147,25 +7131,25 @@ str.split('');//['H', 'e', 'l', 'l', 'o']  //空字符串就是默认逗号
 
 
 
-##### str.trim()
+#### str.trim()
 
 > 去除字符串前后的空格
 
 
 
-##### str.trimEnd()
+#### str.trimEnd()
 
 > 新方法 不兼容. 去除后边的空格
 
 
 
-##### str.trimStart()
+#### str.trimStart()
 
 > 去除前边的字符串 新方法不兼容
 
 
 
-##### str.startsWith()
+#### str.startsWith()
 
 > startsWith() 方法用于检测字符串是否以指定的子字符串开始。
 >
@@ -7177,20 +7161,9 @@ str.split('');//['H', 'e', 'l', 'l', 'o']  //空字符串就是默认逗号
 
 
 
-##### str.endsWith()
+#### str.endsWith()
 
 > endsWith() 方法用于测试字符串是否以指定的后缀结束。
-
-
-
-#### padStart
-
-```js
-//作用: 可以让某个字符补全位数
-
-'哈哈'.padStart(6,'0')
-输出: '000哈哈'
-```
 
 
 
