@@ -1509,7 +1509,9 @@ getScore(0);
 
 
 
-#### 隐式 转换为数值
+#### 隐式 转换为数值(+,-,\*)
+
+一元运算符将其他类型转换为数值共有3种方法: +a, a-0, a*1,
 
 ```javascript
 let a = 10 - true;// 10 - 1
@@ -1564,7 +1566,7 @@ let b = '5';
 
 
 
-#### 隐式 转换为字符串
+#### 隐式 转换为字符串(+'')
 
 对字符串进行加法运算时,它会将两个字符串拼接成一个字符串
 任何值与字符串做加法运算时,都会被转换为字符串,然后和字符串进行拼串  
@@ -5299,7 +5301,7 @@ console.log(a); // {0: 3, 1: 2, 2: 1, length: 3}
 
 用[原地算法](https://en.wikipedia.org/wiki/In-place_algorithm)对数组的元素进行排序，并返回数组。默认排序顺序是在将元素转换为字符串，然后比较它们的**UTF-16**代码单元值序列时构建的. 
 
-可以用来对一个数组进行排序,它是一个破坏性的方法..调用后,原数组的顺序就会被改变.
+可以用来对一个数组进行排序,它是一个**破坏性的方法**..调用后,原数组的顺序就会被改变.
 
 可以通过传递一个 回调函数 来自定义排序规则
 
@@ -5370,15 +5372,18 @@ arr.sort((a,b)=>{
 基本思想是首先将数组中的每个元素比较的实际值取出来，排序后再将数组恢复.降低复杂数据的负载.
 
 ```js
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
 let arr = ['Delta', 'alpha', 'CHARLIE', 'bravo'];
+// 对需要排序的数字和位置的临时存储
 let mappedObj = arr.map((item,index)=>{
   return {index:index,value:item.toLowerCase()};
 })
-
+// 按照多个值排序数组
 mappedObj.sort((a,b)=>{
-  return +(a.value>b.value)||+(a.value===b.value)=-1
+  return +(a.value>b.value)||+(a.value===b.value)-1
 })
-
+// 根据索引得到排序的结果
 let result = mappedObj.map((item)=>{
   return list[item.index]
 })
@@ -5390,10 +5395,31 @@ let result = mappedObj.map((item)=>{
 
 #### map()
 
-```js
-map方法是创建一个新数组,其结果是数组中每个元素调用一次提供的函数后的返回值.
+`**map()**` 方法创建一个新数组，其结果是该数组中的每个元素是调用一次提供的函数后的返回值. 不修改调用它的原数组本身.
 
-const newarr=arr.map((item,index,arr)=>{})
+```js
+//语法
+const new_array = arr.map(function callback(currentValue[,index[,array]]){
+  //return element for new_array
+},[,thisArg])
+
+callback 生成新数组元素的函数，使用三个参数：
+currentValue
+callback 数组中正在处理的当前元素
+index可选
+callback 数组中正在处理的当前元素的索引
+array可选
+map 方法调用的数组。
+thisArg可选
+执行 callback 函数时值被用作this
+
+//描述
+map 方法会给原数组中的每个元素都按顺序调用一次  callback 函数。callback 每次执行后的返回值（包括 undefined）组合起来形成一个新数组。 callback 函数只会在有值的索引上被调用；那些从来没被赋过值或者使用 delete 删除的索引则不会被调用
+
+因为map生成一个新数组，当你不打算使用返回的新数组却使用map是违背设计初衷的，请用forEach或者for-of替代
+如果 thisArg 参数提供给map，则会被用作回调函数的this值。否则undefined会被用作回调函数的this值。
+
+map 方法处理数组元素的范围是在 callback 方法第一次调用之前就已经确定了。调用map方法之后追加的数组元素不会被callback访问。如果存在的数组元素改变了，那么传给callback的值是map访问该元素时的值。在map函数调用后但在访问该元素前，该元素被删除的话，则无法被访问到
 
 //实例
 实现数组绑定&符,变成字符串形式
@@ -5402,20 +5428,73 @@ arr.map(item=>'&a='+ item)
 
 
 
+```js
+//示例
+
+1.求数组中每个元素的平方根
+var numbers = [1, 4, 9];
+var roots = numbers.map(Math.sqrt);
+// roots的值为[1, 2, 3], numbers的值仍为[1, 4, 9]
+
+2.使用 map 重新格式化数组中的对象
+var kvArray = [{key: 1, value: 10},
+               {key: 2, value: 20},
+               {key: 3, value: 30}];
+
+// reformattedArray 数组为： [{1: 10}, {2: 20}, {3: 30}],
+
+let result = kvArray.map((item,index)=>{
+  return {[item.key],item.value}
+})
+```
+
+
+
 
 
 #### filter()
 
-```
-filter 不会改变原数组，它返回过滤后的新数组。
-一个新的、由通过测试的元素组成的数组，如果没有任何数组元素通过测试，则返回空数组
+`**filter()**` 方法创建一个新数组, 其包含通过所提供函数实现的测试的所有元素.不会改变原数组，它返回过滤后的新数组
+
+```js
+//语法
+var newArray = arr.filter(callback(element[, index[, array]])[, thisArg])
+
+参数
+callback
+用来测试数组的每个元素的函数。返回 true 表示该元素通过测试，保留该元素，false 则不保留
+
+//描述
+filter 为数组中的每个元素调用一次 callback 函数，并利用所有使得 callback 返回 true 或等价于 true 的值的元素创建一个新数组
 
 
 ```
+
+
+
+```js
+//示例
+var fruits = ['apple', 'banana', 'grapes', 'mango', 'orange'];
+
+const filterItems = (query)=>{
+  return fruits.filter(item=>{
+    return item.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  })
+}
+
+console.log(filterItems('ap')); //['apple','grapes']
+console.log(filterItems('an')); // ['banana', 'mango', 'orange']
+```
+
+
+
+
 
 
 
 #### reduce()
+
+`**reduce()**` 方法对数组中的每个元素执行一个由您提供的**reducer**函数(升序执行)，将其结果汇总为单个返回值。
 
 ```
 -语法:
