@@ -5950,18 +5950,18 @@ for(let i=0; i<arr.length; i++){
     
 ========================方法2===============================    
 关系数组: 就是将字符串作为数组索引的一种使用数组的方式
-    
+var str = 'aalskdjfslkdjsdkjfsldkjfzz';    
 var arr = [];
 for(var i=0; i<str.length; i++){
     arr[str[i]] = arr[str[i]] + 1 || 1;
 }
-console.log(arr);
+console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
     
 ```
 
 
 
-#### 数组去重2种方法
+#### 数组去重3种方法
 
 嵌套循环+indexOf
 
@@ -6009,6 +6009,17 @@ for(let i=0; i<arr.length; i++){
     }
 }
 console.log(arr2);
+
+
+reduce方法
+let arr = [1,2,3,4,4,1]
+let newArr = arr.reduce((prev,current)=>{
+  if(!prev.includes(current)){
+    return prev.push(current)
+  }else{
+    return prev;
+  }
+},[])
 ```
 
 
