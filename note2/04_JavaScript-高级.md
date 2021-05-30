@@ -46,7 +46,7 @@ scope 作用域链
 
 function a(){}
 var a;
-console.log(a); //ƒ a(){}
+console.log(a); //ƒ a(){}   var可以重复声明,如果没有赋值,依然指向第一次的声明.
 
 
 function a(){}
@@ -144,7 +144,7 @@ var a,b;
     var a=b=3;        //相当于var a=3,b=3 b是全局变量
     console.log(a);   //3
     console.log(b);   //3
-});
+})();
 console.log(a);      //undefined
 console.log(b);      //3
 ```
@@ -287,8 +287,11 @@ f(3);
 创建上下文阶段:
 
 1. 收集变量形成变量对象( 函数 var的变量会收集)
-   1. 预解析(其实在创建变量对象的时候已经做了预解析)
+
+   1.1预解析(其实在创建变量对象的时候已经做了预解析)
+
 2. 确定this的指向(可以认为确定执行者)
+
 3. 创建自身执行上下文的作用域链
    * 注意: 同时确定函数在调用时候的上级作用域链(根据ECMA词法去确定, 看内部是否引用外部变量来确定)
 
@@ -491,62 +494,40 @@ Function是自己new了自己, 自己既是自己的构造函数,也是实例化
 
 
 
-```js
-//父类
+#### 借用原型链继承
 
-//定义一个类
-function Animal(name){
-    //
-}
-```
-
-
-
-
-
-
-
-#### 原型继承
+**每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。**通俗点说就是，实例通过内部指针可以访问到原型对象，原型对象通过constructor指针，又可以找到构造函数
 
 核心: 将父类的实例作为子类的原型
 
 缺点: 
 
- 1.子类新增属性或方法,必须在new Animal()之后执行,不能放到构造器中;
+ 1.**对原型中引用类型值的误修改**:  原型上任何类型的属性值都不会通过实例被重写，但是引用类型的属性值会受到实例的影响而修
 
- 2.无法实现多继承
-
- 3.来自原型对象的所有属性被所有实例共享
-
- 4.创建子类实例时, 无法向父类构造函数传参
+ 2.原型链不能实现子类向父类中传参
 
 ```js
-function Animal(name) {
-  // 属性
-  this.name = name || 'Animal';
-  // 实例方法
-  this.sleep = function () {
-    console.log(this.name + '正在睡觉!');
-  }
-}
+//https://www.cnblogs.com/sarahwang/p/6879161.html
 
-// 原型方法
-Animal.prototype.eat = function (food) {
-  console.log(this.name + '正在吃' + food);
-}
+    //父类：人
+    function Person () {
+      this.head = '脑袋瓜子';
+      this.emotion = ['喜', '怒', '哀', '乐']; //人都有喜怒哀乐
+    }
+    //子类：学生，继承了“人”这个类
+    function Student(studentID) {
+      this.studentID = studentID;
+    }
+    Student.prototype = new Person();
 
-// 1.原型链继承  子类原型=父类实例
-function Cat() { }
+    var stu1 = new Student(1001);
+    console.log(stu1.emotion); //['喜', '怒', '哀', '乐']
 
-Cat.prototype = new Animal();
-Cat.prototype.name = 'cat';
-
-var cat = new Cat();
-console.log(cat.name);
-console.log(cat.eat('fish'));
-console.log(cat.sleep());
-console.log(cat instanceof Animal);
-console.log(cat instanceof Cat)
+    stu1.emotion.push('愁');
+    console.log(stu1.emotion); //["喜", "怒", "哀", "乐", "愁"]
+    
+    var stu2 = new Student(1002);
+    console.log(stu2.emotion); //["喜", "怒", "哀", "乐", "愁"]
 ```
 
 
@@ -554,6 +535,8 @@ console.log(cat instanceof Cat)
 
 
 #### 借助构造函数继承
+
+在解决原型对象中包含引用类型值所带来问题的过程中，开发人员开始使用一种叫做**借用构造函数**的技术。实现原理是，在子类的构造函数中，通过 apply ( ) 或 call ( )的形式，调用父类构造函数，以实现继承。
 
 核心: 使用父类的构造函数增强子类实例, 等于是复制父类的实例给子类(没用到原型)
 
@@ -564,17 +547,29 @@ console.log(cat instanceof Cat)
  2.无法实现函数复用,每个子类都有父类实例函数的副本,影响性能
 
 ```js
-function Cat(name){
-  Animal.call(this);
-  this.name = name || 'Tom';
+在子类函数中，通过call ( ) 方法调用父类函数后，子类实例 stu1, 可以访问到 Student 构造函数和 Person 构造函数里的所有属性和方法。这样就实现了子类向父类的继承，而且还解决了原型对象上对引用类型值的误修改操作。
+
+//父类：人
+function Person () {
+  this.head = '脑袋瓜子';
+  this.emotion = ['喜', '怒', '哀', '乐']; //人都有喜怒哀乐
+}
+//子类：学生，继承了“人”这个类
+function Student(studentID) {
+  this.studentID = studentID;
+  Person.call(this);
 }
 
-// Test Code
-var cat = new Cat();
-console.log(cat.name);
-console.log(cat.sleep());//undfined
-console.log(cat instanceof Animal); // false
-console.log(cat instanceof Cat); // true
+//Student.prototype = new Person();
+
+var stu1 = new Student(1001);
+console.log(stu1.emotion); //['喜', '怒', '哀', '乐']
+
+stu1.emotion.push('愁');
+console.log(stu1.emotion); //["喜", "怒", "哀", "乐", "愁"]
+
+var stu2 = new Student(1002);
+console.log(stu2.emotion); //["喜", "怒", "哀", "乐"]
 
 ```
 
@@ -584,7 +579,7 @@ console.log(cat instanceof Cat); // true
 
 #### 混合继承
 
-就是将原型继承和构造函数继承一起用.
+[原型链继承](http://www.cnblogs.com/sarahwang/p/6870072.html)和[借用构造函数继承](http://www.cnblogs.com/sarahwang/p/6879161.html#3976607)。这两种模式都存在各自的缺点，所以，我们考虑是否能将这二者结合到一起，从而发挥二者之长。即在继承过程中，既可以保证每个实例都有它自己的属性，又能做到对一些属性和方法的复用
 
 ```js
 //父类
@@ -632,10 +627,6 @@ t1.run();//跑得快
 
 
 
-
-
-
-## 1113
 
 ### 闭包
 
