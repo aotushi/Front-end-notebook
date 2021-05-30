@@ -626,6 +626,26 @@ t1.run();//跑得快
 
 
 
+#### 封装一个继承函数
+
+```js
+//https://blog.csdn.net/weixin_30621919/article/details/97747095
+
+function extend(child,parent){
+  let F=function(){}
+  F.prototype=parent.prototype;
+  child.prototype=new F();
+  child.prototype.constructor=child;
+  
+  child.parent=parent.prototype;
+  if(parent.prototype.constructor===Object.prototype.constructor){
+    parent.prototype.constructor=parent;
+  }
+}
+
+
+```
+
 
 
 ### 闭包
