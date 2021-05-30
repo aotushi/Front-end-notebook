@@ -6079,6 +6079,18 @@ console.log(arr);
 
 ### 回调函数
 
+![](https://pic2.zhimg.com/0ef3106510e2e1630eb49744362999f8_r.jpg?source=1940ef5c)
+
+编程分为两类：系统编程（system programming）和应用编程（application programming）。所谓系统编程，简单来说，就是编写**库**；而应用编程就是利用写好的各种库来编写具某种功用的程序，也就是**应用**。在抽象层的图示里，库位于应用的底下
+
+当程序跑起来时，一般情况下，应用程序（application program）会时常通过API调用库里所预先备好的函数。但是有些库函数（library function）却要求应用先传给它一个函数，好在合适的时候调用，以完成目标任务。这个被传入的、后又被调用的函数就称为**回调函数**（callback function）
+
+```js
+https://www.zhihu.com/question/19801131/answer/27459821
+```
+
+
+
 #### 实例
 
 ```js
