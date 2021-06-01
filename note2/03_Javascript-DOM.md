@@ -2146,52 +2146,47 @@ img{
 
 ### 定时器
 
-#### 延迟定时器/单次定时器
+#### setTimeout()  延迟定时器/单次定时器
 
-##### 参数
+setTimeout() 是属于 window 的方法, 在指定的毫秒数后调用函数或计算表达式
 
-1. 回调函数 当设置的时间到达后,执行此回调函数
-2. 延迟时间. 单位为ms.
+```js
+//语法
+setTimeout(code,millisec,param1,param2)
+setTimeout(function,milliseconds,param1,param2)
 
-##### 定时器ID
+code/function 必须.代码串或表达式
+millisenonds 可选.默认为0,执行或调用code/function需要等待的时间,以毫秒计.
+param1,param2... 可选. 传给执行函数的其他参数（IE9 及其更早版本不支持该参数）
 
-定时器的方法在执行后, 会返回一个值, 我们将这个值叫做定时器ID.
+//返回值
+返回一个 ID（数字），可以将这个ID传递给 clearTimeout() 来取消执行
 
+//描述
 定时器的id的本质就是通过数值去记录定时器的顺序.如果只有一个定时器,清除定时器也可以用clearTimeout(1),不建议使用
+定时器如果不设置时间或者设置时间为0 ,也是异步操作
 
-定时器如果不设置时间或者设置时间为0 ,也是异步操作.
 
-##### 清除定时器
-
-clearTimeout(定时器对象)
-
-要清楚定时器, 使用相应的方法, 传入要清楚的定时器id. 定时器id的本质就是通过数值去记录定时器的顺序.但不要使用这种方式去去除,而是要使用**定时器id的变量**(方法赋值一个变量)
-
-##### 实例
-
-```HTML
-<button id='btn'>按钮</button>
-
-<script>
-	window.onload = function(){
-        vat btnNode = document.querySelector('#btn');
-        btnNode.onclick = function(){
-            clearTimeout(timer1);//clearTimeout(1) 不建议使用
-        }
-        var timer2 = setTimeout(function(){
-            console.log('计时完成2'); //第二位输出
-        }, 0);
-        var timer1 = setTimeout(function(){
-            console.log('计时完成1'); //最后输出
-        }, 0);
-        console.log('aaaaa');  //首先输出
-    }
-</script>
+//清除定时器
+要清除定时器, 使用相应的方法, 传入要清楚的定时器id. 定时器id的本质就是通过数值去记录定时器的顺序.但不要使用这种方式去去除,而是要使用定时器id的变量(方法赋值一个变量)
+let timer=setTimeout()
+clearTimeout(timer)
 ```
 
 
 
+```js
+//示例
 
+1. 3秒后弹出'hello'
+let myVar;
+function myFun(){
+	myVar=setTimeout(alertFun,3000);
+}
+function alertFun(){alert('hello')}
+
+2.
+```
 
 
 
