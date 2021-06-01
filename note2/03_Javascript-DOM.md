@@ -2185,7 +2185,6 @@ function myFun(){
 }
 function alertFun(){alert('hello')}
 
-2.
 ```
 
 
