@@ -1,3 +1,7 @@
+---
+
+---
+
 ### DOM介绍
 
 ```html
@@ -387,7 +391,7 @@ NodeList:
 
 
 
-### 获取元素方式
+#### 获取元素方式-总结
 
 ```HTML
 querySelector()
@@ -402,6 +406,18 @@ getElementsByName()
 
 
 
+
+### 修改元素样式
+
+```js
+- 通过JS修改的样式,都为行内样式 //选择器权重高
+- 设置样式会出现在行内,读取样式也只能读取行内样式(能读非行内样式,但是需要加操作)
+- css中所有原本样式名称上带有横杠的,一律使用小驼峰命名法
+
+- 格式:
+ 对象.style.属性 = '新值';
+例: 变量.style.backgroundColor = '新值';
+```
 
 
 
@@ -589,16 +605,21 @@ onmouseenter和onmouseleave 鼠标移动到自身是会触发事件，但是移�
 
 
 
-#### onmouseenter与onmouseover区别
+#### 两者的区别
 
 //事件冒泡: 即在子元素上触发的事件会向上传递至父级元素，并触发绑定在父级元素上的相应事件。
 
 在事件触发时，浏览器会产生一个event对象，在这个对象上有一个target属性，指向了触发事件的最底层的DOM，通过target我们可以准确的找到事件触发的元素。
 
-**mouseenter不支持冒泡, mouseover支持冒泡**
+**mouseenter不支持冒泡, mouseover支持冒泡**  mousemover也不支持冒泡
+
+
 
 ```html
 //原文链接：https://blog.csdn.net/weixin_41072247/article/details/79315402
+1.鼠标移入父级div,33行与30行分别先后打印 outer outer
+2.鼠标移入子级div,33行与30行分别先后打印 inner outer
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -641,32 +662,6 @@ onmouseenter和onmouseleave 鼠标移动到自身是会触发事件，但是移�
 
 
 
-
-
-
-### 修改元素样式
-
-```html
-- 通过JS修改的样式,都为行内样式 //选择器权重高
-- 设置样式会出现在行内,读取样式也只能读取行内样式(能读非行内样式,但是需要加操作)
-- css中所有原本样式名称上带有横杠的,一律使用小驼峰命名法
-
-- 格式:
- 对象.style.属性 = '新值';
-例: 变量.style.backgroundColor = '新值';
-```
-
-
-
-
-
-### 幽灵按钮
-
-```JavaScript
-- 使用鼠标移入移出来改变元素的style属性
-
-
-```
 
 
 

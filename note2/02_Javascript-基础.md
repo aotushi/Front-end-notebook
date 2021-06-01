@@ -2446,7 +2446,7 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 
 #### Object.assign()
 
-**Object.assign()** 方法用于将所有可枚举属性的值从一个或多个源对象分配到目标对象。它将返回目标对象. 同时它也可以实现浅拷贝.因为 `Object.assign()`拷贝的是（可枚举）属性值。
+**Object.assign()** 方法用于**将所有可枚举属性的值**从一个或多个源对象分配到目标对象。它将返回目标对象. 同时它也可以实现**浅拷贝**.因为 `Object.assign()`拷贝的是（可枚举）属性值。
 
 ```js
 //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
@@ -2468,7 +2468,7 @@ console.log(returnTarget.e) //5
 
 #### Object.keys
 
-返回一个由一个给定对象的自身可枚举属性组成的数组，数组中属性名的排列顺序和正常循环遍历该对象时返回的顺序一致.
+返回一个由一个给定对象的**自身可枚举属性**组成的数组，数组中属性名的排列顺序和正常循环遍历该对象时返回的顺序一致.
 
 **不保证对象属性的顺序**,mdn上没有直接说明,只是说明和手动遍历相同.因为迭代的顺序是依赖于浏览器实现的，结论是不保证.
 
@@ -2502,6 +2502,10 @@ console.log(newObj); //{ '2': 'b', '7': 'c', '100': 'a' }
 
 
 如何保证对象属性的顺序?
+
+#### Object.getOwnPropertyNames()
+
+Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不可枚举属性
 
 ```js
 https://juejin.cn/post/6844903796062191624
