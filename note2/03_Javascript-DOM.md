@@ -1177,21 +1177,23 @@ IE中的event的属性和方法和DOM一样会随着事件类型的不同而不�
 
 
 
-### 七.鼠标事件
+## UI事件
+
+### 一.鼠标事件
+
+#### 1.鼠标事件类型
 
 [DOM0, DOM2, DOM3介绍](https://www.jianshu.com/p/3acdf5f71d5b)
 
 DOM3级事件中定义了9个鼠标事件。
 
-- mousedown:鼠标按钮被按下（左键或者右键）时触发。不能通过键盘触发。
-- mouseup:鼠标按钮被释放弹起时触发。不能通过键盘触发。
-- click:单击鼠标**左键**或者按下回车键时触发。这点对确保易访问性很重要，意味着onclick事件处理程序既可以通过键盘也可以通过鼠标执行。
-- dblclick:双击鼠标**左键**时触发。
-- mouseover:鼠标移入目标元素上方。鼠标移到其后代元素上时会触发。
-- mouseout:鼠标移出目标元素上方。
-- mouseenter:鼠标移入元素范围内触发，**该事件不冒泡**，即鼠标移到其后代元素上时不会触发。
-- mouseleave:鼠标移出元素范围时触发，**该事件不冒泡**，即鼠标移到其后代元素时不会触发。
-- mousemove:鼠标在元素内部移到时不断触发。不能通过键盘触发。
+| 鼠标事件名称          | 功能概述                                                     |
+| --------------------- | ------------------------------------------------------------ |
+| mousedown/mouseup     | 鼠标按钮被按下/释放（左键或者右键）时触发。不能通过键盘触发  |
+| click/dbclick         | 单击鼠标**左键**或者按下回车键时触发。这点对确保易访问性很重要，意味着onclick事件处理程序既可以通过键盘也可以通过鼠标执行。/双击鼠标**左键**时触发 |
+| mouseover/mouseouter  | 鼠标移入目标元素上方。鼠标移到其后代元素上时会触发/鼠标移出目标元素上方 |
+| mouseenter/mouseleave | 鼠标移入元素范围内触发，**该事件不冒泡**，即鼠标移到其后代元素上时不会触发/鼠标移出元素范围时触发，**该事件不冒泡**，即鼠标移到其后代元素时不会触发 |
+| mousemove             | 鼠标在元素内部移到时不断触发。不能通过键盘触发               |
 
 **note**:
 
@@ -1199,7 +1201,11 @@ DOM3级事件中定义了9个鼠标事件。
 
 如果取消 了mousedown或mouseup中的一个，click事件就不会被触发。直接或间接取消了click事件，dblclick事件就不会被触发了。
 
-#### 1.事件触发的顺序
+#### 2.事件顺序
+
+在单个动作触发多个事件时，事件的顺序是固定的。也就是说，会遵循 `mousedown` → `mouseup` → `click` 的顺序调用处理程序。
+
+#### 2.1事件触发的顺序
 
 举例：通过双击按钮，看一下上面触发的事件。
 
@@ -1226,7 +1232,7 @@ DOM3级事件中定义了9个鼠标事件。
 
 ![双击鼠标,事件触发顺序](https://images0.cnblogs.com/blog/315302/201411/182134449882507.jpg)
 
-#### 2.mouseenter和mouseover
+#### 2.2 mouseenter和mouseover
 
 与css当中使用hover伪类实现的移入移出相比,JS当中的移入和移出是分开操作的,如果移入修改了某些内容,移出时是不会自动还原的
 
@@ -1237,43 +1243,6 @@ mouseover事件会冒泡，这意味着，鼠标移到其后代元素上时会�
 mouseenter事件不冒泡，这意味着，鼠标移到其后代元素上时不会触发。
 
 一般情况下mouseover即可，特殊情况才用mousemove，mousemove更耗资源，比如要监控鼠标坐标的变化等
-
-```JavaScript
-//onmounseenter&onmouseleave||onmouseover&onmouseouter
-- 第一种方法
-window.onload = function(){
-    var boxNode = document.querySelector('.box');
-    boxNode.onmouseenter = fucntion(){
-        console.log('移入');
-        this.style.background = 'skyblue';
-    }
-    boxNode.onmouseleave = function(){
-        console.log('移出');
-        this.style.background = 'pink';
-    }
-}
-
-
-- 第二种方法
-.boxNode = document.querySelector('.box');
-boxNode.onmouseover = function(){
-    console.log('移入');
-}
-boxNode.onmouseouter = function(){
-    console.log('移出');
-}
-
--两种区别:经过子元素,是否会重复触发一个事件
-
-onmouseover和onmouseouter 鼠标移动到自身时候会触发事件，同时移动到其子元素身上也会触发事件
-
-onmouseenter和onmouseleave 鼠标移动到自身是会触发事件，但是移动到其子元素身上不会触发事件. onmouseenter事件不支持冒泡.
-
-```
-
-
-
-#### 2.1两者的区别
 
 //事件冒泡: 即在子元素上触发的事件会向上传递至父级元素，并触发绑定在父级元素上的相应事件。
 
@@ -1325,7 +1294,15 @@ onmouseenter和onmouseleave 鼠标移动到自身是会触发事件，但是移�
 </html>
 ```
 
+#### 2.3 mouseover和mousemove的区别
 
+一般情况下mouseover即可，特殊情况才用mousemove，mousemove更耗资源，比如要监控鼠标坐标的变化等。
+
+onmousemove
+
+鼠标移动事件, 在绑定了这个事件的元素内, 只要移动,就会持续高频次触发, 一直检测你的移动状态
+
+只要想绑定一个事件, 让它在整个页面当中都可以生效,直接绑定给==document==
 
 #### 3.鼠标左键和右键
 
@@ -1341,15 +1318,129 @@ document.onmousedown=function (ev)
 
 
 
-#### 4.mouseover和mousemove的区别
+#### 4.鼠标按钮
 
-一般情况下mouseover即可，特殊情况才用mousemove，mousemove更耗资源，比如要监控鼠标坐标的变化等。
+与点击相关的事件始终具有 `button` 属性，该属性允许获取确切的鼠标按钮。
 
-onmousemove
+通常我们不在 `click` 和 `contextmenu` 事件中使用这一属性，因为前者只在单击鼠标左键时触发，后者只在单击鼠标右键时触发。
 
-鼠标移动事件, 在绑定了这个事件的元素内, 只要移动,就会持续高频次触发, 一直检测你的移动状态
+不过，在 `mousedown` 和 `mouseup` 事件中则可能需要用到 `event.button`，因为这两个事件在任何按键上都会触发，所以我们可以使用 `button` 属性来区分是左键单击还是右键单击。
 
-只要想绑定一个事件, 让它在整个页面当中都可以生效,直接绑定给==document==
+`event.button` 的所有可能值如下：
+
+| 鼠标按键状态    | event.button |
+| --------------- | ------------ |
+| 左键 (主要按键) | 0            |
+| 中键 (辅助按键) | 1            |
+| 右键 (次要按键) | 2            |
+
+
+
+#### 5.组合键
+
+所有的鼠标事件都包含有关按下的组合键的信息。
+
+事件属性：
+
+- `shiftKey`：Shift
+- `altKey`：Alt（或对于 Mac 是 Opt）
+- `ctrlKey`：Ctrl
+- `metaKey`：对于 Mac 是 Cmd
+
+如果在事件期间按下了相应的键，则它们为 `true`。
+
+比如，下面这个按钮仅在 Alt+Shift+click 时才有效：
+
+```html
+<button id='button'>Alt+Shift+click on me</button>
+
+<script>
+	button.click=function(event){
+    if(event.altKey && event.shiftKey){
+      alert('hooray')
+    }
+  }
+</script>
+```
+
+
+
+#### 6. 鼠标坐标
+
+所有的鼠标事件都提供了两种形式的坐标：
+
+1. 相对于窗口的坐标：`clientX` 和 `clientY`。以当前窗口的左上角为参照物，并且同一位置的坐标会随着页面的滚动而改变。
+2. 相对于文档的坐标：`pageX` 和 `pageY`。以文档的左上角为参照物，并且同一位置的坐标不随页面的滚动而改变
+
+案例:鼠标移动到输入字段上，可以看到 `clientX/clientY`
+
+```html
+<input onmouseover="this.value=event.clientX+':'+event.clientY" value="mouse over me"/>
+```
+
+
+
+#### 7.防止鼠标按下时的操作
+
+双击鼠标会有副作用，在某些界面中可能会出现干扰：它会选择文本。
+
+比如，双击下面的文本，除了我们的处理程序外，还会选择文本：
+
+比如,  如果按下鼠标左键，并在不松开的情况下移动鼠标，这也常常会造成不必要的选择。
+
+```html
+<span ondbclick='alert(dbclick)'>double-click me</span>
+```
+
+如何解决?在这种情况下，最合理的方式是防止浏览器对 `mousedown` 进行操作。这样能够阻止刚刚提到的两种选择：
+
+```html
+Before...
+<b ondblclick="alert('Click!')" onmousedown="return false">
+  Double-click me
+</b>
+...After
+```
+
+
+
+如何防止复制?如果我们想禁用选择以保护我们页面的内容不被复制粘贴，那么我们可以使用另一个事件：`oncopy`
+
+```html
+<div oncopy="alert('copying forbidden!')';return false"
+  Dear user,
+  The copying is forbidden for you.
+  If you know JS or HTML, then you can get everything from the page source though.
+</div>   
+```
+
+
+
+#### 8.[总结](https://zh.javascript.info/mouse-events-basics#zong-jie)
+
+鼠标事件有以下属性：
+
+- 按钮：`button`。
+- 组合键（如果被按下则为 `true`）：`altKey`，`ctrlKey`，`shiftKey` 和 `metaKey`（Mac）。
+  - 如果你想处理 Ctrl，那么不要忘记 Mac 用户，他们通常使用的是 Cmd，所以最好检查 `if (e.metaKey || e.ctrlKey)`。
+- 窗口相对坐标：`clientX/clientY`。
+- 文档相对坐标：`pageX/pageY`。
+
+`mousedown` 的默认浏览器操作是文本选择，如果它对界面不利，则应避免它。
+
+### 二.移动鼠标
+
+### 三.鼠标拖放事件
+
+### 四.指针事件
+
+### 五.键盘事件
+
+### 六.滚动
+
+
+
+
 
 
 
