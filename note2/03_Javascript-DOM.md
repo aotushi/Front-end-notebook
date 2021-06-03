@@ -1428,7 +1428,87 @@ Before...
 
 `mousedown` 的默认浏览器操作是文本选择，如果它对界面不利，则应避免它。
 
+
+
+#### 9.案例-可选列表
+
+创建一个可以选择元素的列表，例如在文件管理器中。
+
+- 点击列表元素，只选择该元素（添加 `.selected` 类），取消选择其他所有元素。
+- 如果点击时，按键 Ctrl（在 Mac 中为 Cmd）是被按下的，则选择会被切换到被点击的元素上，但其他元素不会被改动。
+
+```js
+//DOM classList属性
+classList 属性返回元素的类名，作为 DOMTokenList 对象。
+该属性用于在元素中添加，移除及切换 CSS 类。
+classList 属性是只读的，但你可以使用 add() 和 remove() 方法修改它。
+
+语法:
+element.classList
+返回值:
+一个 DOMTokenList, 包含元素的类名列表
+方法
+toggle(class, true|false) 在元素中切换类名 第一个参数为要在元素中移除的类名 第二个是可选参数，是个布尔值用于设置元素是否强制添加或移除类，不管该类名是否存在
+```
+
+
+
+```html
+event.target 打印的是节点元素及内容
+event.target.classList返回元素的类名 可替换 新增 删除
+
+
+<html>
+<head>
+</head>
+<style>
+  .selected{background:greenyellow}
+</style>
+ <body>
+  <p>Click on a list item to select it.</p>
+  <ul>
+    <li>A</li>
+    <li>B</li>
+    <li>C</li>
+    <li>D</li>
+    <li>E</li>
+  </ul>
+  <script>
+    let ul = document.querySelector('ul');
+    ul.addEventListener('click',function(e){
+      if(e.target.tagName!=='LI') return;
+      
+      if(e.ctrlKey||e.metaKey){
+        toggleSelected(e.target)
+      }else{
+        singleSelected(e.target)
+      }
+      function toggleSelected(li){
+        li.classList.toggle('selected')
+      }
+      function singleSelected(li){
+        let selected = ul.querySelectorAll('.selected');
+        for(let ele of selected){
+          ele.classList.remove('selected')
+        }
+        li.classList.add('selected')
+      }
+     
+    },false)
+  </script>
+</body>
+</html>
+```
+
+
+
+
+
+
+
 ### 二.移动鼠标
+
+
 
 ### 三.鼠标拖放事件
 
