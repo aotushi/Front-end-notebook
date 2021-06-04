@@ -7494,7 +7494,7 @@ JSON.stringify()处理object值，不保证object的属性顺序
 
 
 ```js
-//https://www.zhihu.com/question/460940032?utm_source=com.microsoft.todos&utm_medium=social&utm_oi=41541510889472
+//https://www.zhihu.com/question/460940032
 
 function createIncrement() {
   let count = 0;
