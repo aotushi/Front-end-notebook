@@ -1,24 +1,22 @@
-# html&css
-
-### 一. 网页结构：
+## 一. 网页结构：
 
 > 结构、表现、行为
 
-####  0.简介
+###  0.简介
 
-#### 1.基本标签
+### 1.基本标签
 
-##### 1.1 标签的种类
+#### 1.1 标签的种类
 
 * 单标签(自结束标签)
 * 双标签(有开始有结束)
 
-##### 1.2 标签的关系
+#### 1.2 标签的关系
 
 * 嵌套关系(包含关系,祖先和后代的关系)
 * 并列关系(同级关系,兄弟之间的关系)
 
-#### 2.常用标签
+### 2.常用标签
 
 ```html
 <!DOCTYPE html>   <!-- 文档声明类型 -->
@@ -57,9 +55,9 @@
 
 
 
-#### 3.体育新闻
+### 3.体育新闻
 
-#### 4.图片标签
+### 4.图片标签
 
 ``` html
 <img src="" width="" height="" title="" alt="" border=“”>
@@ -70,13 +68,13 @@
 * alt (**替换文本**) 是图片无法显示时的说明文字，对SEO友好
 * border是图片的边框，单位是px
 
-#### 5.路径
+### 5.路径
 
 >  含义：网页和其他文件的位置关系
 
 
 
-##### 5.1 相对路径
+#### 5.1 相对路径
 
 > 含义：相对于某个基准目录的位置
 
@@ -98,19 +96,13 @@
 
 
 
-##### 5.2 绝对路径
+#### 5.2 绝对路径
 
 >  含义：某个文件或目录在硬盘上真正的位置
 
 
 
-
-
-
-
-### 0924
-
-#### 超链接
+### 6. 超链接
 
 \<a>标签
 
@@ -128,9 +120,9 @@
 * img是标签,标签是占位置，背景图是属性,属性是不占位置
 * 背景图图片的尺寸与标签的尺寸无关
 
-#### 锚点链接&空连接
+#### 6.1 锚点链接&空连接.
 
-##### **空连接**
+#### **空连接**
 
 格式:
 
@@ -140,7 +132,7 @@
 
 注意：使用一个#号，返回当前页面的顶部，通常写2个
 
-##### 锚点链接
+#### 锚点链接
 
 格式(没有先后要求)：
 
@@ -158,368 +150,252 @@
 
 
 
-#### 列表list
+### 7.列表list
 
-##### 列表的种类(\<li>的符号不占位置)
+#### 7.1列表的种类(\<li>的符号不占位置)
 
-* 无序列表
+**1.无序列表**
 
-  * 格式：
+格式：
 
-    ```html
-    <ul>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ul>
-    ```
+```html
+<ul>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+```
 
-  * 特点：
+特点：
 
-    * 无序
-    * 被\<ul>管理
-    * \<ul>只能包含\<li>
-    * \<li>可包含其他标签
+* 无序
+* 被\<ul>管理
+* \<ul>只能包含\<li>
+* \<li>可包含其他标签
 
-* 有序列表
+**2.有序列表**
 
-  * 格式:
+格式:
 
-    ```html
-    <ol>
-        <li></li>
-        <li></li>
-        <li></li>
-    </ol>
-    ```
+```html
+<ol>
+    <li></li>
+    <li></li>
+    <li></li>
+</ol>
+```
 
-  * 特点：
-    * 有序
-    * 被\<ol>管理
-    * \<ol>中只能包含\<li>
-    * \<li>中可以包含其他标签
+特点：
+* 有序
+* 被\<ol>管理
+* \<ol>中只能包含\<li>
+* \<li>中可以包含其他标签
 
-* 自定义列表
+**3.自定义列表**
 
-  * 格式
+格式
 
-    ```html
-    <dl>
-        <dt>主题内容</dt>
-        <dd>列表项1</dd>
-        <dd>列表项2</dd>
-        <dd>列表项3</dd>
-    </dl>
-    ```
+```html
+<dl>
+    <dt>主题内容</dt>
+    <dd>列表项1</dd>
+    <dd>列表项2</dd>
+    <dd>列表项3</dd>
+</dl>
+```
 
-  * 特点
-    * 列表项围绕主题
-    * dl管理dt，dd
-    * dl只能包含dd，dd标签可以包含其他标签
-
-
-
-#### 表格table
-
-* 格式
-
-  ```html
-  <table width="220" height="220" align="center" border="1" cellspacing="0">
-  <!--
-  align 文本水平位置 默认left，有right、center、left3个值
-  border是边框，数值代表边框宽度
-  cellspacing 单元格间间距，数值为0，则table单元格宽度是2个border值
-  -->
-      <caption>表格主题内容</caption>
-      <tr>                <!--行标签 -->
-      	<th>行标题</th>  <!--行标题 默认在单元格中加粗居中 -->
-          <th>行标题</th>
-          <th>行标题</th>
-          <th>行标题</th>
-      </tr>
-       <tr>
-      	<td>单元格</td>  <!-- 单元格 -->
-          <td collspan="2" align="center">单元格</td>
-          <td>单元格</td>
-          <!-- <td>单元格</td>-->
-      </tr>
-      
-      <!--
-  		跨列合并 colspan 横向合并
-  		跨行合并 rowspan 竖向合并
-  
-  	-->
-      
-      
-      <tr>
-      	<td>单元格</td>
-          <td>单元格</td>
-          <td>单元格</td>
-          <td>单元格</td>
-      </tr>
-      <tr>
-      	<td>单元格</td>
-          <td>单元格</td>
-          <td>单元格</td>
-          <td>单元格</td>
-      </tr>
-  </table>
-  ```
-
-* 示例：
-
-  ```html
-  <html>
-      <head>
-          <meta charset="utf-8">
-          <title></title>
-      </head>
-      <body>
-          <table border="1" cellspacing="0" align="center" width="600" height="300" >
-  			<caption>
-  				<h1>
-  				课程表
-  				</h1>
-  			</caption>
-  			
-  			<tr bgcolor="yellow">
-  				<th>项目</th>
-  				<th colspan="5">上课</th>
-  				<th colspan="2">休息</th>
-  			</tr>
-  			<tr bgcolor="greenyellow" align="center">
-  				<td>星期</td>
-  				<td>星期一</td>
-  				<td>星期二</td>
-  				<td>星期三</td>
-  				<td>星期四</td>
-  				<td>星期五</td>
-  				<td>星期六</td>
-  				<td>星期日</td>
-  				
-  			</tr>
-  			
-  			<tr align="center">
-  				<td rowspan="4">上午</td>
-  				<td>语文</td>
-  				<td>数学</td>
-  				<td>体育</td>
-  				<td>生理</td>
-  				<td>情感</td>
-  				<td>电竞</td>
-  				<td rowspan="6">休息</td>
-  				
-  			</tr>
-  			
-  			
-  			<tr align="center">
-  				<!-- <td>上午</td> -->
-  				<td>语文</td>
-  				<td>数学</td>
-  				<td>体育</td>
-  				<td>生理</td>
-  				<td>情感</td>
-  				<td>电竞</td>
-  				<!-- <td>休息</td> -->
-  				
-  			</tr>
-  			
-  			<tr align="center">
-  				<!-- <td>上午</td> -->
-  				<td>语文</td>
-  				<td>数学</td>
-  				<td>体育</td>
-  				<td>生理</td>
-  				<td>情感</td>
-  				<td>电竞</td>
-  				<!-- <td>休息</td> -->
-  				
-  			</tr>
-  			
-  			<tr align="center">
-  				<!-- <td>上午</td> -->
-  				<td>语文</td>
-  				<td>数学</td>
-  				<td>体育</td>
-  				<td>生理</td>
-  				<td>情感</td>
-  				<td>电竞</td>
-  				<!-- <td>休息</td> -->
-  				
-  			</tr>
-  			
-  			<tr align="center">
-  				<td rowspan="2">下午</td>
-  				<td>语文</td>
-  				<td>数学</td>
-  				<td>体育</td>
-  				<td>生理</td>
-  				<td>情感</td>
-  				<td>电竞</td>
-  				<!-- <td>休息</td> -->
-  				
-  			</tr>
-  			
-  			<tr align="center">
-  				<!-- <td>上午</td> -->
-  				<td>语文</td>
-  				<td>数学</td>
-  				<td>体育</td>
-  				<td>生理</td>
-  				<td>情感</td>
-  				<td>电竞</td>
-  				<!-- <td>休息</td> -->
-				
-  			</tr>
-  			
-  			
-           </table>
-      </body>
-  </html>
-  ```
-  
-  
+特点
+* 列表项围绕主题
+* dl管理dt，dd
+* dl只能包含dd，dd标签可以包含其他标签
 
 
 
+### 8.表格table
+
+格式
+
+```html
+<table width="220" height="220" align="center" border="1" cellspacing="0">
+<!--
+align 文本水平位置 默认left，有right、center、left3个值
+border是边框，数值代表边框宽度
+cellspacing 单元格间间距，数值为0，则table单元格宽度是2个border值
+-->
+    <caption>表格主题内容</caption>
+    <tr>                <!--行标签 -->
+    	<th>行标题</th>  <!--行标题 默认在单元格中加粗居中 -->
+        <th>行标题</th>
+        <th>行标题</th>
+        <th>行标题</th>
+    </tr>
+     <tr>
+    	<td>单元格</td>  <!-- 单元格 -->
+        <td collspan="2" align="center">单元格</td>
+        <td>单元格</td>
+        <!-- <td>单元格</td>-->
+    </tr>
+    
+    <!--
+		跨列合并 colspan 横向合并
+		跨行合并 rowspan 竖向合并
+
+	-->
+    
+    
+    <tr>
+    	<td>单元格</td>
+        <td>单元格</td>
+        <td>单元格</td>
+        <td>单元格</td>
+    </tr>
+    <tr>
+    	<td>单元格</td>
+        <td>单元格</td>
+        <td>单元格</td>
+        <td>单元格</td>
+    </tr>
+</table>
+```
 
 
-#### 表单input
 
-* 含义
+### 9.表单input
+
+#### 9.1含义
 
 > 目的是用来获取用户的信息
 
-* 格式：
+格式：
 
-  ```html
-  <input type="" >
-  ```
+```html
+<input type="" >
+```
 
-* 示例：
+示例：
 
-  ```html
-  <html>
-      <head>
-          <meta charset="utf-8">
-          <title></title>
-      </head>
-      <body>
-          <label for="txt">姓名:</label>  <!-- label for属性 和表单的id属性关联 实现焦点获取 就是鼠标点击文字也可以选中输入框 -->
-  		<input type="text"  id="txt"/> 
-  		<br>
-  		<br>
-  		<label for="pwd">密码:</label>
-  		<input type="text"  id="pwd"/>
-  		<br>
-  		<br>
-          
-          <!--	
-  			input中的type属性有：
-  							text输入框，
-  							password密码，
-  							radio单选按钮(name checked搭配使用)， 圆形
-  							checkbox多选框(checked搭配使用)      方形
-  
-  			input中的name属性，name是组的概念，将多个单选的name属性设置相同的属性值，实现单选效果
-  			input中的checked属性是默认选中，有3种书写方式
-  			checked;
-  			checked="";
-  			checked="checked";
-  
-  			
-  
-  			select 下拉菜单
-  				标签
-  				option下拉项 属性selected 和checked一样，有3种书写方式
-  				optgroup 下拉组 使用label属性来表明组标题
-  				
-  			
-  
-  
-  		-->
-  		
-  		
-  		性别：
-  		<input type="radio" id="man" name="xingbie" />
-  		<label for="man">男</label>
-  		<input type="radio" id="woman" name="xingbie" checked="checked" />
-  		<label for="woman">女</label>
-  		<input type="radio"  id="third"  name="xingbie"/>
-  		<label for="third" >第三性</label>
-  		
-  		<br>
-  		<br>
-  		
-  		学历：
-  		<input type="radio" name="xl" id="senior"  />
-  		<label for="senior">高中</label>
-  		
-  		<input type="radio" name="xl" id="junior" checked="checked"  />
-  		<label for="junior">初中</label>
-  		
-  		<input type="radio" name="xl" id="small"  />
-  		<label for="small">小学</label>
-  		
-  		<br>
-  		<br>
-  		
-  		您的兴趣爱好:
-  		
-  		<input type="checkbox" name="" id="smoke"  />
-  		<label for="smoke">抽烟</label>
-  		
-  		<input type="checkbox" name="" id="drink"  checked="checked" />
-  		<label for="drink">喝酒</label>
-  		
-  		<input type="checkbox" name="" id="hair"  />
-  		<label for="hair">烫头</label>
-  		
-  		<br>
-  		<br>
-  		
-  		您的国籍是：
-  		<select >
-  			<option>中国</option>
-  			<option >德国</option>
-  			<option >英国</option>
-  			<option >美国</option>
-  			<option >尼日利亚</option>
-  		</select>
-  		
-  		<br>
-  		<br>
-  		
-  		
-  		您的国籍是：
-  		<select>
-  			<optgroup label="国家1">
-  				<option>中国</option>
-  				<option >德国</option>
-  				<option >英国</option>
-  				<option >美国</option>
-  				<option >日本</option>
-  				
-  			</optgroup>
-  			
-  			<optgroup label="国家2">
-  				<option>中国</option>
-  				<option >德国</option>
-  				<option >英国</option>
-  				<option >美国</option>
-  				<option selected="selected" >日本</option>
-  				
-  			</optgroup>
-  			
-  			
-  		</select>
-      </body>
-  </html>
-  ```
+```html
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+    </head>
+    <body>
+        <label for="txt">姓名:</label>  <!-- label for属性 和表单的id属性关联 实现焦点获取 就是鼠标点击文字也可以选中输入框 -->
+		<input type="text"  id="txt"/> 
+		<br>
+		<br>
+		<label for="pwd">密码:</label>
+		<input type="text"  id="pwd"/>
+		<br>
+		<br>
+        
+        <!--	
+			input中的type属性有：
+							text输入框，
+							password密码，
+							radio单选按钮(name checked搭配使用)， 圆形
+							checkbox多选框(checked搭配使用)      方形
 
-  
+			input中的name属性，name是组的概念，将多个单选的name属性设置相同的属性值，实现单选效果
+			input中的checked属性是默认选中，有3种书写方式
+			checked;
+			checked="";
+			checked="checked";
 
-#### label
+			
+
+			select 下拉菜单
+				标签
+				option下拉项 属性selected 和checked一样，有3种书写方式
+				optgroup 下拉组 使用label属性来表明组标题
+				
+			
+
+
+		-->
+		
+		
+		性别：
+		<input type="radio" id="man" name="xingbie" />
+		<label for="man">男</label>
+		<input type="radio" id="woman" name="xingbie" checked="checked" />
+		<label for="woman">女</label>
+		<input type="radio"  id="third"  name="xingbie"/>
+		<label for="third" >第三性</label>
+		
+		<br>
+		<br>
+		
+		学历：
+		<input type="radio" name="xl" id="senior"  />
+		<label for="senior">高中</label>
+		
+		<input type="radio" name="xl" id="junior" checked="checked"  />
+		<label for="junior">初中</label>
+		
+		<input type="radio" name="xl" id="small"  />
+		<label for="small">小学</label>
+		
+		<br>
+		<br>
+		
+		您的兴趣爱好:
+		
+		<input type="checkbox" name="" id="smoke"  />
+		<label for="smoke">抽烟</label>
+		
+		<input type="checkbox" name="" id="drink"  checked="checked" />
+		<label for="drink">喝酒</label>
+		
+		<input type="checkbox" name="" id="hair"  />
+		<label for="hair">烫头</label>
+		
+		<br>
+		<br>
+		
+		您的国籍是：
+		<select >
+			<option>中国</option>
+			<option >德国</option>
+			<option >英国</option>
+			<option >美国</option>
+			<option >尼日利亚</option>
+		</select>
+		
+		<br>
+		<br>
+		
+		
+		您的国籍是：
+		<select>
+			<optgroup label="国家1">
+				<option>中国</option>
+				<option >德国</option>
+				<option >英国</option>
+				<option >美国</option>
+				<option >日本</option>
+				
+			</optgroup>
+			
+			<optgroup label="国家2">
+				<option>中国</option>
+				<option >德国</option>
+				<option >英国</option>
+				<option >美国</option>
+				<option selected="selected" >日本</option>
+				
+			</optgroup>
+			
+			
+		</select>
+    </body>
+</html>
+```
+
+
+
+#### 9.2 label
 
 > 表示用户界面中某个元素的说明
 
@@ -538,7 +414,7 @@
 
   
 
-##### 文本域
+#### 文本域
 
 ```
 <textarea>  <!--没有css辅助  文本框大小不可控-->
@@ -548,47 +424,47 @@
 
 
 
-##### 提交按钮input
+#### 9.3 提交按钮input
 
-* 3种按钮格式：
+3种按钮格式：
 
-  ```html
-  <input type="button" value="按钮文字">
-  <input type="submit" value="提交按钮文字">
-  <input type="reset"  value="重置按钮文字">
-  ```
+```html
+<input type="button" value="按钮文字">
+<input type="submit" value="提交按钮文字">
+<input type="reset"  value="重置按钮文字">
+```
 
-* 第二种按钮形式：
+button按钮形式：
 
-  ```html
-  <button type="button"> <!-- submit reset  submit是默认值  -->
-      按钮文字
-  </button>
-  ```
-
-  
-
-##### 提交表单form
-
-* 格式：
-
-  ```html
-  <form action="提交地址" method=“post">  
-                           提交内容        
-  </form>
-  ```
-
-* 标签form
-  
-  * 属性：action 提交地址； method提交方式(get/post)
+```html
+<button type="button"> <!-- submit reset  submit是默认值  -->
+    按钮文字
+</button>
+```
 
 
+
+### 10. 提交表单form
+
+格式：
+
+```html
+<form action="提交地址" method=“post">  
+                         提交内容        
+</form>
+```
+
+标签form
+
+* 属性：action 提交地址； method提交方式(get/post)
 
 
 
 
 
-#### 常用标签
+
+
+### 11. 常用标签
 
 ```html
 标签语义:大部分标签都有一定的语义，其作用是给搜索引擎抓取用的
@@ -605,7 +481,7 @@
 
 
 
-#### 特殊字符(字符实体)
+### 12. 特殊字符(字符实体)
 
 注意：实体名称对大小写敏感
 
@@ -621,79 +497,49 @@
 
 
 
+## CSS
 
-
-
-
-<hr>
-
-#### css
-
-##### 位置：
+### 一. 位置：
 
 head标签中的script
 
-##### css样式：
+### 二. css样式：
 
 **标签选择器**
 
-结合0924的课堂案例
-
-```html
-<head>
-    <title></title>
-    <style>
-        /* css的位置 学习html就是学习标签 学习css就是学习属性*/
-        /*标签选择器*/
-        h1{
-            color:red; /*字体颜色*/
-            font-size:60px;/*字号 chrome默认字号是16px*/
-            font-family:"宋体";/*字体 chrome默认字体是微软雅黑  两个汉字加了双引号*/
-            text-align=center; /*文本水平位置 left是默认值 其他center/right */
-        }
-        p{
-            color:blue;
-            font-size:14px;
-            font-weight:700; /*字体加粗 有400/normal正常显示,700/bold加粗显示 两种*/
-            text-indent:2em; /* 首行缩进 1em=当前1个字号的大小 */
-        }
-    </style>
-</head>
-```
 
 
+### 三. css中的颜色
 
-
-
-## 0925
-
-#### css中的颜色
-
-颜色3钟表现方式
+#### 1. 颜色3钟表现方式
 
 * 单词
 * rgb模式 (0-255,0-255,0-255)
 * 16进制(#rrggbb) 每当相关两位相同时可省略一位简写
 
-取色器 getcolor.exe
 
-盒子的3种基本属性(width height background背景色)
+
+#### 2.盒子的3种基本属性
+
+width height background背景色
 
 * 盒子：在网页中，每个标签都是由一个矩形的图形展示的，所以我们认为网页是由一个个盒子组成的。
 
 * 盒子指的是html标签
 * div是一个没有语义的盒子
 
-#### 元素的显示模式
+### 四. 元素的显示模式
 
-##### 显示模式种类：
+按[新的 HTML 规范](https://www.zhihu.com/question/34952563/answer/60672228)，已经不按 inline 和 block 来区分元素类型了.
 
-##### 块级元素
+待补充...
+
+#### 1.块级元素
 
 * 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
 * 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
 
-##### 行内元素
+#### 2. 行内元素
 
 * 特点: 无法设置宽高,转换成块元素或行内块元素宽高可起作用. ; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐).  
 
@@ -713,7 +559,7 @@ span等行内元素是可以设置内边距 padding 的，只不过元素本身�
 
 
 
-##### 行内块
+#### 3. 行内块
 
 * 特点: 可以设置宽高; 一行可有多个行内块元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距; (宽高默认由图片的原始大小决定;)
 
@@ -1796,11 +1642,11 @@ positioning脱离文档流的元素，其他盒子与其他盒子内的文本都
 
 ##### 块元素水平居中
 
-* 定义:
+定义:
 
 > 给<font color="red">**自身**</font>设置水平方向的<font color="red">**外边距**</font>为auto   <font color="red">前提</font>是块元素有固定宽度
 
-* 案例
+案例
 
 ```html
 <style type="text/css">
@@ -5287,8 +5133,6 @@ alternate-reverse 先去后来
 
 
 
-### 1016
-
 #### 2D3D综合案例-柯南图
 
 ```html
@@ -5392,7 +5236,7 @@ alternate-reverse 先去后来
 
 
 
-#### 响应式
+## 响应式
 
 ##### 左侧固定右侧自适应
 
