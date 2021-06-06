@@ -1191,7 +1191,7 @@ DOM3级事件中定义了9个鼠标事件。
 | --------------------- | ------------------------------------------------------------ |
 | mousedown/mouseup     | 鼠标按钮被按下/释放（左键或者右键）时触发。不能通过键盘触发  |
 | click/dbclick         | 单击鼠标**左键**或者按下回车键时触发。这点对确保易访问性很重要，意味着onclick事件处理程序既可以通过键盘也可以通过鼠标执行。/双击鼠标**左键**时触发 |
-| mouseover/mouseouter  | 鼠标移入目标元素上方。鼠标移到其后代元素上时会触发/鼠标移出目标元素上方 |
+| mouseover/mouseout    | 鼠标移入目标元素上方。鼠标移到其后代元素上时会触发/鼠标移出目标元素上方 |
 | mouseenter/mouseleave | 鼠标移入元素范围内触发，**该事件不冒泡**，即鼠标移到其后代元素上时不会触发/鼠标移出元素范围时触发，**该事件不冒泡**，即鼠标移到其后代元素时不会触发 |
 | mousemove             | 鼠标在元素内部移到时不断触发。不能通过键盘触发               |
 
@@ -1507,6 +1507,226 @@ event.target.classList返回元素的类名 可替换 新增 删除
 
 
 ### 二.移动鼠标
+
+#### 1.mouseover mouseouter
+
+当鼠标指针移到某个元素上时，`mouseover` 事件就会发生，而当鼠标离开该元素时，`mouseout` 事件就会发生
+
+<svg xmlns="http://www.w3.org/2000/svg" width="278" height="92" viewBox="0 0 278 92"><defs><style>@import url(https://fonts.googleapis.com/css?family=Open+Sans:bold,italic,bolditalic%7CPT+Mono);@font-face{font-family:'PT Mono';font-weight:700;font-style:normal;src:local('PT MonoBold'),url(/font/PTMonoBold.woff2) format('woff2'),url(/font/PTMonoBold.woff) format('woff'),url(/font/PTMonoBold.ttf) format('truetype')}</style></defs><g id="dom" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="mouseover-mouseout.svg"><path id="Rectangle-6" fill="#FFF9EB" stroke="#E8C48E" stroke-width="2" d="M95 25h88.014v50.451H95z"/><text id="&lt;DIV&gt;" fill="#8A704D" font-family="OpenSans-Bold, Open Sans" font-size="14" font-weight="bold"><tspan x="118.964" y="56">&lt;DIV&gt;</tspan></text><path id="Fill-55" fill="#EE6B47" d="M109 51.828S88.159 39.088 74.327 34c-.336 2.104-.67 4.208-1.007 6.311-22.67-1.178-45.696.566-67.32 5.234l8.31 12.565c18.27-3.944 37.724-5.417 56.88-4.422-.337 2.105-.672 4.208-1.007 6.312C81.31 56.21 109 51.828 109 51.828"/><text id="mouseover" fill="#8A704D" font-family="PTMono-Bold, PT Mono" font-size="14" font-weight="bold"><tspan x="17" y="21">mouseover</tspan></text><path id="Fill-56" fill="#EE6B47" d="M268 51.828S247.159 39.088 233.327 34c-.336 2.104-.67 4.208-1.007 6.311-22.67-1.178-45.696.566-67.32 5.234l8.31 12.565c18.27-3.944 37.724-5.417 56.88-4.422-.337 2.105-.672 4.208-1.007 6.312C240.31 56.21 268 51.828 268 51.828"/><text id="mouseout" fill="#8A704D" font-family="PTMono-Bold, PT Mono" font-size="14" font-weight="bold"><tspan x="193" y="21">mouseout</tspan></text></g></g></svg>
+
+#### 2.relatedTarget属性
+
+此属性是对 `target` 的补充。当鼠标从一个元素离开并去往另一个元素时，其中一个元素就变成了 `target`，另一个就变成了 `relatedTarget`. 
+
+对于 `mouseover`：
+
+- `event.target` —— 是鼠标移过的那个元素。
+- `event.relatedTarget` —— 是鼠标来自的那个元素（`relatedTarget` → `target`）。
+
+`mouseout` 则与之相反：
+
+- `event.target` —— 是鼠标离开的元素。
+- `event.relatedTarget` —— 是鼠标移动到的，当前指针位置下的元素（`target` → `relatedTarget`）
+
+
+
+#### 2.1 案例
+
+下面这个示例中，每张脸及其功能都是单独的元素。当你移动鼠标时，你可以在文本区域中看到鼠标事件。
+
+每个事件都具有关于 `target` 和 `relatedTarget` 的信息
+
+//**失败版本**. 父元素没有使用绝对定位,子元素使用overflow:hidden以后,出现元素下移.使用vertical-align之后,只有父元素回归位置,子元素却没有. 
+
+```html
+https://codepen.io/westover/pen/ExWLpqM
+```
+
+//**成功版本**
+
+```js
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      .container {
+        border: 1px solid brown;
+        padding: 10px;
+        width: 330px;
+        margin-bottom: 5px;
+        box-sizing: border-box;
+      }
+      #log {
+        width: 350px;
+        height: 120px;
+        display: block;
+        box-sizing: border-box;
+      }
+      [class^="smiley-"] {
+        display: inline-block;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin-right: 20px;
+      }
+      .smiley-green {
+        background: #a9db7a;
+        border: 5px solid #92c563;
+        position: relative;
+        /* vertical-align:top; */
+      }
+      .smiley-green .left-eye,
+      .smiley-yellow .left-eye,
+      .smiley-red .left-eye {
+        width: 18%;
+        height: 18%;
+        background: #84b458;
+        position: relative;
+        top: 29%;
+        left: 22%;
+        border-radius: 50%;
+        float: left;
+      }
+      .smiley-green .right-eye,
+      .smiley-yellow .right-eye,
+      .smiley-red .right-eye {
+        width: 18%;
+        height: 18%;
+        background: #84b458;
+        position: relative;
+        top: 29%;
+        right: 22%;
+        border-radius: 50%;
+        float: right;
+      }
+      .smiley-green .smile {
+        position: absolute;
+        top: 67%;
+        left: 15%;
+        width: 70%;
+        height: 20%;
+        /* background:rgb(226, 90, 112); */
+        overflow: hidden;
+      }
+      /* .smiley-green .smile:after, */
+      .smiley-green .smile:before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: 0;
+        border-radius: 50%;
+        background: #84b458;
+        height: 100%;
+        width: 97%;
+      }
+
+      .smiley-yellow {
+        background: #eed16a;
+        border: 5px solid #dbae51;
+      }
+      .smiley-yellow .left-eye {
+        background: #dbae51;
+      }
+      .smiley-yellow .right-eye {
+        background: #dbae51;
+      }
+      .smiley-yellow .smile {
+        position: relative;
+        top: 67%;
+        left: 15.5%;
+        width: 70%;
+        height: 20%;
+        background: #dba652;
+        border-radius: 8px;
+      }
+      .smiley-red {
+        background: #ee9295;
+        border: 5px solid #e27378;
+        /* vertical-align:top; */
+        position: absolute;
+      }
+      .smiley-red .left-eye {
+        background: #d96065;
+      }
+      .smiley-red .right-eye {
+        background: #d96065;
+      }
+      .smiley-red .smile {
+        position: absolute;
+        top: 57%;
+        left: 16.5%;
+        width: 70%;
+        height: 20%;
+        overflow: hidden;
+      }
+      /* .smiley-red .smile:after, */
+      .smiley-red .smile:before {
+        position: absolute;
+        top: 50%;
+        left: 0%;
+        content: "";
+        width: 97%;
+        height: 100%;
+        border-radius: 50%;
+        background: #d96065;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="smiley-green">
+        <div class="left-eye"></div>
+        <div class="right-eye"></div>
+        <div class="smile"></div>
+      </div>
+
+      <div class="smiley-yellow">
+        <div class="left-eye"></div>
+        <div class="right-eye"></div>
+        <div class="smile"></div>
+      </div>
+
+      <div class="smiley-red">
+        <div class="left-eye"></div>
+        <div class="right-eye"></div>
+        <div class="smile"></div>
+      </div>
+    </div>
+
+    <textarea id="log"></textarea>
+    <script>
+      let container = document.querySelector(".container");
+      container.onmouseover = container.onmouseout = handler;
+      function handler(event) {
+        function str(ele) {
+          if(!ele) return null;
+          return ele.className || el.tagName;
+        }
+        log.value+=event.type+':'+'target='+str(event.target)+', relatedTarget='+str(event.relatedTarget)+'\n';
+        log.scrollTop=log.scrollHeight;
+
+        if(event.target==='mouseover'){
+          event.target.style.background='pink';
+        }
+        if(event.target==='mouseout'){
+          event.target.style.background="";
+        }
+      }
+    </script>
+  </body>
+</html>
+
+```
+
+
 
 
 
