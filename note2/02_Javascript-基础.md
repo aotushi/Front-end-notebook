@@ -524,6 +524,9 @@ instanceof操作符的问题在于，它假定只有一个全局执行环境。�
 var arr = [1,2,3,1]
 alert(arr.constuctor===Array) //true
 
+arr.__proto__ == Array.prototype
+arr.__proto__.constructor == Array
+
 第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
 
 由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
