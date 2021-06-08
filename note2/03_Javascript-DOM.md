@@ -1530,6 +1530,10 @@ event.target.classList返回元素的类名 可替换 新增 删除
 
 
 
+note:`relatedTarget` 属性可以为 `null`. 这是正常现象，仅仅是意味着鼠标不是来自另一个元素，而是来自窗口之外。或者它离开了窗口。
+
+
+
 #### 2.1 案例
 
 下面这个示例中，每张脸及其功能都是单独的元素。当你移动鼠标时，你可以在文本区域中看到鼠标事件。
@@ -1544,189 +1548,18 @@ https://codepen.io/westover/pen/ExWLpqM
 
 //**成功版本**
 
-```js
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style>
-      * {
-        padding: 0;
-        margin: 0;
-      }
-      .container {
-        border: 1px solid brown;
-        padding: 10px;
-        width: 330px;
-        margin-bottom: 5px;
-        box-sizing: border-box;
-      }
-      #log {
-        width: 350px;
-        height: 120px;
-        display: block;
-        box-sizing: border-box;
-      }
-      [class^="smiley-"] {
-        display: inline-block;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        margin-right: 20px;
-      }
-      .smiley-green {
-        background: #a9db7a;
-        border: 5px solid #92c563;
-        position: relative;
-        /* vertical-align:top; */
-      }
-      .smiley-green .left-eye,
-      .smiley-yellow .left-eye,
-      .smiley-red .left-eye {
-        width: 18%;
-        height: 18%;
-        background: #84b458;
-        position: relative;
-        top: 29%;
-        left: 22%;
-        border-radius: 50%;
-        float: left;
-      }
-      .smiley-green .right-eye,
-      .smiley-yellow .right-eye,
-      .smiley-red .right-eye {
-        width: 18%;
-        height: 18%;
-        background: #84b458;
-        position: relative;
-        top: 29%;
-        right: 22%;
-        border-radius: 50%;
-        float: right;
-      }
-      .smiley-green .smile {
-        position: absolute;
-        top: 67%;
-        left: 15%;
-        width: 70%;
-        height: 20%;
-        /* background:rgb(226, 90, 112); */
-        overflow: hidden;
-      }
-      /* .smiley-green .smile:after, */
-      .smiley-green .smile:before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: 0;
-        border-radius: 50%;
-        background: #84b458;
-        height: 100%;
-        width: 97%;
-      }
-
-      .smiley-yellow {
-        background: #eed16a;
-        border: 5px solid #dbae51;
-      }
-      .smiley-yellow .left-eye {
-        background: #dbae51;
-      }
-      .smiley-yellow .right-eye {
-        background: #dbae51;
-      }
-      .smiley-yellow .smile {
-        position: relative;
-        top: 67%;
-        left: 15.5%;
-        width: 70%;
-        height: 20%;
-        background: #dba652;
-        border-radius: 8px;
-      }
-      .smiley-red {
-        background: #ee9295;
-        border: 5px solid #e27378;
-        /* vertical-align:top; */
-        position: absolute;
-      }
-      .smiley-red .left-eye {
-        background: #d96065;
-      }
-      .smiley-red .right-eye {
-        background: #d96065;
-      }
-      .smiley-red .smile {
-        position: absolute;
-        top: 57%;
-        left: 16.5%;
-        width: 70%;
-        height: 20%;
-        overflow: hidden;
-      }
-      /* .smiley-red .smile:after, */
-      .smiley-red .smile:before {
-        position: absolute;
-        top: 50%;
-        left: 0%;
-        content: "";
-        width: 97%;
-        height: 100%;
-        border-radius: 50%;
-        background: #d96065;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="smiley-green">
-        <div class="left-eye"></div>
-        <div class="right-eye"></div>
-        <div class="smile"></div>
-      </div>
-
-      <div class="smiley-yellow">
-        <div class="left-eye"></div>
-        <div class="right-eye"></div>
-        <div class="smile"></div>
-      </div>
-
-      <div class="smiley-red">
-        <div class="left-eye"></div>
-        <div class="right-eye"></div>
-        <div class="smile"></div>
-      </div>
-    </div>
-
-    <textarea id="log"></textarea>
-    <script>
-      let container = document.querySelector(".container");
-      container.onmouseover = container.onmouseout = handler;
-      function handler(event) {
-        function str(ele) {
-          if(!ele) return null;
-          return ele.className || el.tagName;
-        }
-        log.value+=event.type+':'+'target='+str(event.target)+', relatedTarget='+str(event.relatedTarget)+'\n';
-        log.scrollTop=log.scrollHeight;
-
-        if(event.target==='mouseover'){
-          event.target.style.background='pink';
-        }
-        if(event.target==='mouseout'){
-          event.target.style.background="";
-        }
-      }
-    </script>
-  </body>
-</html>
-
-```
+<iframe height="265" style="width: 100%;" scrolling="no" title="WNpKQZQ" src="https://codepen.io/westover/embed/WNpKQZQ?height=265&theme-id=light&default-tab=css,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/WNpKQZQ'>WNpKQZQ</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
 
 
+
+#### 3. 跳过元素
+
+当鼠标移动时，就会触发 `mousemove` 事件。但这并不意味着每个像素都会导致一个事件。浏览器会一直检查鼠标的位置。如果发现了变化，就会触发事件。这意味着，如果访问者非常快地移动鼠标，那么某些 DOM 元素就可能被跳过.
+
+鼠标指针并不会“访问”所有元素。它可以“跳过”一些元素. 鼠标指针可能会从窗口外跳到页面的中间。在这种情况下，`relatedTarget` 为 `null`
 
 
 
@@ -2703,7 +2536,9 @@ function alertFun(){alert('hello')}
 
 
 
-## 浏览器滚动条
+## 元素的大小和滚动
+
+JavaScript 中有许多属性可让我们读取有关元素宽度、高度和其他几何特征的信息
 
 ### 0.介绍
 
@@ -2740,32 +2575,26 @@ https://codepen.io/westover/pen/bGqjbJy
 
 
 
+#### 1.2 其他
 
+将scrollTop设置为0或者一个大的值,例如1e9,将会使元素滚动到顶部/底部.
 
-### 1.2 scrollTop实例
+#### 1.3 案例
 
-```html
-# 点击按钮 滚动条归0.
-<style>
-    button{
-        margin-top: 300px;
-    }
-</style>
+1.3.1 `elem.scrollTop` 属性是从顶部滚动出来的部分的大小。如何获得底部滚动的大小（我们称其为 `scrollBottom`）？
 
-<button id='btn'>按钮</button>
-
-<script>
-	window.onload = function(){
-      var btnNode = document.querySelector('#btn');
-      btnNode.onclick = function(){
-        var sopValue = document.documentElement.scrollTop||document.body.scrollTop;
-        if(sopValue != 0){
-            sopValue = 0;
-        }
-      };  
-    }
-</script>
+```js
+let scrollBottom = ele.srollHeight-ele.scrollTop-ele.clientHeight;
+（完全高度）减去（已滚出顶部的高度）减去（可见部分的高度）— 得到的结果就是滚动出来的底部的部分
 ```
+
+1.3.2 求滚动条的宽度
+
+对于 Windows，它通常在 `12px` 和 `20px` 之间变化。如果浏览器没有为其保留任何空间（滚动条以半透明的形式处于文本上面，也是可能发生的），那么它可能是 `0px`
+
+
+
+
 
 
 
