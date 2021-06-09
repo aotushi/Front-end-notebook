@@ -3463,15 +3463,15 @@ border-width:10px 10px 10px 10px;
 
 ![border-bottom](https://pic2.zhimg.com/80/a9c9de26d2d5c18f5844fc7e360bbd67_720w.jpg?source=1940ef5c)
 
+**零. 三角形实现原理**:
+
+这个border-bottom呈**梯形状**, 上面这条边的长度等于div的宽度.所以**当div的宽度为0的时候,border-bottom就能呈现出三角形状态.边框的width也能理解为三角形的高度**.
+
+当设置直角三角形的时候,除了**显示边框的width属性**(三角形的高度)需要大于0,也需要**宽度大于0**,要不然不会显示. 宽度就是对应其左右两侧的宽度,一侧为0,一侧设置大于0的数值.或者是为0的边框数值省略不写也是可以的.
 
 
-这个border-bottom呈梯形状, 上面这条边的长度等于div的宽度.所以当div的宽度为0的时候,border-bottom就能呈现出三角形状态.边框的width也能理解为三角形的高度.
 
-当设置直角三角形的时候,除了显示边框的width属性(高度)需要大于0,也需要宽度大于0,要不然不会显示. 宽度就是对应其左右两侧的宽度,一侧为0,一侧设置大于0的数值.或者是为0的边框数值省略不写也是可以的.
-
-
-
-**一.三角形实现原理:** 
+**一.三角形实现:** 
 
 1.宽度width为0,高度height为0. 
 
@@ -3492,12 +3492,21 @@ border-width:10px 10px 10px 10px;
 ![triangle-up](https://www.mwcxs.top/static/upload/pics/2019/3/29UWmsYL8T8oUqP3A5RBQc7Wf4.png)
 
 ```css
+等腰三角形 
 #triangle-up{
 	width:0;
-    height:0;
-    border-left:50px solid transparent;
-    border-right:50px solid transparent;
-    border-bottom:100px solid red;
+  height:0;
+  border-left:50px solid transparent;
+  border-right:50px solid transparent;
+  border-bottom:100px solid red;
+}
+
+或 直角等腰三角形 每条边的宽度都相等
+#triangle-up{
+  width:0;
+  height:0;
+  border:50px solid transparent;
+  border-bottom-color:red;
 }
 ```
 
@@ -3514,6 +3523,13 @@ border-width:10px 10px 10px 10px;
     border-top:50px solid transparent;
     border-bottom:50px solid transparent;
     border-right:100px solid red;
+}
+//直角等腰三角形
+#triangle-left{
+  width:0;
+  height:0;
+  border:50px solid transparent;
+  border-right-color:red;
 }
 ```
 
