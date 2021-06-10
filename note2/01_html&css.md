@@ -1196,9 +1196,9 @@ font-size:0;
 
 #### 复合属性-font
 
-> 单属性:一个属性名对一个属性值
->
-> 复合属性: 一个属性名对多个属性值
+`font` 属性可以用来作为 [`font-style`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-style), [`font-variant`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-variant), [`font-weight`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-weight), [`font-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-size), [`line-height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/line-height) 和 [`font-family`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-family) 属性的简写，或将元素的字体设置为系统字体
+
+
 
 
 
@@ -1212,6 +1212,12 @@ font-size:0;
 * 注意:
   * 最少写2个, **字号和字体**
   * 当复合属性, 单属性同时存在,先写复合属性,再写单属性. 因为存在层叠(覆盖)规模
+
+
+
+font:12px/1.5; 和 font: 12px/15px的区别:
+
+1.5是行高（line-height），这里的单位是em，不是px了。1.5表示是12px的1.5倍，即font: 12px;line-height: 1.5。也可以理解font-size:12px;line-height:1.5em(1.5*12px)，即字符高度的1.5倍
 
 
 
