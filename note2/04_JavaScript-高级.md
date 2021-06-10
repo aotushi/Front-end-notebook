@@ -582,6 +582,13 @@ console.log(stu2.emotion); //["喜", "怒", "哀", "乐"]
 [原型链继承](http://www.cnblogs.com/sarahwang/p/6870072.html)和[借用构造函数继承](http://www.cnblogs.com/sarahwang/p/6879161.html#3976607)。这两种模式都存在各自的缺点，所以，我们考虑是否能将这二者结合到一起，从而发挥二者之长。即在继承过程中，既可以保证每个实例都有它自己的属性，又能做到对一些属性和方法的复用
 
 ```js
+//方式一:基于构造函数的继承:原型链+借用构造函数的组合式继承
+ 1.借用父类的构造函数: Person.call(this,name,age)
+ 2.子类原型等于父类的实例 Student.prototype = new Person();
+ 3.子类原型构造器为子类型 Student.prototype.constructor = Student;
+
+
+
 //父类
 function Dog(name, age, color){
     this.name = name;
@@ -622,6 +629,18 @@ dog1.run();//跑得快
 var t1 = new Taidi('abc', 1, 'brown');
 console.log(t1);//Taidi {name: "ritian", age: 1, color: "brown"}
 t1.run();//跑得快
+
+//方式二 基于class类的继承
+ 1.子类继承父类: class Student extends Person;
+ 2.子类构造器中调用父类的构造: super(name,age)
+
+class Student extends Person{
+  constructor(name,age,course){
+    super(name,age)
+    this.course = course;
+  }
+}
+
 ```
 
 
