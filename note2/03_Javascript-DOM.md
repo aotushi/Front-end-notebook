@@ -1449,58 +1449,18 @@ element.classList
 一个 DOMTokenList, 包含元素的类名列表
 方法
 toggle(class, true|false) 在元素中切换类名 第一个参数为要在元素中移除的类名 第二个是可选参数，是个布尔值用于设置元素是否强制添加或移除类，不管该类名是否存在
-```
 
-
-
-```html
 event.target 打印的是节点元素及内容
 event.target.classList返回元素的类名 可替换 新增 删除
-
-
-<html>
-<head>
-</head>
-<style>
-  .selected{background:greenyellow}
-</style>
- <body>
-  <p>Click on a list item to select it.</p>
-  <ul>
-    <li>A</li>
-    <li>B</li>
-    <li>C</li>
-    <li>D</li>
-    <li>E</li>
-  </ul>
-  <script>
-    let ul = document.querySelector('ul');
-    ul.addEventListener('click',function(e){
-      if(e.target.tagName!=='LI') return;
-      
-      if(e.ctrlKey||e.metaKey){
-        toggleSelected(e.target)
-      }else{
-        singleSelected(e.target)
-      }
-      function toggleSelected(li){
-        li.classList.toggle('selected')
-      }
-      function singleSelected(li){
-        let selected = ul.querySelectorAll('.selected');
-        for(let ele of selected){
-          ele.classList.remove('selected')
-        }
-        li.classList.add('selected')
-      }
-     
-    },false)
-  </script>
-</body>
-</html>
+event.target.className
 ```
 
 
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="dom-鼠标事件-可选列表" src="https://codepen.io/westover/embed/yLMxjmE?height=265&theme-id=light&default-tab=js,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/yLMxjmE'>dom-鼠标事件-可选列表</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
 
 
 
@@ -1561,9 +1521,83 @@ https://codepen.io/westover/pen/ExWLpqM
 
 鼠标指针并不会“访问”所有元素。它可以“跳过”一些元素. 鼠标指针可能会从窗口外跳到页面的中间。在这种情况下，`relatedTarget` 为 `null`
 
+**案例:**
+
+将鼠标指针移动到 `<div id="child">` 中，然后将其快速向下移动过其父级元素。如果移动速度足够快，则父元素就会被忽略。鼠标会越过父元素而不会引起其注意
+
+<iframe height="320" style="width: 100%;" scrolling="no" title="VwpBVrG" src="https://codepen.io/westover/embed/VwpBVrG?height=265&theme-id=light&default-tab=js,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/VwpBVrG'>VwpBVrG</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
+
+
+
+#### 4. 事件mouseenter和mouseleave
+
+事件 `mouseenter/mouseleave` 类似于 `mouseover/mouseout`。它们在鼠标指针进入/离开元素时触发。
+
+但是有两个重要的区别：
+
+1. 元素内部与后代之间的转换不会产生影响。
+2. 事件 `mouseenter/mouseleave` 不会冒泡
+
+
+
+
+
+#### 5.事件委托
+
+事件 `mouseenter/leave` 非常简单且易用。但它们不会冒泡。因此，我们不能使用它们来进行事件委托
+
+例如, \<table> 上的 mouseenter/leave 的处理程序仅在鼠标指针进入/离开整个表格时才会触发。无法获取有关其内部移动的任何信息。
+
+因此使用 mouseover/mouseout.
+
+ 
+
+#### 6.总结
+
+* 快速移动鼠标可能会跳过中间元素
+* `mouseover/out` 和 `mouseenter/leave` 事件还有一个附加属性：`relatedTarget`。这就是我们来自/到的元素，是对 `target` 的补充
+* 即使我们从父元素转到子元素时，也会触发 `mouseover/out` 事件。浏览器假定鼠标一次只会位于一个元素上 —— 最深的那个
+* `mouseenter/leave` 事件在这方面不同：它们仅在鼠标进入和离开元素时才触发。并且它们不会冒泡
+
+
+
+#### 7. 案例
+
+1.工具提示行为
+
+编写 JavaScript，在带有 `data-tooltip` 特性（attribute）的元素上显示一个工具提示。该特性的值应该成为工具提示的文本
+
+<iframe height="500" style="width: 100%;" scrolling="no" title="dom-工具提示行为" src="https://codepen.io/westover/embed/XWMPjjE?height=265&theme-id=light&default-tab=js,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/XWMPjjE'>dom-工具提示行为</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
+
+
+
+2.智能工具提示
+
+编写一个函数，该函数仅在访问者将鼠标 **移至** 元素而不是 **移过** 元素的情况下，在该元素上显示工具提示
+
+如果访问者将鼠标移至元素上，并停下来 —— 显示工具提示。如果他们只是将鼠标移过元素，那就没必要显示
+
+
+
+```js
+
+这个案例真的比较难理解,起码我是这么想.
+https://zh.javascript.info/mousemove-mouseover-mouseout-mouseenter-mouseleave#shi-jian-mouseovermouseoutrelatedtarget
+```
+
+
+
 
 
 ### 三.鼠标拖放事件
+
+
 
 ### 四.指针事件
 
