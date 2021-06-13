@@ -634,7 +634,15 @@ git push -u origin main
 
 
 
+#### git clone仓库速度太慢的解决方法
 
+来源:[知乎](https://www.zhihu.com/question/27159393)
+
+1.使用镜像域名
+
+只需要将 [www.github.com](https://link.zhihu.com/?target=http%3A//www.github.com/)/后面为代码库 改为[www.github.com.cnpmjs.org/后面为代码库地址](https://link.zhihu.com/?target=http%3A//xn--www-c88d846h.github.com.cnpmjs.org/%E5%90%8E%E9%9D%A2%E4%B8%BA%E4%BB%A3%E7%A0%81%E5%BA%93%E5%9C%B0%E5%9D%80) 
+
+2.使用代理
 
 
 

@@ -505,7 +505,7 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 
 
 
-### 变量是否为数组
+### 判断变量是否为数组4种方法
 
 ```js
 
@@ -532,7 +532,7 @@ arr.__proto__.constructor == Array
 由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
     
 
-3.Object.prototype.toString
+3.Object.prototype.toString.call(obj)
 function isArray(obj){
     return Object.prototype.toString.call(obj)==='[object Array]'
 }
@@ -545,6 +545,60 @@ function (obj) {
 
 
 ```
+
+
+
+### Object.prototype.toString.call原因
+
+```js
+https://www.cnblogs.com/youhong/p/6209054.html
+
+1.用法
+console.log(Object.prototype.toString.call(obj) === "[object Object]");
+
+2.无法区分自定义对象类型，自定义类型可以采用instanceof区分
+console.log(Object.prototype.toString.call("jerry"));//[object String]
+console.log(Object.prototype.toString.call(12));//[object Number]
+console.log(Object.prototype.toString.call(true));//[object Boolean]
+console.log(Object.prototype.toString.call(undefined));//[object Undefined]
+console.log(Object.prototype.toString.call(null));//[object Null]
+console.log(Object.prototype.toString.call({name: "jerry"}));//[object Object]
+console.log(Object.prototype.toString.call(function(){}));//[object Function]
+console.log(Object.prototype.toString.call([]));//[object Array]
+console.log(Object.prototype.toString.call(new Date));//[object Date]
+console.log(Object.prototype.toString.call(/\d/));//[object RegExp]
+function Person(){};
+console.log(Object.prototype.toString.call(new Person));//[object Object]
+
+new Person instanceof Person //true
+
+3.为什么不直接使用obj.toString方法呢?
+  1.undefined/null身上没有toString方法
+	2.toString方法返回反映这个对象的字符串
+console.log("jerry".toString());//jerry
+console.log((1).toString());//1
+console.log([1,2].toString());//1,2
+console.log(new Date().toString());//Wed Dec 21 2016 20:35:48 GMT+0800 (中国标准时间)
+console.log(function(){}.toString());//function (){}
+console.log(null.toString());//error
+console.log(undefined.toString());//error
+
+4.obj.toString()的结果和Object.prototype.toString.call(obj)的结果不一样
+toString为Object的原型方法，而Array 、Function等类型作为Object的实例，都重写了toString方法。不同的对象类型调用toString方法时，根据原型链的知识，调用的是对应的重写之后的toString方法
+
+//验证:删除数组身上的toString方法
+let arr = [1,2];
+console.log(Array.prototype.hasOwnProperty('toString'));//true
+console.log(arr.toString()); //1,2,3
+delete Array.prototype.toString;
+console.log(Array.prototype.hasOwnProperty('toString')); //false
+console.log(arr.toString()); //[object Array]
+
+5.为什么需要加call
+5.1 立即调用,gai'bian
+```
+
+
 
 
 

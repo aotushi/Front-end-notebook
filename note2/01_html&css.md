@@ -1,4 +1,4 @@
-## 一. 网页结构：
+## html
 
 > 结构、表现、行为
 
@@ -534,9 +534,66 @@ head标签中的script
 width height background背景色
 
 * 盒子：在网页中，每个标签都是由一个矩形的图形展示的，所以我们认为网页是由一个个盒子组成的。
-
 * 盒子指的是html标签
 * div是一个没有语义的盒子
+
+
+
+#### 3.颜色介绍
+
+**互补色**: 色环是我们认识颜色关系的好工具。它是一个近色相邻、异色相离的圆环。 当两个颜色恰好在色环的两端时，这两个颜色就互为补色。 两个互为补色的颜色会在混合后变成灰色。 然而，补色搭配能形成强烈的视觉对比效果。
+
+```html
+红色（#FF0000）和蓝绿色 (#00FFFF)
+绿色（#00FF00）和品红色（#FF00FF）
+蓝色（#0000FF）和黄色（#FFFF00）
+```
+
+
+
+**三原色**
+
+电脑显示器和各类屏幕都是基于颜色叠加的模型：将红（R）、绿（G）、蓝（B）三原色的色光以不同的比例相加，就可以产生各种色彩光。 这在现代色彩理论中叫作三原色光模式（RGB Color Model）。 红色（R）、绿色（G）和蓝色（B）叫作三原色。 如果把两种原色相加，就可以产生二次色：蓝绿（G+B）、品红（R+B）和黄色（R+G）
+
+
+
+**三次色**
+
+三次色是由原色和二次色相加产生的颜色， 例如，在 RGB 颜色模型中，红色（原色）和黄色（二次色）相加产生橙色（三次色）。 将这六种颜色中相邻的颜色相加，便产生了十二色色环。
+
+设计里面有很多种颜色搭配方法。 涉及到三次色的一种配色方法是分裂补色搭配法。 选定主色之后，在色环上选择与它的补色相邻的两种颜色与之搭配。 此种搭配既有对比，又不失和谐。
+
+```html
+橙色	#FF7F00
+蓝绿色	#00FFFF
+树莓红	#FF007F
+```
+
+
+
+#### 4.调整颜色的色相
+
+颜色具有多种特性，包括色相、饱和度和亮度。 CSS3 引入了 `hsl()` 做为颜色的描述方式。
+
+**色相**是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。 以颜色光谱为例，光谱左边从红色开始，移动到中间的绿色，一直到右边的蓝色，色相值就是沿着这条线的取值。 在 `hsl()` 里面，色相用色环来代替光谱，色相值就是色环里面的颜色对应的从 0 到 360 度的角度值。
+
+**饱和度**是指色彩的纯度，也就是**颜色里灰色的占比**。 饱和度越高则灰色占比越少，色彩也就越纯；反之则完全是灰色。 饱和度的取值范围是表示灰色所占百分比的 0 至 100。
+
+**亮度**决定颜色的明暗程度，也就是颜色里白色或者黑色的占比。 其中，100% 的亮度表示纯白色， 0% 的亮度则表示纯黑色；而 50% 的亮度就表示在色相中选取的颜色。
+
+```html
+颜色	HSL
+红	hsl(0, 100%, 50%)
+黄	hsl(60, 100%, 50%)
+绿	hsl(120, 100%, 50%)
+蓝绿	hsl(180, 100%, 50%)
+蓝	hsl(240, 100%, 50%)
+品红	hsl(300, 100%, 50%)
+```
+
+
+
+
 
 ### 四. 元素的显示模式
 
@@ -690,6 +747,8 @@ font-size:0;
 
 
 ### 七. css选择器
+
+
 
 #### 标签选择器
 
@@ -894,14 +953,6 @@ font-size:0;
 
 * 作用标签: 能让标签内的文本, 行内元素, 行内块元素水平居中
 * 单纯给行内元素,行内块元素设置text-align,无意义.
-
-
-
-
-
-
-
-## 0927
 
 #### 后代选择器
 
@@ -1268,7 +1319,11 @@ background单属性
 
 background-color:
 
+ CSS 还为我们提供了颜色渐变。 可通过 `background` 里的 `linear-gradient()` 实现线性渐变， 以下是它的语法：
 
+```css
+background: linear-gradient(gradient_direction, color 1, color 2, color 3, ...);
+```
 
 **背景图**
 
@@ -2115,31 +2170,31 @@ float:right;
 
 ##### 浮动布局造成的影响(高度塌陷及解决)
 
-* **高度塌陷**  浮动元素由于是脱离标准流状态,父元素在不设置固定高度时,会造成高度塌陷(高度0), 原因是父元素认为子元素没有占位置
+**高度塌陷**  浮动元素由于是脱离标准流状态,父元素在不设置固定高度时,会造成高度塌陷(高度0), 原因是父元素认为子元素没有占位置
 
-* **解决高度塌陷**:  
+**解决高度塌陷**:  
 
-  * 父元素设定固定高度
+* 父元素设定固定高度
 
-  * 父元素开启BFC: 父元素设置`overflow:hidden`  或 父元素设置浮动
+* 父元素开启BFC: 父元素设置`overflow:hidden`  或 父元素设置浮动
 
-  * 额外标签(空盒子标签)  在父元素最后设置一个块元素空盒子,并设置clear属性结束之前的浮动元素,并让浮动元素占据位置
+* 额外标签(空盒子标签)  在父元素最后设置一个块元素空盒子,并设置clear属性结束之前的浮动元素,并让浮动元素占据位置
 
-    ```html
-    .lastBox{
-    	clear:both;   
-    }
-    ```
+  ```html
+  .lastBox{
+  	clear:both;   
+  }
+  ```
 
-  * 父元素调用clearFix类名(内部使用的是伪元素)
+* 父元素调用clearFix类名(内部使用的是伪元素)
 
-    ```html
-    .clearFix::after{
-    	content:"";  /*相当于在父元素最后添加一个空盒子 after元素默认是一个行内元素 所以需要display转换成块元素 */
-    	display:block;
-    	clear:both;
-    }
-    ```
+  ```html
+  .clearFix::after{
+  	content:"";  /*相当于在父元素最后添加一个空盒子 after元素默认是一个行内元素 所以需要display转换成块元素 */
+  	display:block;
+  	clear:both;
+  }
+  ```
 
 
 
@@ -2492,13 +2547,11 @@ float:right;
 
 
 
-#### 1009定位(position)
-
-##### 相对定位(relative position)
+### 定位(position)
 
 **定位**: 也是一个position属性,当元素设置定位后,是脱离标准流的状态,可以将元素设置在网页中的一个具体坐标位置,不会影响周围的元素
 
-**相对定位**: 
+### **1.相对定位**(relative position):
 
 * 起始点 自身在标准流中的位置; 
 * 偏移量 水平方向是left right,垂直方向是top bottom. 4个值都出现时,left和top优先
@@ -2508,7 +2561,7 @@ float:right;
 
 
 
-##### 绝对定位(absolute position)
+### 2.绝对定位(absolute position)
 
 * 绝对定位是一个完全脱离标准流的状态.
 * 默认起始点,窗口的4个角.left top right bottom.说法上一般用body替代窗口(不重要)
@@ -2516,7 +2569,7 @@ float:right;
 
 
 
-##### 定位结合使用:子绝父相+子绝父绝
+### 3.定位结合使用:子绝父相+子绝父绝.
 
 * 相对定位或绝对定位一般都是不单独使用
 
@@ -2526,7 +2579,7 @@ float:right;
 
 
 
-##### 定位层级(z-index)
+### 4.定位层级(z-index)
 
 * 取值范围是整数(负整数,正整数,0),默认值是0
 * 当层级相同时,后写的标签会压在先写的标签上面
@@ -2540,27 +2593,29 @@ float:right;
 
 
 
-##### 定位-水平垂直居中
+### 5.定位的使用
 
-* 定位水平居中:
+#### 1.水平垂直居中
 
-* ```html
-  left:50%;   /*父元素宽度的百分比的一半 */
-  margin-left: 自身宽度一半的负值
-  ```
+1.定位水平居中:
 
-
-
-* 定位垂直居中:
-
-* ```html
-  top:50%;     /*父元素高度的百分比的一半 */
-  margin-top:自身高度一半的负值   margin也能用百分比,但百分比是继承自父元素的比值
-  ```
+```html
+left:50%;   /*父元素宽度的百分比的一半 */
+margin-left: 自身宽度一半的负值
+```
 
 
 
-水平垂直居中
+2.定位垂直居中:
+
+```html
+top:50%;     /*父元素高度的百分比的一半 */
+margin-top:自身高度一半的负值   margin也能用百分比,但百分比是继承自父元素的比值
+```
+
+
+
+3.水平垂直居中
 
 ```js
 left:50%;
@@ -2573,7 +2628,7 @@ margin-top:-自身宽度一半;
 
 
 
-##### 透明的用法(opacity+rgba)
+### 透明的用法(opacity+rgba)
 
 **opacity**
 
@@ -2601,8 +2656,6 @@ margin-top:-自身宽度一半;
 ##### 案例-小米轮播图
 
 
-
-#### 1010
 
 ##### 固定定位
 
@@ -2908,7 +2961,7 @@ margin-top:-自身宽度一半;
 
 
 
-## 案例-尚品汇
+### 案例-尚品汇
 
 ##### 尚品汇header
 
@@ -3822,6 +3875,8 @@ h1:nth-of-type(2){
 
 box-shadow属性可以设置一个或多个下拉阴影的框. 
 
+可以通过逗号分隔每个 `box-shadow` 元素的属性来添加多个 box-shadow。
+
 语法
 
 ```html
@@ -3857,9 +3912,15 @@ box-shadow:h-shadow v-shadow blur spread color inset
 
 
 
+```js
+box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+```
 
 
-### 七.背景属性
+
+
+
+### 七.背景background
 
 #### 1.背景裁剪属性
 
@@ -4081,6 +4142,18 @@ background:url(1.png) no-repeat 0 0, url(2.png) no-repeat 0 0, url(3.png) no-rep
 
 
 
+#### 6.背景图像创建纹理
+
+`background` 属性支持使用 `url()` 函数作为属性值，这让我们可以通过链接的方式引入纹理或样式的图片。 图片链接的地址应写在括号内，一般会用引号包起来。
+
+```css
+background:url(https://cdn-media-1.freecodecamp.org/imgr/MJAkxbh.png)
+```
+
+
+
+
+
 ### 八.filter属性
 
 > filter属性定义了元素的可视属性. (例如模糊和饱和度). IE浏览器不支持
@@ -4194,6 +4267,20 @@ filter: none | blur() | brightness() | contrast() | drop-shadow() | grayscale() 
 
 ### 九.渐变
 
+HTML 元素的背景色并不局限于单色。 CSS 还为我们提供了颜色渐变。 可通过 `background` 里的 `linear-gradient()` 实现线性渐变
+
+语法:
+
+```js
+background: linear-gradient(gradient_direction, color 1, color 2, color 3, ...);
+
+第一个参数指定了颜色过渡的方向——它的值是角度，90deg 表示垂直渐变（从左到右），45deg 表示沿对角线渐变（从左下方到右上方）。
+其他参数指定了渐变颜色的顺序
+
+```
+
+
+
 #### 1.线性渐变
 
 > 说明: 线性渐变,沿着一条轴线从某个颜色过渡到某个颜色,渐变最少需要两个颜色
@@ -4251,9 +4338,21 @@ background-image:linear-gardient(to right,red 50%,blue 50%);
 
 #### 1.重复性渐变
 
-> background-image:repeating-linear-gardient(to right,red 30px, yellow 80px, blue 150px);
->
-> 将渐变进行平铺
+background-image:repeating-linear-gardient(to right,red 30px, yellow 80px, blue 150px);
+
+将渐变进行平铺
+
+`repeating-linear-gradient()` 函数和 `linear-gradient()` 很像，主要区别是前者会重复指定的渐变。 `repeating-linear-gradient()` 有很多参数，为了便于理解，本关只用到角度值和色标。
+
+```css
+background: repeating-linear-gradient(
+      90deg,
+      yellow 0px,
+      blue 40px,
+      green 40px,
+      red 80px
+    );
+```
 
 
 
@@ -4524,17 +4623,17 @@ transition-property:width,height;
 
 
 
+### 十一. transform
 
+transform 属性向元素应用 2D 或 3D 转换。该属性允许我们对元素进行旋转、缩放、移动或倾斜
 
-#### 2D
+```css
+语法: transform:none|transform-functions;
+```
 
-##### 位移
+#### 1.位移
 
-概要
-
-> 根据 ==当前位置==进行位移,类似相对定位,  位移后原先位置还保留
-
-
+根据 ==当前位置==进行位移,类似相对定位,  位移后原先位置还保留
 
 语法:
 
@@ -4548,185 +4647,22 @@ translate只能适用于块级显示模式元素,对行内元素无效,但可以
 
 
 
+##### 1.1 位移案例(京东侧边栏)
 
-
-##### 定位水平垂直居中的3种方式(终)++
-
-1.搭配位移使用
-
-```html
-position:absolute;
-left:50%;
-top:50%;
-transition:translate(-50%,-50%);
-```
-
-
-
-2.减自身宽高一半(位移类似,但前提是自身宽高已有具体值)
-
-```html
-position:absolute;
-left:50%;
-margin-left: 元素宽度一半的负值
-top:50%;
-margin-top:元素高度一半的负值
-```
-
-
-
-3.方向0+margin
-
-```html
-前提:元素宽高是固定的
-
-position:absolute;
-left:0;
-top:0;
-right:0;
-bottom:0;
-margin:auto;
-```
-
-
-
-其他: <a href="#anli">第一次案例</a>  当前页面的 按住Ctrl+左键单击.
-
-
-
-##### div居中的5种方式+++
+<iframe height="300" style="width: 100%;" scrolling="no" title="css-位移" src="https://codepen.io/westover/embed/rNyqZLw?height=265&theme-id=light&default-tab=css,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/rNyqZLw'>css-位移</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
 
 
 
 
 
+#### 2. 旋转
 
+概述: 图片沿Z轴旋转.顺时针是正值, 逆时针是负值.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##### 位移案例(京东侧边栏)
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<title></title>
-		<style type="text/css">
-			* {
-				margin: 0;
-				padding: 0;
-				list-style: none;
-			}
-
-			.box {
-				position: fixed;
-				right: 0;
-				top: 50%;
-				transform: translate(0, -50%);
-			}
-
-			.box ul li {
-				width:40px; /*重要    设置宽高,否则后面的定位子元素将无法显示*/
-				height:40px;
-				
-				position: relative;
-				margin-bottom: 10px;
-				cursor: pointer;
-			}
-
-			.box ul li i {
-				/* position: relative;如果定位使用relative需要搭配block属性 但是有了宽高为什么不显示? 
-				display: block; */
-				position:absolute;
-				left: 0;
-				top: 0;
-				width: 40px;
-				height: 40px;
-				background: #333 url(./img/i1.png) no-repeat center center;
-				border-radius: 5px 0 0 5px;
-				/* transition: all .5s ease; */
-
-			}
-
-			.box ul li span {
-				position: absolute;
-				left: 0;
-				top: 0;
-				height: 40px;
-				line-height: 40px;
-				width: 80px;
-				/* text-align:center; */
-				border-radius: 5px 0 0 5px;
-				transition: all .5s ease;
-				background: #333;
-				color: #fff;
-
-				padding-left: 15px;
-				box-size: border-size;
-				font-size: 14px;
-
-
-			}
-
-			.box ul li:hover i {
-				background-color: darkred;
-				transition: all .5s ease;/*有来无去 过渡的位置*/
-			}
-
-			.box ul li:hover span {
-				left: -77px;
-				background: darkred;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="box">
-			<ul>
-				<li>
-					<span>购物车</span>
-					<i></i>
-				</li>
-				<li><span>购物车</span>
-					<i></i></li>
-				<li><span>购物车</span>
-					<i></i></li>
-			</ul>
-		</div>
-	</body>
-</html>
-
-```
-
-
-
-
-
-##### 2D之旋转
-
-> 概述: 图片沿Z轴旋转.顺时针是正值, 逆时针是负值.
->
-> transform:rotate( x deg)
->
-> 
+transform:rotate( x deg)
 
 
 
@@ -4920,27 +4856,19 @@ margin:auto;
 
 
 
-##### 2D缩放
+#### 3.缩放
 
-> transform:scale(宽度系数 高度系数)
->
-> transform:scale(1.5,3);
->
-> transform:scale(宽度和高度的系数);
->
-> transform:scale(1.5)
->
-> 目标元素是图片的话,若放大会超出边界,使用overflow  
+CSS 属性 `transform` 里面的 `scale()` 函数可以用来改变元素的显示比例
+
+transform:scale(宽度系数 高度系数)
+
+transform:scale(宽度和高度的系数);
 
 
 
 
 
-
-
-#### 3D
-
-##### 景深透视效果
+#### 4.景深透视效果
 
 > 概述:  景深透视属性: 实现近大远小的效果   取值范围是800px-1500px之间
 
@@ -4967,15 +4895,9 @@ transform-style:preserve-3d;
 
 
 
-##### 案例-3D空间
-
-```html
-
-```
+#### 5. 动画
 
 
-
-#### 动画
 
 ##### 动画属性animation
 
@@ -5008,6 +4930,9 @@ animation-direction
 reverse 反向   逆时针
 alternate 有来有去 需要2次  
 alternate-reverse 先去后来  
+
+指定了在动画结束时元素的样式
+animation-fill-mode:forwars
 
 
 在所有选择器之外定位关键帧区间
@@ -6608,6 +6533,8 @@ CSS：
 
 
 
+
+
 ### 文字,图片水平垂直居中(table-cell布局)
 
 ```js
@@ -6661,7 +6588,7 @@ HTML ：
 
 
 
-#### 2.图片水平垂直居中
+#### 2. 已知宽度图片水平垂直居中
 
 ```js
 //中间的图片会随着外层容器的大小而自动水平垂直居中，其实原理和文字水平垂直居中一模一样
@@ -6687,6 +6614,22 @@ HTML：
     <img src="1.jpg" alt="">
 </div>
 ```
+
+
+
+#### 2.1 未知宽高图片垂直居中
+
+```js
+//https://www.cnblogs.com/starof/p/4745577.html
+1.
+为父元素设定一个伪元素：：after,其高度为父元素的高度，display:inline-block,将其设定为vertical-align:middle即可撑开line box，同时line box的baseline为父元素高度一半的位置。然后设定子元素vertical-align:middle，即可实现居中。
+
+2.容器设置display:table，img外嵌套一层<span>或者<a>标签，设置display:table-cell，再用vertical-align:middle搞定。
+```
+
+
+
+
 
 
 
