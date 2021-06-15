@@ -1313,6 +1313,16 @@ border-left:
 
 #### 复合属性-背景
 
+```css
+//语法
+background:bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment initial|inherit;
+
+//引入斜杠的原因:消除歧义
+请设想一下50% 50%这样的值，它到底是background-size还是background-position呢？当你在使用展开式属性时，CSS解析器明白你的意图；而当你使用简写属性时，解析器需要在没有属性名提示的情况下弄清楚50% 50%到底指什么。这就是需要引入斜杠的原因。
+```
+
+
+
 background单属性
 
 **背景色**
@@ -1574,11 +1584,22 @@ padding: 上下左右
 
 
 
-##### 外边距合并
+##### 上下外边距合并
 
-* 定义: 垂直排列的2个并列块元素,分别给上下盒子设置下,上外边距,此时形成外边距合并.两个值相同时,间距就是该值;两个值不同时,间距就是较大的那个值.
+定义: 垂直排列的2个并列块元素,分别给上下盒子设置下,上外边距,此时形成外边距合并.两个值相同时,间距就是该值;两个值不同时,间距就是较大的那个值.
 
-  
+行内块元素的相邻左右外边距会相加不重合
+
+<iframe height="350" style="width: 100%;" scrolling="no" title="外边距合并" src="https://codepen.io/westover/embed/VwpqjQp?height=265&theme-id=light&default-tab=css,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/VwpqjQp'>外边距合并</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
+
+
+
+
+
+
 
 
 
