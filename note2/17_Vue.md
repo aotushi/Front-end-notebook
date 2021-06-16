@@ -101,7 +101,7 @@ console.log(z);//4
 
 ### Vue模板语法分类
 
-#### 总结
+**1.总结**
 
 ```js
 模板语法: 插值语法(双大括号表达式), 指令语法(以v-开头的标签属性)
@@ -138,7 +138,67 @@ console.log(z);//4
 
 #### 插值
 
-> 模板表达式都被放在沙盒中，只能访问[全局变量的一个白名单](https://github.com/vuejs/vue/blob/v2.6.10/src/core/instance/proxy.js#L9)，如 Math 和 Date 。你不应该在模板表达式中试图访问用户定义的全局变量
+##### 文本插值
+
+数据绑定最常见的形式就是使用“Mustache”语法 (双大括号) 的文本插值
+
+```js
+<span>message: {{msg}} </span>
+```
+
+Mustache 标签将会被替代为对应数据对象上 `msg` property 的值。无论何时，绑定的数据对象上 `msg` property 发生了改变，插值处的内容都会更新
+
+通过使用 [v-once 指令](https://cn.vuejs.org/v2/api/#v-once)，你也能执行一次性地插值，当数据改变时，插值处的内容不会更新。但请留心这会影响到该节点上的其它数据绑定：
+
+```html
+<span v-once>message:{{msg}}</span>
+```
+
+
+
+##### 原始HTML
+
+双大括号会将数据解释为普通文本，而非 HTML 代码。为了输出真正的 HTML，你需要使用 [`v-html` 指令](https://cn.vuejs.org/v2/api/#v-html)：
+
+```html
+<span v-html="rawHtml"></span>
+```
+
+这个 `span` 的内容将会被替换成为 property 值 `rawHtml`，直接作为 HTML——会忽略解析 property 值中的数据绑定。
+
+
+
+##### Attribute
+
+Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种情况应该使用 [`v-bind` 指令](https://cn.vuejs.org/v2/api/#v-bind)：
+
+```html
+<div v-bind:id="dynamicId"></div>
+```
+
+对于布尔 attribute (它们只要存在就意味着值为 `true`)，`v-bind` 工作起来略有不同，在这个例子中：
+
+```html
+<button v-bind:disabled="isButtonDisabled">Button</button>
+```
+
+如果 `isButtonDisabled` 的值是 `null`、`undefined` 或 `false`，则 `disabled` attribute 甚至不会被包含在渲染出来的 `<button>` 元素中。
+
+
+
+##### js表达式
+
+这些表达式会在所属 Vue 实例的数据作用域下作为 JavaScript 被解析。有个限制就是，每个绑定都只能包含**单个表达式**,下面的例子都**不会**生效
+
+```js
+<!-- 这是语句，不是表达式 -->
+{{ var a = 1 }}
+
+<!-- 流控制也不会生效，请使用三元表达式 -->
+{{ if (ok) { return message } }}
+```
+
+
 
 
 
@@ -146,7 +206,9 @@ console.log(z);//4
 
 #### 指令
 
-> 指令 (Directives) 是带有 `v-` 前缀的特殊 attribute。指令 attribute 的值预期是**单个 JavaScript 表达式** (`v-for` 是例外情况，稍后我们再讨论)。指令的职责是，当表达式的值改变时，将其产生的连带影响，响应式地作用于 DOM.
+> 指令 (Directives) 是带有 `v-` 前缀的特殊 attribute。指令 attribute 的值预期是**单个 JavaScript 表达式** (`v-for` 是例外情况)。
+>
+> 指令的职责是，当表达式的值改变时，将其产生的连带影响，响应式地作用于 DOM.
 
 
 
@@ -217,7 +279,7 @@ console.log(z);//4
 
 
 
-##### 事件修饰符
+##### 修饰符
 
 > 修饰符 (modifier) 是以半角句号 `.` 指明的特殊后缀，用于指出一个指令应该以特殊方式绑定。例如，`.prevent` 修饰符告诉 `v-on` 指令对于触发的事件调用 `event.preventDefault()`：
 
@@ -273,13 +335,13 @@ v-on:
 - 双向数据绑定(v-model):数据不仅能从data流向页面,还可以从页面流向data.
 - 备注:
 	1.双向数据绑定一般都是针对/表单类/元素
-    2.v-model:value='msg' 可以简写为v-model='msg',因为v-model默认收集value值.!!!!!
+  2.v-model:value='msg' 可以简写为v-model='msg',因为v-model默认收集value值.!!!!!
 
 普通的输入框input,v-model自动拿value,可以省略value.
 <div id='root'>
-    单向数据绑定(v-bind):<input type='text' :value='msg' ><br/><br/>
+  单向数据绑定(v-bind):<input type='text' :value='msg' ><br/><br/>
 	双向数据绑定(v-model):<input type='text' v-model:value='msg'>
-    双向数据绑定(v-model):<input type='text' v-model='msg'> //简写形式   
+  双向数据绑定简写(v-model):<input type='text' v-model='msg'> //简写形式   
 </div>
 <script>
 	new Vue({
@@ -327,6 +389,10 @@ components
 //代码实现
 
 
+vue.js 则是采用数据劫持结合发布者-订阅者模式的方式，通过Object.defineProperty()来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。
+
+动态属性和自定义事件,绑定value,通过v-on触发,从而更新数据.
+双向绑定得的实现主要依赖于Object.defineProperty(),通过这个函数可以监听到get,set事件
 ```
 
 
@@ -1380,8 +1446,6 @@ v-html 更新元素的innerHTML //'<h4>xxxxx</h4>''
 ```
 
 
-
-## 0116
 
 
 
