@@ -607,8 +607,8 @@ console.log(arr.toString()); //[object Array]
 ### 基本类型和引用类型
 
 ```HTML
-基本类型:string, number, boolean, null, undefined, symbol
-引用类型:Object, Array, Function,( RegExp, Date)
+基本类型:string, number, boolean, undefined, symbol,bigInt
+引用类型:Object, Function, null
 
 两者区别:引用类型可以添加属性和方法,而基本类型不可以
 
@@ -4920,7 +4920,7 @@ let arr = [].slice.call(obj);
 
 
 
-#### splice-删除添加替换
+#### splice-删除或替换
 
 **`splice()`** 方法通过**删除或替换**现有元素或者**原地添加**新的元素来修改数组,并以数组形式返回被修改的内容。此方法会改变原数组。
 
