@@ -114,6 +114,20 @@ document.body的值可能是null
 
 #### 1.获取DOM对象
 
+##### 1.1 通过dom元素的id名称或name值
+
+HTML5[规范文档](http://www.whatwg.org/specs/web-apps/current-work/)中指出:如果一个元素符合下面两条规则中的任一条,则window对象中必须要有与之对应的一个属性,属性值就是这个对象.
+
+- 如果一个元素拥有ID属性,那么ID属性的属性值就会成为window对象的属性名.
+- 如果一个元素拥有name属性,那么name属性的属性值就会成为window对象的属性名.但这个元素的标签名必须是: a, applet, area, embed, form, frame, frameset, iframe, img, object,其中的一个.
+- 使用范围及使用建议: **Firefox、Chrome、IE 9-11都支持，没有形成标准，而且容易污染全局，造成各种冲突和错误，不推荐使用。**
+
+
+
+##### 1.2 通过document
+
+
+
 #### 2.添加本身具有的属性(对象.属性, 对象[属性])
 
 ```html
@@ -848,13 +862,13 @@ ul.addEventListener('click',function(e){
 
 为事件指定事件处理程序的方法主要有3种
 
-#### 1.三种事件处理程序
+#### 1. 绑定事件的三种方式
 
-#### 1.1 HTML事件处理程序
+#### 1.1 HTML事件处理程序(dom0)
 
 **事件直接加在html元素上。**
 
-首先，这种方法已经过时了。因为动作(javascript代码)和内容(html代码)紧密耦合，修改时即要修改html也要修改js。但是写个小demo的时候还是可以使用的。
+首先，这种方法已经过时了。因为动作(javascript代码)和内容(html代码)紧密耦合，修改时即要修改html也要修改js。但是写个小demo的时候还是可以使用的。此事件为[DOM 0级标准](https://baike.baidu.com/item/DOM/50288?fr=aladdin)。同时，这个事件的优先级是最高的。
 
 这种方式也有两种方法，都很简单：
 
@@ -863,6 +877,8 @@ ul.addEventListener('click',function(e){
 ```html
 <input type='button' value='click me' onclick='alert('clicked')'/>
 ```
+
+
 
 第二种：html中定义事件处理程序，执行的动作则调用其他地方定义的脚本
 
@@ -880,6 +896,8 @@ note:
 1）通过event变量可以直接访问事件本身，比如onclick="alert(event.type)"会弹出click事件。
 
 2）this值等于事件的目标元素，这里目标元素是input。比如 onclick="alert(this.value)"可以得到input元素的value值。
+
+
 
 #### 1.2 DOM0事件处理程序
 
@@ -1606,11 +1624,210 @@ https://zh.javascript.info/mousemove-mouseover-mouseout-mouseenter-mouseleave#sh
 
 指针事件（Pointer Events）是一种用于处理来自各种输入设备（例如鼠标、触控笔和触摸屏等）的输入信息的现代化解决方案。
 
+除非你写的代码需要兼容旧版本的浏览器，例如 IE 10 或 Safari 12 或更低的版本，否则无需继续使用鼠标事件或触摸事件 —— 我们可以使用指针事件。
+
+#### 1.指针事件类型
+
+| 指针事件           | 类似的鼠标事件 |
+| ------------------ | -------------- |
+| pointerdown        | mousedown      |
+| pointerup          | mouseup        |
+| pointermove        | mousemove      |
+| pointerover        | mouseover      |
+| pointerout         | mouseout       |
+| pointerenter       | mouseenter     |
+| pointerlevave      | mouseleave     |
+| pointercancel      |                |
+| gotpointercapture  |                |
+| lostpointercapture |                |
+
+
+
+note:
+
+我们可以把代码中的 `mouse<event>` 都替换成 `pointer<event>`，程序仍然正常兼容鼠标设备。
+
+替换之后，程序对触屏设备的支持会“魔法般”地提升。但是，我们可能需要在 CSS 中的某些地方添加 `touch-action: none`
+
+#### 2.指针事件属性
+
+指针事件具备和鼠标事件完全相同的属性，包括 `clientX/Y` 和 `target` 等，以及一些其他属性
+
+**pointerId**  触发当前事件的指针唯一标识符
+
+浏览器生成的。使我们能够处理多指针的情况，例如带有触控笔和多点触控功能的触摸屏
+
+**pointerType**  指针的设备类型。必须为字符串，可以是：“mouse”、“pen” 或 “touch”。
+
+可以使用这个属性来针对不同类型的指针输入做出不同响应
+
+**isPrimary** 当指针为首要指针（多点触控时按下的第一根手指）时为 `true`
+
+**其他**
+
+#### 3.多点触控
+
+未完成
+
 
 
 ### 五.键盘事件keydown和keyup
 
+在现代设备上，还有其他“输入内容”的方法,例如，人们使用语音识别（尤其是在移动端设备上）或用鼠标复制/粘贴。
+
+如果我们想要跟踪 `<input>` 字段中的所有输入，那么键盘事件是不够的。无论如何，还需要一个名为 `input` 的事件来跟踪 `<input>` 字段中的更改。
+
 当我们想要处理键盘行为时，应该使用键盘事件（虚拟键盘也算）。例如，对方向键 Up 和 Down 或热键（包括按键的组合）作出反应。
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="dom-键盘事件" src="https://codepen.io/westover/embed/YzZBKoP?height=265&theme-id=light&default-tab=html,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/YzZBKoP'>dom-键盘事件</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
+
+
+
+#### 1.keydown/keyup
+
+当一个按键被按下时，会触发 `keydown` 事件，而当按键被释放时，会触发 `keyup` 事件。
+
+
+
+##### event.code/event.key
+
+事件对象的 `key` 属性允许获取字符，而事件对象的 `code` 属性则允许获取“物理按键代码”
+
+例如，同一个按键 Z，可以与或不与 `Shift` 一起按下。我们会得到两个不同的字符：小写的 `z` 和大写的 `Z`。
+
+`event.key` 正是这个字符，并且它将是不同的。但是，`event.code` 是相同的：
+
+| Key     | event.key | event.code |
+| ------- | --------- | ---------- |
+| Z       | z(小写)   | KeyZ       |
+| shift+Z | Z(大写)   | KeyZ       |
+
+**大小写敏感：**`"KeyZ"`**，不是** `"keyZ"`
+
+
+
+**两个如何选择?**  
+
+1.event.code
+
+`vent.key` 的值是一个字符，它随语言而改变。如果访问者在 OS 中使用多种语言，并在它们之间进行切换，那么相同的按键将给出不同的字符。因此检查 `event.code` 会更好，因为它总是相同的。
+
+```js
+document.addEventListener('keydown' function(e) {
+  if(event.code ==='KeyZ' && (event.ctrlKey || event.metaKey)) {
+    alert('Undo');
+  }
+})
+```
+
+
+
+2.看情况
+
+* 想要处理与布局有关的按键？那么 `event.key` 是我们必选的方式。
+
+* 一个热键即使在切换了语言后，仍能正常使用？那么 `event.code` 可能会更好。
+
+**event.code问题**
+
+对于不同的键盘布局，相同的按键可能会具有不同的字符。幸运的是，这种情况只发生在几个代码上
+
+为了可靠地跟踪与受键盘布局影响的字符，使用 `event.key` 可能是一个更好的方式。
+
+
+
+#### 2.自动重复
+
+如果按下一个键足够长的时间，它就会开始“自动重复”：`keydown` 会被一次又一次地触发，然后当按键被释放时，我们最终会得到 `keyup`。因此，有很多 `keydown` 却只有一个 `keyup` 是很正常的。
+
+对于由自动重复触发的事件，`event` 对象的 `event.repeat` 属性被设置为 `true`。
+
+#### 3.默认行为
+
+例如:
+
+- 出现在屏幕上的一个字符（最明显的结果）。
+- 一个字符被删除（Delete 键）。
+- 滚动页面（PageDown 键）。
+- 浏览器打开“保存页面”对话框（Ctrl+S）
+- ……等。
+
+阻止对 `keydown` 的默认行为可以取消大多数的行为，但基于 OS 的特殊按键除外。例如，在 Windows 中，Alt+F4 会关闭当前浏览器窗口。并且无法通过在 JavaScript 中阻止默认行为来阻止它。
+
+1.案例: 下面的这个 `<input>` 期望输入的内容为一个电话号码，因此它不会接受除数字，`+`，`()` 和 `-` 以外的按键
+
+```html
+<input onkeydown="return checkPhoneKey(event.key)" placeholder='Phone,please' type="tle">
+  
+<script>
+	function checkPhoneKey(key) {
+    return (key>='0'&&key<='9')||key=='+'||key=='-'||key=='('||key==')'
+  }
+</script>
+
+//事件名称前添加return的原因?
+https://www.cnblogs.com/peijie-tech/p/3748453.html
+```
+
+请注意，像 Backspace，Left，Right，Ctrl+V 这样的特殊按键在输入中无效。这是严格过滤器 `checkPhoneKey` 的副作用。
+
+过滤条件放宽:
+
+```js
+<script>
+function checkPhoneKey(key) {
+  return (key >= '0' && key <= '9') || key == '+' || key == '(' || key == ')' || key == '-' ||
+    key == 'ArrowLeft' || key == 'ArrowRight' || key == 'Delete' || key == 'Backspace';
+}
+</script>
+<input onkeydown="return checkPhoneKey(event.key)" placeholder="Phone, please" type="tel">
+```
+
+
+
+#### 4.遗存
+
+大多数浏览器对它们都存在兼容性问题: `keypress` 事件，还有事件对象的 `keyCode`、`charCode` 和 `which` 属性
+
+大多数浏览器对它们都存在兼容性问题，以致使该规范的开发者不得不弃用它们并创建新的现代的事件（本文上面所讲的这些事件），除此之外别无选择。旧的代码仍然有效，因为浏览器还在支持它们，但现在完全没必要再使用它们。
+
+
+
+#### 5.总结
+
+按一个按键总是会产生一个键盘事件，无论是符号键，还是例如 Shift 或 Ctrl 等特殊按键。唯一的例外是有时会出现在笔记本电脑的键盘上的 Fn 键。它没有键盘事件，因为它通常是被在比 OS 更低的级别上实现的。
+
+
+
+**键盘事件**
+
+* keydonw 按下键(如果长按按键,则将自动重复)
+* keyup 释放按键时
+
+**键盘事件主要属性**
+
+* code 按键代码('KeyA', 'ArrowLeft'等),特定于键盘上按键的物理位置.
+* key 字符('A', 'a'等),对非字符按键,通常具有和code相同的值
+
+过去，键盘事件有时会被用于跟踪表单字段中的用户输入。这并不可靠，因为输入可能来自各种来源。我们有 `input` 和 `change` 事件来处理任何输入
+
+
+
+#### 6.练习
+
+创建一个 `runOnKeys(func, code1, code2, ... code_n)` 函数，在同时按下 `code1, code2, ... code_n` 键时运行函数 `func`。
+
+例如，当按键 `"Q"` 和 `"W"` 被一起按下时（任何语言中，无论是否 CapsLock），下面的代码将显示 `alert`：
+
+<iframe height="265" style="width: 100%;" scrolling="no" title="dom-键盘事件keyup/keydown" src="https://codepen.io/westover/embed/WNpPopw?height=265&theme-id=light&default-tab=js,result" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href='https://codepen.io/westover/pen/WNpPopw'>dom-键盘事件keyup/keydown</a> by xxl
+  (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
+</iframe>
+
+
 
 
 
