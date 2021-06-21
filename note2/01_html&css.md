@@ -770,26 +770,44 @@ font-size:0;
 
 
 
+行内块元素当有内容时,它位置会降低/下移
+
+```js
+https://stackoverflow.com/questions/13390220/why-does-an-inline-block-div-get-positioned-lower-when-it-has-content/
+
+http://jsfiddle.net/ye0fbg4n/
+```
+
+
+
+
+
+
+
+
+
+
+
 ### 七. css选择器
 
 
 
 #### 标签选择器
 
-* 格式:
+格式:
 
-  ```html
-  <!-- 标签名{属性名:属性值; 属性名:属性值; .... -->
-  
-  <style>
-      h2{
-          color:red;
-          font-size:10px;
-      }
-  </style>
-  ```
+```html
+<!-- 标签名{属性名:属性值; 属性名:属性值; .... -->
 
-  
+<style>
+    h2{
+        color:red;
+        font-size:10px;
+    }
+</style>
+```
+
+
 
 #### 类选择器
 
@@ -1529,56 +1547,56 @@ padding: 上下左右
 
 ##### 新浪导航
 
-* 案例
+案例
 
-  ```html
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Document</title>
-      <style>
-          .box{
-              background:#fcfcfc;
-              border-top:3px solid #ff8500;
-              border-bottom:1px solid #edeef0;
-              font-size:14px;
-              padding-left:170px;
-  
-  
-  
-          }
-  
-          .box a{
-              display:inline-block;
-              padding:0 16px;
-              height:41px;
-              line-height:41px;
-              text-decoration:none;
-             
-  
-          }
-  
-          .box a:hover{
-              background:#edeef0;
-              color:#ff8400;
-          }
-      </style>
-  </head>
-  <body>
-      <div class="box">
-          <a href="##">酒店</a>
-          <a href="##">标准件</a>
-          <a href="##">超大床房</a>
-          <a href="##">超级vip总统套房</a>
-          <a href="##">超级vip总统套房超级vip总统套房</a>
-      </div>
-  </body>
-  </html>
-  ```
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .box{
+            background:#fcfcfc;
+            border-top:3px solid #ff8500;
+            border-bottom:1px solid #edeef0;
+            font-size:14px;
+            padding-left:170px;
 
-  
+
+
+        }
+
+        .box a{
+            display:inline-block;
+            padding:0 16px;
+            height:41px;
+            line-height:41px;
+            text-decoration:none;
+           
+
+        }
+
+        .box a:hover{
+            background:#edeef0;
+            color:#ff8400;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <a href="##">酒店</a>
+        <a href="##">标准件</a>
+        <a href="##">超大床房</a>
+        <a href="##">超级vip总统套房</a>
+        <a href="##">超级vip总统套房超级vip总统套房</a>
+    </div>
+</body>
+</html>
+```
+
+
 
 
 
@@ -1599,8 +1617,15 @@ padding: 上下左右
 
 ##### 外边距margin
 
-* 定义: 设置盒子之间的间距, 移动盒子
-* margin单属性和复合属性,和padding一致
+定义: 设置盒子之间的间距, 移动盒子
+
+margin单属性和复合属性,和padding一致
+
+```js
+写法: margin-
+```
+
+
 
 
 
@@ -1633,7 +1658,7 @@ padding: 上下左右
 
 * 解决方案:
 
-  * 给父元素设置**上边框**
+  * 给父元素设置**上边框**(0px不起作用,)
   * 给父元素设置**overflow**属性
   * 给父元素设置浮动
   * 给子元素设置浮动
@@ -1672,7 +1697,6 @@ padding: 上下左右
       </div>
   </body>
   ```
-  
 
 
 ##### overflow
@@ -3934,7 +3958,7 @@ box-shadow:h-shadow v-shadow blur spread color inset
 | h-shadow | 必须 水平阴影的位置 可负值           正值向右 |
 | v-shadow | 必须 垂直阴影的位置 可负值           正值向下 |
 | blur     | 可选 模糊距离                                 |
-| spread   | 可选 阴影尺寸                                 |
+| spread   | 可选 阴影尺寸 扩张半径                        |
 | color    | 可选 阴影的颜色                               |
 | inset    | 可选 将外部阴影(outset)改为内部阴影           |
 
