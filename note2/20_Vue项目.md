@@ -80,7 +80,7 @@ git pull origin master
 //切换页面无刷新:请求是ajax,这个是单页面应用,中间的部分是我们的路由组件切换  ++
 
 2.文件结构
-components下新建文件夹 NAME/index.vue
+components下新建文件夹 组件的name/index.vue
 
 3.组件3步
 
@@ -431,14 +431,14 @@ async getCategoryList({commit}){
 ### 动态绑定样式
 
 ```js
-//动态样式代替css中的hover, 样式类名确定但不确定用不用,所以使用对象写法
+//动态样式代替css中的hover, 样式类名不确定用不用,所以使用对象写法
 //这种思想很重要,需要多次回顾
 
 <div 
 	class="item" 
 	v-for="(c1, index) in categoryList"
 	:key="c1.categoryId"
-	:class="{item_on= currentIndex===index }"  // 绑定动态样式,类名确定值不确定使用对象形式
+	:class="{item_on= currentIndex===index }"  //绑定动态样式,类名不确定要用对象形式
 	@mouseenter="currentIndex=index"		   // 绑定移入事件,赋值
 />
         
@@ -475,7 +475,7 @@ https://segmentfault.com/a/1190000018445196
 
 2.定义:
 函数防抖(debounce)
-定义:在事件被触发的n秒后再执行回调,如果在这n秒内又被触发,则重新计时.(只有足够的空闲时间,才执行代码一次.多次变为1次)
+定义:在事件被触发的n秒后再执行回调(规定在一个单位时间内,只能触发一次函数),如果在这n秒内又被触发,则重新计时.(只有足够的空闲时间,才执行代码一次.多次变为1次)
 
 函数节流(throttle)
 定义:规定在一个单位时间内,只能触发一次函数.如果这个单位时间内触发多次函数,只有一次生效.(一定时间内只跑一次)

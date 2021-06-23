@@ -908,7 +908,7 @@ methods
 
 
 
-### 动态数据监视
+### 动态数据监视watch
 
 ```js
 监视属性watch：
@@ -925,6 +925,7 @@ methods
 computed和watch之间的区别：
 1.只要是computed能完成的功能，watch都可以完成
 2.watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
+3.computed依赖缓存,值不变前提下多次读取使用缓存;watch多次读取会多次调用
 
 
 备注：
@@ -1868,10 +1869,14 @@ vue-cli是vue官方提供的脚手架工具,最新版是4. 3.x版与4.x版变化
 ### 安装及文件结构
 
 ```HTML
+0.问题
+在cdm正常运行,但是在git中会出现错误. 
+解决: https://cli.vuejs.org/zh/guide/creating-a-project.html#vue-create
+
 1.创建脚手架3/4的vue项目:
- 1.1 npm install -g @uve/cli
- 1.2 vue create vue-demo
- 1.3 npm run serve /yarn serve
+ 1.1 npm install -g @uve/cli  //全局安装脚手架
+ 1.2 vue create vue-demo      //创建项目名称
+ 1.3 npm run serve /yarn serve //运行项目
 
 2.脚手架结构
 |-- node_modules
