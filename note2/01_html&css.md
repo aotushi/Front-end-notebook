@@ -3990,6 +3990,97 @@ box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 
 ### 七.背景background
 
+background负责给盒子设置背景图片和背景颜色,是一个复合属性. 它可以被分解成如下几个设置项:
+
+| 值                    | 说明                                             | css  |
+| --------------------- | ------------------------------------------------ | ---- |
+| background-color      | 指定要使用的背景颜色                             | 1    |
+| background-position   | 设置背景图像的起始位置                           | 1    |
+| background-size       | 指定背景图片的大小                               | 3    |
+| background-repeat     | 指定如何重复背景图像                             | 1    |
+| background-origin     | 指定背景图像的定位区域                           | 3    |
+| background-clip       | 指定背景图像的绘画区域                           | 3    |
+| background-attachment | 设置背景图像是否固定或者随着页面的其余部分滚动。 | 1    |
+| background-image      | 指定要使用的一个或多个背景图像                   | 1    |
+|                       |                                                  |      |
+
+
+
+#### 0.背景起始位置position
+
+background-position属性设置背景图像的起始位置
+
+| 默认值 | 继承 | 版本 | JS语法                                      |
+| ------ | ---- | ---- | ------------------------------------------- |
+| 0% 0%  | no   | CSS1 | object..style.backgroundPosition = 'center' |
+
+**属性值**
+
+| 值                                                           | 描述                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| left top<br/>left center<br/>left bottom<br/>right top<br/>right center<br/>right bottom<br/>center top<br/>center center<br/>center bottom | 如果仅指定一个关键字，其他值将会是"center"                   |
+| x%       y%                                                  | 第一个值是水平位置，第二个值是垂直。<br/>左上角是0％0％。右下角是100％100％。<br/>如果仅指定了一个值，其他值将是50％。 。<br/>默认值为：0％0％ |
+| xpos ypos                                                    | 第一个值是水平位置，第二个值是垂直。<br/>左上角是0。单位可以是像素（0px0px）或任何其他 [CSS单位](https://www.runoob.com/try/css-units.html)。<br/>如果仅指定了一个值，其他值将是50％。你可以混合使用％和positions |
+| inherit                                                      | 指定background-position属性设置应该从父元素继承              |
+
+
+
+#### 1.背景图像的尺寸size
+
+设置背景图片大小,图片可以保有其原有的尺寸，或者拉伸到新的尺寸，或者在保持其原有比例的同时缩放到元素的可用空间的尺寸.
+
+注意：没有被背景图片覆盖的背景区域仍然会显示用[`background-color`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-color)属性设置的背景颜色。此外，如果背景图片设置了透明或者半透明属性，衬在背景图片后面的背景色也会显示出来
+
+| 默认值 | 继承性 | 版本 | JS语法                                  |
+| ------ | ------ | ---- | --------------------------------------- |
+| auto   | no     | CSS3 | object.style.backgroundSize='60px 80px' |
+
+
+
+**语法**
+
+```js
+//单张图片的背景大小可以使用以下三种方法中的一种来规定(container cover 设置宽度高度)
+background-size: length|percentage|cover|contain;
+
+//
+```
+
+| 值         | 描述                                                         |
+| ---------- | ------------------------------------------------------------ |
+| length     | 设置图像的高度和宽度<br/>第一个值设置宽度，第二个值设置高度<br/>如果只设置一个值，则第二个值会被设置为 "auto" |
+| percentage | 以父元素(背景区)的百分比来设置背景图像的宽度和高度<br/>第一个值设置宽度，第二个值设置高度<br/>如果只设置一个值，则第二个值会被设置为 "auto" |
+| cover      | 把背景图像扩展至足够大，以使背景图像完全覆盖背景区域<br/>背景图像的某些部分也许无法显示在背景定位区域中 |
+| container  | 把图像图像扩展至最大尺寸，以使其宽度和高度完全适应内容区域   |
+
+**属性值**
+
+`length`
+
+指定背景图片大小，不能为负值
+
+`percentage`
+
+指定背景图片相对背景区（background positioning area）的百分比。背景区由[`background-origin`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-origin)设置，默认为盒模型的内容区与内边距，也可设置为只有内容区，或者还包括边框。如果[`attachment`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-attachment) 为`fixed`，背景区为浏览器可视区（即视口），不包括滚动条。不能为负值。
+
+`auto`
+
+以背景图片的比例缩放背景图片
+
+`cover`
+
+缩放背景图片以完全覆盖背景区，可能背景图片部分看不见
+
+`container`
+
+缩放背景图片以完全装入背景区，可能背景区部分空白
+
+
+
+
+
+
+
 #### 1.背景裁剪属性
 
 > 概述: **指定对象的背景图像向外裁剪的区域。**
@@ -4068,7 +4159,7 @@ content-box(仅内容区域可见)
 
 
 
-#### 2.背景起始位置
+#### 2.背景定位区域
 
 ```html
 语法:
@@ -4091,21 +4182,7 @@ content-box：
 
 
 
-#### 3.背景缩放
 
-```html
-语法:background-size: length|percentage|auto{1,2}|cover|contain
-
-取值:
-length 用长度指定背景图像的大小 不允许负值 如果只有一个值,则为宽度,高度自适应
-percentage 用百分比指定背景图大小 不应许负值 若只有一个值,则为宽度,高度自适应
-auto 背景图像真实大小
-
-cover 根据盒子的最长边铺满,由于是等比例缩放,可能会有一部分看不到
-
-contain 根据盒子的最短边铺满,由于等比例缩放,可能会由一部分留白
-
-```
 
 
 
