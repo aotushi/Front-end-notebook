@@ -788,11 +788,32 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-### 七. css选择器
+## 六. CSS选择器
+
+| 选择器                                    | 选择器名称       | 功能描述                                                | 功能描述 | 权重 |
+| ----------------------------------------- | :--------------- | :------------------------------------------------------ | -------- | ---- |
+| *                                         | 通配符选择器     | 选择文档中所有HTML元素                                  |          |      |
+| E                                         | 标签选择器       | 选择指定类型的HTML元素                                  |          |      |
+| .class                                    | 类选择器         | 选择指定class属性值为'class'的任意类型的任意多个元素    |          |      |
+| #id                                       | id选择器         | 选择指定ID属性值为'id'的任意类型元素                    |          |      |
+| selector1,selectorN                       | 并集选择器       | 给所有选择器选中的标签设置属性                          |          |      |
+| selector1selectorN                        | 交集选择器       | 给所有选择器选中的标签中, <br/>相交的那部分标签设置属性 |          |      |
+| F S                                       | 后代选择器       | 匹配F元素内部的S元素                                    |          |      |
+| F>S                                       | 子元素选择器     | 选择F元素内部子元素的S元素                              |          |      |
+| E+F                                       | 相邻兄弟选择器   | 选择匹配的F元素,且紧位于E元素之后                       |          |      |
+| E~F                                       | 通用兄弟选择器   | 选择匹配的F元素,且位于E元素后所有的同级F元素            |          |      |
+|                                           | 属性选择器       |                                                         |          |      |
+|                                           | 伪元素选择器     |                                                         |          |      |
+| E:link E:visited E:hover E:active E:focus | 动态伪类选择器   |                                                         |          |      |
+| E:target                                  | 目标伪类选择器   |                                                         |          | 3    |
+|                                           | 语言伪类选择器   |                                                         |          |      |
+|                                           | UI状态伪类选择器 |                                                         |          |      |
+|                                           | 结构伪类选择器   |                                                         |          |      |
+|                                           | 否定伪类选择器   |                                                         |          |      |
 
 
 
-#### 标签选择器
+### 标签选择器
 
 格式:
 
@@ -809,7 +830,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-#### 类选择器
+### 类选择器
 
 * 定义类名称: 以点开头+类名称{属性名:属性值; 属性名:属性值; .....}
 
@@ -897,42 +918,25 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-#### id选择器
+### id选择器
 
 * 定义id选择器: 以#开头+id名称
-
 * 调用id选择器: 用标签中的id属性值等于id名称
-
 * 注意事项:  id选择器的名称一个页面只能出现一次,(虽然出现相同的浏览器也能解析,但是从语法上来说是错误的.)
 
-* 格式:
 
-  ```html
-  <style>
-      #yellowGreen{
-          color:yellowgreen;
-      }
-  </style>
-  
-  .....
-  
-  
-  <p id="yellowGreen">
-      内容
-  </p>
-  ```
 
-#### 并集选择器
+### 并集选择器
 
 <a href="#bingji">本页链接</a>
 
 
 
-#### 交集选择器
+### 交集选择器
 
 <a href="#jiaoji">本页链接</a>
 
-#### 关系选择器
+### 关系选择器
 
 #### 后代选择器
 
@@ -942,9 +946,81 @@ http://jsfiddle.net/ye0fbg4n/
 
 #### 通用兄弟选择器
 
-#### 属性选择器
+### 属性选择器
 
-#### 伪类选择器
+### 伪类选择器
+
+#### 动态伪类选择器
+
+动态伪类并不存在于HTML中，只有当用户和网站交互的时候才能体现出来。动态伪类包含两种，第一种是在链接中常看到的锚点伪类，另一种为用户行为伪类
+
+注意: 锚点伪类的设置必须遵守一个“爱恨原则”LoVe/HAte，也就是“link-visited-hover-active”
+
+| 选择器    | 类型               | 功能描述                                                     |
+| --------- | ------------------ | ------------------------------------------------------------ |
+| E:link    | 链接伪类选择器     | 选择匹配的E元素,且匹配元素被定义了超链接并未被访问过.常用于链接锚点上. |
+| E:visited | 链接伪类选择器     | 选择匹配的E元素,且匹配元素被定义了超链接并已被访问过.常用于链接锚点上. |
+| E:hover   | 用户行为伪类选择器 | 选择匹配的E元素,且用户鼠标在停留在元素E上.IE6及以下仅支持a:hover |
+| E:active  | 用户行为伪类选择器 | 选择匹配的E元素,且匹配的元素被激活.常用于锚点于按钮上.       |
+| E:focus   | 用户行为伪类选择器 | 选择匹配的E元素,且匹配的元素获得焦点                         |
+
+**实例(未完成)**
+
+在众多网站上按钮在不同状态下效果不一，用以增强用户体验.
+
+根据用户的行为不同，按钮效果可以分为：默认状态、悬浮状态、点击时状态、焦点状态和点击后状态，可以按照CSS3的动态伪选择器，在不同状态下给按钮赋予不同的样式风格.
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="动态伪类选择器-未完成" src="https://codepen.io/westover/embed/preview/gOWOPmJ?defaultTab=css%2Cresult&editable=true&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/gOWOPmJ">
+  动态伪类选择器-未完成</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+
+
+
+
+
+#### 目标伪类选择器
+
+目标伪类选择器“:target”是众多实用的CSS3特性中的一个，用来匹配文档（页面）的URI[插图]中某个标志符的目标元素
+
+URI中的标志符通常会包含一个井号（#），后面带有一个标志符名称，例如“#contact”“:target”就是用来匹配ID为“contact”的元素的。
+
+**语法**
+
+| 选择器   | 功能描述                                    |
+| -------- | ------------------------------------------- |
+| E:target | 选择匹配E的所有元素,且匹配元素被相关url指向 |
+
+**实例**
+
+> 页面中有三个区块，默认状态只显示三个区块的标题，点击其中一个标题时，其对应的内容就会显示；点击另一个标题时，对应区块内容将显示，而前一块内容将隐藏
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="目标伪类选择器" src="https://codepen.io/westover/embed/preview/WNjNxYB?defaultTab=css%2Cresult&editable=true&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/WNjNxYB">
+  目标伪类选择器</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+
+
+
+
+
+#### 语言伪类选择器
+
+#### UI元素状态选择器
+
+#### 结构伪类选择器
+
+#### 否定伪类选择器
+
+
+
+
 
 #### 伪元素选择器
 
@@ -954,7 +1030,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-### 八. css3种书写位置
+### 八. css选择器3种书写位置
 
 #### 1.内嵌式
 
@@ -1316,7 +1392,7 @@ font:12px/1.5; 和 font: 12px/15px的区别:
 
 #### 复合属性-border
 
-* 格式:
+格式:
 
 ```html
 border-width
@@ -1338,144 +1414,18 @@ border-left:
 
 
 
-* 案例:
+案例:
 
-  盒子边框相同样式,但下边框没有
+盒子边框相同样式,但下边框没有
 
-  有两种实线方式,一种是同样的样式写3次;另一种是使用符合属性和none
+有两种实线方式,一种是同样的样式写3次;另一种是使用符合属性和none
 
-  ```html
-  <style>
-      border:width style color;
-      border-bottom:none;
-  </style>
-  ```
-
-  
-
-#### 复合属性-背景
-
-```css
-//语法
-background:bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment initial|inherit;
-
-//引入斜杠的原因:消除歧义
-请设想一下50% 50%这样的值，它到底是background-size还是background-position呢？当你在使用展开式属性时，CSS解析器明白你的意图；而当你使用简写属性时，解析器需要在没有属性名提示的情况下弄清楚50% 50%到底指什么。这就是需要引入斜杠的原因。
+```html
+<style>
+    border:width style color;
+    border-bottom:none;
+</style>
 ```
-
-
-
-background单属性
-
-**背景色**
-
-background-color:
-
- CSS 还为我们提供了颜色渐变。 可通过 `background` 里的 `linear-gradient()` 实现线性渐变， 以下是它的语法：
-
-```css
-background: linear-gradient(gradient_direction, color 1, color 2, color 3, ...);
-```
-
-**背景图**
-
-background-image:url()
-
-
-
-**平铺方式**
-
-background-repeat: 
-
-默认值repeat  水平垂直平铺
-
-repeat-x   水平平铺
-
-repeat-y   垂直平铺
-
-no-repeat  不平铺
-
-
-
-**背景图位置**
-
-background-position: 水平位置 垂直位置
-
-
-
-水平位置:left(默认)  ==center==  right
-
-垂直位置:top(默认)  ==center== bottom
-
-
-
-
-
-
-
-
-
-
-
-**复合属性**
-
-background: 颜色 背景图地址 平铺方式  背景图位置
-
-background: 色 url 平铺 位置
-
-
-
-#### 导航案例2
-
-* 案例(鼠标移上后图片更换):
-
-* 简介: 需要将背景色改为图片,将:hover伪类下的背景色更换为图片
-
-  ```HTML
-  <!DOCTYPE html>
-  <html>
-      <head>
-          <meta charset="utf-8">
-          <meta name="keywords" content="">
-          <meta name="descritption" content="">
-          <style>
-          
-              .box{
-                  background:pink;
-                  text-align:center;
-              }
-              
-              .box a{
-                  display:inline-block;
-                  width:100px;
-                  height:30px;
-                  background:url() no-repeat 0 0 ;
-                  text-decoration:none;
-                  line-height:30px;
-                  
-              }
-              
-              a:hover{
-                  background:url(b图片) no-repeat 0 0;
-                  text-decoration:underline;
-              }
-          
-          </style>
-      </head>
-      <body>
-          <div class="box">
-              <a href="##">导航</a>
-              <a href="##">导航</a>
-              <a href="##">导航</a>
-              <a href="##">导航</a>
-              <a href="##">导航</a>
-          </div>
-      </body>
-  </html>
-  
-  ```
-
-  
 
 
 
@@ -1507,35 +1457,21 @@ background: 色 url 平铺 位置
 
 #### 盒子模型
 
-##### 内边距padding
 
-**盒子在网页中的尺寸=content+padding+border**
 
-padding属于盒子内部
+### 十. 常见的CSS问题
 
-border属于盒子外部
+#### 基础
 
-注意: 
+1.[如何应用CSS到DOM中](../html&css/如何应用CSS到DOM中.md)
 
-当元素设置内边距后,盒子的尺寸会变大,如何希望尺寸不变,需要相应的从content减去padding撑开的宽和高
+2.
 
 
 
+#### 盒子和布局
 
-
-padding单属性:
-
-padding-left/top/right/bottom
-
-padding复合属性:
-
-padding: 上 右 下 左
-
-padding: 上 左右 下
-
-padding: 上下 左右
-
-padding: 上下左右
+1.[如何调整CSS盒模型大小](../html&css/如何调整盒模型大小.md)
 
 
 
@@ -3746,108 +3682,9 @@ border-width:10px 10px 10px 10px;
 
 
 
-### 四.怪异盒子模型
-
-```html
-box-sizing:border-box  
-
-默认值content-box(正常盒子模型)
-
-```
+### 四.盒子模型
 
 
-
-正常盒子模型: 盒子尺寸=content+padding+border.
-
-怪异盒子模型: 盒子尺寸=content+padding+border. 在设置固定宽高的前提下,盒子尺寸会从content区域减去padding+border的尺寸,让整体尺寸与设置的宽高相同.
-
-
-
-##### 案例
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title></title>
-	<style type="text/css">
-		*{
-			margin:0;
-			padding:0;
-			list-style:none;
-		}
-		a,img{
-			display:block;
-		}
-		body{
-			background:#333;
-		}
-		.box{
-			width:1200px;
-			height:170px;
-			/* background: pink; */
-			margin:100px auto 0;
-		}
-		.box>ul>li{
-			width:316px;   /* 设置父元素li的宽高,子元素a和img可以使用100%来继承,这种写法便于以后更改图片时只用改一次尺寸 */
-			height:170px;
-			float:left;
-			margin-right:15px;
-			position:relative;
-		}
-		.box>ul>li a img{
-			width:100%;
-			height:100%;
-			border-radius:10px;
-			
-		}
-		
-		.box>ul>li a::after{
-			content:"";
-			width:100%;
-			height:100%;
-			box-sizing:border-box;
-			border:10px solid rgba(255,255,255,.5);
-			position:absolute;
-			left:0;
-			top:0;
-			border-radius:10px;
-			display:none;
-		}
-		.box>ul>li a:hover::after{
-			display:block;
-		}
-		
-	</style>
-</head>
-<body>
-	<div class="box">
-		<ul>
-			<li>
-				<a href="##">
-					<img src="img/1.jpg" >
-				</a>
-			</li>
-			
-			<li>
-				<a href="##">
-					<img src="img/2.jpg" >
-				</a>
-			</li>
-			
-			<li>
-				<a href="##">
-					<img src="img/3.jpg" >
-				</a>
-			</li>
-		</ul>
-	</div>
-</body>
-</html>
-```
 
 
 
@@ -4296,6 +4133,17 @@ background:url(https://cdn-media-1.freecodecamp.org/imgr/MJAkxbh.png)
 ```
 
 
+
+#### 7. 使用
+
+```css
+//语法
+background:bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment initial|inherit;
+
+//引入斜杠的原因:消除歧义
+请设想一下50% 50%这样的值，它到底是background-size还是background-position呢？当你在使用展开式属性时，CSS解析器明白你的意图；而当你使用简写属性时，解析器需要在没有属性名提示的情况下弄清楚50% 50%到底指什么。这就是需要引入斜杠的原因。
+
+```
 
 
 
