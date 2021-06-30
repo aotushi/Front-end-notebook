@@ -545,11 +545,33 @@ head标签中的script
 
 ### 三. css中的颜色
 
-#### 1. 颜色3钟表现方式
+#### 1. 颜色4种表现方式
 
-* 单词
-* rgb模式 (0-255,0-255,0-255)
-* 16进制(#rrggbb) 每当相关两位相同时可省略一位简写
+##### 关键词
+
+
+
+**rgb**
+
+文档: [CSS Color Module Level 4 (csswg.org)](https://drafts.csswg.org/css-color/#rgb-functions)
+
+```css
+//语法
+rgb() = rgb( <percentage>{3} [ / <alpha-value> ]? ) | rgb( <number>{3} [ / <alpha-value> ]? )
+<alpha-value> = <number> | <percentage>
+```
+
+
+
+
+
+**rgba**
+
+
+
+**16进制**
+
+
 
 
 
@@ -1001,11 +1023,41 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 <iframe height="300" style="width: 100%;" scrolling="no" title="目标伪类选择器" src="https://codepen.io/westover/embed/preview/WNjNxYB?defaultTab=css%2Cresult&editable=true&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
   See the Pen <a href="https://codepen.io/westover/pen/WNjNxYB">
   目标伪类选择器</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
-  on <a href="https://codepen.io">CodePen</a>.
+  on <a href="https://codepen.io">CodePen</a>
 </iframe>
 
 
 
+**更多的应用场景**
+
+| 效果                                       | 地址                                                         |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| 高亮显示区块                               |                                                              |
+| 从相互层叠的盒容器或图片中突出显示其中一项 | http://www.red-team-design.com/get-to-know-your-css3-target-pseudo-class |
+| tabs效果                                   |                                                              |
+| 幻灯片效果                                 |                                                              |
+| 相册效果                                   | 失效                                                         |
+
+
+
+**实例-突出显示一项**
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="目标伪类选择器" src="https://codepen.io/westover/embed/preview/qBmBqqG?defaultTab=html%2Cresult&editable=true&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/qBmBqqG">
+  目标伪类选择器</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+**实例-幻灯片 ++**
+
+第二个和第四个没有效果.
+
+<iframe height="700" style="width: 100%;" scrolling="no" title="目标伪类选择器-幻灯片(未完成)" src="https://codepen.io/westover/embed/MWmYXyv?defaultTab=html%2Cresult" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/MWmYXyv">
+  目标伪类选择器-幻灯片(未完成)</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
 
 
 
