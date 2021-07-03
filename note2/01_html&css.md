@@ -647,7 +647,7 @@ width height background背景色
 
 待补充...
 
-#### 1.块级元素
+#### 1. 块级元素
 
 * 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
 * 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
@@ -812,26 +812,26 @@ http://jsfiddle.net/ye0fbg4n/
 
 ## 六. CSS选择器
 
-| 选择器                                    | 选择器名称       | 功能描述                                                | 功能描述 | 权重 |
-| ----------------------------------------- | :--------------- | :------------------------------------------------------ | -------- | ---- |
-| *                                         | 通配符选择器     | 选择文档中所有HTML元素                                  |          |      |
-| E                                         | 标签选择器       | 选择指定类型的HTML元素                                  |          |      |
-| .class                                    | 类选择器         | 选择指定class属性值为'class'的任意类型的任意多个元素    |          |      |
-| #id                                       | id选择器         | 选择指定ID属性值为'id'的任意类型元素                    |          |      |
-| selector1,selectorN                       | 并集选择器       | 给所有选择器选中的标签设置属性                          |          |      |
-| selector1selectorN                        | 交集选择器       | 给所有选择器选中的标签中, <br/>相交的那部分标签设置属性 |          |      |
-| F S                                       | 后代选择器       | 匹配F元素内部的S元素                                    |          |      |
-| F>S                                       | 子元素选择器     | 选择F元素内部子元素的S元素                              |          |      |
-| E+F                                       | 相邻兄弟选择器   | 选择匹配的F元素,且紧位于E元素之后                       |          |      |
-| E~F                                       | 通用兄弟选择器   | 选择匹配的F元素,且位于E元素后所有的同级F元素            |          |      |
-|                                           | 属性选择器       |                                                         |          |      |
-|                                           | 伪元素选择器     |                                                         |          |      |
-| E:link E:visited E:hover E:active E:focus | 动态伪类选择器   |                                                         |          |      |
-| E:target                                  | 目标伪类选择器   |                                                         |          | 3    |
-|                                           | 语言伪类选择器   |                                                         |          |      |
-|                                           | UI状态伪类选择器 |                                                         |          |      |
-|                                           | 结构伪类选择器   |                                                         |          |      |
-|                                           | 否定伪类选择器   |                                                         |          |      |
+| 选择器                                    | 选择器名称       | 功能描述                                                     | 功能描述 | 权重 |
+| ----------------------------------------- | :--------------- | :----------------------------------------------------------- | -------- | ---- |
+| *                                         | 通配符选择器     | 选择文档中所有HTML元素                                       |          |      |
+| E                                         | 标签选择器       | 选择指定类型的HTML元素                                       |          |      |
+| .class                                    | 类选择器         | 选择指定class属性值为'class'的任意类型的任意多个元素         |          |      |
+| #id                                       | id选择器         | 选择指定ID属性值为'id'的任意类型元素                         |          |      |
+| selector1,selectorN                       | 并集选择器       | 给所有选择器选中的标签设置属性                               |          |      |
+| selector1selectorN                        | 交集选择器       | 给所有选择器选中的标签中, <br/>相交的那部分标签设置属性      |          |      |
+| F S                                       | 后代选择器       | 匹配F元素内部的S元素                                         |          |      |
+| F>S                                       | 子元素选择器     | 选择F元素内部子元素的S元素                                   |          |      |
+| E+F                                       | 相邻兄弟选择器   | 选择匹配的F元素,且紧位于E元素之后                            |          |      |
+| E~F                                       | 通用兄弟选择器   | 选择匹配的F元素,且位于E元素后所有的同级F元素                 |          |      |
+|                                           | 属性选择器       |                                                              |          |      |
+|                                           | 伪元素选择器     |                                                              |          |      |
+| E:link E:visited E:hover E:active E:focus | 动态伪类选择器   |                                                              |          |      |
+| E:target                                  | 目标伪类选择器   |                                                              |          | 3    |
+| E:lang                                    | 语言伪类选择器   | 表示选择匹配E的所有元素,且匹配元素指定了lang属性,其值为language |          |      |
+| E:checked<br/>E:enabled<br/>E:disabled    | UI状态伪类选择器 |                                                              |          |      |
+|                                           | 结构伪类选择器   |                                                              |          |      |
+|                                           | 否定伪类选择器   |                                                              |          |      |
 
 
 
@@ -1060,13 +1060,167 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 </iframe>
 
 
+**实例-tab效果**
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="目标伪类选择器-tab" src="https://codepen.io/westover/embed/xxdwRwX?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/xxdwRwX">
+  目标伪类选择器-tab</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>
+</iframe>
+
+
+
 
 
 #### 语言伪类选择器
 
+使用语言伪类选择器来匹配使用语言的元素是非常有用的，特别是用于多语言版本的网站，其作用更是明显。可以使用他来根据不同语言版本设置页面的字体风格。
+
+
+
+**语法**
+
+语言伪类选择器是根据元素的语言编码匹配元素。这种语言信息必须包含在文档中，或者与文档关联，不能从CSS指定。为文档指定语言，有两种方法可以表示:
+
+```css
+//h5
+<!doctype html>
+<html lang='en-US'>
+
+//第二种方法
+<body lang='fr'>
+```
+
+语言伪类选择器允许为不同的语言定义特殊的规则，这在多语言版本的网站用起来是特别的方便。
+
+
+
+**实例**
+
+```css
+语言伪类选择器，就是根据元素的 lang属性，来匹配使用指定语言的元素。可以根据不同语言版本，设置不同的字体风格、定义不同的引号标记,不同的背景图片等
+
+<p lang="en"><q>Quote in English</q></p>
+<p lang="zh-cn"><q>中文的引号</q></p>
+
+//英文版本的引文效果
+:lang(en) {
+  font-family: Arial;
+  quotes: '"' '"';
+}
+//中文版本下的字体效果和引文效果
+:lang(zh-cn) {
+  font-family: 宋体;
+  quotes: '<<' '>>'
+}
+```
+
+
+
+
+
 #### UI元素状态选择器
 
+是CSS3选择器模块组中的一部分，主要用于form表单元素上，以提高网页的人机交互、操作逻辑以及页面的整体美观，使表单页面更具个性与品位，而且使用户操作页面表单更便利和简单
+
+
+
+**UI 元素状态伪类选择器语法**
+
+UI元素的状态一般包括：启用、禁用、选中、未选中、获得焦点、失去焦点、锁定和待机等
+
+在HTML元素中有可用和不可用状态，例如表单中的文本输入框；HTML元素中还有选中和未选中状态，例如表单中的复选按钮和单选按钮。这几种状态都是CSS3选择器中常用的状态伪类选择器
+
+
+
+| 选择器     | 类型                 | 功能描述                             |
+| ---------- | -------------------- | ------------------------------------ |
+| E:checked  | 选中状态伪类选择器   | 匹配选中的复选按钮或单选按钮表单元素 |
+| E:enabled  | 启用状态伪类选择器   | 匹配所有启用的表单元素               |
+| E:disabled | 不可用状态伪类选择器 | 匹配所有禁用的表单元素               |
+
+
+
+**实例**
+
+```css
+//表单元素获得焦点效果
+textarea:focus,
+input[type='text']:focus,
+input[type='password']:focus {
+  border-color: rgba(82,168,236,.8);
+  outline: 0;
+  outline: thin dotted \9;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.75), 0 0 8px rgba(82,168,236,.6);
+}
+
+//表单下拉选择框,文件控件,单选按钮,复选按钮得到焦点效果
+select:focus,
+input[type='file']:focus,
+input[type='radio']:focus,
+input[type='checkbox']:focus {
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color; // 用的很少,不同浏览器解析不同的颜色.
+  outline-color: -2px;
+}
+
+//禁用的input select textarea表单元素效果
+input[disabled],  //等效于input:diasbled;
+select[disabled],  //等效于input:diasbled;
+textarea[disabled] { //等效于input:diasbled;
+  cursor: not-allowed;
+  background-color: #eee;
+  border-color: #ddd;
+}
+
+//禁用的单选按钮和复选按钮效果
+input[type='radio'][disabled], //等效于 input[type='radio']:disabled
+input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
+  background-color: #ddd;
+}
+
+//表单警告状态下效果 自己定义的类型 class='control-group warning'
+.control-group.warning .checkbox,
+.control-group.warning .radio,
+.control-group.warning  input,
+.control-group.warning select,
+.control-group.warning textarea {
+  color: #c09853;
+  border-color: #c09853;
+}
+
+//表单警告状态下获得焦点效果
+.control-group.warning .checkbox:focus,
+.control-group.warning .radio:focus,
+.control-group.warning input:focus,
+.control-group.warning select:focus,
+.control-group.warning textarea:focus {
+  border-color: #a47e3c;
+  box-shadow: 0 0 6px #dbc59e;
+}
+
+//表单错误状态与成功下效果
+.control-group.error .checkbox
+.control-group.success .checkbox
+```
+
+
+
+注意: 表单元素得到焦点和禁用两种状态使用方法，在使用UI状态选择器时特别注意，HTML结构中要存在这种状态，例如禁用的输入框，需要在HTML的对应元素上添加禁用属性.
+
+```html
+<input class="input-xlarge disabled" id="disabledInput" type='text' placeholder='Disabled input here'>
+```
+
+
+
+
+
 #### 结构伪类选择器
+
+
+
+
 
 #### 否定伪类选择器
 
