@@ -248,7 +248,7 @@ cellspacing 单元格间间距，数值为0，则table单元格宽度是2个bord
 -->
     <caption>表格主题内容</caption>
     <tr>                <!--行标签 -->
-    	<th>行标题</th>  <!--行标题 默认在单元格中加粗居中 -->
+    	  <th>行标题</th>  <!--行标题 默认在单元格中加粗居中 -->
         <th>行标题</th>
         <th>行标题</th>
         <th>行标题</th>
@@ -810,32 +810,36 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-## 六. CSS选择器
-
-| 选择器                                    | 选择器名称       | 功能描述                                                     | 功能描述 | 权重 |
-| ----------------------------------------- | :--------------- | :----------------------------------------------------------- | -------- | ---- |
-| *                                         | 通配符选择器     | 选择文档中所有HTML元素                                       |          |      |
-| E                                         | 标签选择器       | 选择指定类型的HTML元素                                       |          |      |
-| .class                                    | 类选择器         | 选择指定class属性值为'class'的任意类型的任意多个元素         |          |      |
-| #id                                       | id选择器         | 选择指定ID属性值为'id'的任意类型元素                         |          |      |
-| selector1,selectorN                       | 并集选择器       | 给所有选择器选中的标签设置属性                               |          |      |
-| selector1selectorN                        | 交集选择器       | 给所有选择器选中的标签中, <br/>相交的那部分标签设置属性      |          |      |
-| F S                                       | 后代选择器       | 匹配F元素内部的S元素                                         |          |      |
-| F>S                                       | 子元素选择器     | 选择F元素内部子元素的S元素                                   |          |      |
-| E+F                                       | 相邻兄弟选择器   | 选择匹配的F元素,且紧位于E元素之后                            |          |      |
-| E~F                                       | 通用兄弟选择器   | 选择匹配的F元素,且位于E元素后所有的同级F元素                 |          |      |
-|                                           | 属性选择器       |                                                              |          |      |
-|                                           | 伪元素选择器     |                                                              |          |      |
-| E:link E:visited E:hover E:active E:focus | 动态伪类选择器   |                                                              |          |      |
-| E:target                                  | 目标伪类选择器   |                                                              |          | 3    |
-| E:lang                                    | 语言伪类选择器   | 表示选择匹配E的所有元素,且匹配元素指定了lang属性,其值为language |          |      |
-| E:checked<br/>E:enabled<br/>E:disabled    | UI状态伪类选择器 |                                                              |          |      |
-|                                           | 结构伪类选择器   |                                                              |          |      |
-|                                           | 否定伪类选择器   |                                                              |          |      |
+### 六. CSS选择器
 
 
 
-### 标签选择器
+#### 零.介绍
+
+| 选择器                                                       | 选择器名称       | 功能描述                                                     | 功能描述 | 权重 |
+| ------------------------------------------------------------ | :--------------- | :----------------------------------------------------------- | -------- | ---- |
+| *                                                            | 通配符选择器     | 选择文档中所有HTML元素                                       |          |      |
+| E                                                            | 标签选择器       | 选择指定类型的HTML元素                                       |          |      |
+| .class                                                       | 类选择器         | 选择指定class属性值为'class'的任意类型的任意多个元素         |          |      |
+| #id                                                          | id选择器         | 选择指定ID属性值为'id'的任意类型元素                         |          |      |
+| selector1,selectorN                                          | 并集选择器       | 给所有选择器选中的标签设置属性                               |          |      |
+| selector1selectorN                                           | 交集选择器       | 给所有选择器选中的标签中, <br/>相交的那部分标签设置属性      |          |      |
+| F S                                                          | 后代选择器       | 匹配F元素内部的S元素                                         |          |      |
+| F>S                                                          | 子元素选择器     | 选择F元素内部子元素的S元素                                   |          |      |
+| E+F                                                          | 相邻兄弟选择器   | 选择匹配的F元素,且紧位于E元素之后                            |          |      |
+| E~F                                                          | 通用兄弟选择器   | 选择匹配的F元素,且位于E元素后所有的同级F元素                 |          |      |
+|                                                              | 属性选择器       |                                                              |          |      |
+| ::before ::after <br />::selection ::first-line <br />::first-letter | 伪元素选择器     |                                                              |          |      |
+| E:link E:visited E:hover E:active E:focus                    | 动态伪类选择器   |                                                              |          |      |
+| E:target                                                     | 目标伪类选择器   |                                                              |          | 3    |
+| E:lang                                                       | 语言伪类选择器   | 表示选择匹配E的所有元素,且匹配元素指定了lang属性,其值为language |          |      |
+| E:checked<br/>E:enabled<br/>E:disabled                       | UI状态伪类选择器 |                                                              |          |      |
+|                                                              | 结构伪类选择器   |                                                              |          |      |
+|                                                              | 否定伪类选择器   |                                                              |          |      |
+
+
+
+#### 一. 标签选择器
 
 格式:
 
@@ -852,95 +856,37 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-### 类选择器
+#### 二. 类选择器
 
-* 定义类名称: 以点开头+类名称{属性名:属性值; 属性名:属性值; .....}
+定义类名称: 以点开头+类名称{属性名:属性值; 属性名:属性值; .....}
 
-* 调用类名称: 用标签中的class属性来关联类名称
+调用类名称: 用标签中的class属性来关联类名称
 
-* 命名规范: 
+命名规范: 
 
-  * 不能以数字开头, 可以用字母, 下划线开头,+数字+下划线+中划线+字母;
-  * 建议使用驼峰命名法(小驼峰): 第一个单词首字母小写, 第二个单词首字母大写
+* 不能以数字开头, 可以用字母, 下划线开头,+数字+下划线+中划线+字母;
+* 建议使用驼峰命名法(小驼峰): 第一个单词首字母小写, 第二个单词首字母大写
 
-* 格式:
+格式:
 
-  ```html
-  <style>
-      .yellowGreen{
-          color:yellowgreen;
-      }
-  </style>
-  
-  .....
-  
-  
-  <p class="yellowGreen">
-      内容
-  </p>
-  ```
+```html
+<style>
+    .yellowGreen{
+        color:yellowgreen;
+    }
+</style>
 
-* 案例(google图标)+多类名调用
+.....
 
-  ```html
-  <html>
-      <head>
-          <title>20-30汉字</title>
-          <meta charset="utf-8">
-          <meta name="keywords" content="不重要可忽略">
-          <meta name="description" content="140">
-          <style>
-          	.blue{
-  				font-size: 150px;
-  				color: #1B6FEF;
-  			}
-  			.red{
-  				font-size: 150px;
-  				color: #DB4732;
-  			}
-  			.yellow{
-  				font-size: 150px;
-  				color: #FFD669;
-  			}
-  			.green{
-  				font-size: 150px;
-  				color: #009A57;
-  			}
-              .font150{
-                  font-size:150px;
-                  font-weight:700;
-                  font-family:"宋体";
-              }
-              
-          </style>
-      </head>
-      <body>
-          <span class="blue font150">G</span>
-          <span class="red font150">o</span>
-          <span class="yellow font150">o</span>
-          <span class="blue font150">g</span>
-          <span class="green font150">l</span>
-          <span class="red font150">e</span>
-          
-      </body>
-  </html>
-  ```
 
-##### 多类名调用:
-
-* 含义: 标签中的class可以调用多个类名,类名之间用空格隔开
+<p class="yellowGreen">
+    内容
+</p>
+```
 
 
 
-**代码冗余**:
-
-> 在程序中,一个代码片段多次重复出现时,会造成程序降低执行效率
-
-
-
-
-
-### id选择器
+#### 三. id选择器
 
 * 定义id选择器: 以#开头+id名称
 * 调用id选择器: 用标签中的id属性值等于id名称
@@ -948,31 +894,41 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-### 并集选择器
+#### 六. 关系选择器
 
-<a href="#bingji">本页链接</a>
+##### 1. 后代选择器
+
+##### 2. 子元素选择器
+
+##### 3. 相邻兄弟选择器
+
+##### 4. 通用兄弟选择器
+
+##### 5. 并集选择器
+
+##### 6. 交集选择器
+
+#### 七. 属性选择器
+
+CSS2中引入了一些属性选择器，这些选择器可基于元素的属性来匹配元素，而CSS3在CSS2的基础上扩展了这些属性选择器，支持基于模式匹配来定位元素。
+
+**语法**
+
+| 选择器        | 功能描述                                                     |
+| ------------- | ------------------------------------------------------------ |
+| E[attr]       | 选择匹配具有属性attr的E元素.其中E可以省略,表示选择定义了attr属性的任意类型元素 |
+| E[attr=val]   | 选择匹配具有属性attr的E元素, 且attr属性值为val. <br />同样E元素省略时表示选择定义了attr属性为val的任意类型元素. |
+| E[attr\|=val] | 选择匹配E元素,且E元素定义了属性attr,<br />attr属性值是一个具有val或以val-开始的属性值.<br />常用于lang属性. 例如段落属性为lang='en-us'.<br />p[lang=en]将匹配定义为英语的任何段落,无论是英式英语还是美式英语. |
+| E[attr~=val]  | 选择匹配E元素,且元素定义了属性attr,attr属性值具有多个空格分隔的值,其中一个值等于val.<br />例如: .info[title~=more]将匹配元素具有类名info,且元素设置了一个属性title,同时title属性值包含了'more'的任何元素. \<a class='info' title='click here for more infomation'>\</a> |
+| E[attr*=val]  | 选择匹配元素E,且E元素定义了属性attr,其属性值任意位置包含了'val'.<br />即,字符串val与属性值中的任意位置相匹配. |
+| E[attr^=val]  | 选择匹配元素E,且E元素定义了属性attr,其属性值以val开头的任何字符串 |
+| E[attr$=val]  | 选择匹配元素E,且E元素定义了属性attr,其属性值以val结尾的任何字符串. |
 
 
 
-### 交集选择器
+#### 八. 伪类选择器
 
-<a href="#jiaoji">本页链接</a>
-
-### 关系选择器
-
-#### 后代选择器
-
-#### 子元素选择器
-
-#### 相邻兄弟选择器
-
-#### 通用兄弟选择器
-
-### 属性选择器
-
-### 伪类选择器
-
-#### 动态伪类选择器
+##### 1. 动态伪类选择器
 
 动态伪类并不存在于HTML中，只有当用户和网站交互的时候才能体现出来。动态伪类包含两种，第一种是在链接中常看到的锚点伪类，另一种为用户行为伪类
 
@@ -1003,8 +959,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-
-#### 目标伪类选择器
+##### 2. 目标伪类选择器
 
 目标伪类选择器“:target”是众多实用的CSS3特性中的一个，用来匹配文档（页面）的URI[插图]中某个标志符的目标元素
 
@@ -1072,7 +1027,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
-#### 语言伪类选择器
+##### 3.语言伪类选择器
 
 使用语言伪类选择器来匹配使用语言的元素是非常有用的，特别是用于多语言版本的网站，其作用更是明显。可以使用他来根据不同语言版本设置页面的字体风格。
 
@@ -1119,7 +1074,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
-#### UI元素状态选择器
+##### 4. UI元素状态选择器
 
 是CSS3选择器模块组中的一部分，主要用于form表单元素上，以提高网页的人机交互、操作逻辑以及页面的整体美观，使表单页面更具个性与品位，而且使用户操作页面表单更便利和简单
 
@@ -1216,19 +1171,179 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
 
 
-#### 结构伪类选择器
+##### 5. 结构伪类选择器
+
+伪类可以将一段并不存在的HTML当作独立元素来定位，或是找到无法使用其他简单选择器就能定位到的切实存在的元素。因此CSS3给伪类选择器引入一种“结构伪类选择器”。这种选择器可以根据元素在文档树中的某些特性（如相对位置）定位到它们。也就是说，**通过文档树结构的相互关系来匹配特定的元素**，从而减少HTML文档对ID或类名的定义，帮助你保持代码干净和整洁。
+
+
+
+**文档树**
+
+文档树（Document Tree）是HTML页面的层级结构。它由元素、属性和文本组成，它们都是一个节点（Node），就像公司的组织结构图一样.
+
+**用法**
+
+| 选择器                | 功能描述                                                     |
+| --------------------- | ------------------------------------------------------------ |
+| E:root                | 选择匹配元素E所在文档的根元素.在HTML文档中,根元素始终是html,<br/>此时该选择器与html类型选择器匹配的内容相同. |
+| E:empty               | 选择没有子元素的元素,且该元素不包括任何文本节点<br/>常用来处理动态输出内容,例如高亮用户搜索出来的结果为空时. |
+| E:first-child         | 作为父元素第一个子元素的元素. 与E:nth-child(1)等同           |
+| E:last-child          | 作为父元素E的最后一个子元素的元素. 与E:nth-last-child(1)等同. |
+| E F:nth-child(n)      | 选择父元素E的第n个子元素F. <br/>其中,n的值可以是整数(1,2,3),关键字(odd,event),公式(2n+1, -n+5).<br/>n的起始值为1,不是0. |
+| E F:nth-last-child(n) | 选择父元素E的倒数第n个子元素F.<br/>此选择器与`E F:nth-child(n)`刚好相反,但使用方法都一样.<br/>其中:nth-last-child(1)始终匹配的是最后一个元素,与:last-child等同. |
+| E:nth-of-type(n)      | 选择父元素内具有指定类型的第n个E元素                         |
+| E:nth-last-of-type(n) | 选择父元素内具有指定类型的倒数第n个E元素                     |
+| E:first-of-type       | 选择父元素内具有指定类型的第一个E元素,与E:nth-of-type(1)等同 |
+| E:last-of-type        | 选择父元素内具有指定类型的倒数第1个E元素, 与E:nth-last-of-type(1)等同. |
+| E:only-child          | 选择父元素只包含一个子元素,且该子元素匹配E元素               |
+| E:only-of-type        | 选择父元素只包含一个同类型的子元素,且该子元素匹配E元素       |
+|                       |                                                              |
+
+
+
+**实例**
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="结构伪类选择器-demo" src="https://codepen.io/westover/embed/ExmVQmw?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/ExmVQmw">
+  结构伪类选择器-demo</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+
+**浏览器兼容性**
+
+CSS3结构伪类选择器在主流浏览器下运行都非常的完美，只是在IE 9以下版本的浏览器中无法正常运行
+
+
+
+**结构伪类选择器中的n指什么**
+
+```js
+//在结构伪类选择器中，有4 个伪类选择器接受参数n
+:nth-child(n)
+:nth-of-child(n)
+:nth-of-type(n)
+:nth-last-of-type(n)
+n的起始值始终是1，而不是0。换句话说，当参数n的值为0时，选择器将选择不到任何匹配的元素。
+
+表达式中,n从0开始计算
+```
+
+n的值为:
+
+1.具体数值
+
+2.表达式n*length
+
+3.n+length
+
+4.-n+length
+
+5.n*length+b
+
+6.odd/even
+
+
+
+**实例2-zebra斑马线表格**
+
+给数据量大的表格设计背景色,传统方法是奇偶行不同背景色,但存在潜在的不便,例如动态插入行.
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="结构伪类选择器-zebra表格" src="https://codepen.io/westover/embed/JjNYvXY?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/JjNYvXY">
+  结构伪类选择器-zebra表格</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
 
 
 
 
 
-#### 否定伪类选择器
+##### 6. 否定伪类选择器
+
+否定选择器“:not()”是CSS3的新选择器，类似jQuery中的“:not()”选择器，主要用来定位不匹配该选择器的元素
+
+**语法**
+
+| 选择器   | 功能描述                   |
+| -------- | -------------------------- |
+| E:not(F) | 匹配所有除元素F之外的E元素 |
 
 
 
 
 
-#### 伪元素选择器
+##### 九. 伪元素选择器
+
+伪元素可用于定位文档中包含的文本，但无法在文档树中定位。伪类一般反映无法在CSS中轻松或可靠地检测到的某个元素属性或状态；另一方面，伪元素表示DOM外部的某种文档结构
+
+CSS3中对伪元素进行了一定的调整，在以前的基础上增加一个冒号
+
+对于IE 6～8，仅支持单冒号表示法，而现代浏览器同时支持这两种表示法。另外一个区别是，双冒号与单冒号在CSS3中主要用来区分伪类和伪元素。到目前来说，这两种方式都是被浏览器接受的。
+
+
+
+##### ::first-letter
+
+“::first-letter”用来选择文本块的第一个字母，除非在同一行中包含一些其他元素。“::first-letter”通常用于给文本元素添加排版细节，例如下沉字母或首字母，下面的代码是如何使用“::first-letter”创建首字下沉。
+
+
+
+**实例**
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="::first-letter -首字下沉" src="https://codepen.io/westover/embed/vYmNjjW?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/vYmNjjW">
+  ::first-letter -首字下沉</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+
+##### ::first-line
+
+“::first-line”的使用和“::first-letter”类似，也常用于文本排版方面，只不过“::firstline”用来匹配元素的第一行文本，可以应用一些特殊的样式，给文本添加一些细微的区别。“::first-line”将匹配block、inline-block、table-caption、table-cell等级别元素的第一行
+
+
+
+
+
+##### ::before ::after
+
+“:before”和“:after”，或许不会陌生，因为清除浮动就使用这两个伪类
+
+“::before”和“::after”不是指存在于标记中的内容，而是可以插入额外内容的位置。尽管生成的内容不会成为DOM的一部分，但它同样可以设置样式
+
+要伪元素生成内容,还需要配合content属性. 例如，假设在页面上所有外部链接之后的括号中附加它们所指向的URL，无须将URL硬编码到标记中，可以结合使用一个属性选择器和“::after”伪元素。
+
+```css
+a[href^=http]::after {
+  content: "("attr(href)")"
+}
+
+//html显示
+内容(url的地址)
+```
+
+
+
+##### ::selection
+
+“::selection”是用来匹配突出显示的文本。浏览器默认情况下，选择网站文本是深蓝的背景，白色的字体
+
+浏览器对“::selection”支持并不完美，在整个IE 系列中仅有IE 9支持，Firefox也需要加上其私有属性“-moz”
+
+注意:
+
+伪元素::selection仅接受两个属性，一个是background，另一个是color。
+
+**实例**
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="::selection demo" src="https://codepen.io/westover/embed/rNmOKPY?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/rNmOKPY">
+  ::selection demo</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
 
 
 
@@ -1236,7 +1351,7 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
 
 
-### 八. css选择器3种书写位置
+### 七. css选择器3种书写位置
 
 #### 1.内嵌式
 
@@ -1260,7 +1375,7 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
   
 
-### 九. css的层叠性
+### 八. css的层叠性
 
 * 含义: 当给一个标签设置多个选择器(和属性)时,不同的属性可以叠加实现.  相同的属性,当**权重**相同时,后定义的会覆盖(层叠)先定义的, 当**权重**不同时, 权重高的发挥作用.
 * 权重顺序:  标签选择器<类选择器<id选择器<行内样式<!important
@@ -1284,21 +1399,13 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
 
 
-#### 选择器权重比较
+#### 选择器权重排序
+
+| 权重值\权重类型                               | 继承 | 标签 | 类/伪类 |  id  | 行内 | \!important |
+| --------------------------------------------- | :--: | :--: | :-----: | :--: | :--: | :---------: |
+| 权重值<br />(权重值可相加计算  继承的权重为0) |  0   |  1   |   10    | 100  | 1000 |    无穷     |
 
 ![](https://justcode.ikeepstudying.com/wp-content/uploads/2016/07/css_weight.png)
-
-  * | 权重值\权重类型 | 继承 | 标签 | 类/伪类 |  id  | 行内 | \!important |
-    | --------------- | :--: | :--: | :-----: | :--: | :--: | :---------: |
-    | 权重值          |  0   |  1   |   10    | 100  | 1000 |    无穷     |
-
-  * 权重值可相加计算 
-
-  * 继承的权重为0
-
-  * 案例
-
-
 
 
 
