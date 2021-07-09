@@ -40,6 +40,33 @@ Nodejs 的版本号奇数为开发版本，偶数为发布版本，我们选择�
 在 nodejs 环境下，不能使用 BOM 和 DOM ，也没有全局对象 window，全局对象的名字叫 global
 ```
 
+#### 安装及环境变量配置
+
+来源:https://zhuanlan.zhihu.com/p/86241466
+
+1.官网下载安装
+
+2.安装时注意修改安装目录，建议放在非C盘目录下，一路默认安装即可
+
+3.安装完成后启动命令行工具，输入 `node -v``npm -v` 查看安装版本，出现提示版本信息即为安装成功
+
+
+
+**环境变量配置**
+
+>  说明：这里的环境配置主要配置的是npm安装的全局模块所在的路径，以及缓存cache的路径，之所以要配置，是因为以后在执行类似：npm install 模块名 [-g] 的安装语句时，会将安装的模块安装到【C:\Users\用户名\AppData\Roaming\npm】路径中，占C盘空间。
+> 本文是将 `nodejs` 安装在 `D:\soft\nodejs` 目录下,以下操作可根据实际安装目录情况进行对应调整。
+
+
+
+1. 在安装目录下，如 `D:\soft\nodejs` 新建两个文件夹 `node_global`(全局包存放目录) 和 `node_cache`(缓存目录)；
+2. 打开命令行工具，执行以下两句操作： `npm config set prefix "D:\soft\nodejs\node_global"``npm config set cache "D:\soft\nodejs\node_cache"`；
+3. 配置环境变量：
+
+- 打开系统属性-高级-环境变量，在系统变量中新建 变量名：`NODE_PATH`,变量值：`D:\soft\nodejs\node_global\node_modules`（见图2）;
+- 编辑用户变量的 `path`，将默认的 `C` 盘下 `APPData/Roaming\npm` 修改为 `D:\soft\nodejs\node_global`（见图3）；
+- 保存即可
+
 
 
 
@@ -678,7 +705,7 @@ fs.stat(__dirname+'/index.html', (err, stats)=>{
 
 
 
-### HTTP协议
+## HTTP协议
 
 > 介绍: 超文本传输协议. 基于TCP/IP的应用层通信协议,详细规定了浏览器与万维网服务器之间互相通信的规则.
 >
@@ -1879,12 +1906,14 @@ cnpm install lodash
 #### npm 配置淘宝镜像地址
 
 ```sh
+//查看配置的镜像
+npm get registry
+
 //淘宝镜像
 npm config set registry https://registry.npm.taobao.org
 //官方镜像   
 npm config set registry https://registry.npmjs.org/
-//查看配置的镜像
-npm get registry
+
 ```
 
 > 在发布工具的时候, 一定要将仓库地址, 修改为官方的地址
@@ -4703,7 +4732,7 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
-### Promise
+## Promise
 
 
 
@@ -5778,7 +5807,7 @@ then方法回调执行是异步的
 
 
 
-### async函数
+## async函数
 
 ```
 async是一个关键字,用来描述async函数的.
@@ -6014,7 +6043,7 @@ btn.onclick=async function(){
 
 
 
-### JS异步之宏队列和微队列
+## JS异步之宏队列和微队列
 
 ```
 1.	JS中用来存储[待执行回调函数]的队列包含2个不同特定的列队
