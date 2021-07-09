@@ -5616,7 +5616,7 @@ console.log(filterItems('an')); // ['banana', 'mango', 'orange']
 
 #### reduce()
 
-`**reduce()**` 方法对数组中的每个元素执行一个由您提供的**reducer**函数(升序执行)，将其结果汇总为单个返回值。
+`reduce()` 方法对数组中的每个元素执行一个由您提供的**reducer**函数(升序执行)，将其结果汇总为单个返回值。
 
 ```js
 -语法:
