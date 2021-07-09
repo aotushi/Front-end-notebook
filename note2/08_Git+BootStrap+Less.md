@@ -104,6 +104,112 @@ git和 svn不同，仅仅跟踪文件的变动，不跟踪目录。
 
 ### 使用配置
 
+#### 本地生成密钥连接远端
+
+[文章来源](https://juejin.cn/post/6844904008163786765)
+
+本地生成密钥是配合版本工具进行开发.一般本地只有一套密钥,但也可以根据不同的邮箱为多个远端生成相应的密钥.
+
+1.**生成SSH-key**
+
+在git中输入以下命令,路径不影响,会在window系统用户文件夹下的`.ssh`文件夹下生成相应密钥.
+
+```cmd
+//生成方法1
+ssh-keygen -t ed25519 -C 'email@example.com'ssh-keygen -t ed25519 -C "email@example.com"  -f ~/.ssh/gitlab_id_rsa
+
+//生成方法2
+ssh-keygen -o -t rsa -b 4096 -C "email@example.com" -f ~/.ssh/gitlab_id_rsa
+
+//以上两种方法加密方式不同
+email@example.com 代表注册Gitlab账号时用的邮箱
+-f 代表文件名
+~/.ssh/ 代表ssh的文件路径
+gitlab_id-rsa 代表ssh文件名（可以自定义）
+```
+
+
+
+2.**远端网站添加SSH-key**
+
+3.**测试密钥**
+
+以`GitHub`为例，在`GitBash`中输入以下的命令
+
+```js
+ssh -T git@github.com
+//如果连接成功,会显示相应信息.
+```
+
+
+
+#### 管理多个密钥
+
+1.**添加config文件**
+
+手动在ssh文件夹下新建config文件,配置密钥信息
+
+```js
+# gitlab
+Host gitlab.com
+HostName gitlab.com
+User root
+IdentityFile ~/.ssh/id_rsa
+
+# github
+Host github.com
+HostName github.com
+User root
+IdentityFile ~/.ssh/id_rsa_github
+
+Host 代表 关键词
+HostName 代表 主机地址
+User 代表 用户名
+IdentityFile 代表 认证文件
+```
+
+
+
+2.**添加密钥信任**
+
+完成配置，还需要对每个密钥添加信任，打开`Git Bash` 输入下面的指令
+
+```js
+eval $(ssh-agent -s)
+
+ssh-add ~/.ssh/other_id_rsa
+
+//eval 代表 开启代理认证指令
+
+//ssh-add 代表 添加ssh文件认证
+```
+
+
+
+3.**多密钥认证测试**
+
+完成多秘钥认证后，通过`ssh -T git@`，测试不同平台的密钥是否能连接成功
+
+```js
+//github
+ssh -T git@git.github.com
+
+//gitlab
+ssh -T git@xx.xx.xxx.xx
+```
+
+
+
+
+
+
+
+#### 使用凭据方法访问github
+
+
+
+
+
 #### 起始配置用户名和邮箱
 
 第一次使用 Git 的时候，会要求我们配置用户名和邮箱，用于表示开发者的信息
