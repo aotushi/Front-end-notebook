@@ -1879,16 +1879,16 @@ vue-cli是vue官方提供的脚手架工具,最新版是4. 3.x版与4.x版变化
  1.3 npm run serve /yarn serve //运行项目
 
 2.脚手架结构
-	|-- node_modules   包文件夹
-	|-- public
-		|-- index.html: 主页面文件
-	|-- src
-		|-- main.js: 应用入口js
-	|-- babel.config.js: babel的配置文件
-	|-- vue.config.js: vue的配置文件，需要手动添加
-	|-- .gitignore: git版本管制忽略的配置
-	|-- package.json: 应用包配置文件 
-	|-- README.md: 应用描述说明的readme文件
+|-- node_modules   包文件夹
+|-- public
+	|-- index.html: 主页面文件
+|-- src
+	|-- main.js: 应用入口js
+|-- babel.config.js: babel的配置文件
+|-- vue.config.js: vue的配置文件，需要手动添加
+|-- .gitignore: git版本管制忽略的配置
+|-- package.json: 应用包配置文件 
+|-- README.md: 应用描述说明的readme文件
 ```
 
 
