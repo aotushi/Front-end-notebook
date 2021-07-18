@@ -584,7 +584,7 @@ Object.defineProperty(vm, 'msg', {
 
 
 
-## 0113
+## 013
 
 
 
@@ -1074,7 +1074,7 @@ v-show=" !$route.meta.isHidden "
 
 
 
-## 0115
+## 015
 
 
 
@@ -1879,16 +1879,16 @@ vue-cli是vue官方提供的脚手架工具,最新版是4. 3.x版与4.x版变化
  1.3 npm run serve /yarn serve //运行项目
 
 2.脚手架结构
-|-- node_modules
-	|-- public
-			|-- index.html: 主页面文件
-	|-- src
-		|-- main.js: 应用入口js
-	|-- babel.config.js: babel的配置文件
-	|-- vue.config.js: vue的配置文件，需要手动添加
-	|-- .gitignore: git版本管制忽略的配置
-	|-- package.json: 应用包配置文件 
-	|-- README.md: 应用描述说明的readme文件
+|-- node_modules   包文件夹
+|-- public
+	|-- index.html: 主页面文件
+|-- src
+	|-- main.js: 应用入口js
+|-- babel.config.js: babel的配置文件
+|-- vue.config.js: vue的配置文件，需要手动添加
+|-- .gitignore: git版本管制忽略的配置
+|-- package.json: 应用包配置文件 
+|-- README.md: 应用描述说明的readme文件
 ```
 
 
@@ -1974,7 +1974,7 @@ props:['username']
 
 
 
-## 0118
+## 018
 
 
 
@@ -2355,7 +2355,7 @@ new Vue({
 
 
 
-## 0119
+## 019
 
 ### 复习
 
@@ -2487,18 +2487,40 @@ src目录新建vuex/store.js(建议) 或 store/index.js
 #### vuex/store.js格式
 
 ```js
-1.store.js中: 引入-use-定义-暴露-注册, 声明4个对象
-2.4个属性的值都是对象
+//1.store文件夹下的store.js或store/index.js中: 引入-use-定义(4个对象属性)-注册与暴露
+//2.main.js中引入
 
 import Vue from 'vue';
 import Vuex from 'vuex';
 Vue.use(Vuex);
 
-const store=new Vuex.Store({});
+const state = {};
+const mutations = {};
+const actions = {};
+const getters = {};
+
+const store=new Vuex.Store({
+  state,
+  mutations,
+  actions,
+  getters
+});
 
 export default store;
 
 // main.js中导入并添加到配置对象中
+import store from '.../store';
+import router from '.../router';
+new Vue({
+  beforeCreate() {
+    Vue.prototype.$bus = this;
+    Vue.prototype.$API = API;
+  },
+  el:"#app",
+  router,
+  store,
+  render:h=>h(App)
+})
 ================================
 
 2.添加state,actions,mutations,getters4个对象
@@ -2581,7 +2603,7 @@ Vuex核心概念
 
 
 
-## 0120 ++
+## 020
 
 
 
