@@ -4216,6 +4216,23 @@ function creatPerson(name, age, gender){
 var obj = {};
 obj.__proto__ = Foo.prototype;
 Foo.call(obj)
+//
+
+更新:当一个函数使用new操作符,有以下步骤:
+1.一个新的对象被创建并分配给this
+2.函数体执行.通常它会修改this,为其添加新的属性
+3.返回this的值
+
+例如 new User():
+function User(name) {
+  // this = {}; (隐式创建)
+  
+  //添加属性到this
+  this.name = name;
+  this.isAdmin = false;
+  
+  //return this; (隐式返回)
+}
 ```
 
 
