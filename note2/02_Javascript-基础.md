@@ -148,7 +148,7 @@ b = 12; //相当于window.b = 12;
 var和let的区别:
 1.let声明的变量有块作用域,var声明的变量没有
 2.let不能在初始化前访问变量 var可以
-3.var声明的全局变量会添加到window对象中
+3.var声明的全局变量会添加到window对象中,let声明的不会
 4.let不能重复声明变量 var可以
 ```
 
@@ -4417,82 +4417,95 @@ console.log(per.name = '朝天阙'); //朝天阙
 
 #### 数组空元素empty和undefined的区别
 
+使用数组字面量初始化数组时，可以使用一串逗号来创建空位（hole）。ECMAScript 会将逗号之间相应索引位置的值当成空位，ES6 规范重新定义了该如何处理这些空位。
+
+ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异
+
+注意: 
+
+注意 由于行为不一致和存在性能隐患，因此实践中要避免使用数组空位。如果确实需要空位，则可以显式地用undefined 值代替。
+
 ```js
-//https://zhuanlan.zhihu.com/p/178302866
-
-数组的空元素empty标识空位,就是数组的某个位置没有值, 如下面的几种方式, 都会产生数组空位, 用map()forEach()filter()等方法遍历数组时, 当遇到数组空位, 方法都会跳过此位置, 直接遍历下一个位置.
-
-产生5个数组空位的数组
-let arr = new Array(5);
-let arr = Array(5);
-let arr = [,,,,,].length; //几个逗号就是几位
-let arr = [], arr.length = 5;
 
 
-undefined是一种数据类型, 在数组中表示这个位置的值未定义, 但它仍然指向某个内存地址, 这个内存地址指向的是undefined;
+    const options = [1,,,,5];
+    for (const option of options) {
+    console.log(option === undefined);
+    }
+    // false
+    // true
+    // true
+    // true
+    // false
+    
+    const a = Array.from([,,,]); // 使用ES6 的Array.from()创建的包含3 个空位的数组
+    for (const val of a) {
+    alert(val === undefined);
+    }
+    // true
+    // true
+    // true
+    alert(Array.of(...[,,,])); // [undefined, undefined, undefined]
+    for (const [index, value] of options.entries()) {
+    alert(value);
+    }
+    // 1
+    // undefined
+    // undefined
+    // undefined
+    // 5
 
-empty和undefined在操作数组时的主要区别在于:
-forEach(),filter(), every(),some()方法遍历时会自动忽略空位, 
-map()会跳过空位，但会保留这个值
-for循环,join(),toString()则会将empty转换为undefined并遍历. join()和toString()会将undefined和null会被处理成空字符串.
+ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异：
 
-//forEach
-[,'a'].forEach((x,i)=>console.log(i)); //1
-[,'a'].forEach((x,i)=>console.log(x)); //'a'
-
-//filter
-['a',,'b'].filter(x=>true); //['a','b']
-
-//every
-[,'a'].every(x=>x==='a'); //true
-
-//some
-[,'a'].some(x => x !== 'a') // false
-
-//map
-[,'a'].map(x=>true); //[(1 empty item), true]
-
-//join
-['x',undefined,null].join('!') //'x!!!'
-
-//toString
-['x',,undefined,null].toString(); //'x,,,'
-
-ES6新增数组方法会将数组空位转换为undefined
-Array.from()和展开运算符将数组中的空位,转换为undefined
-Array.from(1,,2); //[ 1, undefined, 2 ]
-
-[...[1,,2]]; //[ 1, undefined, 2 ]
-[...[,,,]]; //[undefined,undefined,undefined]
-
-copyWithin()会连空位一起拷贝
-[1,,,2].copyWithin(2,0); //[1,,,2]
-
-fill()会将空位视为正常的数组位置
-Array(3).fill(3) //[3,3,3]
-
-for...of循环也会遍历空位
-let arr = [,,]
-for(let i of arr){
-  console.log(1)
-}; //1 1
-
-entries()、keys()、values()、find()和findIndex()会将空位处理成undefined
-// entries()
-[...[,'a'].entries()] // [[0,undefined], [1,"a"]]
-// keys()
-[...[,'a'].keys()] // [0,1]
-// values()
-[...[,'a'].values()] // [undefined,"a"]
-// find()
-[,'a'].find(x => true) // undefined
-// findIndex()
-[,'a'].findIndex(x => true) // 0
+    const options = [1,,,,5];
+    // map()会跳过空位置
+    console.log(options.map(() => 6)); // [6, undefined, undefined, undefined, 6]
+    // join()视空位置为空字符串
+    console.log(options.join('-')); // "1----5"
 ```
 
 
 
-### 创建数组
+### 创建数组的方式
+
+#### 1.Array构造函数
+
+```js
+let colors = new Array();
+```
+
+如果知道数组中元素的数量，那么可以给构造函数传入一个数值，然后length 属性就会被自动创建并设置为这个值.
+
+创建数组时可以给构造函数传一个值, 如果这个值是**数值**，则会创建一个长度为指定数值的数组；而如果这个值是**其他类型的**，则会创建一个只包含该特定值的数组
+
+```js
+let colors = new Array(3);   //创建一个包含3 个元素的数组
+let names = new Array('Greg'); //创建一个只包含一个元素，即字符串"Greg"的数组
+```
+
+
+
+#### 2.数组字面量表示法
+
+数组字面量是在中括号中包含以逗号分隔的元素列表，如下面的例子所示
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含3 个元素的数组
+let names = []; // 创建一个空数组
+let values = [1,2,]; // 创建一个包含2 个元素的数组
+```
+
+注意 与对象一样，在使用数组字面量表示法创建数组不会调用Array 构造函数。
+
+
+
+#### 3.ES6Array的静态方法
+
+Array 构造函数还有两个ES6 新增的用于创建数组的静态方法：from()和of()。from()用于将类数组结构转换为数组实例，而of()用于将一组参数转换为数组实例。
+
+
+
+
 
 ```JavaScript
 # 如何创建数组 //使用类来创建对象
@@ -4514,7 +4527,7 @@ function getArr(...args){} //...三点运算符 函数形参中的rest运算符 
 
 
 
-#### 创建数组方式的区别
+### 创建数组方式的区别
 
 ```js
 let a = Array();
@@ -4965,6 +4978,8 @@ Array.prototype.slice = function(start,end){
 slice()方法可将伪数组转换为真数组,用法如下:
 let arr = Array.prototype.slice.call(obj); //此处obj就是伪数组
 let arr = [].slice.call(obj);
+
+ES6中使用Array.of()来代替Array.prototype.slice.call(arguments),将arguments对象转换为数组.
 
 
 
