@@ -15,14 +15,17 @@
 
 ### 初识Vue
 
-```js
-1.引入script
-2.index.html中准备好容器 <div id="root"></div>
-3.页面脚本
+#### **1.在html页面上使用vue**
+
+1.引入script静态链接
+2.index.html中准备好容器`<div id="root"></div>`
+3.页面脚本script
  3.1创建Vue的实例对象并传入配置<对象> const v=new Vue({}); 常量v可接可不接收.
- 	const v=new Vue({
- 		el:'#root', //el用于指定当前Vue实例为哪个容器服务.值是选择器字符串,选择器的写法类似于jQuery. el是element缩写 index.html是public文件夹中index.html
- 		data:{//data是存储数据的地方,为root容器提供数据.值为一个对象,相当于react中的state.
+
+```js
+const v=new Vue({
+ 		el:'#root', 
+ 		data:{
             world:'世界',
             other:{
                 info:'aaa',
@@ -30,45 +33,61 @@
             }
         }, 
  	})
+
+//el用于指定当前Vue实例为哪个容器服务.值是选择器字符串,选择器的写法类似于jQuery. el是element缩写 index.html是public文件夹中index.html
+
+//data是存储数据的地方,为root容器提供数据.值为一个对象,相当于react中的state.
+```
+
  3.2 html中使用<双花括号>来接收数据. root容器中写的不是html,是Vue中的模板代码.
  	 所谓的模板代码,类似于React中的jsx,是HTML+js的混合体;
- 	 {{xxx}},xxx会自动读取<data>中的xxx的属性,方法,对象都可以.xxx当表达式去解析,只要是vc身上的都是可以读取的.
+ 	 {{xxx}},xxx会自动读取\<data>中的xxx的属性,方法,对象都可以.xxx当表达式去解析,只要是vc身上的都是可以读取的.
      {{xxx+yyy}} 可以读取多个属性,使用+运算符,但不用逗号,只会读取逗号之前的第一个.使用&&只会读取都为true的第二个.
- 	<div id='root'>
-    	<h1>hello, {{world}}</h1> 
-		<h2>{{other.info.toUpperCase()}}</h2>//读取的表达式可以直接使用JS语法
-    </div>
+
+```js
+<div id='root'>
+  <h1>hello, {{world}}</h1> 
+	<h2>{{other.info.toUpperCase()}}</h2>//读取的表达式可以直接使用JS语法
+</div>
+```
+
+
 
 4.HTML中可以有多个容器,相对应的js脚本中也应该有多个new Vue({}). el属性只能有一个参数.但一般是只有一个根容器.
 
 5.Vue中源码部分开启了严格模式.慎用箭头函数,实例调用的函数this指向实例,非实例对象调用的函数:箭头函数this指实例,普通函数指window,开启了'use strict'后指向undefined.
 
-
 6.data中的数据(属性)在data之外写:如果写在data之前,可以使用;如果使用在data之后,报错,但实例之后的属性,在vm._data中依然有被收集引用.
+
+```js
 <script>
-    let data={name:'甲'}
+  let data={name:'甲'}
 	data.age=18
 	new Vue({
         el:"#root";
         data
     })
 </script> 
-
 ============之后写==============
+
  <script>
-    let data={name:'甲'}
-	
+  let data={name:'甲'}
 	new Vue({
-        el:"#root";
-        data
-    })
-	data.age=18
-</script>        
+	    el:"#root";
+	    data
+	})
+	data.age=18  //报错
+
+</script>   
 ```
 
 
 
-### 其他补充
+​     
+
+
+
+#### 2.其他补充
 
 ```js
 //表达式
@@ -97,11 +116,75 @@ console.log(z);//4
 
 
 
+#### 3.数据与方法
+
+> 当一个 Vue 实例被创建时，它将 `data` 对象中的所有的 property 加入到 Vue 的**响应式系统**中。当这些 property 的值发生改变时，视图将会产生“响应”，即匹配更新为新的值.
+>
+> 只有当**实例被创建时**就已经存在于 `data` 中的 property 才是**响应式**的
+>
+> 如果你知道你会在晚些时候需要一个 property，但是一开始它为空或不存在，那么你仅需要设置一些初始值
+>
+> 这里唯一的例外是使用 `Object.freeze()`，这会阻止修改现有的 property，也意味着响应系统无法再*追踪*变化
 
 
-### Vue模板语法分类
 
-**1.总结**
+```js
+你比如在钩子函数created中向当前vue实例身上添加一个原始数据: this.testId = 2;
+那在mounted中更改这个数据的话,实例上是新值,页面上是旧值.
+
+//Object.freeze()
+
+let data = {a:'a'}
+Object.freeze(obj);
+new Vue({
+  el: '#app',
+  data: a
+})
+
+<div id="app">
+  <p>{{a}}</p> //这里的'a'不会更新
+  <button v-on:click=" foo = 'baz'">change it</button>
+</div>
+
+
+//注意: 如果我们在new vue里面冻结(freeze)这个数据会失效,点击之后依然会变化.即使在created中的钩子里.
+```
+
+
+
+除了数据 property，Vue 实例还暴露了一些有用的实例 property 与方法。它们都有前缀 `$`，以便与用户定义的 property 区分开来
+
+```js
+let data = {a:1}
+let vm = new Vue({
+  el: '#example',
+  data: data
+})
+
+vm.$data === data //true
+vm.$el === document.getElementById('example') //true
+
+//$watch是一个实例方法
+vm.$watch('a', function(newValue, oldValue) {
+  //这个回调将在'vm.a'改变后调用
+})
+```
+
+
+
+
+
+### 模板语法
+
+> Vue.js 使用了基于 HTML 的模板语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。所有 Vue.js 的模板都是合法的 HTML，所以能被遵循规范的浏览器和 HTML 解析器解析。
+
+> 在底层的实现上，Vue 将模板编译成虚拟 DOM 渲染函数。结合响应系统，Vue 能够智能地计算出最少需要重新渲染多少组件，并把 DOM 操作次数减到最少。
+
+> 如果你熟悉虚拟 DOM 并且偏爱 JavaScript 的原始力量，你也可以不用模板，[直接写渲染 (render) 函数](https://cn.vuejs.org/v2/guide/render-function.html)，使用可选的 JSX 语法
+
+
+
+#### **0.总结**
 
 ```js
 模板语法: 插值语法(双大括号表达式), 指令语法(以v-开头的标签属性)
@@ -136,9 +219,9 @@ console.log(z);//4
 
 
 
-#### 插值
+#### 1.插值
 
-##### 文本插值
+##### 1.1 文本插值
 
 数据绑定最常见的形式就是使用“Mustache”语法 (双大括号) 的文本插值
 
@@ -156,19 +239,24 @@ Mustache 标签将会被替代为对应数据对象上 `msg` property 的值。�
 
 
 
-##### 原始HTML
+##### 1.2 原始HTML
 
 双大括号会将数据解释为普通文本，而非 HTML 代码。为了输出真正的 HTML，你需要使用 [`v-html` 指令](https://cn.vuejs.org/v2/api/#v-html)：
 
 ```html
-<span v-html="rawHtml"></span>
+<p>Using mustaches: {{ rawHtml }}</p>
+<p>Using v-html directive: <span v-html="rawHtml"></span></p>
+
+//解析后的内容:
+Using mustaches: <span style="color: red">This should be red.</span>
+Using v-html directive: This should be red.(红色的)
 ```
 
-这个 `span` 的内容将会被替换成为 property 值 `rawHtml`，直接作为 HTML——会忽略解析 property 值中的数据绑定。
+这个 `span` 的内容将会被替换成为 property 值 `rawHtml`，直接作为 HTML——会忽略解析 property 值中的数据绑定。注意，你不能使用 `v-html` 来复合局部模板，因为 Vue 不是基于字符串的模板引擎。反之，对于用户界面 (UI)，组件更适合作为可重用和可组合的基本单位。
 
 
 
-##### Attribute
+##### 1.3 Attribute
 
 Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种情况应该使用 [`v-bind` 指令](https://cn.vuejs.org/v2/api/#v-bind)：
 
@@ -186,16 +274,168 @@ Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种�
 
 
 
-##### js表达式
+##### 1.4 js表达式
 
 这些表达式会在所属 Vue 实例的数据作用域下作为 JavaScript 被解析。有个限制就是，每个绑定都只能包含**单个表达式**,下面的例子都**不会**生效
 
 ```js
+//对于所有的数据绑定，Vue.js 都提供了完全的 JavaScript 表达式支持
+{{ number + 1 }}
+{{ ok ? 'YES' : 'NO' }}
+{{ message.split('').reverse().join('') }}
+<div v-bind:id="'list-' + id"></div>
+这些表达式会在所属 Vue 实例的数据作用域下作为 JavaScript 被解析。有个限制就是，每个绑定都只能包含单个表达式,所以下面的例子都不会生效。
 <!-- 这是语句，不是表达式 -->
 {{ var a = 1 }}
 
 <!-- 流控制也不会生效，请使用三元表达式 -->
 {{ if (ok) { return message } }}
+```
+
+模板表达式都被放在沙盒中，只能访问[全局变量的一个白名单](https://github.com/vuejs/vue/blob/v2.6.10/src/core/instance/proxy.js#L9)，如 `Math` 和 `Date` 。你不应该在模板表达式中试图访问用户定义的全局变量。
+
+```js
+沙盒（英语：sandbox，又译为沙箱）：计算机术语，在计算机安全领域中是一种安全机制，为运行中的程序提供的隔离环境。沙盒通常严格控制其中的程序所能访问的资源。
+
+vue定义的全局变量白名单:
+Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent，Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,require
+
+用户定义的全局变量：参考链接–> 在vue项目中 如何定义全局变量 全局函数
+```
+
+
+
+##### 1.5 [项目中定义全局(变量/函数)](https://www.cnblogs.com/kewenxin/p/8619240.html)
+
+> 在项目中，经常有些函数和变量是需要复用，比如说网站服务器地址，从后台拿到的：用户的登录token,用户的地址信息等，这时候就需要设置一波全局变量和全局函数
+
+##### 1.5.1 定义全局变量
+
+**原理**  设置一个专用的的全局变量模块文件，模块里面定义一些变量初始状态，用export default 暴露出去，在main.js里面使用Vue.prototype挂载到vue实例上面或者在其它地方需要使用时，引入该模块便可。
+
+全局变量模块文件: Global.vue文件
+
+```js
+<script>
+const serverSrc='www.baidu.com';
+const token='12345678';
+const hasEnter=false;
+const userSite="中国钓鱼岛";
+  export default
+  {
+    userSite,//用户地址
+    token,//用户token身份
+    serverSrc,//服务器地址
+    hasEnter,//用户登录状态
+  }
+</script>
+```
+
+
+
+**使用方式1**
+
+在需要的地方引用进全局变量模块文件，然后通过文件里面的变量名字获取全局变量参数值
+
+```vue
+<template>
+    <div>{{ token }}</div>
+</template>
+
+<script>
+import global_ from '../../components/Global'//引用模块进来
+export default {
+ name: 'text',
+data () {
+    return {
+         token:global_.token,//将全局变量赋值到data里面，也可以直接使用global_.token
+        }
+    }
+}
+</script>
+<style lang="scss" scoped>
+
+</style>
+```
+
+
+
+**使用方式2**
+
+在程序入口的main.js文件里面，将上面那个Global.vue文件挂载到Vue.prototype
+
+```js
+import global_ from './component/Global'
+
+Vue.prototype.GLOBAL = global_ //挂载到vue实例上
+```
+
+接着在整个项目中不需要再通过引用Global.vue模块文件，直接通过this就可以直接访问Global文件里面定义的全局变量。
+
+```js
+<template>
+    <div>{{ token }}</div>
+</template>
+
+<script>
+export default {
+ name: 'text',
+data () {
+    return {
+         token:this.GLOBAL.token,//直接通过this访问全局变量。
+        }
+    }
+}
+</script>
+<style lang="scss" scoped>
+</style>
+```
+
+
+
+##### 1.5.2 定义全局函数
+
+**原理**  新建一个模块文件，然后在main.js里面通过Vue.prototype将函数挂载到Vue实例上面，通过this.函数名，来运行函数。
+
+**1.main.js里面直接写函数**
+
+简单的函数可以直接在main.js里面直接写
+
+```js
+Vue.prototype.changeData = function() {
+  //...
+}
+```
+
+
+
+**2.写一个模块文件,挂载到main.js上**
+
+base.js文件，文件位置可以放在跟main.js同一级，方便引用
+
+```js
+export.install = funtion(Vue,options) {
+  Vue.prototype.text1 = function() {
+    //全局函数1
+  };
+  Vue.prototype.text2 = function() {
+    //全局函数2
+  }
+}
+```
+
+main.js入口文件:
+
+```js
+import base from './base'
+Vue.use(base);
+```
+
+组件里调用
+
+```js
+this.text1();
+this.text2();
 ```
 
 
@@ -204,7 +444,7 @@ Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种�
 
 
 
-#### 指令
+#### 2.指令
 
 > 指令 (Directives) 是带有 `v-` 前缀的特殊 attribute。指令 attribute 的值预期是**单个 JavaScript 表达式** (`v-for` 是例外情况)。
 >
@@ -226,10 +466,10 @@ Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种�
 
 ##### 动态参数
 
-> 从 2.6.0 开始，可以用方括号括起来的 JavaScript 表达式作为一个指令的参数：
+> 从 2.6.0 开始，可以用方括号括起来的 **JavaScript 表达式**作为一个指令的参数：
 
 ```HTML
-<a v-bind:[attributename]='url'>xxx</a>  //attributeName官网文档中的大写应为小写.
+<a v-bind:[attributename]='url'>xxx</a> 
 ```
 
 `attributeName` 会被作为一个 JavaScript 表达式进行动态求值，求得的值将会作为最终的参数来使用。若Vue实例有一个data property attributename, 其值为'href', 那么这个绑定将等价于`v-bind:href`
@@ -239,6 +479,8 @@ Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种�
 ```html
 <a v-on:[eventname]='functionName()'>xxxx</a>
 ```
+
+在这个示例中，当 `eventName` 的值为 `"focus"` 时，`v-on:[eventName]` 将等价于 `v-on:focus`。
 
 
 
@@ -252,30 +494,25 @@ Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种�
 
 > 动态参数表达式有一些语法约束，因为某些字符，如空格和引号，放在 HTML attribute 名里是无效的. 变通的办法是使用没有空格或引号的表达式，或用计算属性替代这种复杂表达式。
 >
-> 在 DOM 中使用模板时 (直接在一个 HTML 文件里撰写模板)，还需要避免使用大写字符来命名键名，因为浏览器会把 attribute 名全部强制转为小写
-
-
 
 ```html
 <!-- 这会触发一个编译警告 -->
 <a v-bind:['hr' + bar]="value"> ... </a>
 ===============
 <a v-bind:[attributetest]="value"> ... </a>
-
-<script>
-	new Vue({
-		el:'#root',
-		data:{
-            bar:'ef'
-        },
-        computed:{
-            attributetest(){
-                return 'hr' + this.bar;
-            }
-        }
-	})
-</script>
 ```
+
+变通的办法是**使用没有空格或引号的表达式**，或用**计算属性替**代这种复杂表达式。
+
+在 DOM 中使用模板时 (直接在一个 HTML 文件里撰写模板)，还需要避免使用大写字符来命名键名，因为浏览器会把 attribute 名全部强制转为小写
+
+```js
+<!--在 DOM 中使用模板时这段代码会被转换为 `v-bind:[someattr]`。
+除非在实例中有一个名为“someattr”的 property，否则代码不会工作。-->
+<a v-bind:[someAttr]="value"> ... </a>
+```
+
+
 
 
 
@@ -293,7 +530,7 @@ Mustache 语法(双大括号)不能作用在 HTML attribute 上，遇到这种�
 
 
 
-#### 缩写 ++
+##### 缩写
 
 > `v-` 前缀作为一种视觉提示，用来识别模板中 Vue 特定的 attribute。当你在使用 Vue.js 为现有标签添加动态行为 (dynamic behavior) 时，`v-` 前缀很有帮助，然而，对于一些频繁用到的指令来说，就会感到使用繁琐。同时，在构建由 Vue 管理所有模板的[单页面应用程序 (SPA - single page application)](https://en.wikipedia.org/wiki/Single-page_application) 时，`v-` 前缀也变得没那么重要了。因此，Vue 为 `v-bind` 和 `v-on` 这两个最常用的指令，提供了特定简写：
 
@@ -826,6 +1063,18 @@ event.stopPropogation
 
 ### 计算属性computed
 
+模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护.可以像绑定普通property一样在模板中绑定计算属性.
+
+```js
+<div id="example">
+  {{ message.split('').reverse().join('') }}
+</div>
+```
+
+所以，对于任何复杂逻辑，你都应当使用**计算属性**。
+
+
+
 ```js
 事件处理中,加不加小括号都可以
 插值语法中调用事件,要加小括号
@@ -885,7 +1134,27 @@ data中的数据发生变化时,会重新分析模板结构,如果用到的就�
 </script>
 ```
 
+#### 计算属性缓存vs方法
 
+>  **计算属性是基于它们的响应式依赖进行缓存的**。只在相关响应式依赖发生改变时它们才会重新求值。这就意味着只要 `message` 还没有发生改变，多次访问 `reversedMessage` 计算属性会立即返回之前的计算结果，而不必再次执行函数
+>
+> 相比之下，每当触发重新渲染时，调用方法将**总会**再次执行函数
+
+
+
+为什么需要缓存?
+
+> 假设我们有一个性能开销比较大的计算属性 **A**，它需要遍历一个巨大的数组并做大量的计算。然后我们可能有其他的计算属性依赖于 **A**。如果没有缓存，我们将不可避免的多次执行 **A** 的 getter！ 
+
+
+
+#### 计算属性 vs 侦听属性
+
+
+
+#### 计算属性的setter
+
+计算属性默认只有 getter，不过在需要时你也可以提供一个 setter：
 
 
 
@@ -908,7 +1177,13 @@ methods
 
 
 
-### 动态数据监视watch
+### 侦听属性watch
+
+> 虽然计算属性在大多数情况下更合适，但有时也需要一个自定义的侦听器。当需要在数据变化时**执行异步或开销较大**的操作时，这个方式是最有用的
+
+
+
+
 
 ```js
 监视属性watch：
@@ -995,10 +1270,17 @@ computed和watch之间的区别：
 
 
 
-### 动态绑定样式
+### Class与Style绑定
+
+> 操作元素的 class 列表和内联样式是数据绑定的一个常见需求。因为它们都是 attribute，所以我们可以用 `v-bind` 处理它们：只需要通过表达式计算出字符串结果即可。
+>
+> 不过，字符串拼接麻烦且易错。因此，在将 `v-bind` 用于 `class` 和 `style` 时，Vue.js 做了专门的增强。表达式结果的类型除了**字符串**之外，还可以是**对象或数组**
+
+
+
+#### 1.绑定class
 
 ```js
-
 一.绑定样式(3种:字符串,对象,数组)
 :class='xxx' xxx可以是字符串,对象,数组
 
@@ -1017,13 +1299,6 @@ computed和watch之间的区别：
 //Vue拿到数组之后,发现有3个变量,会去data中寻找.如果是字符串('d')就去样式中去找.但是字符串形式在数组中基本不用,麻烦.
 //变量去data中寻找,字符串去style中找
 
-
-
-
-二.绑定style样式
-:style="{fontSize:size+'px'}" //size是data中的属性
-
-=================================================
 new Vue({
     el:"#root",
     data:{
@@ -1041,7 +1316,237 @@ new Vue({
 
 
 
-### 条件渲染
+##### 1.1 对象语法
+
+可以传给`v-bind:class`一个对象,以**动态切换class**:
+
+```js
+<div v-bind:class="{active: isActive}"></div>
+```
+
+可以在对象中传入更多字段来动态切换多个 class。此外，`v-bind:class` 指令也可以与普通的 class attribute 共存.
+
+```js
+<div
+  class="static"
+  v-bind:class="{ active: isActive, 'text-danger': hasError }"
+></div>
+```
+
+也可以返回一个对象的计算属性
+
+```js
+<div v-bind:class="classObject"></div>
+data: {
+  isActive: true,
+  error: null
+},
+computed: {
+  classObject: function () {
+    return {
+      active: this.isActive && !this.error,
+      'text-danger': this.error && this.error.type === 'fatal'
+    }
+  }
+}
+```
+
+
+
+##### 1.2 数组语法
+
+我们可以把一个数组传给 `v-bind:class`，以应用一个**class列表**：
+
+```js
+<div v-bind:class="[activveClass, errorClass]"></div>
+
+data:{
+  activeClass: 'active',
+  errorClass: 'text-danger'
+}
+```
+
+渲染结果:
+
+```js
+<div class='active text-danger'></div>
+```
+
+
+
+**1.2.1三元表达式**
+
+```js
+<div v-bind:class="[isActive ? activeClass : '', errorClass]"></div>
+```
+
+**1.2.2对象语法**
+
+当有多个条件 class 时这样写有些繁琐。所以在数组语法中也可以使用**对象语法**
+
+```js
+<div v-bind:class="[{ active: isActive }, errorClass]"></div>
+```
+
+
+
+
+
+##### 1.3 在组件上使用
+
+当在一个自定义组件上使用 `class` property 时，这些 class 将被添加到**该组件的根元素**上面。这个元素上已经存在的 class 不会被覆盖。
+
+例如，如果你声明了这个组件：
+
+```
+Vue.component('my-component', {
+  template: '<p class="foo bar">Hi</p>'
+})
+```
+
+然后在使用它的时候添加一些 class：
+
+```
+<my-component class="baz boo"></my-component>
+```
+
+HTML 将被渲染为：
+
+```
+<p class="foo bar baz boo">Hi</p>
+```
+
+对于带数据绑定 class 也同样适用：
+
+```
+<my-component v-bind:class="{ active: isActive }"></my-component>
+```
+
+当 `isActive` 为 truthy 时，HTML 将被渲染成为：
+
+```
+<p class="foo bar active">Hi</p>
+```
+
+
+
+
+
+
+
+
+
+#### 2.绑定style
+
+##### 2.1 对象语法
+
+`v-bind:style` 的对象语法十分直观——看着非常像 CSS，但其实是一个 JavaScript 对象。CSS property 名可以用驼峰式 (camelCase) 或短横线分隔 (kebab-case，记得用引号括起来) 来命名.
+
+**对象语法常常结合返回对象的计算属性使用**
+
+```js
+<div v-bind:style="styleObject"></div>
+data: {
+  styleObject: {
+    color: 'red',
+    fontSize: '13px'
+  }
+}
+```
+
+
+
+##### 2.2 数组语法
+
+`v-bind:style` 的数组语法可以将<span style="color:blue;">**多个样式对象**</span>应用到同一个元素上
+
+```js
+<div v-bind:style="[baseStyles, overridingStyles]"></div>
+```
+
+##### 2.3 自动添加前缀
+
+当 `v-bind:style` 使用需要添加[浏览器引擎前缀](https://developer.mozilla.org/zh-CN/docs/Glossary/Vendor_Prefix)的 CSS property 时，如 `transform`，Vue.js 会自动侦测并添加相应的前缀
+
+
+
+##### 2.4 多重值
+
+从 2.3.0 起你可以为 `style` 绑定中的 property 提供一个包含多个值的数组，常用于提供多个带前缀的值，例如：
+
+```js
+<div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
+```
+
+这样写只会渲染数组中最后一个被浏览器支持的值。在本例中，如果浏览器支持不带浏览器前缀的 flexbox，那么就只会渲染 `display: flex`。
+
+```js
+绑定style样式
+:style="{fontSize:size+'px'}" //size是data中的属性
+```
+
+
+
+### 条件渲染 
+
+#### 1.v-if
+
+```js
+使用逻辑运算符搭配条件渲染
+
+//复杂
+v-show=" $route.path!=='/login' && $route.path!=='/search' "
+
+//简单 在login和search路由定义中添加属性meta,值为对象
+v-show=" !$route.meta.isHidden "
+```
+
+#### 1.2.用key管理可复用元素
+
+Vue 会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染。
+
+```js
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username">
+</template>
+
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address">
+</template>
+```
+
+在上面的代码中切换 `loginType` 将不会清除用户已经输入的内容。因为两个模板使用了相同的元素，`<input>` 不会被替换掉——仅仅是替换了它的 `placeholder`。
+
+所以 Vue 为你提供了一种方式来表达“这两个元素是完全独立的，不要复用它们”。只需添加一个具有唯一值的 `key` attribute 即可.
+
+```js
+<template v-if="loginType === 'username'">
+  <label>Username</label>
+  <input placeholder="Enter your username" key="username-input">
+</template>
+<template v-else>
+  <label>Email</label>
+  <input placeholder="Enter your email address" key="email-input">
+</template>
+```
+
+注意，`<label>` 元素仍然会被高效地复用，因为它们没有添加 `key` attribute。
+
+
+
+#### 2. v-show
+
+##### 2.1 v-if与v-show的比较
+
+与v-if用法大体相同,不同的是带有 `v-show` 的元素始终会被渲染并保留在 DOM 中。`v-show` 只是简单地切换元素的 CSS property `display`
+
+注意，`v-show` 不支持 `<template>` 元素，也不支持 `v-else`
+
+
+
+#### 3.v-if与v-show区别
 
 ```js
 v-if v-else-if v-else
@@ -1058,29 +1563,27 @@ v-show
 
 
 
-```js
-使用逻辑运算符搭配条件渲染
+#### 4. v-if与v-for一起使用
 
-//复杂
-v-show=" $route.path!=='/login' && $route.path!=='/search' "
+**不推荐**同时使用 `v-if` 和 `v-for`
 
-//简单 在login和search路由定义中添加属性meta,值为对象
-v-show=" !$route.meta.isHidden "
-```
+当 `v-if` 与 `v-for` 一起使用时，`v-for` 具有比 `v-if` 更高的优先级
 
 
-
-
-
-
-
-## 015
 
 
 
 ### 列表渲染
 
-#### 基本列表
+> 可以用 `v-for` 指令基于一个数组来渲染一个列表。`v-for` 指令需要使用 `item in items` 形式的特殊语法，其中 `items` 是源数据数组，而 `item` 则是被迭代的数组元素的**别名**
+
+> 在 `v-for` 块中，我们可以访问所有父作用域的 property。`v-for` 还支持一个可选的第二个参数，即当前项的索引
+
+> 也可以用 `of` 替代 `in` 作为分隔符，因为它更接近 JavaScript 迭代器的语法
+
+
+
+#### 1.基本列表
 
 ```HTML
 动态标签属性需要加冒号,指令语法不需要加冒号
@@ -1092,11 +1595,199 @@ v-for指令:
 
 v-for遍历数组:值,索引
 <li v-for="(item, index) in arr" :key="item.id">{{item.name}}--{{item.age}}</li>
-v-for遍历对象:value,key是对象的value,key
-<li v-for="(value, key) in object" :key="key">{{value}}</li>   //指令语法解析标签体内容
+
+v-for遍历对象:value,key是对象的value,key  第三个参数为索引
+<li v-for="(value, key, index) in object" :key="key">{{value}}</li>   //指令语法解析标签体内容
+
+
 v-for遍历字符串:值,索引
 <li v-for="(data,index) in r" :key="index">{{data}} --- {{index}}</li>
 ```
+
+
+
+在遍历对象时，会按 `Object.keys()` 的结果遍历，但是**不能**保证它的结果在不同的 JavaScript 引擎下都一致
+
+
+
+#### 2.维护状态(key)
+
+当 Vue 正在更新使用 `v-for` 渲染的元素列表时，它默认使用“就地更新”的策略。如果数据项的顺序被改变，Vue 将不会移动 DOM 元素来匹配数据项的顺序，而是就地更新每个元素，并且确保它们在每个索引位置正确渲染。
+
+这个默认的模式是高效的，但是**只适用于不依赖子组件状态或临时 DOM 状态 (例如：表单输入值) 的列表渲染输出**。
+
+为了给 Vue 一个提示，以便它能跟踪每个节点的身份，从而重用和重新排序现有元素，你需要为每项提供一个唯一 `key` attribute：
+
+```js
+<div v-for="item in items" v-bind:key="item.id">
+  <!-- 内容 -->
+</div>
+```
+
+
+
+#### 2.3 vue/react中的key作用
+
+```js
+经典面试题:
+1). react/vue中的key有什么作用？（key的内部原理是什么？）
+2). 为什么遍历列表时，key最好不要用index?
+
+1. 虚拟DOM中key的作用：
+1). 简单的说: key是虚拟DOM对象的标识, 在更新显示时key起着极其重要的作用。
+2). 详细的说: 当状态中的数据发生变化时，react会根据【新数据】生成【新的虚拟DOM】, 
+随后React进行【新虚拟DOM】与【旧虚拟DOM】的diff比较，比较规则如下：
+
+a. 旧虚拟DOM中找到了与新虚拟DOM相同的key：
+(1).若虚拟DOM中内容没变, 直接使用之前的真实DOM
+(2).若虚拟DOM中内容变了, 则生成新的真实DOM，随后替换掉页面中之前的真实DOM
+
+b. 旧虚拟DOM中未找到与新虚拟DOM相同的key
+根据数据创建新的真实DOM，随后渲染到到页面
+
+2. 用index作为key可能会引发的问题：
+1. 若对数据进行：逆序添加、逆序删除等破坏顺序操作:
+会产生没有必要的真实DOM更新 ==> 界面效果没问题, 但效率低。
+
+2. 如果结构中还包含输入类的DOM：
+会产生错误DOM更新 ==> 界面有问题。
+
+3. 注意！如果不存在对数据的逆序添加、逆序删除等破坏顺序操作，
+仅用于渲染列表用于展示，使用index作为key是没有问题的。
+
+3. 开发中如何选择key?:
+1.最好使用每条数据的唯一标识作为key, 比如id、手机号、身份证号、学号等唯一值。
+2.如果确定只是简单的展示数据，用index也是可以的。
+```
+
+
+
+#### 2.4数组更新检测
+
+##### 2.4.1变更方法
+
+Vue 将被侦听的数组的变更方法进行了包裹，所以它们也将会触发视图更新。这些被包裹过的方法包括：
+
+```js
+push
+pop
+shift
+unshift
+reverse
+splice
+sort
+```
+
+
+
+##### 2.4.2替换数组
+
+变更方法，顾名思义，会变更调用了这些方法的原始数组。相比之下，也有非变更方法，例如 `filter()`、`concat()` 和 `slice()`。它们不会变更原始数组，而**总是返回一个新数组**。当使用非变更方法时，可以用新数组替换旧数组：
+
+```js
+example1.items = example1.items.filter(function (item) {
+  return item.message.match(/Foo/)
+})
+```
+
+Vue 为了使得 DOM 元素得到最大范围的重用而实现了一些智能的启发式方法，所以用一个含有相同元素的数组去替换原来的数组是非常高效的操作
+
+**注意** 由于 JavaScript 的限制，Vue **不能检测**数组和对象的变化
+
+
+
+#### 2.5过滤/排序
+
+有时，我们想要显示一个数组经过过滤或排序后的版本，而不实际变更或重置原始数据。在这种情况下，可以创建一个计算属性，来返回过滤或排序后的数组。
+
+在计算属性不适用的情况下 (例如，在嵌套 `v-for` 循环中) 你可以使用一个方法：
+
+#### 2.6 v-for使用值范围
+
+`v-for` 也可以接受整数。在这种情况下，它会把模板重复对应次数
+
+```js
+<div>
+  <span v-for="n in 10">{{ n }} </span>
+</div>
+
+结果: 1,2,3,4,5,6,7,8,9,10
+```
+
+
+
+#### 2.7 template上使用v-for
+
+类似于 `v-if`，你也可以利用带有 `v-for` 的 `<template>` 来循环渲染一段包含多个元素的内容
+
+```js
+<ul>
+  <template v-for="item in items">
+    <li>{{ item.msg }}</li>
+    <li class="divider" role="presentation"></li>
+  </template>
+</ul>
+```
+
+
+
+#### 2.8 v-for与v-if一同使用
+
+> 注意我们**不**推荐在同一元素上使用 `v-if` 和 `v-for`
+
+当它们处于同一节点，`v-for` 的优先级比 `v-if` 更高，这意味着 `v-if` 将分别重复运行于每个 `v-for` 循环中。当你只想为*部分*项渲染节点时，这种优先级的机制会十分有用
+
+```js
+<li v-for="todo in todos" v-if="!todo.isComplete">
+  {{ todo }}
+</li>
+```
+
+上面的代码将只渲染未完成的 todo。
+
+而如果你的目的是有条件地跳过循环的执行，那么可以将 `v-if` 置于外层元素 (或template) 上
+
+```js
+<ul v-if="todos.length">
+  <li v-for="todo in todos">
+    {{ todo }}
+  </li>
+</ul>
+<p v-else>No todos left!</p>
+```
+
+
+
+#### 2.9组件上使用v-for
+
+自定义组件上，你可以像在任何普通元素上一样使用 `v-for`
+
+2.2.0+ 的版本里，当在组件上使用 `v-for` 时，`key` 现在是必须的。
+
+```js
+<my-component v-for="item in items" :key="item.id"></my-component>
+```
+
+然而，任何数据都不会被自动传递到组件里，因为组件有自己独立的作用域。为了把迭代数据传递到组件里，我们要使用 prop：
+
+```js
+<my-component
+  v-for="(item, index) in items"
+  v-bind:item="item"
+  v-bind:index="index"
+  v-bind:key="item.id"
+></my-component>
+```
+
+不自动将 `item` 注入到组件里的原因是，这会使得组件与 `v-for` 的运作紧密耦合。明确组件数据的来源能够使组件在其他场合重复使用。
+
+
+
+
+
+
+
+
 
 
 
@@ -1260,9 +1951,19 @@ textarea
 
 
 
-#### Vue实例的生命周期
+### Vue实例的生命周期
 
-##### 图片
+> 每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做**生命周期钩子**的函数，这给了用户在不同阶段添加自己的代码的机会
+>
+> 生命周期钩子的 `this` 上下文指向调用它的 Vue 实例
+>
+> 注意:
+>
+> 不要在选项 property 或回调上使用[箭头函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Arrow_functions)，比如 `created: () => console.log(this.a)` 或 `vm.$watch('a', newValue => this.myMethod())`。因为箭头函数并没有 `this`，`this` 会作为变量一直向上级词法作用域查找，直至找到为止，经常导致 `Uncaught TypeError: Cannot read property of undefined` 或 `Uncaught TypeError: this.myMethod is not a function` 之类的错误。
+
+
+
+#### 1.图片概况
 
 ![vue生命周期-2.png](https://i.loli.net/2021/01/15/JMm3HIuOPCYQwjB.png)
 
