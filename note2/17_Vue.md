@@ -2340,19 +2340,6 @@ vm.selected.number //123
 
 
 
-### 限制范围
-
-```
-//https://cn.vuejs.org/v2/api/#v-model
-
-input
-select
-textarea
-components
-```
-
-
-
 ### 事件修饰符
 
 ```
@@ -2737,6 +2724,164 @@ extension.install=function(Vue, options){//Vue, options是配置对象
 
 ### 1.基础
 
+#### 1.1 组件名
+
+在注册一个组件的时候，我们始终需要给它一个名字。比如在全局注册的时候我们已经看到了
+
+```js
+Vue.component('my-component-name', {/*....*/})
+```
+
+当直接在 DOM 中使用一个组件 (而不是在字符串模板或[单文件组件](https://cn.vuejs.org/v2/guide/single-file-components.html)) 的时候，我们强烈推荐遵循 [W3C 规范](https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name)中的自定义组件名 (**字母全小写且必须包含一个连字符**)。这会帮助你避免和当前以及未来的 HTML 元素相冲突。
+
+#### 1.2 组件名大小写
+
+定义组件名称有两种方式:
+
+##### 1.2.1 kebab-case((短横线分隔命名)
+
+```js
+Vue.component('my-component-name', { /* ... */ })
+```
+
+当使用 kebab-case (短横线分隔命名) 定义一个组件时，你也必须在引用这个自定义元素时使用 kebab-case，例如 `<my-component-name>`
+
+##### 1.2.2 使用PascalCase(首字母大写命名)
+
+当使用 PascalCase (首字母大写命名) 定义一个组件时，你在引用这个自定义元素时两种命名法都可以使用。也就是说 `<my-component-name>` 和 `<MyComponentName>` 都是可接受的. 注意，尽管如此，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。
+
+
+
+### 2.组件的注册
+
+#### 2.1 全局注册
+
+**全局注册的**, 它们在注册之后可以用在任何新创建的 Vue 根实例 (`new Vue`) 的模板中
+
+```js
+Vue.component('component-a', { /* ... */ })
+Vue.component('component-b', { /* ... */ })
+Vue.component('component-c', { /* ... */ })
+
+new Vue({ el: '#app' })
+<div id="app">
+  <component-a></component-a>
+  <component-b></component-b>
+  <component-c></component-c>
+</div>
+```
+
+
+
+在所有子组件中也是如此，也就是说这三个组件*在各自内部*也都可以相互使用。
+
+#### 2.2 局部注册
+
+全局注册往往是不够理想的。比如，如果你使用一个像 webpack 这样的构建系统，全局注册所有的组件意味着即便你已经不再使用一个组件了，它仍然会被包含在你最终的构建结果中。这造成了用户下载的 JavaScript 的无谓的增加。
+
+局部注册: 通过一个普通的 JavaScript 对象来定义组件,然后在 `components` 选项中定义你想要使用的组件
+
+```js
+var ComponentA = { /* ... */ }
+var ComponentB = { /* ... */ }
+var ComponentC = { /* ... */ }
+
+new Vue({
+  el:"#app",
+  components: {
+    'component-a':ComponentA,
+    'component-b':ComponentB
+  }
+})
+```
+
+对于 `components` 对象中的每个 property 来说，其 property 名就是自定义元素的名字，其 property 值就是这个组件的选项对象。
+
+注意**局部注册的组件在其子组件中不可用**
+
+#### 2.3 模块系统
+
+如果你通过 `import`/`require` 使用一个模块系统，那么我们会为你提供一些特殊的使用说明和注意事项。
+
+##### 2.3.1 在模块系统中局部注册
+
+使用了诸如 Babel 和 webpack 的模块系统。在这些情况下，我们推荐创建一个 `components` 目录，并将每个组件放置在其各自的文件中。然后你需要在局部注册之前导入每个你想使用的组件。
+
+```js
+import ComponentA from './ComponentA'
+import ComponentC from './ComponentC'
+
+export default {
+  components: {
+    ComponentA,
+    ComponentC
+  },
+  // ...
+}
+
+//在 ComponentA 和 ComponentC 都可以在 ComponentB 的模板中使用了。
+```
+
+
+
+
+
+##### 2.3.2 基础组件的自动化全局注册
+
+组件只是包裹了一个输入框或按钮之类的元素，是相对通用的。我们有时候会把它们称为[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)，它们会在各个组件中被频繁的用到。
+
+所以会导致很多组件里都会有一个包含基础组件的长列表, 
+
+如果你恰好使用了 webpack (或在内部使用了 webpack 的 [Vue CLI 3+](https://github.com/vuejs/vue-cli))，那么就可以使用 `require.context` 只全局注册这些非常通用的基础组件。这里有一份可以让你在应用入口文件 (比如 `src/main.js`) 中全局导入基础组件的示例代码：
+
+```js
+import Vue from 'vue';
+import upperFirst from 'lodash/upperFirst';
+import camelCase from 'lodash/camelCase';
+
+const requireComponent = require.context(
+	//其组件目录的相对路径
+  './compoennts',
+  //是否查询其子目录
+  false,
+  //匹配基础组件文件名的正则表达式
+  /Base[A-Z]\w+\.(vue|js)$/
+)
+
+requireComponent.keys().forEach(fileName => {
+  //获取组件配置
+  const componentConfig = requirecomponent(fileName);
+  
+  //获取组件的PascalCase命名
+  const componentName = upperFirst(
+  camelCase(
+  	//获取和目录深度无关的文件名
+    fileName
+    	.split('/')
+    	.pop()
+    	.replace(/\.\w+$/, '')
+  ))
+})
+
+// 全局注册组件
+  Vue.component(
+    componentName,
+    // 如果这个组件选项是通过 `export default` 导出的，
+    // 那么就会优先使用 `.default`，
+    // 否则回退到使用模块的根。
+    componentConfig.default || componentConfig
+  )
+})
+
+
+//项目示例
+https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/components/_globals.js
+```
+
+**全局注册的行为必须在根 Vue 实例 (通过 `new Vue`) 创建之前发生**
+
+
+
 组件的示例:
 
 ```js
@@ -2762,6 +2907,157 @@ new Vue({el:'#components-demo'})
 ```
 
 因为组件是可复用的 Vue 实例，所以它们与 `new Vue` 接收相同的选项，例如 `data`、`computed`、`watch`、`methods` 以及生命周期钩子等。**仅有的例外是像 `el` 这样根实例特有的选项**。
+
+
+
+### 3.Prop
+
+#### 3.1 Prop的大小写
+
+HTML 中的 attribute 名是大小写不敏感的，所以浏览器会把所有大写字符解释为小写字符。这意味着当你使用 DOM 中的模板时，**camelCase (驼峰命名法) 的 prop 名需要使用其等价的 kebab-case (短横线分隔命名) 命名**：如果你使用字符串模板，那么这个限制就不存在了。
+
+```js
+Vue.component('blog-post', {
+  // 在 JavaScript 中是 camelCase 的
+  props: ['postTitle'],
+  template: '<h3>{{ postTitle }}</h3>'
+})
+```
+
+```html
+<!-- 在 HTML 中是 kebab-case 的 -->
+<blog-post post-title="hello!"></blog-post>
+```
+
+
+
+#### 3.2 Prop类型
+
+##### 3.2.1 字符串数组形式
+
+```js
+props:['title', 'likes', 'author', 'callback']
+```
+
+
+
+##### 3.2.2 对象形式(prop需要指定的类型)
+
+property的名称和值分别是prop各自的名称和类型:
+
+```js
+props: {
+  title:String,
+  likes: Number,
+  author: Object,
+  callback: Function,
+  contactsPromise: Promise //or any other constructor
+}
+```
+
+
+
+### 3.3 传递静态/动态Prop
+
+#### 3.3.1 传递静态/动态/表达式的值
+
+给prop传递静态的值
+
+```js
+<blog-post title="My journey with Vue"></blog-post>
+```
+
+给prop传递动态的值
+
+```js
+<!-- 动态赋予一个变量的值 -->
+<blog-post v-bind:title="post.title"></blog-post>
+```
+
+动态赋予一个复杂表达式的值
+
+```js
+<blog-post
+  v-bind:title="post.title + ' by ' + post.author.name"
+></blog-post>
+```
+
+#### 3.3.2 传入一个数字
+
+```js
+<!-- 即便 `42` 是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
+<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
+<blog-post v-bind:likes="42"></blog-post>
+
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:likes="post.likes"></blog-post>
+```
+
+#### 3.3.3 传入一个布尔值
+
+```js
+<!-- 包含该 prop 没有值的情况在内，都意味着 `true`。-->
+<blog-post is-published></blog-post>
+
+<!-- 即便 `false` 是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
+<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
+<blog-post v-bind:is-published="false"></blog-post>
+
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:is-published="post.isPublished"></blog-post>
+```
+
+#### 3.3.4 传入一个数组
+
+```js
+<!-- 即便数组是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
+<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
+<blog-post v-bind:comment-ids="[234, 266, 273]"></blog-post>
+
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:comment-ids="post.commentIds"></blog-post>
+```
+
+#### 3.3.5 传入一个对象
+
+```js
+<!-- 即便对象是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
+<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
+<blog-post
+  v-bind:author="{
+    name: 'Veronica',
+    company: 'Veridian Dynamics'
+  }"
+></blog-post>
+
+<!-- 用一个变量进行动态赋值。-->
+<blog-post v-bind:author="post.author"></blog-post>
+```
+
+#### 3.3.6 传入一个对象多有的property
+
+如果你想要将一个对象的所有 property 都作为 prop 传入，你可以使用不带参数的 `v-bind` (取代 `v-bind:prop-name`)。例如，对于一个给定的对象 `post`
+
+```js
+post: {
+  id: 1,
+  title: 'my journey with vue'
+}
+
+//html
+<blog-post v-bind='post'></blog-post>
+等价于:
+<blog-post
+  v-bind:id='post.id'
+  v-bind:title='post.title'
+></blog-post>
+```
+
+
+
+### 4.prop数据流
+
+
 
 
 
