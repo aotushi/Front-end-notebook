@@ -7316,21 +7316,15 @@ str.split('');//['H', 'e', 'l', 'l', 'o']  //空字符串就是默认逗号
 
 
 
-### 正则表达式
+## 正则表达式
 
-#### 概要
+### 1.概要
 
-> 正则表达式用来标书一个字符串的规则
->
-> 程序可以根据这个规则来检查一个字符串是否符合规则
->
-> 或者将符合规则的内容从字符串中提取出来
->
-> 使用typeof 检查一个正则表达式会返回'object'
+正则表达式是用于匹配字符串中字符组合的模式。在 JavaScript中，正则表达式也是对象。这些模式被用于 [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 的 [`exec`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) 和 [`test`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) 方法, 以及 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) 的 [`match`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match)、[`matchAll`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll)、[`replace`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace)、replaceAll, [`search`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/search) 和 [`split`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/split) 方法。
 
 
 
-#### 格式
+### 2.格式
 
 ```javascript 
 //创建一个正则表达式的对象
@@ -7349,11 +7343,7 @@ let re = new RegExp('a', 'i');
 等价于 re = /a/i;
 ```
 
-
-
-
-
-#### 语法:
+### 3.正则语法
 
 ```JavaScript
 | 在正则表达式中表示或
@@ -7367,25 +7357,17 @@ let re = new RegExp('a', 'i');
  
  
 量词
+? 0-1次,相当于{0,1}
++ 至少一次,相当于{1,}
+* 任意次, 相当于{0,} 
 {m} 正好出现m次
 {m,n} m-n次
 {m,} m次以上
-+ 至少一次,相当于{1,}
-? 0-1次,相当于{0,1}
-* 任意次, 相当于{0,}           
-let re = [^a];
-
-```
+          
+圆括号()
 
 
 
-<hr/>
-
-
-
-### 正则语法
-
-```JavaScript
 ^ 表示字符的开头
 & 表示字符的结束
  如果一个正则表达式以^开头,以&结束,则要求字符串和正则表达式完全匹配
@@ -7409,11 +7391,50 @@ alert(check.test(str));
 
 
 
-### 固定格式
+#### 3.1 圆括号
+
+正则表达式中的圆括号的作用是对字符进行分组，并保存匹配的文本
+
+**用法**1 对字符或元字符进行分组，这样在圆括号内就可以对字符组合使用限定符
+
+```js
+/(A/d){2}/.test()   //false
+/(A/d){2}/.test('A2A2') //true
+```
+
+**用法2** 表示可选择性
+
+```js
+1.从两个直接量中选择一个
+/gr(a|e)y/ 匹配gray和grey,还可以使用gr[ae]y,效率更高
+
+2.从多个直接量中选择
+/^(Doctor|Dr\.?)$/ 匹配Doctor,Dr,Dr.三种情况
+
+3.捕获圆括号
+
+4.非捕获圆括号
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+### 正则的一些固定格式
 
 ```js
 //空行
 ^\s*(?=\r?$)\n
+
+
 
 ```
 
