@@ -3136,7 +3136,7 @@ Vue.component('my-component', {
 经过测试,在beforeCreate中获取不到prop中的值,在created中可以获取到prop中的值.
 ```
 
-#### 5.1 类型检查
+#### 5.1 类型检查    ?
 
 `type` 可以是下列原生构造函数中的一个：
 
