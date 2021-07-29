@@ -3175,6 +3175,28 @@ Vue.component('blog-post', {
 
 因为显式定义的 prop 适用于向一个子组件传入信息，然而组件库的作者并不总能预见组件会被用于怎样的场景。这也是为什么组件可以接受任意的 attribute，而这些 attribute 会被添加到这个组件的根元素上。
 
+```js
+<div id='app'>
+	<custom-input
+		:name = 'name'
+	></custom-input>  
+</div>
+
+Vue.component('custom-input', {
+  template:'<div><input></input></div>',
+  created() {
+    console.log(this.$attrs); //{name:'jack'}
+  }
+})
+
+new Vue({
+  el: '#app',
+  data: {name: 'jack'}
+})
+```
+
+
+
 #### 6.1 替换/合并已有的attribute
 
 class与style的attribute会与组件根元素上设置的相结合,不会覆盖.其他类型的会被覆盖.
@@ -3196,6 +3218,39 @@ Vue.component('my-component', {
 ```js
 
 ```
+
+有了 `inheritAttrs: false` 和 `$attrs`，你就可以手动决定这些 attribute 会被赋予哪个元素。在撰写[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)的时候是常会用到的：
+
+```js
+Vue.component('base-input', {
+  inheritAttrs: false,
+  props: ['label', 'value'],
+  template: `
+		<label>
+			{{label}}
+			<input
+				v-bind="$attrs"
+				v-bind:value="value"
+				v-on:input="$emit('input', $event.target.value)"
+		</label>
+	`
+})
+```
+
+**注意**:  `inheritAttrs: false` 选项**不会**影响 `style` 和 `class` 的绑定。
+
+这个模式允许你在使用基础组件的时候更像是使用原始的 HTML 元素，而不会担心哪个元素是真正的根元素：
+
+```html
+<base-input
+	label='Username'
+	v-model='username'
+	required
+  placeholder='Enter your name'
+></base-input>
+```
+
+
 
 
 
