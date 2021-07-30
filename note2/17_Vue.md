@@ -3252,6 +3252,85 @@ Vue.component('base-input', {
 
 
 
+## 自定义事件
+
+### 1.事件名
+
+**始终推荐使用kebab-case事件名**
+
+原因: 1.事件名不会被用作一个js变量或属性,没有理由使用camelCase/PascalCase; 2. `v-on` 事件监听器在 DOM 模板中会被自动转换为全小写 (因为 HTML 是大小写不敏感的)，所以 `v-on:myEvent` 将会变成 `v-on:myevent`——导致 `myEvent` 不可能被监听到。
+
+
+
+### 2.自定义组件的v-model(model选项)
+
+一个组件上的 `v-model` 默认会利用名为 `value` 的 prop 和名为 `input` 的事件，但是像单选框、复选框等类型的输入控件可能会将 `value` attribute 用于[不同的目的](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#Value)。**`model` 选项**可以用来避免这样的冲突：
+
+```js
+<base-checkbox v-model='lovingVue'></base-checkbox>
+
+Vue.component('base-checkbox', {
+  model: {
+    prop: 'checked',
+    event: 'change'
+  },
+  props: {checked: Boolean},
+  template: `
+		<input
+			type='checkbox'
+			v-bind:checked='checked'
+			v-on:change="$emit('change', $event.target.value)"s
+	`
+})
+
+
+new Vue({
+  el: '#app',
+  data: {lovingVue: true}
+})
+```
+
+
+
+#### 2.1 组件里model对象的作用
+
+```js
+```
+
+
+
+### 3.原生事件绑定到组件($listeners)
+
+可以在一个组件的根元素上直接监听一个原生事件.可以使用`v-on`的`native`修饰符:
+
+```js
+<base-input v-on:focus.native="onFocus"></base-input>
+```
+
+不过在你尝试监听一个类似 `<input>` 的非常特定的元素时，这并不是个好主意。比如上述 `<base-input>` 组件可能做了如下重构，所以根元素实际上是一个 `<label>` 元素：
+
+```js
+<label>
+  {{label}}
+  <input
+		v-bind='$attrs'
+		v-bind:value='value'
+		v-on:input="$emit('input', $event.target.value)"
+	>
+</label>
+```
+
+这时，父级的 `.native` 监听器将静默失败。它不会产生任何报错，但是 `onFocus` 处理函数不会如你预期地被调用。
+
+为了解决这个问题，Vue 提供了一个 `$listeners` property，它是一个对象，里面包含了作用在这个组件上的所有监听器。例如：
+
+```js
+{
+  foucs: function(event) {/**/} 
+  input: function(value) {/**/}
+}
+```
+
 
 
 ### 2.组件的复用
