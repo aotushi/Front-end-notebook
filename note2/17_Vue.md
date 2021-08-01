@@ -3258,13 +3258,15 @@ Vue.component('base-input', {
 
 **始终推荐使用kebab-case事件名**
 
+不同于组件和 prop，事件名不存在任何自动化的大小写转换。而是触发的事件名需要完全匹配监听这个事件所用的名称。
+
 原因: 1.事件名不会被用作一个js变量或属性,没有理由使用camelCase/PascalCase; 2. `v-on` 事件监听器在 DOM 模板中会被自动转换为全小写 (因为 HTML 是大小写不敏感的)，所以 `v-on:myEvent` 将会变成 `v-on:myevent`——导致 `myEvent` 不可能被监听到。
 
 
 
 ### 2.自定义组件的v-model(model选项)
 
-一个组件上的 `v-model` 默认会利用名为 `value` 的 prop 和名为 `input` 的事件，但是像单选框、复选框等类型的输入控件可能会将 `value` attribute 用于[不同的目的](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#Value)。**`model` 选项**可以用来避免这样的冲突：
+一个组件上的 `v-model` 默认会利用名为 `value` 的 prop 和名为 `input` 的事件，但是像单选框、复选框等类型的输入控件可能会将 `value` attribute 用于[不同的目的](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox#Value)。<span style="color:blue;">**`model` 选项**可以用来避免这样的冲突：</span>
 
 ```js
 <base-checkbox v-model='lovingVue'></base-checkbox>
@@ -3288,6 +3290,41 @@ new Vue({
   el: '#app',
   data: {lovingVue: true}
 })
+
+===================other version=====================
+<template>
+	<div id='app'>
+  	<base-checkbox
+			v-model="lovingVue"
+		></base-checkbox>  
+  </div>  
+</template>
+
+<script>
+	export default {
+		data() {
+      return {
+        lovingVue: 'aaa'
+      }
+    },
+    components: {
+      'base-checkbox': {
+        props: {checked: Boolean},
+        model: {                        //使用model后,v-model给组件绑定的prop和事件会更改成model中规定的
+          prop: 'checked',
+          event: 'change'
+        }
+        template: `
+					<input
+						type="checkebox"
+						v-bind:checked="lovingVue",
+						v-on:change="$emit('change', $event.target.checked)"
+				`
+      }
+    }
+
+  }        
+</script>
 ```
 
 
@@ -3299,13 +3336,54 @@ new Vue({
 
 
 
-### 3.原生事件绑定到组件($listeners)
+### 3.原生事件绑定到组件($listeners) ??
 
-可以在一个组件的根元素上直接监听一个原生事件.可以使用`v-on`的`native`修饰符:
+你可能有很多次想要**在一个组件的根元素上直接监听一个原生事件**。这时，你可以使用 `v-on` 的 `.native` 修饰符：
 
 ```js
 <base-input v-on:focus.native="onFocus"></base-input>
 ```
+
+```html
+//加上.native修饰符之后,即使$emit分发事件中,传递的值是$event.target.value形式,但是接收的依然是这个事件. InputEvent{/..../}
+<template>
+	<div id='app'>
+    {{abc}}
+    <base-input
+    	v-on:input="onInput"
+      //v-on:input.native="onInput"
+    ></base-input>
+  </div>
+</template>
+
+<script>
+	const baseInput = {
+    template: `
+			<input 
+				v-on:input="$emit('input', $event.target.value)"  
+			/>
+		`
+  };
+  
+  new Vue({
+    el: '#app',
+    data: {abc:''},
+    components: {baseInput},
+    methods: {
+      onInput(event) {
+        console.log(event);
+        this.abc = event;
+      }
+    }
+  })
+</script>
+```
+
+
+
+
+
+
 
 不过在你尝试监听一个类似 `<input>` 的非常特定的元素时，这并不是个好主意。比如上述 `<base-input>` 组件可能做了如下重构，所以根元素实际上是一个 `<label>` 元素：
 
@@ -3322,7 +3400,9 @@ new Vue({
 
 这时，父级的 `.native` 监听器将静默失败。它不会产生任何报错，但是 `onFocus` 处理函数不会如你预期地被调用。
 
-为了解决这个问题，Vue 提供了一个 `$listeners` property，它是一个对象，里面包含了作用在这个组件上的所有监听器。例如：
+为了解决这个问题，Vue 提供了一个 `$listeners` property，**它是一个对象，里面包含了作用在这个组件上的所有监听器**。例如：
+
+(请问, 这个$listeners是放在哪个组件身上的? 是父组件还是子组件?  是子组件)
 
 ```js
 {
@@ -3330,6 +3410,152 @@ new Vue({
   input: function(value) {/**/}
 }
 ```
+
+有了这个 `$listeners` property，你就可以配合 `v-on="$listeners"` 将所有的事件监听器指向这个组件的某个特定的子元素。对于类似 `<input>` 的你希望它也可以配合 `v-model` 工作的组件来说，为这些监听器创建一个类似下述 `inputListeners` 的计算属性通常是非常有用的：
+
+```html
+<div>
+	<base-input
+    label='username'
+  	v-model='lovingVue'
+  ></base-input>
+  <br/>
+  <p>
+    lovingVue's value: {{lovingVue}}
+  </p>
+</div>
+
+
+Vue.component('base-input', {
+  inheritAttrs: false,
+  props: ['label', 'value'],
+  computed: {
+    inputListeners: function() {
+      var vm = this;
+      return Object.assign({}, 
+      	this.$listeners,
+        {
+        	input: function(event) {
+            vm.$emit('input', event.target.value)
+          }
+      	}
+      )
+    }
+  },
+  template: `
+		<label>
+			{{label}}
+			<input
+				v-bind='$attrs'
+				v-bind:value='value'
+				v-on='inputListeners'
+		</label>
+	`
+})
+
+new Vue({
+  el: '#app',
+  data: {lovingVue: 'aaa'}
+})
+```
+
+
+
+### 4.sync修饰符
+
+在有些情况下，我们可能需要**对一个 prop 进行“双向绑定”**。不幸的是，真正的双向绑定会带来维护上的问题，因为子组件可以变更父组件，且在父组件和子组件两侧都没有明显的变更来源。
+
+这也是为什么我们推荐以 `update:myPropName` 的模式触发事件取而代之。举个例子.在一个包含 `title` prop 的假设的组件中，我们可以用以下方法表达对其赋新值的意图：
+
+```js
+this.$emit('update:title', newTitle)
+```
+
+```html
+//父组件(监听事件并根据需要来更新一个本地数据的property)
+
+<text-document
+	v-bind:title='doc.title'
+	v-on:update:title="doc.title=$event"   //
+></text-document>
+```
+
+我们为这种模式提供一个缩写，即 `.sync` 修饰符：
+
+```html
+<text-document v-on:title.sync='doc.title'></text-document>
+```
+
+**注意**带有 `.sync` 修饰符的 `v-bind` **不能**和表达式一起使用 (例如 `v-bind:title.sync=”doc.title + ‘!’”` 是无效的)。取而代之的是，你只能提供你想要绑定的 property 名，类似 `v-model`。
+
+当我们用一个对象同时设置多个 prop 的时候，也可以将这个 `.sync` 修饰符和 `v-bind` 配合使用：
+
+```
+<text-document v-bind.sync="doc"></text-document>
+```
+
+这样会把 `doc` 对象中的每一个 property (如 `title`) 都作为一个独立的 prop 传进去，然后各自添加用于更新的 `v-on` 监听器。
+
+将 `v-bind.sync` 用在一个字面量的对象上，例如 `v-bind.sync=”{ title: doc.title }”`，是无法正常工作的，因为在解析一个像这样的复杂表达式的时候，有很多边缘情况需要考虑。
+
+
+
+## 插槽
+
+在 2.6.0 中，我们为具名插槽和作用域插槽引入了一个新的统一的语法 (即 `v-slot` 指令)。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在[文档中](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)的 attribute。
+
+### 插槽内容
+
+Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web Components 规范草案](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Slots-Proposal.md)，**将 `<slot>` 元素作为承载分发内容的出口**。
+
+插槽内可以插入任何模板代码/html,其他组件
+
+它允许你这样合成组件
+
+```html
+<navigation-link url='/profile'>
+  your profile
+</navigation-link>
+```
+
+然后你再`<navigation-link>`的模板中可能会写为:
+
+```html
+<a
+	v-bind:href='url'
+	class="nav-link"
+>
+  <slot></slot>
+</a>
+```
+
+当组件渲染的时候，`<slot></slot>` 将会被替换为“Your Profile”。插槽内可以包含任何模板代码，包括 HTML：
+
+```html
+<navigation-link url='/profile'>
+	//添加一个Font Awesome图标
+  <span class="fa fa-user"></span>
+  your profile
+</navigation-link>
+```
+
+插槽内插入其他组件:
+
+```html
+<navigation-link url='/profile'>
+  //添加一个图标的组件
+  <font-awesome-icon name='user'></font-awesome-icon>
+  your profile
+</navigation-link>
+```
+
+如果 `<navigation-link>` 的 `template` 中**没有**包含一个 `<slot>` 元素，则该组件起始标签和结束标签之间的任何内容都会被抛弃。
+
+### 编译作用域
+
+
+
+
 
 
 
