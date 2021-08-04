@@ -3559,6 +3559,103 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 ### 编译作用域
 
+> 父级模板里的所有内容都是在父级作用域中编译的；子模板里的所有内容都是在子作用域中编译的。
+
+当你想在一个插槽中使用数据时,
+
+```html
+<navigation-link url='/profile'>
+  Logged in as {{user.name}}
+</navigation-link>
+
+<navigation-link url="/profile">
+  Clicking here will send you to: {{ url }}
+  <!--
+  这里的 `url` 会是 undefined，因为其 (指该插槽的) 内容是
+  _传递给_ <navigation-link> 的而不是
+  在 <navigation-link> 组件*内部*定义的。
+  -->
+</navigation-link>
+```
+
+该插槽跟模板的其它地方一样可以访问相同的实例 property (也就是相同的“作用域”)，而**不能**访问 `<navigation-link>` 的作用域。例如 `url` 是访问不到的：
+
+
+
+### 插槽默认内容(\<slot>)
+
+默认内容在没有提供内容的时候被渲染。
+
+```html
+//如在一个 <submit-button> 组件中,希望这个 <button> 内绝大多数情况下都渲染文本“Submit”。 将“Submit”作为后备内容，我们可以将它放在 <slot> 标签内
+
+<button type="submit">
+  <slot>Submit</slot>
+</button>
+```
+
+当我在一个父级组件中使用 `<submit-button>` 并且不提供任何插槽内容时,后备(默认)内容“Submit”将会被渲染.如果提供内容将会取代默认内容
+
+
+
+### 具名插槽
+
+有时候,一个组件需要多个插槽.例如如下一个带有如下模板的`<base-layout>`组件:
+
+```html
+<div class="container">
+  <header>
+  	//希望把页头放在这里
+  </header>
+  <main>
+  	//主要内容放这里
+  </main>
+  <footer>
+  	//页脚放这里
+  </footer>
+</div>
+```
+
+对于这种情况,`<slot>`元素有一个特殊的attribute: `name`. 这个attribute可以用来定义额外的插槽:
+
+```html
+<div class="container">
+  <header>
+  	<slot name="header"></slot>
+  </header>
+  
+  <main>
+  	<slot></slot>   //一个不带 name 的 <slot> 出口会带有隐含的名字“default”。
+  </main>
+  
+  <footer>
+  	<slot name="footer"></slot>
+  </footer>
+</div>
+```
+
+在向具名插槽提供内容的时候，我们可以在一个 `<template>` 元素上使用 `v-slot` 指令，并以 `v-slot` 的参数的形式提供其名称：
+
+```html
+<base-layout>
+	<template v-slot:header>
+  	<h1>
+      Here might be a page title
+    </h1>
+  </template>
+  
+	<p>A paragraph for the main content.</p>
+  <p>And another one.</p>
+  
+  <template v-slot:footer>
+  	<p>
+      Here's some contact info
+    </p>
+  </template>
+
+</base-layout>
+```
+
 
 
 
