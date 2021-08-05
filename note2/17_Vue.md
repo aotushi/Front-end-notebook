@@ -3510,7 +3510,7 @@ this.$emit('update:title', newTitle)
 
 在 2.6.0 中，我们为具名插槽和作用域插槽引入了一个新的统一的语法 (即 `v-slot` 指令)。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在[文档中](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)的 attribute。
 
-### 插槽内容
+### 1.插槽内容
 
 Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web Components 规范草案](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Slots-Proposal.md)，**将 `<slot>` 元素作为承载分发内容的出口**。
 
@@ -3557,7 +3557,7 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 如果 `<navigation-link>` 的 `template` 中**没有**包含一个 `<slot>` 元素，则该组件起始标签和结束标签之间的任何内容都会被抛弃。
 
-### 编译作用域
+### 2.编译作用域
 
 > 父级模板里的所有内容都是在父级作用域中编译的；子模板里的所有内容都是在子作用域中编译的。
 
@@ -3582,7 +3582,7 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 
-### 插槽默认内容(\<slot>)
+### 3.插槽默认内容(\<slot>)
 
 默认内容在没有提供内容的时候被渲染。
 
@@ -3598,11 +3598,13 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 
-### 具名插槽
+### 4.具名插槽
 
 有时候,一个组件需要多个插槽.例如如下一个带有如下模板的`<base-layout>`组件:
 
 ```html
+// base-layout组件 模板内容
+
 <div class="container">
   <header>
   	//希望把页头放在这里
@@ -3656,9 +3658,112 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 </base-layout>
 ```
 
+现在 `<template>` 元素中的所有内容都将会被传入相应的插槽。任何没有被包裹在带有 `v-slot` 的 `<template>` 中的内容都会被视为默认插槽的内容。
+
+如果你希望更明确一些，仍然可以在一个 `<template>` 中包裹默认插槽的内容：
+
+```html
+<base-layout>
+  <template v-slot:header>
+    <h1>Here might be a page title</h1>
+  </template>
+
+  <template v-slot:default>
+    <p>A paragraph for the main content.</p>
+    <p>And another one.</p>
+  </template>
+
+  <template v-slot:footer>
+    <p>Here's some contact info</p>
+  </template>
+</base-layout>
+```
+
+以上两种写法都会渲染出来同样的结果
+
+```html
+<div class="container">
+  <header>
+    <h1>Here might be a page title</h1>
+  </header>
+  <main>
+    <p>A paragraph for the main content.</p>
+    <p>And another one.</p>
+  </main>
+  <footer>
+    <p>Here's some contact info</p>
+  </footer>
+</div>
+```
 
 
 
+```html
+//综合
+
+<body>
+  <div id="app">
+    <base-layout>
+    	<template v-slot:header>
+      	<h1>
+          here might be a page title
+        </h1>
+      </template>
+      <template v-slot:default>
+      	<p>
+          a paragraph for the main content
+        </p>
+        <p>
+          and another one
+        </p>
+      </template>
+      <template v-slot:footer>
+      	<p>
+          here's some contact info
+        </p>
+      </template>
+    </base-layout>
+  </div>
+</body>
+<script>
+	Vue.component('base-layout', {
+    template:`
+			<div id="container">
+  			<header>
+  				<slot name="header"></slot>
+  			</header>
+
+				<main>
+  				<slot></slot>
+  			</main>
+
+				<footer>
+  				<slot name="footer"></slot>
+  			</footer>
+  		</div>
+		`
+  })
+  
+  new Vue({
+    el: '#app',
+    data: {}
+  })
+</script>
+```
+
+
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="具名插槽" src="https://codepen.io/westover/embed/zYwmYBR?default-tab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/zYwmYBR">
+  具名插槽</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+
+### 5.作用域插槽
+
+有时让插槽内容能够访问子组件中才有的数据是很有用的
 
 
 
