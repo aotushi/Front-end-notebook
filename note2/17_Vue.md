@@ -3763,7 +3763,29 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 ### 5.作用域插槽
 
-有时让插槽内容能够访问子组件中才有的数据是很有用的
+有时让插槽内容能够访问子组件中才有的数据是很有用的. 也就是在父级的插槽内容中访问子组件的内容??
+
+为了让子组件中`user`在父组件的插槽内容中可用, 可以将`user`作为`slot`元素的一个attribute绑定上去:
+
+```html
+<span>
+	<slot v-bind:user='user'>
+  	{{user.lastName}}
+  </slot>
+</span>
+```
+
+绑定在`<slot>`元素上的attribute被称作**插槽prop**, 现在在父级作用域中, 可以使用带值的`v-slot`来定义提供的插槽prop的名字:
+
+```html
+<current-user>
+	<template v-slot:default = 'slotProps'>
+  	{{slotProps.user.firstName}}
+  </template>
+</current-user>
+```
+
+
 
 
 
