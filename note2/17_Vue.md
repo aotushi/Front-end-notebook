@@ -3598,9 +3598,9 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 
-### 4.具名插槽
+### 4.具名插槽+默认插槽
 
-有时候,一个组件需要多个插槽.例如如下一个带有如下模板的`<base-layout>`组件:
+前提: 有时候,一个组件需要多个插槽.例如如下一个带有如下模板的`<base-layout>`组件:
 
 ```html
 // base-layout组件 模板内容
@@ -3658,7 +3658,7 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 </base-layout>
 ```
 
-现在 `<template>` 元素中的所有内容都将会被传入相应的插槽。任何没有被包裹在带有 `v-slot` 的 `<template>` 中的内容都会被视为默认插槽的内容。
+现在 `<template>` 元素中的所有内容都将会被传入相应的插槽。任何没有被包裹在带有 `v-slot` 的 `<template>` 中的内容都会被视为**默认插槽**的内容。
 
 如果你希望更明确一些，仍然可以在一个 `<template>` 中包裹默认插槽的内容：
 
@@ -3761,9 +3761,11 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 
+
+
 ### 5.作用域插槽
 
-有时让插槽内容能够访问子组件中才有的数据是很有用的. 也就是在父级的插槽内容中访问子组件的内容??
+有时让插槽内容能够访问子组件中才有的数据是很有用的. 也就是在父级组件中的插槽中访问子组件的内容??
 
 为了让子组件中`user`在父组件的插槽内容中可用, 可以将`user`作为`slot`元素的一个attribute绑定上去:
 
@@ -3777,12 +3779,277 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 绑定在`<slot>`元素上的attribute被称作**插槽prop**, 现在在父级作用域中, 可以使用带值的`v-slot`来定义提供的插槽prop的名字:
 
+我们选择将包含所有**插槽 prop 的对象**命名为 `slotProps`，但你也可以使用任意你喜欢的名字。 `v-slot:default`只能用一次, 重复不起作用
+
 ```html
 <current-user>
 	<template v-slot:default = 'slotProps'>
   	{{slotProps.user.firstName}}
   </template>
 </current-user>
+```
+
+
+
+例子:
+
+```html
+<body>
+  <div id='app'>
+    <base-layout>
+    	<template v-slot:header>
+      	<h1>
+          here is about page title
+        </h1>
+      </template>
+      
+      <template v-slot:default2='thisNameCanCustom'>
+      	<p>
+          some content
+        </p>
+        <p>
+          my name is: [ {{thisNameCanCustom.user.name}} ]
+        </p>
+      </template>
+      
+      <template v-slot:footer>
+      	<p>
+          footer title
+        </p>
+      </template>
+      
+      <template v-slot:default='sonProp'>
+      	<span>
+        	{{sonProp.user.name}}
+        </span>
+      </template>
+    </base-layout>
+  </div>
+</body>
+<script>
+	Vue.component('baseLayout', {
+    data() {
+      return {
+        user: {name: 'zhangsan', age: 19}
+      }
+    },
+    template: `
+			<div id='container'>
+        <header>
+        	<slot name="header"></slot>
+        </header>
+        
+        <main>
+        	<slot name="default2" v-bind:user="user"></slot>
+        </main>
+  			
+        <footer>
+        	<slot name="footer"></slot>
+        </footer>
+ 
+       	<span>
+        	<slot v-bind:user='user'>{{user.age}}</slot>
+        </span>
+  		</div>
+  })
+	`
+  new Vue({
+		el: "#app"
+	})
+</script>
+```
+
+
+
+#### 5.1 独占默认插槽的缩写语法
+
+在上述情况下，当被提供的内容*只有*默认插槽时，组件的标签才可以被当作插槽的模板来使用。这样我们就可以把 `v-slot` 直接用在组件上：
+
+```html
+<base-layout v-slot:default="sonProp">
+	{{sonProp.user.name}}
+</base-layout>
+```
+
+更简化的写法:
+
+就像假定未指明的内容对应默认插槽一样，不带参数的 `v-slot` 被假定对应默认插槽：
+
+```html
+<base-layout v-slot='sonProp'>{{sonProp.user.name}}</base-layout>
+```
+
+默认插槽的缩写语法**不能**和具名插槽混用，因为它会导致作用域不明确, 会导致警告
+
+只要出现多个插槽，请始终为*所有的*插槽使用完整的基于 `<template>` 的语法
+
+
+
+#### 5.2 解构插槽Prop
+
+作用域插槽的内部工作原理是将你的插槽内容包裹在一个拥有单个参数的函数里
+
+```js
+function (sonProp) {
+  //插槽内容
+}
+```
+
+这意味着 `v-slot` 的值实际上可以是任何能够作为函数定义中的参数的 JavaScript 表达式。所以在支持的环境下 ([单文件组件](https://cn.vuejs.org/v2/guide/single-file-components.html)或[现代浏览器](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#浏览器兼容))，你也可以使用 [ES2015 解构](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#解构对象)来传入具体的插槽 prop，如下：
+
+```html
+<base-layout v-slot="{user}">
+	{{user.name}}
+</base-layout>
+```
+
+这样可以使模板更简洁，尤其是在该插槽提供了多个 prop 的时候。它同样开启了 prop 重命名等其它可能，例如将 `user` 重命名为 `person`
+
+```html
+<base-layout v-slot="{user: person}">
+	{{person.name}}
+</base-layout>
+```
+
+你甚至可以定义后备内容，用于插槽 prop 是 undefined 的情形：
+
+```html
+<base-layout v-slot="{user = {name: 'jack'}}">
+	{{user.name}}
+</base-layout>
+```
+
+
+
+### 6. 动态插槽名
+
+[动态指令参数](https://cn.vuejs.org/v2/guide/syntax.html#动态参数)也可以用在 `v-slot` 上，来定义动态的插槽名：
+
+```html
+<base-layout>
+	<template v-slot:[dynamicSlotName]>
+  	...
+  </template>
+
+</base-layout>
+```
+
+
+
+### 7.具名插槽的缩写
+
+跟 `v-on` 和 `v-bind` 一样，`v-slot` 也有缩写，即把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`。例如 `v-slot:header` 可以被重写为 `#header`：
+
+```html
+<base-layout>
+	<template #header>
+  	<h1>
+      here is page title
+    </h1>
+  </template>
+  
+  <template>
+  
+  </template>
+  
+  <template #footer>
+  	<p>
+      here's some footer info
+    </p>
+  </template>
+</base-layout>
+```
+
+和其它指令一样，该缩写只在其有参数的时候才可用。这意味着以下语法是无效的
+
+如果你希望使用缩写的话，你必须始终以明确插槽名取而代之：
+
+```html
+//以下内容会触发警告
+<base-layout #="{user}">
+	{{user.name}}
+</base-layout>
+
+//有效
+<base-layout #default="{user}">
+	{{user.name}}
+</base-layout>
+```
+
+
+
+### 8.其他示例
+
+**插槽 prop 允许我们将插槽转换为可复用的模板，这些模板可以基于输入的 prop 渲染出不同的内容。**这在设计封装数据逻辑同时允许父级组件自定义部分布局的可复用组件时是最有用的。
+
+例如，我们要实现一个 `<todo-list>` 组件，它是一个列表且包含布局和过滤逻辑：
+
+```html
+<ul>
+  <li v-for="todo in filterTodos" v-bind:key="todo.id">
+  	{{todo.text}}
+  </li>
+</ul>
+```
+
+我们可以将每个 todo 作为父级组件的插槽，以此通过父级组件对其进行控制，然后将 `todo` 作为一个插槽 prop 进行绑定：
+
+```html
+<ul>
+  <li v-for="todo in filterTodos" v-bind:key="todo.id">
+  	//为每一个todo准备一个插槽,将'todo'对象作为一个prop传入
+    <slot name="todo" v-bind:todo="todo">
+    	//后备内容
+      {{todo.text}}
+    </slot>
+  </li>
+</ul>
+```
+
+现在当我们使用 `<todo-list>` 组件的时候，我们可以选择为 todo 定义一个不一样的 `<template>` 作为替代方案，并且可以从子组件获取数据：
+
+```html
+<todo-list v-bind:todos = 'todos'>
+	<template v-slot:todo="{todo}"></template>
+</todo-list>
+```
+
+
+
+## 动态组件&异步组件
+
+### 1.动态组件上使用`keep-alive`
+
+当在这些组件之间切换的时候，你有时会想保持这些组件的状态，以避免反复重渲染导致的性能问题。更希望那些标签的组件实例能够被在它们第一次被创建的时候缓存下来。为了解决这个问题，我们可以用一个 `<keep-alive>` 元素将其动态组件包裹起来
+
+```html
+//失活组件将会被缓存
+
+<keep-alive>
+	<component v-bind:is="currentTabComponent"></component>
+</keep-alive>
+```
+
+
+
+**注意事项** 注意这个 `<keep-alive>` 要求被切换到的组件都有自己的名字，不论是通过组件的 `name` 选项还是局部/全局注册。
+
+
+
+### 2. 异步组件
+
+在大型应用中，我们可能需要将应用分割成小一些的代码块，并且只在需要的时候才从服务器加载一个模块。为了简化，Vue 允许你以一个工厂函数的方式定义你的组件，这个工厂函数会异步解析你的组件定义。Vue 只有在这个组件需要被渲染的时候才会触发该工厂函数，且会把结果缓存起来供未来重渲染。例如
+
+```js
+
+Vue.component('async-example', function(resolve, reject) {
+  setTimeout(function() {
+    //向resolve回调传递组件定义
+    resolve({
+      template: '<div>i am aysnc'</div>'
+    })
+  },1000)
+})
 ```
 
 
