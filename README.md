@@ -26,10 +26,10 @@
 * [07_jQuery](./note2/07_jQuery.md)
 * [08_Git+BootStrap+Less](./note2/08_Git+BootStrap+Less.md)
 * [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝.md)
-* [10_Nodejs+Promise+模块化+gulp+存储 ](./note2/10_Nodejs+Promise+模块化+gulp+存储.md)
+* [10_Nodejs+Promise+模块化+gulp+存储+axios ](./note2/10_Nodejs+Promise+模块化+gulp+存储+axios.md)
 * [11_webpack配置教程](./note2/11_webpack配置教程.md)
 * [12_react](./note2/12_react.md)
-* [13_react脚手架Vue配置代理](./note2/13_react脚手架Vue配置代理.md)
+* [13_react脚手架Vue配置代理](./note2/13_react脚手架 Vue配置代理.md)
 * [14_移动端](./note2/14_移动端.md)
 * [15_vue_react脚手架rem适配](./note2/15_vue_react脚手架rem适配.md)
 * [01_html&css](./note2/01_html&css.md)
@@ -100,7 +100,17 @@ vscode chrome
 
 
 
-## 三. 算法与数据结构
+## 三.大前端
+
+### 1. node
+
+
+
+### 2. 设计架构
+
+
+
+## 四. 算法与数据结构
 
 
 
@@ -112,7 +122,11 @@ vscode chrome
 
 
 
-## 四. 操作系统与网络
+## 五. 计组,操作系统与网络
+
+
+
+### 0. 计组
 
 
 
@@ -123,18 +137,6 @@ vscode chrome
 ### 2. 网络
 
 
-
-
-
-## 五. 大前端
-
-
-
-### 1. node
-
-
-
-### 2. 设计架构
 
 
 

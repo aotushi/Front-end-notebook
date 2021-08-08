@@ -6212,12 +6212,15 @@ setTimeout
 
 ## axios
 
-### 1.是什么
-
 ```js
-//文档:http://www.axios-js.com/zh-cn/docs/
-
+文档:http://www.axios-js.com/zh-cn/docs/
 Axios 是一个基于 promise 的 HTTP 库，可以用在浏览器和 node.js 中。
+
+- 引用:
+网页端: bootcdn.cn找链接: 
+//<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.min.js"></script>
+服务端:npm i axios
+
 - 特点:
 1.从浏览器中创建 XMLHttpRequests
 2.从 node.js 创建 http 请求
@@ -6228,16 +6231,7 @@ Axios 是一个基于 promise 的 HTTP 库，可以用在浏览器和 node.js �
 7.自动转换 JSON 数据
 8.客户端支持防御 XSRF
 
-
-- 引用:
-网页端: bootcdn.cn找链接: 
-//<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.0/axios.min.js"></script>
-服务端:npm i axios
 ```
-
-Axios 使用方式有两种：一种是直接使用全局的 Axios 对象；另外一种是通过 `axios.create(config)` 方法创建一个实例对象，使用该对象。两种方式的区别是通过第二种方式创建的实例对象更清爽一些；全局的 Axios 对象其实也是创建的实例对象导出的，它本身上加载了很多默认属性。
-
-
 
 
 
