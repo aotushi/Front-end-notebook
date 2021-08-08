@@ -6239,6 +6239,31 @@ Axios 使用方式有两种：一种是直接使用全局的 Axios 对象；另�
 
 
 
+### 2.请求
+
+全局的 Axios（或者 `axios.create(config)`创建的对象） 既可以当作对象使用，也可以当作函数使用：
+
+```js
+//axios当作对象使用
+axios.request(config)
+axios.get(url[,config])
+axios.post(url[,data[,config]])
+```
+
+```js
+//axios当作函数使用 发送post请求
+axios({
+  method: 'post',
+  url: '/user/12345',
+  data: {
+    f
+  }
+})
+
+```
+
+
+
 
 
 #### axios的浏览器使用
