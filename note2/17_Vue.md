@@ -4206,6 +4206,125 @@ Vue.component('async-example', function(resolve, reject) {
 
 
 
+## 处理边界情况
+
+> 即一些需要对 Vue 的规则做一些小调整的特殊情况。不过注意这些功能都是有劣势或危险的场景的。
+
+### 1.访问元素&组件
+
+在绝大多数情况下，我们最好不要触达另一个组件实例内部或手动操作 DOM 元素。不过也确实在一些情况下做这些事情是合适的。
+
+#### 1.1 访问根实例
+
+> 在每个 `new Vue` 实例的子组件中，其根实例可以通过 `$root` property 进行访问
+
+```js
+//vue 根实例
+
+new Vue({
+  data: {foo: 1},
+  computed: {
+    bar: function() { /*...*/}
+  },
+  methods: {
+    baz: function() {/*...*/}
+  }
+})
+```
+
+所有的子组件都可以将这个实例作为一个全局 store 来访问或使用。
+
+```js
+//获取根组件的数据
+this.$root.foo
+
+//写入根组件的数据
+this.$root.foo = 2
+
+////访问根组件的计算属性
+this.$root.bar
+
+//调用根组件的方法
+this.$root.baz()
+```
+
+
+
+> 对于 demo 或非常小型的有少量组件的应用来说这是很方便的。不过这个模式扩展到中大型应用来说就不然了。因此在绝大多数情况下，我们强烈推荐使用 [Vuex](https://github.com/vuejs/vuex) 来管理应用的状态
+
+
+
+#### 1.2 访问父组件实例
+
+> 和 `$root` 类似，`$parent` property 可以用来从一个子组件访问父组件的实例。它提供了一种机会，可以在后期随时触达父级组件，以替代将数据以 prop 的方式传入子组件的方式
+>
+> 在绝大多数情况下，触达父级组件会使得你的应用更难调试和理解，尤其是当你变更了父级组件的数据的时候。当我们稍后回看那个组件的时候，很难找出那个变更是从哪里发起的。
+
+
+
+
+
+#### 1.3 访问子组件实例或子元素
+
+>  尽管存在 prop 和事件，有的时候你仍可能需要在 JavaScript 里直接访问一个子组件。为了达到这个目的，你可以通过 `ref` 这个 attribute 为子组件赋予一个 ID 引用。
+
+```js
+//定义
+<base-input ref='usernameInput'></base-input>
+
+//使用(在定义了这个ref的组件里)
+this.$refs.usernameInput
+
+//案例. 从父组件聚焦这个输入框
+1. 在子组件中的使用
+  <input ref='input'>
+
+2. 子组件中的方法
+  methods: {
+		//用来从父组件聚焦输入框
+    focus: function() {
+      this.$refs.input.focus()
+    }
+	}
+3. 父组件中的写法
+	//父组件中实现聚焦
+	this.$refs.usernameInput.focus()
+  
+```
+
+```html
+<body>
+  <div id='app'>
+    <base-input ref='usernameInput'></base-input>
+  </div>
+  <script>
+  	Vue.component('baseInput', {
+      methods: {
+        focus: function() {
+          this.$refs.input.focus()
+        }
+      },
+      
+    })
+    
+    new Vue({
+      el: '#app',
+      mounted() {
+        this.$refs.usernameInput.focus()
+      }
+    })
+  </script>
+</body>
+```
+
+
+
+
+
+
+
+
+
 
 
 ### 2.组件的复用
@@ -4467,6 +4586,12 @@ Vue.component('alert-box', {
 
 - 已注册组件的名字，或
 - 一个组件的选项对象
+
+
+
+
+
+
 
 
 
