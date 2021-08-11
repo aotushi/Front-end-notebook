@@ -2484,6 +2484,27 @@ https://juejin.cn/post/6844903904585449486
 
 
 
+### 3.父子组件的生命周期
+
+#### 3.1 父子组件生命周期
+
+
+
+#### 3.2 其他情况
+
+```js
+1.异步情况
+ 父组件中的created
+ async created() {
+   let response = await this.$publicApi.downLoadImg(this.value[i].fileId).catch((err) => false);
+ }
+
+结果: 通过打印结果可知, await之后的内容需要在子组件执行完成生命周期(created之后)才会执行
+渲染多个子组件的话, 子组件的mounted是在所有的created之后才执行的
+
+需要写个案例来验证下.
+```
+
 
 
 
