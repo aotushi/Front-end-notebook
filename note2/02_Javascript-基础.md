@@ -2730,6 +2730,95 @@ Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中
 
 
 
+### 对象的引用和复制
+
+#### 1.引用类型和原始类型引用复制的区别
+
+> 原始类型(数字,字符串,布尔值,symbol,bigInt)是以'整体值'的形式被复制的, 对象是'通过引用'被存储和复制的.
+>
+> 赋值了对象的变量存储的不是对象本身,而是该对象'在内存中的地址', 也就是对象的引用.
+>
+> 当一个对象变量被复制(引用被复制), 该对象并没有被复制.
+>
+> 我们可以通过任何一个变量来访问对象并修改它的内容,修改对另一个变量是可见的.
+
+
+
+#### 2.通过引用来比较
+
+**当两个对象为同一个对象时,两者才相等**
+
+```js
+let a = {};
+let b = a; //复制引用
+
+console.log(a == b); //true
+console.log(a === b); //true
+
+```
+
+**两个独立的对象不相等,即使都为空的条件下**
+
+```js
+let a = {},
+    b = {};
+
+console.log(a == b); //false 
+console.log(a === b); //false
+
+let a = Object.create(null),
+    b = Object.create(null);
+
+console.log(a == b); //false
+```
+
+**数值比较**
+
+对于类似 `obj1 > obj2` 的比较，或者跟一个原始类型值的比较 `obj == 5`，对象都会被转换为原始值。
+
+
+
+### 克隆与合并
+
+如果想要复制一个对象, 创建一个独立的拷贝,克隆.
+
+#### 1. for循环复制
+
+创建一个新对象，并通过遍历现有属性的结构，在原始类型值的层面，将其复制到新对象，以复制已有对象的结构。
+
+```js
+let user = {
+  name: 'John',
+  age: 30
+};
+
+let clone = {};
+
+for(let k in user) {
+  clone[key] = user[key];
+}
+
+// 现在 clone 是带有相同内容的完全独立的对象
+clone.name = "Pete"; // 改变了其中的数据
+
+alert( user.name ); // 原来的对象中的 name 属性依然是 John
+```
+
+#### 2.Object.assign
+
+用 `Object.assign` 代替 `for..in` 循环来进行简单克隆
+
+```js
+let user = {
+  name: "John",
+  age: 30
+};
+
+let clone = Object.assign({}, user); 
+```
+
+
+
 ## 函数
 
 ### 概要
