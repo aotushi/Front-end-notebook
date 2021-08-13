@@ -2349,21 +2349,21 @@ const arr = [1,2,3,{name: 'atguigu'}];
 2.1 concat
 const arr2 = [].concat(arr);
 let result = arr;
-result[3].name='尚硅谷';
+result[3].name='美国硅谷';
 
 console.log(arr);//arr改变
 
 2.2 slice
 const result = arr.slice(0);
-result[3].name = '尚硅谷';
+result[3].name = '美国硅谷';
 
 console.log(arr);//arr改变
 
 2.3 扩展运算符 //扩展运算符拷贝数组的时候,如果数组里有对象.更改拷贝后的数组,原数组也会发生变化.如果数组都是基本数据类型, 数字是基本数据类型,不可变.对象是引用类型,引用的地址.
-const arr = [1,2,3,{name: 'atguigu'}];
+const arr = [1,2,3,{name: 'guigu'}];
 const result =[...arr];
-result[3].name = '尚硅谷';
-console.log(arr);//arr改变
+result[3].name = '美国硅谷1';
+console.log(arr);//美国硅谷1
 
 //扩展运算符 搭配
 const arrOld = ['a', 'b', 'c'];
@@ -2379,7 +2379,7 @@ console.log(arrOld);//['a', 'b', 'c']; 原数组不会发生变化
 ===================================================================
 3. 对象复制 Object.assign方法 //只能实现一维对象的深拷贝
 const school={
-    name: '尚硅谷',
+    name: '美国硅谷',
     pos: ['北京','上海','深圳'],
     founder: {
         name:'刚哥',

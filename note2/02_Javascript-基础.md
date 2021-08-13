@@ -2778,11 +2778,11 @@ console.log(a == b); //false
 
 
 
-### 克隆与合并
+#### 3.克隆与合并
 
-如果想要复制一个对象, 创建一个独立的拷贝,克隆.
+如果想要复制一个对象, 创建一个独立的拷贝,克隆.(假设对象的所有属性都是原始类型)
 
-#### 1. for循环复制
+##### 1. for循环复制
 
 创建一个新对象，并通过遍历现有属性的结构，在原始类型值的层面，将其复制到新对象，以复制已有对象的结构。
 
@@ -2804,7 +2804,7 @@ clone.name = "Pete"; // 改变了其中的数据
 alert( user.name ); // 原来的对象中的 name 属性依然是 John
 ```
 
-#### 2.Object.assign
+##### 2.Object.assign
 
 用 `Object.assign` 代替 `for..in` 循环来进行简单克隆
 
@@ -2816,6 +2816,126 @@ let user = {
 
 let clone = Object.assign({}, user); 
 ```
+
+
+
+#### 3.深层克隆
+
+对象属性为其他对象的引用,如何处理? 如果使用上面的克隆循环的方式, 属性对象会以引用形式被拷贝.
+
+```js
+let user = {
+  name: 'John',
+  sizes: {
+    height: 182,
+    width: 50
+  }
+}
+
+let clone = Object.assign({}, user);
+clone.sizes === user.sizes //true
+```
+
+为了解决此问题，我们应该使用会检查每个 `user[key]` 的值的克隆循环，如果值是一个对象，那么也要复制它的结构。这就叫“深拷贝”。
+
+可以使用递归或者使用现成的实例,例如lodash库中的_.cloneDeep(obj).
+
+```js
+//深拷贝
+
+1.JSON.parse(JSON.stringify(obj))
+
+2.
+```
+
+
+
+
+
+#### 4.总结
+
+```js
+对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。
+
+所有通过被拷贝的引用的操作（如添加、删除属性）都作用在同一个对象上。
+
+为了创建“真正的拷贝”（一个克隆），我们可以使用 Object.assign 来做所谓的“浅拷贝”（嵌套对象被通过引用进行拷贝）或者使用“深拷贝”函数，例如 _.cloneDeep(obj)。
+```
+
+
+
+#### 5.深拷贝
+
+> 几种深拷贝方式
+
+#### 5.1 JSON方式
+
+```js
+function deepClone(target) {
+	return JSON.parse(JSON.stringify(obj));
+}
+```
+
+
+
+#### 5.1.1 JSON深拷贝缺点
+
+```js
+https://www.jianshu.com/p/52db1d0c1780
+```
+
+#### 5.1.1.1  属性有时间对象
+
+```js
+JSON返回结果是字符串形式,不是对象形式
+
+let test = {
+  name: 'e',
+  data: [new Date(1536627600000), new Date(1540047600000)]
+};
+
+let result = JSON.parse(JSON.stringify(test));
+console.log(b);
+
+{name: "e", data: Array(2)}
+{name: "e", ["2018-09-11T01:00:00.000Z", "2018-10-20T15:00:00.000Z"]  }
+
+```
+
+
+
+#### 5.1.2 属性值有正则缩写,Error对象
+
+```js
+//序列号结果得到空对象
+const test = {
+  name: 'e',
+  data: new RegExp('\\w+')
+}
+const result = JSON.parse(JSON.stringify(test));
+test.name = 'test';
+console.log(result); //{name: 'e', data: {}}
+```
+
+
+
+#### 5.1.3 属性值有函数,undefined
+
+```js
+//
+const test = {
+  name: 'e',
+  data: function fn() {
+    console.log('fff');
+  }
+}
+
+const result = JSON.parse(JSON.stringify(test));
+test.name = 'test';
+console.error('ddd', test, result);
+```
+
+
 
 
 
