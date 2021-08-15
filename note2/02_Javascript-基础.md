@@ -2349,7 +2349,7 @@ console.timeEnd();
 
 ## 对象
 
-### 基本认识
+### 1.基本认识
 
 ```js
 * 对象是一种新的数据类型
@@ -2363,13 +2363,9 @@ console.timeEnd();
 
 
 
-### 特点
-
-比较两个对象是否相等(全等),比较的是两个对象的 内存地址 是否相同.
 
 
-
-### 创建对象3种方法
+### 2.创建对象3种方法
 
 ```js
 * 创建对象(3种方法)
@@ -2396,9 +2392,133 @@ let obj = {         //左边的花括号表示字面量的开始
 
 
 
+### 3.对象的属性
+
+> 在JS中,对象属性分为两类: 数据属性和访问器属性. 
+
+#### 1. 数据属性
+
+> 数据属性包含的是一个数据的位置,在这可以对数据值进行读写.
+
+#### 1.1.数据属性包含的4个特性
+
+##### 1.1.1 configurable
+
+默认值为true. 表示是否能通过delete删除属性从而重新定义属性; 能否修改属性的特性; 或能否把属性修改为访问器属性.
+
+##### 1.1.2 enumerable
+
+表示是否通过for-in循环返回属性
+
+##### 1.1.3 writable
+
+表示能否修改属性的值
+
+##### 1.1.4 value
+
+包含该属性的数据值. 默认为undefined.
 
 
-### 读取对象属性2种方法
+
+```js
+//实例 创建一个Person对象,打印name属性的默认值
+
+let person = {
+  name: 'mack',
+  cell: '1234'
+}
+
+//Object.getOwnPropertyDescriptor()方法可获取指定属性的描述
+
+console.log(Object.getOwnPropertyDescriptor(person, 'name'));
+
+//{value: "mack", writable: true, enumerable: true, configurable: true}
+```
+
+
+
+#### 1.2 修改数据属性的默认特性
+
+修改属性的默认特性用到方法`Object.defineProperty()`方法, 它有3个参数: 属性所在的对象, 属性名, 一个描述符对象.
+
+```js
+Object.defineProperty(person, 'name', {
+  writable: false,
+  value: 'newmack',
+  configurable: false,
+  enumerable: false
+})
+
+console.log(Object.getOwnPropertyDescriptor(person, 'name'));
+
+//执行到这里会报错, 因为configurable设置为false,后面就不能对该属性的4个特性进行修改 Uncaught ReferenceError: person is not defined
+Object.defineProperty(person, 'name', {configurable: true});
+
+//person.name = 'lucy'; 由于writable为false,代码执行到这里会报错  Uncaught ReferenceError: person is not defined
+//delete person.name    由于configurable为false, 代码执行到这里会报错. 
+//enumerable为false的属性, 不能通过for-in循环返回
+```
+
+
+
+
+
+#### 2.访问器属性
+
+> 这个属性不包含数据值，包含的是一对get和set方法，在读写访问器属性时，就是通过这两个方法来进行操作处理的。
+>
+> 访问器属性不能直接定义，要通过Object.defineProperty()这个方法来定义。
+
+#### 2.1访问器属性包含的4个特性
+
+##### 2.1.1 configurable
+
+>  默认为false. 表示能否通过delete删除属性从而重新定义属性，能否修改属性的特性，或能否把属性修改为访问器属性
+
+##### 2.1.2 enumerable
+
+表示能否通过for-in循环返回属性,默认为false
+
+##### 2.1.3 Get
+
+在读取属性时调用的函数,默认值为undefined
+
+##### 2.1.4 Set
+
+在写入属性时调用的函数,默认值为undefined
+
+```js
+//访问器属性不包含数值,它包含的是一对getter和setter函数. 访问器属性不能像数据一样直接定义,它必须使用Object.defindeProperty()方法来定义
+
+let book = {
+  _year = '2017', //下划线表示是内部属性,只能通过对象的方法来读写
+  editor: 1
+}
+
+Object.defineProperty(book, 'year', {
+  get: function () {
+    return this._year;
+  },
+  //若只指定get方法,不指定set方法,那就默认该属性是只读的.
+  set: function (newYear) {
+    if(newYear !== this._year) {
+      this._year = newYear;
+      this.editor++;
+    }
+  }
+})
+
+//打印出属性year的特性描述
+console.log(Object.definePropertyDescriptor(book, 'year'));
+Object {enumearble: false, configurable: false, get:function, set:function}
+//关于configurable这个特性，因为访问器属性里面这个特性默认值为false，如果程序后面需要对该属性进行delete操作等，那就在定义访问器属性时，将这个特性设置为true，不然这个会导致后面一些报错的问题。
+```
+
+
+
+
+
+### 4.读取对象属性2种方法
 
 ```js
 对象.属性名
@@ -2418,7 +2538,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-### 向对象种添加属性
+### 5.向对象种添加属性
 
 ```js
 * 向对象中添加属性
@@ -2435,7 +2555,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 
 
-### 对象中的方法
+### 6.对象中的方法
 
 ####  in/delete
 
@@ -2506,7 +2626,7 @@ obj.sayHello(); //运行alert函数
 
 
 
-### 对象静态方法
+### 7.对象静态方法
 
 ```js
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object#%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95
@@ -2632,7 +2752,7 @@ Object.is(NaN,NaN);          //true
 
 
 
-### 对象属性枚举for-in
+### 8.对象属性枚举for-in
 
 `for...in`语句以任意顺序遍历一个对象的除了[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
 
@@ -2695,7 +2815,7 @@ for(let i in newObj){
 
 
 
-### 遍历对象的方法
+### 9遍历对象的方法.
 
 ```js
 for循环 for..in    for..of  object.keys()
@@ -2712,7 +2832,7 @@ Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中
 
 
 
-### 对象类型介绍
+### 10.对象类型介绍
 
 ```javascript
 # 对象分类
@@ -2730,7 +2850,7 @@ Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中
 
 
 
-### 对象的引用和复制
+### 11.对象的引用和复制
 
 #### 1.引用类型和原始类型引用复制的区别
 
@@ -2878,62 +2998,19 @@ function deepClone(target) {
 
 
 
-#### 5.1.1 JSON深拷贝缺点
+#### 5.2 普通方法
 
 ```js
-https://www.jianshu.com/p/52db1d0c1780
-```
+//09 文档中
+直接进行赋值操作,字符串,数组,对象及对象的方法
 
-#### 5.1.1.1  属性有时间对象
-
-```js
-JSON返回结果是字符串形式,不是对象形式
-
-let test = {
-  name: 'e',
-  data: [new Date(1536627600000), new Date(1540047600000)]
-};
-
-let result = JSON.parse(JSON.stringify(test));
-console.log(b);
-
-{name: "e", data: Array(2)}
-{name: "e", ["2018-09-11T01:00:00.000Z", "2018-10-20T15:00:00.000Z"]  }
-
+例如,对象的方法
+target.fn = proObj.fn.bind(target);
 ```
 
 
 
-#### 5.1.2 属性值有正则缩写,Error对象
-
-```js
-//序列号结果得到空对象
-const test = {
-  name: 'e',
-  data: new RegExp('\\w+')
-}
-const result = JSON.parse(JSON.stringify(test));
-test.name = 'test';
-console.log(result); //{name: 'e', data: {}}
-```
-
-
-
-#### 5.1.3 属性值有函数,undefined
-
-```js
-//
-const test = {
-  name: 'e',
-  data: function fn() {
-    console.log('fff');
-  }
-}
-
-const result = JSON.parse(JSON.stringify(test));
-test.name = 'test';
-console.error('ddd', test, result);
-```
+#### 5.3 递归
 
 
 
@@ -7791,66 +7868,187 @@ result = str.match(/1[3-9][0-9]{9}/g);
 
 ### JSON
 
-```JavaScript
-JavaScript Object Notation
-- JS对象表示法
-- JSON实际就是一个字符串,它有一个特殊的字符(格式类似于JS对象)
-- 使用JSON格式表示的数据,可以转换为任何语言中的对象,从而达到数据交换的目的
-- JSON无法保存对象里的方法.可以使用递归实现深拷贝
+### 1.介绍
 
-
-- JSON的格式
- 1.JSON的格式和JS对象基本是一样的
-  不同点在于JSON的属性名,必须加双引号
-  字符串也必须使用双引号,不能使用单引号
-
-2.JSON中支持的数据类型
- -1 字符串(string)
- -2 数值(number)
- -3 布尔值(boolean)
- -4 空值(null)
- -5 对象(object)
- -6 数组(array)
-
-3.JSON的形式2种
-JSON对象{}
-JSON数组[]
-
-
-转换方法:
-1.将JS对象转换为JSON字符串
-JSON.stringify(JS对象)
-- 将一个js对象转换为一个JSON字符串
-
-2.将JSON字符串转换为JS对象
-JSON.parse(json串)
-- 将一个JSON字符串转换为js对象
-
-
-```
+> **`JSON`**对象包含两个方法: 用于解析 [JavaScript Object Notation](http://json.org/) ([JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)) 的 `parse()` 方法，以及将对象/值转换为 JSON字符串的 `stringify()` 方法。除了这两个方法, JSON这个对象本身并没有其他作用，也不能被调用或者作为构造函数调用。
+>
+> **JSON** 是一种语法，用来序列化对象、数组、数值、字符串、布尔值和 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 。它基于 JavaScript 语法，但与之不同：**JavaScript不是JSON，JSON也不是JavaScript**。
 
 
 
-#### stringify() |
+### 2. JSON VS Javascript
 
-```javascript
-JSON.stringify(NaN); //null
+| JS类型     | JSON不同点                                                   |
+| ---------- | ------------------------------------------------------------ |
+| 对象  数组 | 属性名称必须是双引号括起来的字符串; 最后一个属性后不能有逗号 |
+| 数值       | 禁止出现前导零 （ JSON.stringify 方法自动忽略前导零，而在 JSON.parse 方法中将会抛出 SyntaxError）；如果有小数点, 则后面至少跟着一位数字。 |
+| 字符串     | 只有有限的一些字符可能会被转义；禁止某些控制字符； Unicode 行分隔符 （[U+2028](https://unicode-table.com/cn/2028/)）和段分隔符 （[U+2029](https://unicode-table.com/cn/2029/)）被允许 ; 字符串必须用双引号括起来。 |
 
-JSON.stringify()处理object值，不保证object的属性顺序
-```
 
 
+### 3.方法
 
-####  parse()
+#### 3.1 JSON.parse()
+
+> 解析JSON字符串并返回对应的值，可以额外传入一个转换函数，用来将生成的值和其属性, 在返回之前进行某些修改。
+
+**语法**
 
 ```js
+JSON.parse(text[, reviver])
+
+//参数
+text 要被解析成 JavaScript 值的字符串，关于JSON的语法格式
+reviver 可选 转换器, 如果传入该参数(函数)，可以用来修改解析生成的原始值，调用时机在 parse 函数返回之前。
 ```
 
 
 
-#### 使用
+**返回值**
 
-1.删除json中的转义字符右斜杠 ??
+```js
+对象
+如果传入的字符串不符合JSON规范，　则抛出SyntaxError错误
+```
+
+
+
+**示例**
+
+```js
+JSON.parse('{}'); //{}
+JSON.parse('true'); //true
+JSON.parse('"foo"'); //"foo"
+JSON.parse('[1, 5, "false"]'); // [1, 5, "false"]
+JSON.parse('null');   
+```
+
+
+
+**reviver函数**
+
+> 如果指定了 `reviver` 函数，则解析出的 JavaScript 值（解析值）会经过一次转换后才将被最终返回（返回值）
+>
+> 更具体点讲就是：解析值本身以及它所包含的所有属性，会按照一定的顺序（从最最里层的属性开始，一级级往外，最终到达顶层，也就是解析值本身）分别的去调用 `reviver` 函数，在调用过程中，当前属性所属的对象会作为 `this` 值，当前属性名和属性值会分别作为第一个和第二个参数传入 `reviver` 中。如果 `reviver` 返回 `undefined`，则当前属性会从所属对象中删除，如果返回了其他值，则返回的值会成为当前属性新的属性值。
+>
+> 当遍历到最顶层的值（解析值）时，传入 `reviver` 函数的参数会是空字符串 `""`（因为此时已经没有真正的属性）和当前的解析值（有可能已经被修改过了），当前的 `this` 值会是 `{"": 修改过的解析值}`，在编写 `reviver` 函数时，要注意到这个特例。（这个函数的遍历顺序依照：从最内层开始，按照层级顺序，依次向外遍历）
+
+```js
+JSON.parse('{"p": 5}', function(k,v) {
+  if(k === '') return v; // 如果到了最顶层，则直接返回属性值，
+  return v*2;						// 否则将属性值变为原来的 2 倍。
+})											// { p: 10 }
+
+JSON.parse('{"1": 1, "2": 2,"3": {"4": 4, "5": {"6": 6}}}', function (k, v) {
+    console.log(k); // 输出当前的属性名，从而得知遍历顺序是从内向外的，
+                    // 最后一个属性名会是个空字符串。
+    return v;       // 返回原始属性值，相当于没有传递 reviver 参数。
+});
+
+// 1
+// 2
+// 4
+// 6
+// 5
+// 3
+// ""
+```
+
+
+
+
+
+
+
+#### 3.2 JSON.stringify()
+
+> `**JSON.stringify()**` 方法将一个 JavaScript 对象或值转换为 JSON 字符串，如果指定了一个 replacer 函数，则可以选择性地替换值，或者指定的 replacer 是数组，则可选择性地仅包含数组指定的属性。
+
+**语法**
+
+```js
+JSON.stringify(value[,replacer[,space]])
+
+//
+value  将要序列化成 一个 JSON 字符串的值。
+replacer 可选
+	如果该参数是一个函数，则在序列化过程中，被序列化的值的每个属性都会经过该函数的转换和处理；如果该参数是一个数组，则只有包含在这个数组中的属性名才会被序列化到最终的 JSON 字符串中；如果该参数为 null 或者未提供，则对象所有的属性都会被序列化。
+  
+space 可选
+指定缩进用的空白字符串，用于美化输出（pretty-print）；如果参数是个数字，它代表有多少的空格；上限为10。该值若小于1，则意味着没有空格；如果该参数为字符串（当字符串长度超过10个字母，取其前10个字母），该字符串将被作为空格；如果该参数没有提供（或者为 null），将没有空格。
+```
+
+
+
+**描述**
+
+`JSON.stringify()`将值转换为相应的JSON格式：
+
+- 转换值如果有 toJSON() 方法，该方法定义什么值将被序列化。
+- 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中。
+- 布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值。
+- `undefined`、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 `null`（出现在数组中时）。函数、undefined 被单独转换时，会返回 undefined，如`JSON.stringify(function(){})` or `JSON.stringify(undefined)`.
+- 对包含循环引用的对象（对象之间相互引用，形成无限循环）执行此方法，会抛出错误。
+- 所有以 symbol 为属性键的属性都会被完全忽略掉，即便 `replacer` 参数中强制指定包含了它们。
+- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同Date.toISOString()），因此会被当做字符串处理。
+- NaN 和 Infinity 格式的数值及 null 都会被当做 null。
+- 其他类型的对象，包括 Map/Set/WeakMap/WeakSet，仅会序列化可枚举的属性。
+
+
+
+**实例**
+
+```js
+JSON.stringify({});                        // '{}'
+JSON.stringify(true);                      // 'true'
+JSON.stringify("foo");                     // '"foo"'
+JSON.stringify([1, "false", false]);       // '[1,"false",false]'
+JSON.stringify({ x: 5 });                  // '{"x":5}'
+```
+
+
+
+**bug**
+
+```js
+//一个组件为了保留一份 JSON 对象，使用 JSON.stringify 将其转换成字符串, 后面使用 JSON.parse 方法之后，发现数据有所变化
+let obj = {
+  name: 'Gopal',
+  age: Infinity
+}
+let originObj = JSON.stringify(obj)
+console.log(originObj) // {"name":"Gopal","age":null}
+```
+
+```js
+//解决方法
+方法1: 直接赋值, 重新给age属性赋值
+方法2:
+function censor(key, value) {
+  if(key === 'Infinity') {
+    return "Infinity"
+  }
+  return value;
+}
+
+let b = JSON.stringify(a ,censor);
+let c = JSON.parse(
+	b,
+  function (key, value) {
+    return value === "Infinity" ? Infinity : value;
+  }
+)
+```
+
+
+
+
+
+
+
+### 4 使用场景
+
+#### 4.1.删除json中的转义字符右斜杠 ??
 
 ```js
 JSON.stringify(data).toString.replace(new RegExp("\\\\\"","gm"),"\""))
@@ -7858,7 +8056,48 @@ JSON.stringify(data).toString.replace(new RegExp("\\\\\"","gm"),"\""))
 data.replaceAll('\\','');
 ```
 
+#### 4.2 判断对象/数组是否相等
 
+```js
+let a = [1,2,3],
+    b = [1,2,3];
+JSON.stringify(a) === JSON.stringify(b);// true  
+
+//Object.is()
+//toString()  隐患: 数字1和字符串1会被认为相等
+```
+
+
+
+#### 4.3 localStorage/sessionStorage存储对象
+
+>  localStorage/sessionStorage 只可以存储字符串，当我们想存储对象的时候，需要使用 JSON.stringify 转换成字符串，获取的时候再 JSON.parse
+
+```js
+// 存
+function setLocalStorage(key,val) {
+    window.localStorage.setItem(key, JSON.stringify(val));
+};
+// 取
+function getLocalStorage(key) {
+    let val = JSON.parse(window.localStorage.getItem(key));
+    return val;
+};
+```
+
+
+
+#### 4.4 实现对象深拷贝
+
+```js
+无法实现对含有方法的对象的拷贝
+```
+
+
+
+#### 4.5 路由(浏览器地址)传参
+
+因为浏览器传参只能通过字符串进行，所以也是需要用到 JSON.stringify
 
 
 
