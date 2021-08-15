@@ -2402,7 +2402,7 @@ console.log(school);//scholl.pos[0]发生变化
 >
 > JSON深拷贝缺点: 无法拷贝对象里的方法
 
-#### JSON深拷贝缺点
+#### 1. JSON方式
 
 ```js
 - 会忽略undefined
@@ -2444,6 +2444,108 @@ console.log(school);//原对象school没有发生改变
 //stringify和parse组合写法:
 const result=JSON.parse(JSON.stringify(school));
 ```
+
+
+
+#### 1.1 JSON深拷贝缺点
+
+```js
+https://www.jianshu.com/p/52db1d0c1780
+```
+
+#### 1.1.1  属性值对象里有时间对象
+
+```js
+JSON返回结果是字符串形式,不是对象形式
+
+let test = {
+  name: 'e',
+  data: [new Date(1536627600000), new Date(1540047600000)]
+};
+
+let result = JSON.parse(JSON.stringify(test));
+console.log(b);
+
+{name: "e", data: Array(2)}
+{name: "e", ["2018-09-11T01:00:00.000Z", "2018-10-20T15:00:00.000Z"]  }
+
+```
+
+
+
+#### 1.2 属性值对象里有正则缩写,Error对象
+
+```js
+//序列号结果得到空对象
+const test = {
+  name: 'e',
+  data: new RegExp('\\w+')
+}
+const result = JSON.parse(JSON.stringify(test));
+test.name = 'test';
+console.log(result); //{name: 'e', data: {}}
+```
+
+
+
+#### 1.3 属性值对象里有函数,undefined
+
+```js
+//
+const test = {
+  name: 'e',
+  data: function fn() {
+    console.log('fff');
+  },
+ 	obj: {a: undefined}
+}
+
+const result = JSON.parse(JSON.stringify(test));
+test.name = 'test';
+console.error('ddd', test, result);
+//result的打印结果是
+{name: 'e', obj: {}}
+//test打印结果
+{name: 'e', obj: {a: undefined}, data:fn()}
+```
+
+
+
+#### 1.4 如果属性值对象里由NaN, Infinity和-Infinity, 序列化结果是变成null
+
+
+
+#### 1.5 不可枚举属性
+
+JSON.stringify()只能序列化对象的可枚举的自有属性，例如 如果obj中的对象是有构造函数生成的， 则使用JSON.parse(JSON.stringify(obj))深拷贝后，会丢弃对象的constructor；
+
+```js
+function Person(name) {
+  this.name = name;
+  console.log(name);
+}
+
+const lilai = new Person('lilai');
+
+const test = {
+  name: 'a',
+  data: lilai,
+}
+
+const result = JSON.parse(JSON.stringify(test));
+test.name = 'test';
+console.log(test, result);
+```
+
+
+
+#### 1.6 对象中存在循环引用的情况也无法实现深拷贝
+
+
+
+#### 1.7 总结
+
+序列化JS对象,所有函数和原型成员对象会被忽略.能被深拷贝的数据类型有**字符串,数值,布尔值,扁平对象.**
 
 
 
