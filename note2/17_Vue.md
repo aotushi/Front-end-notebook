@@ -1620,6 +1620,76 @@ b. 旧虚拟DOM中未找到与新虚拟DOM相同的key
 
 
 
+#### 2.2 一种安全获取key的方法
+
+```js
+//https://juejin.cn/post/6844903823757180941#heading-1
+
+两种不太合适的方案:
+1.使用index  //这个列表进行增删的操作，可能会出现渲染错乱的问题
+2.使用Math.random()  //把key="Math.random()"直接写在了模板中，导致我们每次渲染，key都会变. 固定下key，从而解决上述问题。但是这种方案的问题是，污染了数据。如果后续我们要把这份儿list存到数据库，我们不得不再过滤掉这些key
+
+
+data() {
+    return {
+        // 数据初始化时加上key
+        list: [{}, {}, {}].map(item => {
+            item.key = Math.random()
+            return item
+        })
+    }
+},
+methods: {
+    // 每次添加项目时，也事先加上key
+    addItem2List() {
+        this.list.push({
+            key: Math.random()
+        })
+    }
+}
+
+
+```
+
+```html
+<template>
+    <div>
+        <ul>
+            <li v-for="item in list" :key="getUID(item)"></li>
+        </ul>
+    </div>
+</template>
+
+<script>
+let uid = 0
+
+// WeakMap保证了Map的key可以被及时GC
+const Item2UIDMap = new WeakMap()
+
+export default {
+    data() {
+        return {
+            list: [{}, {}, {}]
+        }
+    },
+    methods: {
+        getUID(item) {
+            const persistedUID = Item2UIDMap.get(item)
+            if (!persistedUID) {
+                Item2UIDMap.set(item, ++uid)
+                return uid
+            }
+            return persistedUID
+        }
+    }
+}
+</script>
+
+//这种也是有问题.ue组件销毁了之后再重新激活, 打印这个weakMap, 之前item的还在weakmap里面
+```
+
+
+
 ### 3.数组更新检测
 
 #### 3.1变更方法
@@ -1685,6 +1755,15 @@ Vue 为了使得 DOM 元素得到最大范围的重用而实现了一些智能�
     <li class="divider" role="presentation"></li>
   </template>
 </ul>
+```
+
+#### 5.1 不推荐在template上进行列表渲染
+
+```html
+//https://blog.csdn.net/weixin_43487782/article/details/108909901
+如果试图给<template>绑定key，那么控制台就会报错. <template> cannot be keyed. Place the key on real elements instead.
+<template>元素不会出现在最终的渲染结果中。假如给<template>元素绑定key，相当于key值就丢失了，等于没有绑定  
+key可以给内部元素绑定吗？答案是可以的，但强烈不推荐。原因是如果内部有很多平级的元素，就得给每个元素都加一个key,而且会报错.
 ```
 
 

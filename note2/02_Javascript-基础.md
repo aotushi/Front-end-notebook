@@ -5046,6 +5046,18 @@ shift()
 ### 遍历数组的5种方法
 
 ```js
+//https://blog.fundebug.com/2019/03/11/4-ways-to-loop-array-inj-javascript/
+for/of是遍历数组最可靠的方式，它比for循环简洁，并且没有for/in和forEach()那么多奇怪的特例。for/of的缺点是我们取索引值不方便，而且不能这样链式调用forEach(). forEach()。
+
+使用for/of获取数组索引，可以这样写
+for(const[i,v] of arr.entries()) {
+  console.log(i,v);
+}
+```
+
+
+
+```js
 //https://www.cnblogs.com/goloving/p/8686780.html
 1.定义
 稀疏数组:数组中的元素之间可以有空隙empty,

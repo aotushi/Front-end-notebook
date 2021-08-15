@@ -66,9 +66,43 @@ vscode chrome
 
 ### 2.html&css
 
+#### 2.1 资料
+
+| 序号 | 名称                   | 来源   | 完成情况 |
+| ---- | ---------------------- | ------ | -------- |
+| 1    | HTML5权威指南          | weread | 未开始   |
+| 2    | 响应式Web设计          | weread | 未开始   |
+| 3    | CSS3艺术               | weread | 未开始   |
+| 4    | HTML5 与 CSS 3权威指南 | weread | 未开始   |
+| 5    | CSS揭秘                | weread | 进行中   |
+| 6    | CSS图鉴                | weread | 未开始   |
+| 7    | 响应式Web开发项目教程  | weread | 未开始   |
+| 8    | CSS世界                | weread | 未开始   |
+| 9    |                        |        |          |
+
+
+
 
 
 ### 3.javascript DOM BOM
+
+#### 3.1 资料
+
+| 序号 | 名称                         | 来源                | 完成情况 |
+| ---- | ---------------------------- | ------------------- | -------- |
+| 1    | JS高级程序设计               | PDF/微信熟读/github | 进行中   |
+| 2    | 深入理解ES6                  | weread              | 进行中   |
+| 3    | JavaScript DOM编程艺术       | weread              | 未开始   |
+| 4    | JavaScript设计模式           | weread              | 未开始   |
+| 5    | JavaScript框架设计           | weread              | 未开始   |
+| 6    | JavaScript语言精髓与编程实战 | weread              | 未开始   |
+| 7    | 学习JavaScript数据结构与算法 | weread              | 未开始   |
+| 8    | JavaScript语言精粹           | weread              | 未开始   |
+| 9    | 你不知道的JavaScript         | weread              | 未开始   |
+| 10   | JavaScript编程精解           | weread              | 未开始   |
+| 11   |                              |                     |          |
+
+
 
 
 
@@ -77,6 +111,15 @@ vscode chrome
 
 
 ### 5.性能
+
+#### 5.1 资料
+
+| 序号 | 名称        | 来源   | 完成情况 |
+| ---- | ----------- | ------ | -------- |
+| 1    | Web性能实战 | weread | 未开始   |
+| 2    |             |        |          |
+
+
 
 
 
@@ -94,6 +137,16 @@ vscode chrome
 
 ### 1. vue
 
+| 序号 | 名称                               | 来源                                                         | 完成情况 |
+| ---- | ---------------------------------- | ------------------------------------------------------------ | -------- |
+| 1    | Vue.js技术揭秘                     | https://ustbhuangyi.github.io/vue-analysis/                  |          |
+| 2    | 深入浅出Vue.js                     | 图书/weread                                                  |          |
+| 3    | Vue开发实战                        | [Vue开发实战_Vue_前端框架-极客时间 (geekbang.org)](https://time.geekbang.org/course/intro/100024601) |          |
+| 4    | Vue.js快跑                         | weread                                                       |          |
+| 5    | Vue.js前端开发(快速入门与专业应用) | 微信熟读                                                     |          |
+
+
+
 
 
 ### 2.react
@@ -107,36 +160,6 @@ vscode chrome
 
 
 ### 2. 设计架构
-
-
-
-## 四. 算法与数据结构
-
-
-
-### 1. 算法案例
-
-
-
-### 2. 手写代码
-
-
-
-## 五. 计组,操作系统与网络
-
-
-
-### 0. 计组
-
-
-
-### 1.操作系统
-
-
-
-### 2. 网络
-
-
 
 
 
