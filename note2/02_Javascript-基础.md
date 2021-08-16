@@ -4698,7 +4698,7 @@ console.log(per.name = '朝天阙'); //朝天阙
 
 
 
-#### 数组空元素empty和undefined的区别
+#### 1.数组空元素empty和undefined的区别
 
 使用数组字面量初始化数组时，可以使用一串逗号来创建空位（hole）。ECMAScript 会将逗号之间相应索引位置的值当成空位，ES6 规范重新定义了该如何处理这些空位。
 
@@ -4749,7 +4749,7 @@ ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法�
 
 
 
-#### 数组字符串索引和数值索引比较
+#### 2.数组字符串索引和数值索引比较
 
 ```markdown
 https://www.cnblogs.com/goloving/p/9180588.html
@@ -4770,6 +4770,12 @@ console.log(arr.length); //0
 ```
 
 
+
+#### 3. 值为null或undefined
+
+```js
+如果数组值为null或undefined, 那么调用toLocaleString(),join(),toString(),valueOf()方法时, 返回的结果中以空字符串表示.
+```
 
 
 
@@ -4995,6 +5001,16 @@ arr[arr.length-1] //可以理解最后一位是负1,倒数第二位是负2....
 
 
 ### 数组4方法
+
+> ECMAScript 给数组提供几个方法，让它看起来像是另外一种数据结构
+>
+> 数组对象可以像栈一样,也就是一种限制插入和删除项的数据结构.
+>
+> 栈是一种后进先出的结构(LIFO, Last-In-First-Out), 也就是最近添加的项会被先删除. 数据项的插入(push,称为推入)和删除(称为弹出,pop)只在栈的一个地方发生,栈顶. 
+>
+> ECMAScript 数组提供了push()和pop()方法，以实现类似栈的行为。
+
+
 
 #### push()
 
@@ -5666,6 +5682,8 @@ console.log(newArr)
 
 #### join()
 
+> 字符串分隔符
+
 `**join()**` 方法将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该项目而不使用分隔符。
 
 ```JavaScript
@@ -5680,8 +5698,6 @@ separator 可选
 //描述
 - 有的数组元素被转换成字符串，再用一个分隔符将这些字符串连接起来
 - 如果一个元素为 undefined 或 null，它会被转换为空字符串   //不是用的String(null)吗? 'null'
-
-
 ```
 
 
