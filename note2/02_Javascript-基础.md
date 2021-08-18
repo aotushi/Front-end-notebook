@@ -632,9 +632,9 @@ console.log(arr.toString()); //[object Array]
 
 #### 其他类型转换为字符串类型
 
-##### 方式一
+##### 方式一 toString
 
-可以调用<u>被转换类型</u>的**to==S==tring()方法**来将其转换成字符串
+可以调用<u>被转换类型</u>的**toString()方法**来将其转换成字符串
 
 由于null和undefined中没有toString()方法,所以这种方式不适用于这两种,会报错
 
@@ -659,7 +659,7 @@ String([1,2,,undefined,null])   // "1,2,,,"
 
 
 
-##### 方式二
+##### 方式二 String
 
 ```js
 调用 String()函数,来将其转换为字符串 
@@ -701,7 +701,115 @@ undefined.toString();// Uncaught TypeError: Cannot read property 'toString' of n
 
 
 
+#### 对象身上toString()和valueOf()介绍
 
+> https://segmentfault.com/a/1190000010824347?utm_source=sf-similar-article
+
+toString() 和 valueOf() 是对象的两个方法.
+
+ 先说一下两个东西的用途：
+
+​    toString( ):返回对象的字符串表示。
+
+​    valueOf( ):返回对象的字符串、数值或布尔值表示
+
+```js
+//null undefined没有这两个方法
+
+//先看看toString()方法的结果
+var a = 3;
+var b = '3';
+var c = true;
+var d = {test:'123',example:123}
+var e = function(){console.log('example');}
+var f = ['test','example'];
+
+a.toString();// "3"
+b.toString();// "3"
+c.toString();// "true"
+d.toString();// "[object Object]"
+e.toString();// "function (){console.log('example');}"
+f.toString();// "test,example"
+
+//再看看valueOf()方法的结果
+var a = 3;
+var b = '3';
+var c = true;
+var d = {test:'123',example:123}
+var e = function(){console.log('example');}
+var f = ['test','example'];
+
+a.valueOf();// 3
+b.valueOf();// "3"
+c.valueOf();// true
+d.valueOf();// {test:'123',example:123}
+e.valueOf();// function(){console.log('example');}
+f.valueOf();// ['test','example']
+```
+
+toString( )就是将其他东西用字符串表示，比较特殊的地方就是，表示对象的时候，变成"[object Object]",表示数组的时候，就变成数组内容以逗号连接的字符串，相当于Array.join(',')。 而valueOf( )就返回它自身
+
+什么时候调用?
+
+```js
+//例子一
+var example = {test:'123'};
+console.log(+example);// NaN
+
+//例子二 同时改写 toString 和 valueOf 方法
+var example = {
+    toString:function(){
+        return '23';
+    },
+    valueOf:function(){
+        return '32';
+    }
+};
+console.log(+example);// 32
+
+//例子三 只改写 toString 方法
+var example = {
+    toString:function(){
+        return '23';
+    }
+};
+console.log(+example);// 23
+```
+
+通过例子1和例子2比较, 一元加操作符在操作对象时,会先调用对象的valueOf()方法来转换, 最后在用Number()方法来转换. 
+
+通过例子2和例子3比较, 如果只改写了toString()方法, 证明valueOf()的优先级比toString()高.
+
+alert情况下:
+
+```js
+//例子一
+var example = {test:'123'};
+alert(example);// "[object Object]"
+
+//例子二 同时改写 toString 和 valueOf 方法
+var example = {
+    toString:function(){
+        return '23';
+    },
+    valueOf:function(){
+        return '32';
+    }
+};
+alert(example);// "23"
+
+//例子三 只改写 valueOf 方法
+var example = {
+    valueOf:function(){
+        return '32';
+    }
+};
+alert(example);// "[object Object]"
+```
+
+虽然上面结果用双引号了，但是你知道弹窗不会将字符串的双引号表示出来的。
+
+alert它对待对象，就和字符串和对象相加一样，就是调用它的toString( )方法，和valueOf方法无关。
 
 #### 其他类型转换为数值
 
