@@ -952,6 +952,24 @@ GitHub 团队协作开发也比较容易管理，可以创建一个组织
 
 
 
+### github使用场景
+
+#### 1.github远程仓库名或地址更改,本地如何同步?
+
+```js
+1.查看本地仓库地址
+git remote -v
+2.删除远程仓库地址
+git remote rm origin
+3.添加远程仓库(修改过名字的)
+git remote add origin 地址
+4.同步
+git pull origin master
+
+//其他 推送可能遇到的问题 上游无分支
+git push --set-upstream origin master
+```
+
 
 
 
