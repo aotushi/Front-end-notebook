@@ -32,7 +32,6 @@
 * [13_react脚手架Vue配置代理](./note2/13_react脚手架 Vue配置代理.md)
 * [14_移动端](./note2/14_移动端.md)
 * [15_vue_react脚手架rem适配](./note2/15_vue_react脚手架rem适配.md)
-* [01_html&css](./note2/01_html&css.md)
 * [16_react扩展+案例+antd](./note2/16_react扩展+案例+antd.md)
 * [17_Vue](./note2/17_Vue.md)
 * [18_vue脚手架配置代理](./note2/18_vue脚手架配置代理.md)
