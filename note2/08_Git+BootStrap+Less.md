@@ -19,10 +19,6 @@ Git 是一款开源免费的分布式的版本控制系统，是一个应用程�
 
 
 
-![Git安装注意点](D:/0922frontend/习题&笔记/笔记/assets/Git安装注意点.png)
-
-
-
 ## Linux 常用命令
 
 Linux 是一套开源免费的操作系统。与系统的交互通常用命令来实现，常用的命令有：
@@ -143,7 +139,7 @@ ssh -T git@github.com
 
 
 
-#### 管理多个密钥
+#### 管理多个密钥   (未完成没实践)
 
 1.**添加config文件**
 
@@ -204,7 +200,19 @@ ssh -T git@xx.xx.xxx.xx
 
 
 
-#### 使用凭据方法访问github
+#### 使用个人令牌方法访问github
+
+**背景**
+
+> 在2021年8月停止使用账号和密码的方式访问github仓库，改为token认证的方式。
+
+**token获取方式**
+
+> setting-->Developer settings-->Personal access tokens--> Generate new token
+
+**本地已有仓库更改密码为token**
+
+> git config --local user.password token    //--local含义为只设置当前仓库的密码 --global就是设置全局的密码
 
 
 
