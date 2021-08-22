@@ -6041,6 +6041,46 @@ btn.onclick=async function(){
 
 
 
+### map中遍历使用async函数
+
+```js
+//https://zhuanlan.zhihu.com/p/88695806
+
+当 async 函数被执行时，将立即返回 pending 状态的Promise（ Promise 是 Truthy 的）！因此，在 map 循环时，不会等待 await 操作完成，而是直接进入下一次循环，所以应当配合 for 循环使用 async。
+对于 forEach 而言，参考 MDN 中它的 Polyfill 可知，若回调函数为异步操作，它将会表现出并发的情况，因为它不支持等待异步操作完成后再进入下一次循环。
+
+
+//来个例子: 自定义Sleep函数阻塞代码一段时间
+//方案1
+const sleep = ms => new Promise(resolve=>{
+  setTimeout(()=>{
+    resolve()
+  },ms)
+});
+const mapResult = [1,2].map(async num => {   //使用async函数后map的返回值为 //[Promise{<pending>}, Promise{<pending>]}
+  await sleep(3000);
+})
+
+//方案2
+const sleep = wait => new Promise(resolve=>setTimout(resolve, wait));
+const __main = async function () {
+  const tasks = [1,2,3];
+  let results = await tasks.reduce(async (previousValue, currentValue) => {
+    let results = await previousValue;
+    console.log(`task ${currentValue} start`);
+    await sleep(1000 * currentValue);
+    console.log(`${currentValue}`);
+    console.log(`task ${currentValue} end`);
+    results.push(currentValue);
+    return results;
+  }, []);
+  console.log(results);
+}
+__main();
+```
+
+
+
 
 
 ## JS异步之宏队列和微队列
