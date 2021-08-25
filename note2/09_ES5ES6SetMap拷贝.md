@@ -933,19 +933,6 @@ fn(实参)
 
 
 
-#### Array.prototype.filter
-
-```js
-reference:https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-- 所有返回true或等价于true的值的元素创建一个新数组.
-
-filter为数组中每个元素调用一次callback函数,并利用所有使得callback返回true或等价于true的值的元素创建一个新数组. 
-
-filter不会改变原数组,它会返回过滤后的新数组.
-```
-
-
-
 
 
 #### 箭头函数案例
