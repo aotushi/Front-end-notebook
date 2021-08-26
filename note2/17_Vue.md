@@ -2167,6 +2167,21 @@ Vue 还对应 addEventListener 中的 passive 选项提供了 .passive 修饰符
 
 
 
+#### 5.2 一个标签/组件上绑定多个标签
+
+```js
+<baseForm
+	@click.capture = 'doThis'
+	@click = 'doThat'
+/>
+  
+其他:
+1.事件执行顺序  先执行了doThis, 再执行doThat
+2.如果子组件是二次封装的UI框架,capture可能会失效,不会执行
+```
+
+
+
 
 
 ### 6.系统修饰符
@@ -2189,6 +2204,47 @@ Vue 还对应 addEventListener 中的 passive 选项提供了 .passive 修饰符
 
 <!-- Ctrl + Click -->
 <div v-on:click.ctrl="doSomething">Do something</div>
+```
+
+
+
+### 7.其他
+
+#### 7.1 Vue如何劫持所有的click事件
+
+```js
+//https://www.zhihu.com/question/290066361
+
+1.事件冒泡方案的问题
+1.1 事件冒泡可能会被阻止 click.stop
+1.2 页面可能存在多个vue实例
+
+2.混入方案
+混入会对所有的组件有效,在每个组件渲染完成后把当前实例的context传进要进行捕获click的函数中.
+Vue.mixin({
+  mounted() {
+    this.$nextTick(() => {
+      delegateBehavior(this);
+    })
+  }
+})
+
+delegateBehavior(context:any) {
+  //在context的$el上添加_uid的赋值
+  if (context.$el) {
+    context.$el.setAttribute('vueautoreport-uid', context._uid);
+  }
+  //在root上做标记,不以次数, 可能页面存在多个vue实例
+  if (context.$root.$el && !context.$root.$el._isBindDelegate) {
+    eventTypes.forEach((eventType) => {
+      //root组件绑定捕获事件,处理冒泡阻止的情况
+      context.$root.$el.addEventListener(eventType, (e:Event) => {
+        this.captureEvent(e, this.captureContexts, eventType);
+      }, true);
+    })
+    context.$root.$el._isBindDelegate = true;
+  }
+}
 ```
 
 
