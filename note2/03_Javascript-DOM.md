@@ -3296,7 +3296,7 @@ clientTop:
 
 
 
-## 1109
+## DOM案例及功能
 
 ### 拖拽九宫格碰撞
 
@@ -3889,7 +3889,7 @@ function fun(event){
 
 
 
-## 1110
+
 
 ### 轮播图
 
@@ -3927,6 +3927,21 @@ function fun(event){
 
 
 
+
+### 页面不能点击的几种方法
+
+```js
+在vue组件中,想实现所有多有的点击事件实现不能点击的效果,包括二次封装的vant组件.
+
+几种方法:
+1.如果是根组件模板中,在根标签之下添加<form><filedset disabled></filedset></form> 但只能对表单内的input标签起作用
+2.使用事件捕获:
+ document.addEventListener('click', function() {return ....}, true)
+
+3.class属性pointer-evnets:none; 给父组件添加之后也会影响到子组件,同时移动端上滑动效果也失效.
+
+4.知乎 https://www.zhihu.com/question/290066361
+```
 
 
 
