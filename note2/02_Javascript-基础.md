@@ -3252,22 +3252,23 @@ js高级程序中写到,函数的参数都是按值传递的“.
 //证明对象在函数的参数传递中是按值传递的代码
 
 function setName(obj) {
-    obj.name = "Nicholas";
-    obj = new Object();
+    obj.name = "Nicholas";   //obj地址没有改变
+    obj = new Object();      //obj地址改变
     obj.name = "Greg";
 }
 
-var person = new Object();
+var person = new Object(); 
 setName(person);
 alert(person.name); // "Nicholas"
 var person = new Object();
 setName(person);
 alert(person.name); // "Nicholas"
 
-如果对象在函数的参数传递中是按引用传递的，那么当解析器执行到：
-obj = new Object();
-这段代码的时候，person原先指向的那个对象将被删除，即obj和person都
-将指向新建的obj对象，而新建的obj对象的name属性时“Greg”,则弹出的应该是“Greg”，而结果却不是，说明： 对象在函数的参数传递中是按值传递！
+如果对象在函数的参数传递中是按引用传递的，那么当解析器执行到：obj = new Object()这段代码的时候，person原先指向的那个对象将被删除，即obj和person都将指向新建的obj对象，而新建的obj对象的name属性时“Greg”,则弹出的应该是“Greg”，而结果却不是，说明： 对象在函数的参数传递中是按值传递！
+
+假设person地址是0x100, obj的地址因为接收的person也会相同.0x100地址上对象新增name属性,值为'Nicholas'.
+当obj被赋值为新对象的时候,地址更改为0x200. 0x200地址上的对象有name属性,值为'Greg'.
+当打印person.name时,打印的结果是地址0x100上的name值
 
 //资料来源: https://www.cnblogs.com/superdg003/p/5946727.html 
 ```
