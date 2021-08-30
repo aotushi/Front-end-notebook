@@ -2255,7 +2255,7 @@ delegateBehavior(context:any) {
 
 你可以用 `v-model` 指令在表单 `<input>`、`<textarea>` 及 `<select>` 元素上创建双向数据绑定。它会根据控件类型自动选取正确的方法来更新元素。尽管有些神奇，但 `v-model` 本质上不过是语法糖。它负责监听用户的输入事件以更新数据，并对一些极端场景进行一些特殊处理。
 
-`v-model` 会忽略所有表单元素的 `value`、`checked`、`selected` attribute 的初始值而总是将 Vue 实例的数据作为数据来源。你应该通过 JavaScript 在组件的 `data` 选项中声明初始值。
+<span style='color:blue;'>`v-model` 会忽略所有表单元素的 `value`、`checked`、`selected` attribute 的初始值而总是将 Vue 实例的数据作为数据来源。你应该通过 JavaScript 在组件的 `data` 选项中声明初始值。</span>
 
 `v-model` 在内部为不同的输入元素使用不同的 property 并抛出不同的事件
 
@@ -2310,7 +2310,7 @@ select 字段将 value 作为 prop 并将 change 作为事件
 
 #### 1.3.2 多个复选框
 
-```html
+```js
 <input type='checkbox' id='jack' value='Jack' v-model='checkedNames'>
 <label for='jack'>Jack</label>
 
@@ -2321,6 +2321,15 @@ select 字段将 value 作为 prop 并将 change 作为事件
 <label for='mike'>Mike</label>
 <br>
 <span>checked names: {{checkedNames}}</span>
+
+//文档说,v-model会忽略表单元素的初始值而总是将实例data的数据作为使用来源.
+<input type="checkbox" value="jack" :checked='first' @change='handleChecked'>
+mehtods: {
+	handleChecked(e) {
+		console.log(e.target.value);   //'jack'
+    console.log(e.target.checked); //false
+	}
+}
 ```
 
 ```js
@@ -2971,7 +2980,7 @@ Vue.component('my-component-name', { /* ... */ })
 
 ##### 1.2.2 使用PascalCase(首字母大写命名)
 
-当使用 PascalCase (首字母大写命名) 定义一个组件时，你在引用这个自定义元素时两种命名法都可以使用。也就是说 `<my-component-name>` 和 `<MyComponentName>` 都是可接受的. 注意，尽管如此，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。
+<span style="color:red;"> **"当使用 PascalCase (首字母大写命名) 定义一个组件时，你在引用这个自定义元素时两种命名法都可以使用**</span>。也就是说 `<my-component-name>` 和 `<MyComponentName>` 都是可接受的. 注意，尽管如此，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。
 
 
 
@@ -5152,10 +5161,9 @@ export default{
 
 1. /* eslint-disable-next-line */ 会被eslint识别,下一句不会进行语法检查.
 2. /* eslint-disable */ 放在script标签下,所有的交互脚本不进行语法检查
-3. 配置文件vue.config.js  参考文档:https://cli.vuejs.org/zh/config/#lintonsave
+3. 脚手架环境下,配置文件vue.config.js  参考文档:https://cli.vuejs.org/zh/config/#lintonsave
 	3.1 官网 vue-cli
-	3.2 根目录下创建vue.config.js文件
-	3.3 lintOnSave:false  //临时关闭语法检查
+	3.2 根目录下创建vue.config.js文件,暴露一个对象
 //例如:
 module.exports={
     lintOnSave:false
