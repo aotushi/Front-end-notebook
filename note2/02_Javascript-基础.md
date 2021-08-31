@@ -7805,22 +7805,42 @@ function replaceString(oldS, newS, fullS){
 
 #### str.split()
 
-> 将一个字符串拆分成一个数组
+> split()方法将一个字符串拆分成多个有序的子字符串列表,将这些子字符串放进一个数组并返回.
 
 ```HTML
 - 语法
-str.split(sepatator, limit);
-separator: 指定每个拆分应发生的点的字符串.separator可以是一个字符串或正则表达式.
+split()
+split(separator)
+split(separator, limit)
+
+separator(可选,可以是字符串或正则表达式)
+limit(一个整数,限定返回的分割片段数量)
+
+split(); //省略或不出现分隔符,返回的数组包含一个由整个字符串组成的元素;
+split(''); //分隔符为空字符串,则将原字符串中每个字符的数组形式返回.
+'string'.split(','); //如果分隔符不存在原字符串中,那么就按照省略分隔符来操作
 ```
+
+```js
+分隔符注意事项:
+如果使用空字符串(“)作为分隔符，则字符串不是在每个用户感知的字符(图形素集群)之间，也不是在每个Unicode字符(代码点)之间，而是在每个UTF-16代码单元之间。
+https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402
+```
+
+
 
 
 
 ##### str.split()实例
 
-```HTML
-let str = 'Hello';
-str.split();//['Hello']  空值就没有分隔符
-str.split('');//['H', 'e', 'l', 'l', 'o']  //空字符串就是默认逗号
+```js
+//移出字符串中的空格
+var names = "Harry Trump ;Fred Barney; Helen Rigby ; Bill Abel ;Chris Hand ";
+let re = /\s*(?:;|$)\s*/;    //非捕获括号 (?:;|$) 匹配分号或最后一项
+let nameList = names.split(re);
+console.log(namelist); 
+//[ "Harry Trump", "Fred Barney", "Helen Rigby", "Bill Abel", "Chris Hand", "" ]
+
 ```
 
 
