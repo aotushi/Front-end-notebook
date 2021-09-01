@@ -1,4 +1,4 @@
-### JS 3大组成部分
+## JS 3大组成部分
 
 * ECMAScript  (JS标准)
 * DOM  (Document Object Model 文档对象模型)
@@ -47,7 +47,7 @@ script标签同时只能有一个功能,要么引入要么输出
 
 
 
-#### JS中语句和表达式的区别
+### JS中语句和表达式的区别
 
 ```js
 语句和表达式的区别在于，前者主要为了进行某种操作，一般情况下不需要返回值；后者则是为了得到返回值，一定会返回一个值。凡是 JavaScript 语言中预期为值的地方，都可以使用表达式。比如，赋值语句的等号右边，预期是一个值，因此可以放置各种表达式。
@@ -57,22 +57,42 @@ script标签同时只能有一个功能,要么引入要么输出
 
 
 
-### 字面量和变量
-
-#### 字面量
-
-字面量就是值,在JS中字面量可以直接使用.例如1,3,5,'hello', true,null
-
-开发者不建议直接使用字面量(不好维护)
-
-​	2342342.log+<kbd>tab</kbd>   会生成console.log(2342342);
+### 字面量和变量(标识符)
 
 
 
-#### 变量
+#### 变量(标识符)
+
+在应用程序中，使用变量来作为值的符号名。**变量的名字又叫做[标识符](https://developer.mozilla.org/zh-CN/docs/Glossary/Identifier)**，其需要遵守一定的规则。
 
 变量可以用来存储字面量,并且变量中可以存储不同的字面量
 
+
+
+**标识符**
+
+代码中用来标识**[变量 (en-US)](https://developer.mozilla.org/en-US/docs/Glossary/Variable)、[函数](https://developer.mozilla.org/zh-CN/docs/Glossary/Function)、或[属性 (en-US)](https://developer.mozilla.org/en-US/docs/Glossary/property)**的字符序列。
+
+标识符与字符串不同之处在于字符串是数据，而标识符是代码的一部分。在 JavaScript 中，无法将标识符转换为字符串，但有时可以将字符串解析为标识符。
+
+> 在JS中,所有自主命名的内容,都可以被认为是一个标识符.
+>
+> 比如, 变量名,函数名,类名
+
+* 标识符命名遵循规范:
+  * 标识符可以含有==字母,数字,下划线,$==,但不能以数字开头. 
+    * 下划线开头的变量一般是隐藏变量,不需要被别人访问
+    * $开头的变量一般是系统用的变量
+    * 严格区分大小写
+  * 标识符不能是JS中的关键字和保留字,也不建议浏览器中的内置函数(变量)作为标识符
+    * 查询文档MDN
+  * 标识符需要采用驼峰命名法
+    * 小驼峰: 首字母小写,单词开头大写,其余字母小写
+    * 大驼峰: 单词首字大写 一般多用于类
+
+**变量赋值发生了什么?**
+
+```js
 let a = b;发生了什么?
 
 **值传递**: 相当于一份全新的拷贝, 将这份拷贝放在另一个内存地址里.
@@ -84,6 +104,192 @@ JS作为弱类型语言(某一个变量被定义类型,该变量可以根据环�
 对基本类型(string, number, boolean, null, undefined)使用值传递
 
 对引用类型(除基本类型外的其他类型)使用引用传递
+```
+
+
+
+
+
+
+
+#### 字面量(Literals)
+
+字面量是由语法表达式定义的常量；或，通过由一定字词组成的语词表达式定义的常量
+
+字面量是常量，其值是固定的，而且在程序脚本运行中不可更改.
+
+**几种常用的字面量**
+
+**1.数组字面量(Array literals)**
+
+> 数组字面值是一个封闭在方括号对([])中的包含有零个或多个表达式的列表，其中每个表达式代表数组的一个元素。当你使用数组字面值创建一个数组时，该数组将会以指定的值作为其元素进行初始化，而其长度被设定为元素的个数。
+>
+> 数组字面值同时也是数组对象。有关数组对象的详情请参见[数组对象](https://developer.mozilla.org/zh-CN/docs/JavaScript/Guide/Predefined_Core_Objects#Array_Object)一文
+
+**2.布尔字面量(Boolean literals)**
+
+> 布尔类型有两种字面量：`true`和`false`
+>
+> 不要混淆作为布尔对象的真和假与布尔类型的原始值true和false。布尔对象是原始布尔数据类型的一个包装器
+
+**3.浮点数字面量(Floating-point literals)**
+
+**4.数字字面量(Numberic Integers)**
+
+> JS 数字字面量包括不同进制的整数字面量和10进制的浮点数字面量
+>
+> 语言规范要求数字字面量不能带符号. 尽管如此,像`-123.4`这样的代码块是合理的, 会被解释为应用到数字字面量`123.4`的一元`-`操作符.
+
+**4.1 整数字面量(Integer literals)**
+
+> 整数和大整数字面量能以10进制,16进制,8进制和2进制书写.
+
+```js
+. 10进制整数字面量是没有0开头的一系列数字
+. 正数字面量开头以0,或0o表明它是八进制. 八进制整数字面量只包含整数0-7.
+. 开头0x(0X)表明一个16进制整数字面量,16进制整数包含数字0-9,字母a-f,A-F.(符号不能改变它的值,所以0xa = 0XA = 10,0xf=0XF=15)
+. 开头以0b(0B)开头表明一个二进制整数字面量. 二进制整数字面量只能包含数字0和1.
+. 跟随n后缀的整数字面量表明一个大整数字面量. 这个整数字面量能用上面例子中的任何一个. 注意以0开头8进制例如0123n是不被允许的,但是0o123n是可以的.
+```
+
+
+
+**4.2 浮点数字面量(Floating-pont literals)**
+
+> 浮点字面量含有以下部分:
+
+```js
+一个没有符号的十进制整数
+
+一个小数点
+
+一部分(另一个小数) A fraction(another decimal number)
+
+一个指数(An exponent)
+```
+
+这个指数部分是一个跟在一个整数后的`e`或`E`, 可以添加`+` 或 `-`来标志.
+
+一个浮点数字面量必须至少有一个数字, 且有一个小数点或 `e`(或 `E`)
+
+语法:
+
+```js
+[digits].[digits][(E|e)[(+|-)]digits]
+```
+
+案例:
+
+```js
+.1e-23
+3.1E+12
+.1234
+3.1415926
+```
+
+
+
+**5.对象字面量(Ojbect literals)**
+
+> 一个对象字面量是一个空列表或多对属性名和对应的值的列表,封闭在大括号中.
+
+对象属性名字能用任何字符串,包括空字符. 如果属性名不是一个合法的标识符或数字, 它必须用引号引起来(it must be enclosed in quotes)
+
+属性名如果不是合理的标识符不能通过点(.)属性获取,但是可以通过类数组符号('[]')来获取.
+
+**5.1 加强版对象字面量**
+
+> 在ES2015中, 对象字面量是为了支持设置构造函数的原型, 对象`foo:foo`声明的简写,声明方法, 用作`super`调用, 表达式计算属性名称
+>
+> 总之, 这也使对象字面量和类声明更紧密的结合在一起, 并允许基于对象的设计为相同的设施带来益处.(and allowed object-based design to benefit from some of the same conviniences)
+
+```js
+let obj = {
+  //__proto__
+  __proto__:theProtoObj,
+  //Shorthand for 'handler: handler'
+  handler,
+  //methods
+  toString() {
+    //Super calls
+    return 'd ' + super.toString();
+  },
+  //Computed (dynamic) property names
+  ['prop_' + (() => 42)()]: 42
+};
+```
+
+
+
+**6.RegExp literals**
+
+> 正则字面量是一个斜杠包含的样式.
+
+```js
+let re = /ab+c/;
+```
+
+
+
+**7.字符串字面量(String literals)**
+
+> 字符串字面量是使用双引号或单引号引用的空字符或多个字符.
+>
+> 字符串必须被相同类型的引用符号限制.
+
+**字符串中使用特殊的字符**
+
+> 除了普通字符, 也能在字符串中使用特殊字符.
+
+```js
+'one line \n another line'
+```
+
+以下列表展示可以在JS字符串中使用的特殊字符:
+
+| 自身character                    | 含义                                        |
+| -------------------------------- | ------------------------------------------- |
+| \0                               | 零字节  console.log('stri\0ng') //'stri ng' |
+| \b                               | 退格符                                      |
+| \f                               | 换页符                                      |
+| \n                               | 换行符                                      |
+| \r  Carriage return              | 回车                                        |
+| \t                               | tab(制表符)                                 |
+| \v Vertical tab                  | 垂直标签                                    |
+| \\'   Apostrophe or single quote | 撇号或单引号                                |
+| \\" double quote                 | 双引号                                      |
+| \\\   Backslash character        | 反斜杠字符                                  |
+| \XXX                             |                                             |
+| \xXX                             |                                             |
+| \uXXX                            |                                             |
+| \u{XXXXX}                        |                                             |
+
+**转义字符Escaping characters**
+
+> 对于表格中没有的字符, 前置的反斜杠将会被忽略. 但是这种用法不推荐且应该避免.
+
+你能在一个字符串内部通过前置反斜杠插入一个引号. 这称为转移引号(this is known as escaping the quotation mark)
+
+```js
+let quote = "he read \"the cremation of sam mcgee\" by r.w. service.";
+console.log(quote);
+
+//he read "the cremation of sam mcgee" by r.w. service.
+```
+
+你能通过在换行符之前使用反斜杠来转义换行(line breaks)
+
+```js
+let str = 'this string \
+is broken \
+across multiple \
+lines.'
+
+console.log(str);
+//this string is broken across multiple lines.
+```
+
+
 
 
 
@@ -150,23 +356,6 @@ var和let的区别:
 ```
 
 
-
-### 标识符(identifier)
-
-> 在JS中,所有自主命名的内容,都可以被认为是一个标识符.
->
-> 比如, 变量名,函数名,类名
-
-* 遵循规范:
-  * 标识符可以含有==字母,数字,下划线,$==,但不能以数字开头. 
-    * 下划线开头的变量一般是隐藏变量,不需要被别人访问
-    * $开头的变量一般是系统用的变量
-    * 严格区分大小写
-  * 标识符不能是JS中的关键字和保留字,也不建议浏览器中的内置函数(变量)作为标识符
-    * 查询文档MDN
-  * 标识符需要采用驼峰命名法
-    * 小驼峰: 首字母小写,单词开头大写,其余字母小写
-    * 大驼峰: 单词首字大写 一般多用于类
 
 
 
@@ -7841,6 +8030,12 @@ let nameList = names.split(re);
 console.log(namelist); 
 //[ "Harry Trump", "Fred Barney", "Helen Rigby", "Bill Abel", "Chris Hand", "" ]
 
+
+[1,2,[' ',3],4].toString().split('')
+//["1", ",", "2", ",", " ", ",", "3", ",", "4"]
+
+[1,2,[' ',3],4].toString().split()
+//["1,2, ,3,4"]
 ```
 
 
@@ -8015,8 +8210,14 @@ alert(check.test(str));
 //空行
 ^\s*(?=\r?$)\n
 
-
-
+只能输入英文和数字
+/[^A-Za-z0-9]/g
+校验不可输入汉字
+/[\u4e00-\u9fa5]/g
+只能输入数字和点
+  /[^0-9.]/g
+校验只能输入数字、- 和点
+/[^0-9.-]/g
 ```
 
 
