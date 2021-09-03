@@ -3309,6 +3309,48 @@ target.fn = proObj.fn.bind(target);
 
 #### 5.3 递归
 
+### 12. 对象使用的实例
+
+#### 12.1 比较两个对象中的属性是否相同数量是否相等
+
+```js
+//Object.keys()或Object.assign()
+function (obj1, obj2) {
+  if (
+  	Object.keys({...obj1, ...obj2}).length === Object.keys(obj1)
+  		&&
+    Object.keys({...obj1, ...obj2}).length === Object.keys(obj2)
+  ) {
+    return '两个对象的属性名数量相等值相同'
+  }
+}
+
+
+//Set
+使用集合代替扩展运算符
+
+
+//
+```
+
+
+
+#### 12.2 两个对象的属性是否相等
+
+```js
+//
+function compareObj(obj1, obj2) {
+  //比较两个对象的长度
+  let obj1Len = Object.keys(obj1).length;
+  let obj2Len = Object.keys(obj2).length;
+  if (obj1Len === obj2Len) {  //对象属性都是原始数据类型
+    return Object.keys(obj1).every(item => obj2.hasOwnProperty(item) && obj1[item] === obj2[item]);
+  }
+}
+
+
+```
+
 
 
 
@@ -6683,7 +6725,7 @@ find() 方法返回数组中满足提供的测试函数的第一个元素的值�
 ```js
 const array1 = [1,2,3,4,5];
 const found = array1.find(item=>item>3);
-console.log(found); //4 5
+console.log(found); //4
 
 ```
 
