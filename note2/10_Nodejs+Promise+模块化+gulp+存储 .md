@@ -5489,6 +5489,35 @@ console.log(result);
 
 
 
+#### Promise.race
+
+```js
+Promise.race()
+(ES2015) 当传入的 Promise 实例(p1,p2,p3)中有一个率先改变状态，那么 p 的状态就跟着改变，也就是说返回最先改变的 Promise 实例的返回值。
+```
+
+
+
+
+
+#### Promise.allSettled
+
+```js
+(ES2020) 只有等到所有传入的 Promise 实例(p1,p2,p3)都返回结果，不管是 fulfilled 还是 rejected，包装实例才会结束。
+```
+
+
+
+
+
+#### Promise.any
+
+```js
+ (ES2021) 当其中任何一个 Promise 完成(fulfilled)时，就返回那个已经有完成值的 Promise。如果所有的 Promise 都拒绝 (rejected), 那么返回一个拒绝的 Promise。
+```
+
+
+
 ### 关键问题
 
 #### 如何改变promise的状态?

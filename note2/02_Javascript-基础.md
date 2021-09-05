@@ -474,6 +474,22 @@ console.log(foo);//5
   * 使用typeof检查一个大整数时,会返回类型 bigint
   * 大整数只能和大整数进行运算
 
+**数值分隔符:**
+
+数字的可读性随着数字变长而变差，数字分隔符会让长数字更加清晰
+
+在二进制、十六进制、BigInt ,10进制等中都可以使用。
+
+```js
+const x = 1000000000000
+const y = 1_000_000_000_000
+console.log(x === y) // true
+
+
+```
+
+
+
 #### 布尔值(boolean)
 
 * 布尔值进行逻辑判断
@@ -1484,18 +1500,35 @@ result = null || undefined; //返回undefined
 
 #### 逻辑运算符的赋值操作
 
-```js
-score = score || 1;
-age = age && 24;
+**空值合并操作符: ** ??
 
-可以简写成:
-score ||= 1; //等同于 score = score || 1
-age &&= 24;  // 等同于 age = age && 24
+在当左侧操作数为 undefined 或 null 时，该操作符会将右侧操作数赋值给左侧变量
+
+```js
+const name = null ?? '前端';
+console.log(name); //前端
+
+空值合并操作符和逻辑操作符结合使用:
+a ||= b; // 等同于 a || (a = b);
+
+a &&= b; // 等同于 a && (a = b);
+
+a ??= b; // 等同于 a ?? (a = b);
 ```
 
 
 
 
+
+### 3.1 逻辑赋值操作符
+
+#### 3.1.1 ?? 空值合并操作符
+
+在当左侧操作数为 undefined 或 null 时，该操作符会将右侧操作数赋值给左侧变量
+
+```js
+
+```
 
 
 
@@ -2625,6 +2658,22 @@ console.timeEnd();
 
 
 
+
+
+#### JS中如何跳出循环/结束遍历
+
+| 序号 | 方法          | break  | continue     | return       | return true  | return false |
+| ---- | ------------- | ------ | ------------ | ------------ | ------------ | ------------ |
+| 1    | for循环       | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |
+| 2    | for...in      | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |
+| 3    | Array.forEach | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
+| 4.   | Array.map     | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
+| 5    | Array.some    | 不合法 | 不合法       | 跳出本次循环 | 成功         | 跳出本次循环 |
+| 6    | Array.every   | 不合法 | 不合法       | 成功         | 跳出本次循环 | 成功         |
+| 7    | Array.filter  | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
+
+
+
 <hr/>
 
 
@@ -3000,7 +3049,7 @@ Object.keys.sort()
 
 #### Object.is
 
-判断两个值是否为[同一个值](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness). 
+判断两个值是否为[同一个值](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness).  于相等运算符,全等运算符一起可以来判断操作数是否为同一个对象的实例.
 
 与`==`运算符不通,`Object.is`不会强制转换两边的值.
 
@@ -3335,6 +3384,44 @@ function compareObj(obj1, obj2) {
 
 
 ```
+
+
+
+```js
+//https://www.geeksforgeeks.org/how-to-check-two-objects-have-same-data-using-javascript/
+<script>
+	const obj1 = {
+		name: 'Ram',
+		age: 21,
+		hobbies: ['Cricket', 'Swimming']
+	};
+
+	const obj2 = {
+		name: 'Ram',
+		age: 21,
+		hobbies: ['Cricket', 'Swimming']
+	};
+	const haveSameData = function(obj1, obj2) {
+		const obj1Length = Object.keys(obj1).length;
+		const obj2Length = Object.keys(obj2).length;
+
+		if(obj1Length === obj2Length) {
+			return Object.keys(obj1).every(
+				key => obj2.hasOwnProperty(key)
+				&& obj2[key] === obj1[key]);
+		}
+		return false;
+	}
+	document.write(haveSameData(obj1, obj2));
+</script>
+```
+
+```js
+//https://stackoverflow.com/questions/201183/how-to-determine-equality-for-two-javascript-objects
+
+```
+
+
 
 
 
@@ -5360,6 +5447,48 @@ function arraysEqual(a, b) {
 ```
 
 
+
+#### 合并两个数组的方法
+
+**1.concat**
+
+```js
+var a = [1,2,3];
+var b = [4,5,6];
+var c = a.concat(b);//c=[1,2,3,4,5,6];
+```
+
+这里有一个问题，concat方法连接a、b两个数组后，a、b两个数组的数据不变，同时会返回一个新的数组。这样当我们需要进行多次的数组合并时，会造成很大的内存浪费，所以这个方法肯定不是最好的。
+
+
+
+**2.for循环**
+
+> 这样的写法可以解决第一种方案中对内存的浪费，但是会有另一个问题：丑
+
+```js
+for(var i in b){
+  a.push(b[i]);
+}
+```
+
+**3.apply**
+
+```js
+a.push.apply(a,b);
+```
+
+调用a.push这个函数实例的apply方法，同时把，b当作参数传入，这样a.push这个方法就会遍历b数组的所有元素，达到合并的效果。上面的操作就等同于：`a.push(4,5,6);`
+
+
+
+**4.扩展运算符**
+
+```js
+var a = [1,2,3];
+var b = [4,5,6];
+var newA = [...a,...b]
+```
 
 
 
