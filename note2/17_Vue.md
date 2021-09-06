@@ -861,6 +861,24 @@ event.stopPropogation
 更多:https://www.jianshu.com/p/72c5f29c8c02
 ```
 
+vue中使用事件捕获
+
+```js
+如果使用@oninput @onblur @onchange .capture 不起作用, 则需要添加.native修饰符
+
+例如: @input.native.capture = '函数名称'
+
+@input.native.capture = 'handleInput'
+```
+
+
+
+
+
+
+
+
+
 
 
 ```html
