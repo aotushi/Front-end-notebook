@@ -1,4 +1,4 @@
-### NodeJS简介
+## NodeJS简介
 
 #### 介绍
 
@@ -702,6 +702,74 @@ fs.stat(__dirname+'/index.html', (err, stats)=>{
     console.log(stats.isDirectory());//判断是否是一个文件夹 返回true/false
 })
 ```
+
+
+
+### Node在Vue中的使用
+
+```js
+http://yulilong.cn/doc/tool/002-webpack-require.context.html#_1-%E5%B8%A6%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84-require-%E8%AF%AD%E5%8F%A5
+
+
+https://www.cnblogs.com/cangqinglang/p/12671008.html
+```
+
+
+
+#### 0.reuqire.context
+
+> 通过 `require.context()` 函数来创建自己的 context;
+>
+> 可以给这个函数传入三个参数：一个要搜索的目录，一个标记表示是否还搜索其子目录， 以及一个匹配文件的正则表达式。
+
+```js
+//示例
+require.context('./text', true, /\.test\.js$/);
+```
+
+#### 0.1 context moduel API
+
+> 一个 context module 会导出一个（require）函数，此函数可以接收一个参数：request。
+>
+> 此导出函数有三个属性：`resolve`, `keys`, `id`。
+>
+> - `resolve` 是一个函数，它返回 request 被解析后得到的模块 id。
+> - `keys` 也是一个函数，它返回一个数组，由所有可能被此 context module 处理的请求. 例如["./xinJiang/equipmentInfo.js",...]
+
+
+
+
+
+
+
+#### 1.require.context实现不用写import导入模块(或组件)
+
+```js
+const moduleFiles = require.context('./modules', true, /\.js$/);
+const modules = modulesFiles.keys().reduce((module, modulePath) => {
+  let moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1');
+  //处理多层文件
+  if (moduleName.inclues('/')) {
+    let moduleNameParts = moduleName.split('/');
+    for (let index=1; index<moduleNameParts.length; index++) {
+      const item = moduleNameParts[index];
+      moduleNameParts[index] = item.slice(0, 1).toUpperCase() + item.slice(1);
+    }
+    
+    moduleName = moduleNameParts.join('');
+  }
+  const value = modulesFiles(modulePath);
+	modules[moduleName] = value.default;
+  return modules;
+},{})
+
+```
+
+
+
+
+
+
 
 
 
