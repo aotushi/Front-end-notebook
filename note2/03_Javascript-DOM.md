@@ -3928,7 +3928,7 @@ function fun(event){
 
 
 
-### 页面不能点击的几种方法
+### 页面不能点击(禁用click,input等事件)
 
 ```js
 在vue组件中,想实现所有多有的点击事件实现不能点击的效果,包括二次封装的vant组件.
@@ -3944,6 +3944,21 @@ function fun(event){
 ```
 
 
+
+```js
+2.使用事件捕获
+
+<div @input.capture = 'disableAllEvents' @click.capture = 'disableAllEvents'>
+  
+methods: {
+  disableAllEvents(e) {
+    e.target.readOnly = true;
+    //e.target.disabled = true;
+    
+    e.stopPropagation(); //或者使用事件修饰符 .stop()
+  }
+}
+```
 
 
 

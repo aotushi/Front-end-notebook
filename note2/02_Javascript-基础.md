@@ -1419,7 +1419,7 @@ console.log(b,typeof b); // true, "boolean"
 >
 > 当两个值同时为true时,才会返回true, 否则返回false
 >
-> ==与是找false的==   因为有一个false,&&的结果就是false
+> 与是找false的  因为有一个false,&&的结果就是false
 >
 > 与运算是短路的与, 如果第一个值是false,则不会看第二个值
 
@@ -8162,7 +8162,7 @@ separator(可选,可以是字符串或正则表达式)
 limit(一个整数,限定返回的分割片段数量)
 
 split(); //省略或不出现分隔符,返回的数组包含一个由整个字符串组成的元素;
-split(''); //分隔符为空字符串,则将原字符串中每个字符的数组形式返回.
+split(''); //分隔符为空字符串,原字符中每个字符都会变成数组中的一个元素(包括逗号)
 'string'.split(','); //如果分隔符不存在原字符串中,那么就按照省略分隔符来操作
 ```
 
@@ -8192,6 +8192,9 @@ console.log(namelist);
 
 [1,2,[' ',3],4].toString().split()
 //["1,2, ,3,4"]
+
+[1,2,[' ',3],4].toString().split(',')
+//["1", "2", " ", "3", "4"]
 ```
 
 
@@ -8249,6 +8252,15 @@ console.log(namelist);
 
 
 ## 正则表达式
+
+### 0.教程
+
+| 序号 | 名称                     | 来源                                                         |
+| ---- | ------------------------ | ------------------------------------------------------------ |
+| 1    | LEARN REGEX THE EASY WAY | [github](https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md) |
+| 2    | MDN                      | MDN                                                          |
+
+
 
 ### 1.概要
 
