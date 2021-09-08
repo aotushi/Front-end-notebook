@@ -6498,7 +6498,9 @@ watch:{
 
 
 
-### axios拦截器
+### axios
+
+#### 1.axios拦截器
 
 ```js
 axios拦截器
@@ -6561,6 +6563,181 @@ export default axios;
 ```
 
 
+
+#### 2.项目中的axios的使用
+
+#### 2.1 axios
+
+```js
+//axios封装 请求和响应拦截,错误统一处理
+import axios from 'axios';
+import {Toast} from 'vant';
+
+const service = axios.create({
+  baseURL: 'http://127.0.0.1:3000',
+  timeout: 6000,
+  withCredentials: false //设置跨域是否允许携带凭证(开发环境需要配置，因为要使用跨域；生产环境可能需要将其注释掉！)
+});
+
+// 设置post请求头
+const contentTypeUTF8 = 'application/x-www-form-urlencoded;charset=UTF-8';
+const contentTypeJSON = 'application/json';
+service.defaults.headers.post['Content-Type'] = false ? contentTypeUTF8 : contentTypeJSON;
+
+//请求拦截器
+service.interceptors.request.use(
+  (config) => {
+  	Toast.loading({
+    	overlay: true,
+    	duration: 0,
+    	forbidClidk: true,
+    	message: '加载中''
+  	});
+  	return config;
+	},
+  (error) => {
+    Toast.clear();
+    Toast({
+      message: '请求错误',
+      duration: 1000,
+      forbidClick: true
+    })
+    return Promise.reject(error);
+  }                           
+)
+
+//响应拦截器
+service.interceptors.response.use(
+	(response) => {
+    Toast.clear();
+    return Promise.reject(response.data);
+  },
+  (error) => {
+    Toast.clear();
+    let {response, message} = error;
+    
+    //状态码404
+    if (response?.status === 404) {
+    	Toast({
+      	message: '网络请求不存在',
+        duration: 1000,
+        forbidClick: true
+      });
+    	return error;
+    }
+  
+  	//网络异常
+  	if (!window.navigator.onLine) {
+  		Toast({
+        message: '请检查网络是否连接正常',
+        duration: 1500,
+        forbidClick: true
+      })
+  		return;
+		}
+
+		//请求超时
+		if (message.includes('timeout')) {
+      Toast({
+        message: '请求超时',
+        duration: 1500,
+        forbidClick: true
+      })
+      return error
+    }
+
+		return error
+  }
+)
+
+
+
+/**********************************************
+ * get方法，对应get请求 
+ * @param url     @type {String}  [请求的url地址] 
+ * @param params  @type {Object}  [请求时携带的参数] 
+ */
+export const axiosGet = ({url, data}) => service.get(url, data);
+
+/********************************************** 
+ * post方法，对应post请求 
+ * @param url     @type {String}  [请求的url地址] 
+ * @param datas  @type {Object}  [请求时携带的参数] 
+ */
+export const axiosPost = ({url, data}) => service.post(url, data);
+
+
+
+/********************************************** 
+ * post方法，对应post请求 
+ * @param url     @type {String}  [请求的url地址] 
+ * @param datas  @type {Object}  [请求时携带的参数] 
+ */
+// export const post = (url, data) => service.post(url, datas);
+
+// export const post = (url, params) => {
+//     return new Promise((resolve, reject) => {
+//       if(isAddPassword === 'true'){
+      
+//         // let authTokenUrl = sessionStorage.getItem("authTokenUrl") ? JSON.parse(sessionStorage.getItem("authTokenUrl")) : {};
+//         // let obj = {auth_token: authTokenUrl.authToken ||  ENV.VUE_APP_TOKEN}
+//         // params = {...params,...obj}
+//         let paramsData = testencrypt(JSON.stringify(params)) 
+
+//         service.post(url,paramsData).then(res => {
+//             resolve(res);
+//         })
+//         .catch(err => {
+//             reject(err)
+//         })
+//       } else {
+        
+//         service.post(url,params).then(res => {
+//           resolve(res);
+//         })
+//         .catch(err => {
+//             reject(err)
+//         })
+//       }
+        
+//     });
+// }
+
+/********************************************** 
+ * put方法，对应put请求 
+ * @param {String} url [请求的url地址] 
+ * @param {Object} params [请求时携带的参数] 
+ */
+// export function put(url, params) {
+//     return new Promise((resolve, reject) => {
+//         service.put(url, JSON.stringify(params))
+//             .then(res => {
+//                 resolve(res);
+//             })
+//             .catch(err => {
+//                 reject(err)
+//             })
+//     });
+// }
+
+
+/********************************************** 
+ * delete方法，对应delete请求 
+ * @param {String} url [请求的url地址] 
+ * @param {Object} params [请求时携带的参数] 
+ */
+// export function del(url, params) {
+//     return new Promise((resolve, reject) => {
+//         service.delete(url, JSON.stringify(params))
+//             .then(res => {
+//                 resolve(res);
+//             })
+//             .catch(err => {
+//                 reject(err)
+//             })
+//     });
+// }
+```
 
 
 

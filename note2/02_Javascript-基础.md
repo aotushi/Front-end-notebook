@@ -367,17 +367,15 @@ var和let的区别:
 >
 > [JavaScript 数据类型和数据结构 - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Data_structures)
 >
-> 最新的ECMAScript标准定义了==9种==数据类型:
+> 最新的(2021.8.23)ECMAScript标准定义了8数据类型:
 >
-> 6种数据类型(原始类型Primitive): undefined,string,Boolean,Number,bigInt,Symbol
+> 7种原始值(Primitive values): undefined,string,Boolean,Number,bigInt,Symbol, null
 >
-> 2种结构类型:Object, function
->
-> 1种结构根类型: null
+> 1种属性集合(collections of properties):Object
 
 ```HTML
 原始数据:
-基本类型(基本数值, 基本数据类型)是一种既非对象也无方法的数据.在JS中,共有6种基本类型:string, number, bigint, null, undefined, symbol(字面量).
+基本类型(基本数值, 基本数据类型)是一种既非对象也无方法的数据.在JS中,共有7种基本类型:string, number, bigint, null, undefined, symbol, boolean.
 所有基本类型的值都是不可改变的.注意,基本类型本身和一个赋值为基本类型的变量的区别.变量会被赋予一个新值, 而原值不能像数组,对象以及函数那样被改变.
 ```
 
@@ -2662,6 +2660,10 @@ console.timeEnd();
 
 #### JS中如何跳出循环/结束遍历
 
+> https://segmentfault.com/a/1190000020176190
+>
+> https://juejin.cn/post/6844904032071319565
+
 | 序号 | 方法          | break  | continue     | return       | return true  | return false |
 | ---- | ------------- | ------ | ------------ | ------------ | ------------ | ------------ |
 | 1    | for循环       | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |
@@ -2671,6 +2673,7 @@ console.timeEnd();
 | 5    | Array.some    | 不合法 | 不合法       | 跳出本次循环 | 成功         | 跳出本次循环 |
 | 6    | Array.every   | 不合法 | 不合法       | 成功         | 跳出本次循环 | 成功         |
 | 7    | Array.filter  | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
+| 8    | for...of      |        |              | 跳出循环     |              |              |
 
 
 
