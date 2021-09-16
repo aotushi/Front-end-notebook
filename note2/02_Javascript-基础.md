@@ -6806,6 +6806,23 @@ console.log(a)
 
 
 
+##### reduce()使用中的注意点
+
+**1.打印值**
+
+```js
+let arr = ["equipFileId", "taskId", "appNo", "consId", "equipId", "fileId", "fileName", "filePath", "photoTime", "chgDesc", "renderer"]
+
+
+let result = arr.reduce((equip_pre, equip_key) => {
+  console.log('equip_pre', equip_pre);
+  if (equip_key === 'renderer') {
+    return equip_pre;
+  }
+  return equip_pre;
+}, {})
+```
+
 
 
 
