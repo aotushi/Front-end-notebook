@@ -743,6 +743,243 @@ Object.defineProperty(vm, 'msg', {
 
 
 
+## Vue中的数据更新
+
+### 1.Vue数据更新但页面没有更新的7种情况
+
+> https://segmentfault.com/a/1190000022772025
+> 如果你发现你自己需要在 Vue 中做一次强制更新，99.9% 的情况，你错了
+
+#### 1.1
+
+```js
+//1.Vue 无法检测实例被创建时不存在于 data 中的 property
+原因：由于 Vue 会在初始化实例时对 property 执行 getter/setter 转化，所以 property 必须在 data 对象上存在才能让 Vue 将它转换为响应式的。
+```
+
+
+
+
+
+#### 1.2
+
+```js
+//2.Vue 无法检测对象 property 的添加或移除
+原因：官方 - 由于 JavaScript（ES5） 的限制，Vue.js 不能检测到对象属性的添加或删除。因为 Vue.js 在初始化实例时将属性转为 getter/setter，所以属性必须在 data 对象上才能让 Vue.js 转换它，才能让它是响应的。
+解决: 
+ 动态添加
+ Vue.set(vm.obj, propertyName, newValue);
+ vm.$set(vm.obj, propertyName, newValue);
+ this.obj = Object.assign({}, this.obj, {a:1, b:2})
+ 动态移除
+ Vue.delete(vm.obj, propertyName);
+ vm.$delete(vm.obj, propertyName);
+```
+
+
+
+#### 1.3
+
+```js
+//3.Vue 不能检测通过数组索引直接修改一个数组项
+原因：官方 - 由于 JavaScript 的限制，Vue 不能检测数组和对象的变化；尤雨溪 - 性能代价和获得用户体验不成正比。
+// Vue.set
+Vue.set(vm.items, indexOfItem, newValue)
+
+// vm.$set
+vm.$set(vm.items, indexOfItem, newValue)
+
+// Array.prototype.splice  使用重写的数组的7个方法
+vm.items.splice(indexOfItem, 1, newValue)
+
+//扩展: Object.defineProperty() 可以监测数组的变化
+Object.defineProperty() 可以监测数组的变化。但对数组新增一个属性（index）不会监测到数据变化，因为无法监测到新增数组的下标（index），删除一个属性（index）也是。
+```
+
+
+
+```js
+var arr = [1, 2, 3, 4]
+arr.forEach(function(item, index) {
+    Object.defineProperty(arr, index, {
+    set: function(value) {
+      console.log('触发 setter')
+      item = value
+    },
+    get: function() {
+      console.log('触发 getter')
+      return item
+    }
+  })
+})
+arr[1] = '123'  // 触发 setter
+arr[1]          // 触发 getter 返回值为 "123"
+arr[5] = 5      // 不会触发 setter 和 getter
+```
+
+
+
+#### 1.4
+
+```js
+//4.Vue 不能监测直接修改数组长度的变化
+原因：官方 - 由于 JavaScript 的限制，Vue 不能检测数组和对象的变化；尤雨溪 - 性能代价和获得用户体验不成正比。
+
+var vm = new Vue({
+  data: {
+    items: ['a', 'b', 'c']
+  }
+})
+vm.items.length = 2 // 不是响应性的
+
+//解决 数组方法
+vm.items.splice(newLength)
+
+```
+
+
+
+#### 1.5
+
+```js
+//5.在异步更新执行之前操作 DOM 数据不会变化
+原因：Vue 在更新 DOM 时是异步执行的。只要侦听到数据变化，Vue 将开启一个队列，并缓冲在同一事件循环中发生的所有数据变更。如果同一个 watcher 被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和 DOM 操作是非常重要的。然后，在下一个的事件循环“tick”中，Vue 刷新队列并执行实际 (已去重的) 工作。Vue 在内部对异步队列尝试使用原生的 Promise.then、MutationObserver 和 setImmediate，如果执行环境不支持，则会采用 setTimeout(fn, 0) 代替。
+
+
+```
+
+```js
+//场景
+<div id='example'>{{message}}</div>
+
+let vm = new Vue({
+  el: '$example',
+  data: {
+    message: '123'
+  }
+})
+
+vm.message = 'new message'; //更改数据
+vm.$el.textContent === 'new message'; //false
+vm.$el.style.color = 'red'; //页面没有变化
+```
+
+```js
+//解决方法
+
+//场景
+<div id='example'>{{message}}</div>
+
+let vm = new Vue({
+  el: '$example',
+  data: {
+    message: '123'
+  }
+})
+
+vm.message = 'new message'; //更改数据
+Vue.nextTick(function() {
+  vm.$el.textContent === 'new message';
+	vm.$el.style.color = 'red';
+})
+```
+
+#### 1.5.1 异步更新带来的数据响应的误解
+
+```js
+<!-- 页面显示：我更新啦！ -->
+<div id="example">{{message.text}}</div>
+var vm = new Vue({
+  el: '#example',
+  data: {
+    message: {},
+  }
+})
+vm.$nextTick(function () {
+  this.message = {}
+  this.message.text = '我更新啦！'
+})
+
+那是因为 Vue.js 的 DOM 更新是异步的，即当 setter 操作发生后，指令并不会立马更新，指令的更新操作会有一个延迟，当指令更新真正执行的时候，此时 text 属性已经赋值，所以指令更新模板时得到的是新值。
+
+模板中每个指令/数据绑定都有一个对应的 watcher 对象，在计算过程中它把属性记录为依赖。之后当依赖的 setter 被调用时，会触发 watcher 重新计算 ，也就会导致它的关联指令更新 DOM。
+具体流程如下所示：
+
+执行 this.message = {}; 时， setter 被调用。
+Vue.js 追踪到 message 依赖的 setter 被调用后，会触发 watcher 重新计算。
+this.message.text = '我更新啦！'; 对 text 属性进行赋值。
+异步回调逻辑执行结束之后，就会导致它的关联指令更新 DOM，指令更新开始执行。
+所以真正的触发模版更新的操作是 this.message = {};这一句引起的，因为触发了 setter，所以单看上述例子，具有响应式特性的数据只有 message 这一层，它的动态添加的属性是不具备的。
+```
+
+
+
+#### 1.6
+
+```js
+//6.循环嵌套层级太深，视图不更新？
+针对上述情况有人给出的解决方案是使用强制更新：vm.$forceUpdate()
+```
+
+
+
+#### 1.7
+
+```js
+//7.拓展：路由参数变化时，页面不更新（数据不更新）
+原因：路由视图组件引用了相同组件时，当路由参会变化时，会导致该组件无法更新，也就是我们常说中的页面无法更新的问题。
+<div id="app">
+  <ul>
+    <li><router-link to="/home/foo">To Foo</router-link></li>    
+    <li><router-link to="/home/baz">To Baz</router-link></li>    
+    <li><router-link to="/home/bar">To Bar</router-link></li>    
+  </ul>    
+  <router-view></router-view>
+</div>
+const Home = {
+  template: `<div>{{message}}</div>`,
+  data() {
+    return {
+      message: this.$route.params.name
+    }
+  }
+}
+
+const router = new VueRouter({
+  mode:'history',
+    routes: [
+    {path: '/home', component: Home },
+    {path: '/home/:name', component: Home }
+  ]
+})
+
+new Vue({
+  el: '#app',
+  router
+})
+
+
+上段代码中，我们在路由构建选项 routes 中配置了一个动态路由 '/home/:name'，它们共用一个路由组件 Home，这代表他们复用 RouterView
+当进行路由切换时，页面只会渲染第一次路由匹配到的参数，之后再进行路由切换时，message 是没有变化的。
+
+解决方法(多种,只列举几种常见的):
+1.通过watch监视$route的变化
+watch: {
+  '$route': function() {
+    this.message = this.$route.param.name;
+  }
+}
+
+2.给<router-view>绑定key属性
+给 <router-view> 绑定 key 属性，这样 Vue 就会认为这是不同的 <router-view>。
+弊端：如果从 /home 跳转到 /user 等其他路由下，我们是不用担心组件更新问题的，所以这个时候 key 属性是多余的
+
+```
+
+
+
+
+
 
 
 ## 事件处理
@@ -2668,6 +2905,16 @@ https://juejin.cn/post/6844903904585449486
 ```
 
 
+
+### 4. 生命周期钩子里的异步请求
+
+```js
+//https://juejin.cn/post/6844903721558769678
+1.vue声明周期不是阻塞设计的
+2.async/await 不会阻塞钩子函数, 是让钩子内的多个异步函数同步调用(!)，并不是为了阻塞钩子
+
+
+```
 
 
 
@@ -7277,6 +7524,44 @@ element-ui中: Table组件中就用到了slot-scope
     任意要进行通信的2个组件利用vuex就可以实现
         A组件触发action或mutation调用, 将数据保存到vuex的状态中
         B组件读取vuex中的state或getters数据, 得到最新保存的数据进行显示
+
+
+
+## 全局API
+
+### 1.Vue.nextTIck([callback, context])
+
+> 官网: 在下次DOM更新循环结束之后执行延迟回调. 在修改数据之后立即使用这个方法,获取更新后的DOM
+>
+> 简单理解: **当数据更新了，在dom中渲染后，自动执行该函数**
+
+```js
+//修改数据
+vm.msg = 'hello';
+//DOM还没有更新
+Vue.nextTick(function() {
+  //DOM更新了
+})
+
+//作为一个Promise使用
+Vue.nextTick()
+  .then(function() {
+  //DOM更新了
+})
+```
+
+
+
+```js
+//资料
+https://segmentfault.com/a/1190000020499713?utm_source=sf-similar-article
+
+JS的事件循环和任务队列是理解nextTick的关键(https://juejin.cn/post/6844903476527366151)
+                           
+
+```
+
+
 
 
 

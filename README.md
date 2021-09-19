@@ -147,6 +147,9 @@ vscode chrome
 | 3    | Vue开发实战                        | [Vue开发实战_Vue_前端框架-极客时间 (geekbang.org)](https://time.geekbang.org/course/intro/100024601) |          |
 | 4    | Vue.js快跑                         | weread                                                       |          |
 | 5    | Vue.js前端开发(快速入门与专业应用) | 微信熟读                                                     |          |
+|      |                                    |                                                              |          |
+| 6    | deep-in-vue                        | https://github.com/xiaofuzi/deep-in-vue                      |          |
+|      |                                    |                                                              |          |
 
 
 
