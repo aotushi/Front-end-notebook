@@ -5551,6 +5551,12 @@ console.log(arr.length); //0
 
 ### 创建数组的方式
 
+> 在ECMAScript 6以前,创建数组有两种方式: 调用Array构造函数;数组字面量语法. 
+>
+> 这两种方法均需列举数组中的元素,功能受限.如果将一个类数组对象(具有数值型索引和length属性的对象)转换为数组,可选方法有限.
+>
+> 为了解决以上问题,ES6新增了Array.of()和Array.from()两个方法
+
 #### 1.Array构造函数
 
 ```js
@@ -5564,6 +5570,15 @@ let colors = new Array();
 ```js
 let colors = new Array(3);   //创建一个包含3 个元素的数组
 let names = new Array('Greg'); //创建一个只包含一个元素，即字符串"Greg"的数组
+```
+
+#### 1.1 Array构造函数的缺点
+
+```JavaScript
+//如果给Array构造函数传入一个数值型的值，那么数组的length属性会被设为该值；如果传入多个值，此时无论这些值是不是数值型的，都会变为数组的元素。这个特性令人感到困惑，你不可能总是注意传入数据的类型，所以存在一定的风险。
+
+
+解决: Array.of()
 ```
 
 
@@ -5585,6 +5600,170 @@ let values = [1,2,]; // 创建一个包含2 个元素的数组
 #### 3.ES6Array的静态方法
 
 Array 构造函数还有两个ES6 新增的用于创建数组的静态方法：from()和of()。from()用于将类数组结构转换为数组实例，而of()用于将一组参数转换为数组实例。
+
+
+
+##### 3.1 Array.of()
+
+> 作用:
+>
+> 1.解决Array构造函数生成数组传入参数的不统一问题(单一数值型参数为数组长度,多个值为数组元素)
+>
+> 2.如果需要给一个函数传入Array的构造函数, 建议传入Array.of()来确保行为一致
+>
+> 操作:
+>
+> 要用Array.of()方法创建数组，只需传入你希望在数组中包含的值
+>
+> 注意:
+>
+> Array.of()方法不通过Symbol.species属性（见第9章 <深入理解ES6>）确定返回值的类型，它使用当前构造函数（也就是of()方法中的this值）来确定正确的返回数据的类型。
+
+```javascript
+//相同的调用,构造函数与of表现
+
+//如果给Array构造函数传入一个数值型的值，那么数组的length属性会被设为该值；如果传入多个值，此时无论这些值是不是数值型的，都会变为数组的元素。这个特性令人感到困惑，你不可能总是注意传入数据的类型，所以存在一定的风险。
+let items1 = new Array(2);
+consol.log(items1.length); //2
+console.log(items[0]); //undefined
+
+items = new Array("2");
+console.log(items1.length); //1
+console.log(itesms1[0]); //'2'
+
+items1 = new Array(1,2);
+console.log(items1.length); //2
+console.log(items1[0]); //2
+
+
+let items2 = Array.of(2);
+```
+
+
+
+```javascript
+function createArray(arrayCreator, value) {
+  return arrayCreator(value);
+}
+
+let items = createArray(Array.of, value);
+```
+
+
+
+
+
+##### 3.2 Array.from()
+
+> JavaScript不支持直接将非数组对象转换为真实数组，arguments就是一种类数组对象，如果要把它当作数组使用则必须先转换该对象的类型
+>
+> Array.from()方法可以接受**可迭代对象或类数组对象**作为第一个参数，最终返回一个新的数组
+>
+> 注意: Array.from()方法也是通过this来确定返回数组的类型的。(?)
+
+
+
+
+
+##### 3.2.1 ES5和ES6 在转换组数上的比较
+
+1.ES5 将类数组对象转换为数组
+
+```JavaScript
+//第一种方法
+function makeArray(arrayLike) {
+  let result = [];
+  for (let i=0; i<arraryLike.length; i++) {
+    result.push(arrayLike[i]);
+  }
+  
+  return result;
+}
+
+function doSomething() {
+  let args = markArray(arguments);
+  
+  //使用args
+}
+
+//第二种方法 调用数组原生的slice()方法可以将非数组对象转换为数组
+//slice()对象只需数值型索引和length属性就能够正确运行，所以任何类数组对象都能被转换为数组
+function makeArray(arrayLike) {
+  return Array.prototype.slice.call(arrayLike);
+}
+
+function doSomething() {
+  let args = makeArray(arguments);
+  
+  //使用args
+}
+```
+
+2.ES6 将类数组对象转换为数组
+
+```JavaScript
+function doSomething() {
+  let args = Array.from(arguments);
+  
+  //使用args
+}
+
+//Array.from()方法调用会基于arguments对象中的元素创建一个新数组，args是Array的一个实例，包含arguments对象中同位置的相同值。
+```
+
+
+
+##### 3.2.2 Array.from() 映射转换
+
+> 如果想要进一步转化数组，可以提供一个映射函数作为Array.from()的第二个参数，这个函数用来将类数组对象中的每一个值转换成其他形式，最后将这些结果储存在结果数组的相应索引中
+
+```JavaScript
+function translate() {
+  return Array.from(arguments, value => value + 1);
+}
+
+let numbers = translate(1,2,3);
+console.log(numbers); //2,3,4
+```
+
+
+
+> 如果用映射函数处理对象，也可以给Array.from()方法传入第三个参数来表示映射函数的this值
+
+```javascript
+let helper = {
+  diff: 1,
+  add(value) {
+    return value + this.diff;
+  }
+};
+
+function translate() {
+  return Array.from(arguments, helper.add, helper);
+}
+```
+
+> 用Array.from()转换可迭代对象
+>
+> Array.from()方法可以处理类数组对象和可迭代对象，也就是说该方法能够将所有含有Symbol.iterator属性的对象转换为数组
+
+```javascript
+let numbers = {
+  *[Symbol.iterator]() {
+    yield 1;
+    yield 2;
+    yield 3;
+  }
+};
+
+let numbers2 = Array.from(numbers, value => value + 1);
+
+console.log(numbers2) //2,3,4
+```
+
+> 注意： 如果一个对象既是类数组又是可迭代的，那么Array.from()方法会根据迭代器来决定转换哪个值。
+
+
 
 
 
@@ -6150,6 +6329,8 @@ Array.prototype.toString()
 #### slice-截取
 
 Array.prototype.slice()
+
+slice()对象只需数值型索引和length属性就能够正确运行，所以任何类数组对象都能被转换为数组
 
 `slice` 会提取原数组中索引从 `begin` 到 `end` 的所有元素（包含 `begin`，但不包含 `end`）
 
