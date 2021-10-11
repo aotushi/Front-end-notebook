@@ -4802,36 +4802,92 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 ## Promise
 
+### 1.异步编程背景
+
+* JavaScript引擎是基于单线程（Single-threaded）事件循环的概念构建的，同一时刻只允许一个代码块在执行
+* 即将运行的代码存放在任务队列（job queue）中，每当一段代码准备执行时，都会被添加到任务队列
+* 事件循环（eventloop）是JavaScript引擎中的一段程序，负责监控代码执行并管理任务队列，会执行队列中的下一个任务
 
 
-#### 实例对象与函数对象
 
-```js
-实例对象: new函数产生的对象,称为实例对象,简称为对象
-函数对象: 将函数作为对象使用,简称为函数对象. //函数.属性/方法
+### 2.异步模式
+
+#### 2.1 事件模型
+
+> 用户点击按钮或按下键盘上的按键会触发类似onclick这样的事件，它会向任务队列添加一个新任务来响应用户的操作，这是JavaScript中最基础的异步编程形式，直到事件触发时才执行事件处理程序，**且执行时上下文与定义时的相同**
+
+```javascript
+let button = document.getElementById('my-btn');
+button.onclick = function(event) {
+  console.log('clicked');
+};
+//赋值给onclick的函数被添加到任务队列中，只有当前面的任务都完成后它才会被执行
 ```
 
+总结：
+
+* 事件模型适用于处理简单的交互；必须要保证事件在添加事件处理程序之后才被触发
+
+* 多个独立的异步调用连接在一起会使程序更加复杂，因为你必须跟踪每个事件的事件目标（如此示例中的button）。
+* 尽管事件模型适用于响应用户交互和完成类似的**低频功能**，但其对于更复杂的需求来说却不是很灵活。
 
 
-```js
-function Fn(){} //Fn是函数
-const fn=new Fn() //Fn是构造函数,new返回的是实例对象
-console.log(Fn.prototype) //Fn是函数对象
-Fn.call({})   //Fn是函数对象
 
-$('#test') //$是函数
-$.ajax() //$是函数对象
+#### 2.2 回调模式
 
-总结:
-1.点的左边是对象(可能是实例对象也可能是函数对象)
-2.()的左边是函数
+> 回调模式与事件模型类似，异步代码都会在未来的某个时间点执行，二者的区别是回调模式中被调用的函数是作为参数传入的
+
+```javascript
+readFile('example.txt', function(err, contents) {
+  if (err) {
+    throw err;
+  }
+  
+  console.log(contents);
+});
+
+console.log('Hi!');
+
+//此示例使用Node.js传统的错误优先（error-first）回调风格。readFile()函数读取磁盘上的某个文件（指定为第一个参数），读取结束后执行回调函数（第二个参数）。如果出现错误，错误对象会被赋值给回调函数的err参数；如果一切正常，文件内容会以字符串的形式被赋值给contents参数。
 ```
 
+由于使用了回调模式，readFile()函数立即开始执行，当读取磁盘上的文件时会暂停执行。也就是说，调用readFile()函数后，console.log("Hi")语句立即执行并输出"Hi"；
+
+当readFile()结束执行时，会向任务队列的**末尾**添加一个新任务，该任务包含回调函数及相应的参数，当队列前面所有的任务完成后才执行该任务，并最终执行console.log(contents)输出所有内容。
+
+**回调模式比事件模型更灵活。因为回调模式链接多个调用更容易**
+
+```javascript
+readFile('example.txt', function(err, contents) {
+  if (err) {
+    throw err;
+  }
+  
+  writeFile('example.txt', function(err) {
+    if (err) {
+      throw err;
+    }
+    
+    console.log('File was written');
+  })
+})
+```
+
+虽然这个模式运行效果很不错，但很快你会发现由于嵌套了太多的回调函数，使自己陷入了回调地狱
+
+```javascript
+```
+
+总结：
+
+* 嵌套多个方法调用，难以理解和调试
+* 实现复杂功能受限。（例如，并行执行两个异步操作，当两个操作结束时通知你;...）
 
 
-#### 二种类型的回调函数
 
-##### 同步回调
+**二种类型的回调函数**
+
+同步回调
 
 ```js
 理解:
@@ -4847,7 +4903,7 @@ arr.forEach(item=>{
 
 
 
-##### 异步回调
+异步回调
 
 ```js
 理解:不会立即执行,会放入回调队列中将来执行.编写顺序和执行顺序不相同
@@ -4862,73 +4918,24 @@ $.get('./server',{}, function(data){}) //ajax
 
 
 
-### JS中5大错误类型
-
-```js
-1.	Error: 所有错误的父类型
-2.	ReferenceError: 引用的变量不存在
-3.	TypeError: 数据类型不正确的错误
-4.	RangeError: 数据值不在其所允许的范围内
-5.	SyntaxError: 语法错误
-```
-
-
-
-### try catch
-
-```js
-- 捕获错误 try...catch
-- 抛出错误 throw error
-
-* 语法固定 try...catch   try 尝试的意思  catch 捕获
-* 1. try catch捕获到错误之后, 后续代码可以继续执行
-* 2. catch 可以将错误信息捕获到. e 是一个对象, 有message和stack两个属性
-* 3. 抛出错误之后, 在后续的 try 里面的代码不会执行
-* 4. try 不能捕获语法错误. 其他三种类型错误可以捕获.
-* 5. 允许使用 throw 手动的抛出错误
-* 6. 抛出任意类型的数据
 
 
 
 
-
-- 运行流程
-1.try catch捕获到错误之后,后续代码是可以继续执行的
-2. catch可以将错误信息捕获到,e是一个对象,有message和stack两个属性
- 2.1 message: 发生错误的信息; stack:发生错误的位置,配合使用console.dir(e)
-3.抛出错误之后,在后续的try里的代码是不会执行的
-4.try不能捕获语法错误,其他三种类型错误可以捕获
-5.允许使用throw手动抛出错误
-   Throw new Error(‘xxx’)   catch(e) 
-6.抛出任意类型的数据
-
-
-- err对象的结构
-1.	message属性: 错误相关信息
-2.	stack属性: 函数调用栈记录信息 错误发生的位置信息
-```
-
-
-
-```js
-try捕获到错误之后,把错误信息变成对象, 然后传递给catch
-try{
-    console.log(a);
-    console.log(111);//出错之后的代码不会执行
-}catch(e){
-    console.log(e);//结果是字符串
-    console.dir(e);//
-}
-console.log('可继续执行'); 
-```
-
-
-
-
-
-### Promise
+### 3.Promise基础知识
 
 #### 介绍
+
+> Promise相当于异步操作结果的占位符，它不会去订阅一个事件，也不会传递一个回调函数给目标函数，而是让函数返回一个Promise
+
+```javascript
+//readFile承诺将来在未来的某个时刻完成
+let promise = readFile('example.txt');
+
+//readFile()不会立即开始读取文件，函数会先返回一个表示异步读取操作的Promise对象，未来对这个对象的操作完全取决于Promise的生命周期。
+```
+
+
 
 ```
 - 抽象表达:
@@ -4944,7 +4951,26 @@ console.log('可继续执行');
 
 
 
-#### Promise状态改变
+#### Promise生命周期
+
+每个Promise都会经历一个短暂的生命周期：
+
+* 先是操作尚未完成，处于进行中状态(pening); 
+* 异步操作执行结束，变为已处理状态。
+
+例如在之前的示例中，当readFile()函数返回Promise时它变为pening状态，操作结束后，Promise可能会进入到以下两个状态中的其中一个：
+
+* Fulfilled  Promise异步操作成功完成
+* Rejected 由于程序错误或其他原因，Promise异步操作未能成功完成
+
+总结：
+
+```javascript
+Promise必须为以下3种状态之一： 等待状态(pending),执行
+//https://juejin.cn/post/6844904063570542599
+```
+
+
 
 ```html
 0.状态就是其对象上的属性, 
@@ -5870,6 +5896,58 @@ then方法回调执行是异步的
 ```
 
 
+
+## try catch
+
+
+
+### try catch
+
+```js
+- 捕获错误 try...catch
+- 抛出错误 throw error
+
+* 语法固定 try...catch   try 尝试的意思  catch 捕获
+* 1. try catch捕获到错误之后, 后续代码可以继续执行
+* 2. catch 可以将错误信息捕获到. e 是一个对象, 有message和stack两个属性
+* 3. 抛出错误之后, 在后续的 try 里面的代码不会执行
+* 4. try 不能捕获语法错误. 其他三种类型错误可以捕获.
+* 5. 允许使用 throw 手动的抛出错误
+* 6. 抛出任意类型的数据
+
+
+
+
+
+- 运行流程
+1.try catch捕获到错误之后,后续代码是可以继续执行的
+2. catch可以将错误信息捕获到,e是一个对象,有message和stack两个属性
+ 2.1 message: 发生错误的信息; stack:发生错误的位置,配合使用console.dir(e)
+3.抛出错误之后,在后续的try里的代码是不会执行的
+4.try不能捕获语法错误,其他三种类型错误可以捕获
+5.允许使用throw手动抛出错误
+   Throw new Error(‘xxx’)   catch(e) 
+6.抛出任意类型的数据
+
+
+- err对象的结构
+1.	message属性: 错误相关信息
+2.	stack属性: 函数调用栈记录信息 错误发生的位置信息
+```
+
+
+
+```js
+try捕获到错误之后,把错误信息变成对象, 然后传递给catch
+try{
+    console.log(a);
+    console.log(111);//出错之后的代码不会执行
+}catch(e){
+    console.log(e);//结果是字符串
+    console.dir(e);//
+}
+console.log('可继续执行'); 
+```
 
 
 
