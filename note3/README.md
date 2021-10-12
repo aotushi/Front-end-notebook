@@ -30,7 +30,11 @@ if ([2,3]).indexOf(private_environment) >= 0) {
   window.__Vue_DEVTOOLS_GLOBAL_HOOK__.emit('init', Vue);
 }
 
-new Vue({...})
+new Vue({
+  router,
+  store,
+  render: (h) => h(App)
+}).$mount('#app')
 ```
 
 

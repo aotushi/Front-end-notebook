@@ -7147,13 +7147,13 @@ var sum = arr.reduce(function(prev, cur, index, arr) {
 let names = ['Alice', 'Bob', 'Tiff', 'Bruce', 'Alice','Bruce', 'Alice'];
 let nameNum = names.reduce((prev,current,index)=>{
     if(current in prev){
-        prev[current]++;
+        prev[current]++;  //pre[current] = pre[current] + 1;
     }else{
         prev[current]=1;
     }
     return prev;
 },{})
-console.log(nameNum); //[ Alice: 3, Bob: 1, Tiff: 1, Bruce: 2 ] ??
+console.log(nameNum); //{ Alice: 3, Bob: 1, Tiff: 1, Bruce: 2 }
 
 如果数组是数字类型或数字型字符串,reduce的初始值是数组的话会有一个empty item.需要使用对象解决.
 let arr = [1,2,3,4,1,2,3];
@@ -7773,224 +7773,6 @@ t.doSomething(foo, 'Hi');
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### 构造函数2-原型
-
-> 对象中除了属性 还有方法  
-
-
-
-#### 构造函数中的对象创建方法(函数)
-
-```JavaScript
-目的: 构造函数/类的实例 使用 方法.可以在构造函数中创建方法
-
-
-## 向类(构造函数)中的实例(对象)添加一个方法(对象的属性是函数)
-function Person(name, age){
-    this.name = name;
-    this.age = age;
-    //给新的对象添加一个方法
-    this.sayHello = function(){
-        alert('hello, 大家好,我是'+this.name);
-    }
-}
-
-let p = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 18);
-p.sayHello();
-p2.sayHello();
-
-===========================================================================
-
-## 上面写法的问题: ??
-- 将对象的方法直接定义在构造函数中 
- - 意味着构造函数每执行一次,就会创建一个新的函数对象.
-  //怎么判断是否是同一个对象,使用全等判断
-  //判断两个函数是否为同一个
-  //console.log(p.sayHello === p2.sayHello); //返回false 
- - 也就是说每一个对象都有他自己的sayHello函数
-- 每一个函数的代码和功能是一致的,重复创建非常浪费内存空间
-
-==============================================================================
-## 如何改进? 
-让sayHello这个共享函数放在构造函数外边
-
-function Person(name, age){
-    this.name = name;
-    this.age = age;
-    //给新的对象添加一个方法
-    this.sayHello = fn; //函数直接赋值
-    
-}
-function fn(){
-        alert('hello, 大家好,我是'+this.name);
-}
-
-let p = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 18);
-p.sayHello();
-p2.sayHello();    
-console.log(p.sayHello === p2.sayHello); //现在只有一个函数,故相等    
-
-=================================================================================
- 上面的解决方法不完美:
-
-1.函数直接定义在全局中,影响命名空间; //
-2.函数定义在外面,每一次都要赋值; //最好的方法是函数只创建一次,值只赋值一次
-
-```
-
-
-
-#### 原型
-
-```JavaScript
-原型prototype
- - 每一个函数都有一个属性叫做prototype
- - 这个属性指向的是一个对象,这个对象就是 原型对象
- - 如果函数作为普通函数调用,则原型对象没有用
- - 如果函数作为构造函数调用, 那么它所创建的对象都会由一个隐含的属性(__proto__)也指向该原型对象
- - 原型对象就相当于是一个公共区域,可以被类及该类的所有实例访问 //类-构造函数 实例-函数创建的对象
-
-function Myclass(){}
-console.log(Myclass.prototype);//打印结果是一个对象 {constructor: ƒ}
-
-let mc = new Myclass();//mc.__proto__  隐含的属性 不希望访问.下划线开头的都是隐含属性
-let mc2 = new Myclass();
-
-console.log(mc.__proto__ === Myclass.prototype); //返回true 所有被类创建的对象
-
-
-=============使用原型prototype更新此前构造函数==============================
-
-function Person(name, age){
-    this.name = name;
-    this.age = age;
-}
-Person.prototype.sayHello=function(){
-        alert('hello, 大家好,我是'+this.name); 
-}//已知this就是Person类,怎么倒推. 
-
-let p = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 18);
-p.sayHello(); //大家好,我是孙悟空
-p2.sayHello();//大家好,我是猪八戒
-console.log(p.sayHello === p2.sayHello); //true 现在只有一个函数,故相等    
-```
-
-
-
-#### 原型链
-
-```JavaScript
-- 原型链   // 作用域链 
-- 当我们要获取一个对象的属性时,浏览器会先在对象自身中寻找
-- 如果有则直接使用,如果没有则去对象的原型中寻找
-- 找到了则使用,没有则去原型的原型里去寻找.
-以此类推, 直到找到Object的原型,如果依然没有找到则返回undefined
-- Object的原型是所有对象的原型,它的原型没有原型
-
-- 可以将对象中公有的属性(方法)统一存储在原型对象中
-- 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
-
-- 结论:
-以后在创建构造函数时,
- 对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
- 对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
-```
-
-
-
-#### in | hasOwnProperty
-
-```JavaScript
-- 使用in检查一个属性时,无论属性在原型中还是在对象本身,都会返回true
-
-- hasOwnProperty() 检查属性是否存在于对象自身中
-
-- Object的原型是所有原型的原型(最简单的结构下
-                    
-
-function Myclass(){}
-Myclass.prototype.age = 18;
-
-let mc = new Myclass();
-mc.name = '孙悟空';
-
-//使用in检查一个属性是否存在对象中
-
-console.log('age' in mc); //true  为什么是字符串?不加引号就是变量,无意义.对象的属性名可以这么操作. 对象['属性名']|对象.属性名  . 设置let agent = 'age',是新建了一个字符串,和原属性无关
-
-
-//in无法满足具体查询需求,使用hasOwnProperty
-console.log(mc.hasOwnProperty('age')); //false
-
-//hasOwnProperty这个属性是哪里冒出来的?
-
-console.log(mc.hasOwnProperty('hasOwnProperty')); //false,查询这个属性是否是mc的
-console.log(mc.__proto__.hasOwnProperty('hasOwnProperty')); //false,也不是mc原型的
-console.log(mc.__proto__.__proto__.hasOwnProperty('hasOwnProperty'));//true,原型的原型里有
-
-console.log(mc.hello) //undefined 没有找到返回undefined.  作用域链没有找到是报错
-console.log(mc.__proto__); //{age:18, construction:f}
-
-在这里mc.__proto__.__proto__就是Object.__proto__,两者相同
-
-//Object的原型是所有对象的原型
-console.log(mc instanceof Myclass); // true
-
-console.log(mc instanceof Object); //true    ?不是中间隔着一层?
-
-
-掌握以上可以去看mdn文档
-例如:Array.prototype.xxx
-```
-
-
-
-
-
-
-
-
-
-#### 显式原型|隐式原型
-
-```JavaScript
-function Myclass(){}
-
-let mc = new Myclass();
-
-//Myclass.prototype  //显式原型
-//mc.__proto__	  // 隐式原型 隐藏属性尽量别用
-
-显示原型一定是通过类去访问的.显式原型是给类的实例去使用的
-Object.prototype
-Myclass.prototype
-
-隐式原型是通过实例对象来访问的,隐式原型是给实例自己用的
-
-实例的隐式原型指向类的显式原型
-
-实际工作中不要使用更改隐式原型
-```
 
 
 
@@ -9448,6 +9230,332 @@ result = null; //内部函数会被垃圾回收
 
 
 
+
+
+
+## 原型和原型链
+
+> [JavaScript深入之从原型到原型链](https://github.com/mqyqingfeng/Blog/issues/2#) 
+
+### 构造函数创建对象
+
+```javascript
+function Person() {
+  
+}
+
+let person = new Person();
+person.name = 'Kevin';
+console.log(person.name); //Kevin
+```
+
+在这个例子中，Person 就是一个构造函数，我们使用 new 创建了一个实例对象 person。
+
+### prototype
+
+构造函数与原型
+
+每个函数都有一个 prototype 属性，函数的 prototype 属性指向了一个对象，这个对象正是调用该构造函数而创建的**实例**的原型。
+
+**什么是原型呢？**
+
+可以这样理解：每一个JavaScript对象(null除外)在创建的时候就会与之关联另一个对象，这个对象就是我们所说的原型，每一个对象都会从原型"继承"属性。
+
+### \_\_proto\_\_
+
+实例与原型
+
+这是每一个JavaScript对象(除了 null )都具有的一个属性，叫__proto__，这个属性会指向该对象的原型
+
+```javascript
+//可以在火狐或者谷歌中输入
+function Person() {}
+
+let person = new Person;
+console.log(person.__proto__ == Person.prototype); //true
+```
+
+### constructor
+
+原型是否有属性指向构造函数或实例呢？
+
+指向实例倒是没有，因为一个构造函数可以生成多个实例，但是原型指向构造函数倒是有的，每个原型都有一个 constructor 属性指向关联的构造函数。
+
+```javascript
+function Person() {}
+
+console.log(Person.prototype.constructor === Person); //true
+```
+
+
+
+### 实例与原型
+
+当读取实例的属性时，如果找不到，就会查找与对象关联的原型中的属性，如果还查不到，就去找原型的原型，一直找到最顶层(Object.prototype)为止。
+
+
+
+### 原型的原型
+
+原型也是一个对象，既然是对象，我们就可以用最原始的方式创建它
+
+```javascript
+let obj = new Object();
+obj.name = 'Kevin';
+console.log(obj.name); //Kevin
+```
+
+原型对象就是通过 Object 构造函数生成的，结合之前所讲，实例的 __proto__ 指向构造函数的 prototype ，所以我们再更新下关系图：
+
+![原型链](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype4.png)
+
+### 原型链
+
+Object.prototype的原型为null
+
+```javascript
+console.log(Object.prototype.__proto__ === null); //true
+```
+
+null代表什么？
+
+> null 表示“没有对象”，即该处不应该有值。
+
+所以 Object.prototype.__proto__ 的值为 null 跟 Object.prototype 没有原型，其实表达了一个意思
+
+![原型链](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype5.png)
+
+图中由相互关联的原型组成的链状结构就是原型链，也就是蓝色的这条线。
+
+
+
+### 补充
+
+#### constructor
+
+```javascript
+//例子
+function Person() {}
+
+let person = new Person;
+console.log(person.constructor === Person); //true
+```
+
+当获取 person.constructor 时，其实 person 中并没有 constructor 属性,当不能读取到constructor 属性时，会从 person 的原型也就是 Person.prototype 中读取，正好原型中有该属性
+
+```javascript
+person.constructor === Person.prototype.constructor; //true
+```
+
+
+
+#### \_\_proto\_\_
+
+绝大部分浏览器都支持这个非标准的方法访问原型，然而它并不存在于 Person.prototype 中，实际上，它是来自于 Object.prototype ，与其说是一个属性，不如说是一个 getter/setter，当使用 obj.\_\_proto\_\_ 时，可以理解成返回了 Object.getPrototypeOf(obj)
+
+
+
+#### 真的是继承吗？
+
+> 继承意味着复制操作，然而 JavaScript 默认并不会复制对象的属性，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，所以与其叫继承，委托的说法反而更准确些。
+
+
+
+#### 构造函数中的对象创建方法(函数)
+
+```JavaScript
+目的: 构造函数/类的实例 使用 方法.可以在构造函数中创建方法
+
+
+## 向类(构造函数)中的实例(对象)添加一个方法(对象的属性是函数)
+function Person(name, age){
+    this.name = name;
+    this.age = age;
+    //给新的对象添加一个方法
+    this.sayHello = function(){
+        alert('hello, 大家好,我是'+this.name);
+    }
+}
+
+let p = new Person('孙悟空', 18);
+let p2 = new Person('猪八戒', 18);
+p.sayHello();
+p2.sayHello();
+
+===========================================================================
+
+## 上面写法的问题: ??
+- 将对象的方法直接定义在构造函数中 
+ - 意味着构造函数每执行一次,就会创建一个新的函数对象.
+  //怎么判断是否是同一个对象,使用全等判断
+  //判断两个函数是否为同一个
+  //console.log(p.sayHello === p2.sayHello); //返回false 
+ - 也就是说每一个对象都有他自己的sayHello函数
+- 每一个函数的代码和功能是一致的,重复创建非常浪费内存空间
+
+==============================================================================
+## 如何改进? 
+让sayHello这个共享函数放在构造函数外边
+
+function Person(name, age){
+    this.name = name;
+    this.age = age;
+    //给新的对象添加一个方法
+    this.sayHello = fn; //函数直接赋值
+    
+}
+function fn(){
+        alert('hello, 大家好,我是'+this.name);
+}
+
+let p = new Person('孙悟空', 18);
+let p2 = new Person('猪八戒', 18);
+p.sayHello();
+p2.sayHello();    
+console.log(p.sayHello === p2.sayHello); //现在只有一个函数,故相等    
+
+=================================================================================
+ 上面的解决方法不完美:
+
+1.函数直接定义在全局中,影响命名空间; //
+2.函数定义在外面,每一次都要赋值; //最好的方法是函数只创建一次,值只赋值一次
+
+```
+
+
+
+#### 原型
+
+```JavaScript
+原型prototype
+ - 每一个函数都有一个属性叫做prototype
+ - 这个属性指向的是一个对象,这个对象就是 原型对象
+ - 如果函数作为普通函数调用,则原型对象没有用
+ - 如果函数作为构造函数调用, 那么它所创建的对象都会由一个隐含的属性(__proto__)也指向该原型对象
+ - 原型对象就相当于是一个公共区域,可以被类及该类的所有实例访问 //类-构造函数 实例-函数创建的对象
+
+function Myclass(){}
+console.log(Myclass.prototype);//打印结果是一个对象 {constructor: ƒ}
+
+let mc = new Myclass();//mc.__proto__  隐含的属性 不希望访问.下划线开头的都是隐含属性
+let mc2 = new Myclass();
+
+console.log(mc.__proto__ === Myclass.prototype); //返回true 所有被类创建的对象
+
+
+=============使用原型prototype更新此前构造函数==============================
+
+function Person(name, age){
+    this.name = name;
+    this.age = age;
+}
+Person.prototype.sayHello=function(){
+        alert('hello, 大家好,我是'+this.name); 
+}//已知this就是Person类,怎么倒推. 
+
+let p = new Person('孙悟空', 18);
+let p2 = new Person('猪八戒', 18);
+p.sayHello(); //大家好,我是孙悟空
+p2.sayHello();//大家好,我是猪八戒
+console.log(p.sayHello === p2.sayHello); //true 现在只有一个函数,故相等    
+```
+
+
+
+#### 原型链
+
+```JavaScript
+- 原型链   // 作用域链 
+- 当我们要获取一个对象的属性时,浏览器会先在对象自身中寻找
+- 如果有则直接使用,如果没有则去对象的原型中寻找
+- 找到了则使用,没有则去原型的原型里去寻找.
+以此类推, 直到找到Object的原型,如果依然没有找到则返回undefined
+- Object的原型是所有对象的原型,它的原型没有原型
+
+- 可以将对象中公有的属性(方法)统一存储在原型对象中
+- 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
+
+- 结论:
+以后在创建构造函数时,
+ 对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
+ 对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
+```
+
+
+
+#### in | hasOwnProperty
+
+```JavaScript
+- 使用in检查一个属性时,无论属性在原型中还是在对象本身,都会返回true
+
+- hasOwnProperty() 检查属性是否存在于对象自身中
+
+- Object的原型是所有原型的原型(最简单的结构下
+                    
+
+function Myclass(){}
+Myclass.prototype.age = 18;
+
+let mc = new Myclass();
+mc.name = '孙悟空';
+
+//使用in检查一个属性是否存在对象中
+
+console.log('age' in mc); //true  为什么是字符串?不加引号就是变量,无意义.对象的属性名可以这么操作. 对象['属性名']|对象.属性名  . 设置let agent = 'age',是新建了一个字符串,和原属性无关
+
+
+//in无法满足具体查询需求,使用hasOwnProperty
+console.log(mc.hasOwnProperty('age')); //false
+
+//hasOwnProperty这个属性是哪里冒出来的?
+
+console.log(mc.hasOwnProperty('hasOwnProperty')); //false,查询这个属性是否是mc的
+console.log(mc.__proto__.hasOwnProperty('hasOwnProperty')); //false,也不是mc原型的
+console.log(mc.__proto__.__proto__.hasOwnProperty('hasOwnProperty'));//true,原型的原型里有
+
+console.log(mc.hello) //undefined 没有找到返回undefined.  作用域链没有找到是报错
+console.log(mc.__proto__); //{age:18, construction:f}
+
+在这里mc.__proto__.__proto__就是Object.__proto__,两者相同
+
+//Object的原型是所有对象的原型
+console.log(mc instanceof Myclass); // true
+
+console.log(mc instanceof Object); //true    ?不是中间隔着一层?
+
+
+掌握以上可以去看mdn文档
+例如:Array.prototype.xxx
+```
+
+
+
+
+
+
+
+
+
+#### 显式原型|隐式原型
+
+```JavaScript
+function Myclass(){}
+
+let mc = new Myclass();
+
+//Myclass.prototype  //显式原型
+//mc.__proto__	  // 隐式原型 隐藏属性尽量别用
+
+显示原型一定是通过类去访问的.显式原型是给类的实例去使用的
+Object.prototype
+Myclass.prototype
+
+隐式原型是通过实例对象来访问的,隐式原型是给实例自己用的
+
+实例的隐式原型指向类的显式原型
+
+实际工作中不要使用更改隐式原型
+```
 
 
 

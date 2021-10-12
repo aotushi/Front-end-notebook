@@ -6700,19 +6700,181 @@ console.log(uniq(module3.arr)) //[1,2,3]
 
 
 
-### 文件夹命名规范src/build/dist
+### ES6模块Module
 
-```js
-src 文件夹的名字,src里放的都是程序员编写的代码(源文件)
-build 构建. 放置的是打包后的文件
-dist 发布. 放置最终优化后的代码
+#### 介绍
+
+> 来源： https://wangdoc.com/es6/module.html
+
+在 ES6 之前，社区制定了一些模块加载方案，最主要的有 CommonJS 和 AMD 两种。前者用于服务器，后者用于浏览器。ES6 在语言标准的层面上，实现了模块功能，而且实现得相当简单，完全可以取代 CommonJS 和 AMD 规范，成为浏览器和服务器通用的模块解决方案。
+
+ES6 模块编译时就能确定模块的依赖关系，以及输入和输出的变量。
+
+CommonJS 和 AMD 模块，都只能在运行时确定这些东西。
+
+```javascript
+//commonJS模块
+let {stat, exists, readfile } = require('fs');
+
+//等同于
+let _fs = require('fs');
+let stat = _fs.stat;
+let exists = _fs.exists;
+let readfile = _fs.readfile;
+
+//上面代码的实质是整体加载fs模块（即加载fs的所有方法），生成一个对象（_fs），然后再从这个对象上面读取 3 个方法。这种加载称为“运行时加载”，因为只有运行时才能得到这个对象，导致完全没办法在编译时做“静态优化”。
 ```
 
 
 
+```javascript
+//ES6模块
+import {stat, exists, readFile } from 'fs';
+```
+
+上面代码实质是从fs模块加载3个方法，其他方法不加载。这种加载称为**“编译时加载”或者静态加载**，即 ES6 可以在编译时就完成模块加载，效率要比CommonJS方式高。<u>这也导致了无法引用ES6模块本身，因为它不是对象</u> 。
 
 
-### ES6
+
+#### 严格模式
+
+ES6 的模块自动采用严格模式，无论模块头部加不加`"use strict";`。
+
+严格模式有以下限制：
+
+* 不能对只读属性赋值，否则报错
+* 不能删除变量`delete prop` ，会报错。只能删除变量`delete global[prop]`
+* 禁用this指向全局对象
+* ......
+
+#### export命令
+
+一个模块就是一个独立的文件，内部所有变量外部无法获取。外部读取模块内部的某个变量，必须使用export关键字输出该变量。
+
+export用于规定模块的对外接口，`import`命令用于输入其他模块提供的功能。
+
+`export`可以输出变量，函数或类。
+
+**`export`写法**：
+
+```javascript
+//export输出变量
+export const firstName = 'Michael';
+export const lastName = 'Jackson';
+
+//export输出大括号
+const firstName = 'Michael';
+const lastName = 'Jackson';
+export {firstName, lastName}; //等价于上面的写法，优先使用，因为在底部可以清除知道输出了哪些变量。
+```
+
+
+
+**`export`重命名**
+
+```javascript
+function v1() {}
+function v2() {}
+
+export {
+	v1 as streamV1,
+  v2 as streamV2,
+  v2 as streamLastestVersion
+}
+
+//上面代码使用as关键字，重命名了函数v1和v2的对外接口。重命名后，v2可以用不同的名字输出两次。
+```
+
+
+
+**注意事项**
+
+1 `export`命令规定的是对外的接口，必须与模块内部的变量建立一一对应关系
+
+```javascript
+//报错
+export 1;
+
+//报错
+let m = 1;
+export m;
+
+//上面两种写法都会报错，因为没有提供对外的接口。第一种写法直接输出 1，第二种写法通过变量m，还是直接输出 1。1只是一个值，不是接口。
+
+//正确写法
+//写法1
+export let m = 1;
+
+//写法2
+let m = 1;
+export { m };
+
+//写法3
+let m = 1;
+export {newm as m };
+```
+
+
+
+2 `export`语句输出的接口，与其对应的值是动态绑定关系，即通过该接口，可以取到模块内部实时的值。
+
+```javascript
+export let foo = 'bar';
+setTimeout(() => foo = 'baz', 500);
+
+//上面代码输出变量foo，值为bar，500 毫秒之后变成baz
+```
+
+
+
+3 `export`命令, `import`命令可以出现在模块的任何位置，只要处于模块顶层就可以。如果处于块级作用域内，就会报错
+
+```javascript
+//处于条件代码块之中，就没法做静态优化了，违背了 ES6 模块的设计初衷。
+
+function foo() {
+  export default 'bar'; //SyntaxError
+}
+
+foo()
+```
+
+
+
+#### import命令
+
+使用`export`命令定义了模块的对外接口以后，其他 JS 文件就可以通过`import`命令加载这个模块。
+
+**变量重命名**
+
+```javascript
+//main.js
+import { lastName as surname } from './profile.js';
+```
+
+`import`命令输入的变量都是只读的，因为它的本质是输入接口。也就是说，不允许在加载模块的脚本里面，改写接口。
+
+如果对引入变量重新赋值就会报错，因为其只是一个只读接口，但是如果变量是一个对象，改写其属性是允许的。
+
+```javascript
+import { a } from './xxx.js';
+a = {}; //Syntax Error: 'a' is read-only;
+
+import { a } from './xxx.js';
+a.foo = 'hello'; //合法操作
+```
+
+**路径**
+
+`import`后面的`from`指定模块文件的位置，可以是相对路径，也可以是绝对路径。如果不带有路径，只是一个模块名，那么必须有配置文件，告诉 JavaScript 引擎该模块的位置。
+
+**注意事项**
+
+
+
+
+
+
 
 #### 说明
 
