@@ -1,16 +1,3 @@
-```
-git(15个命令) 
-http(报文及浏览器查看报文方式) 
-ajax(流程) 
-promise(使用) 
-npm 安装工具包
-es6(symbol)
-```
-
-
-
-
-
 ## webpack快速入门教程
 
 ### 1、webpack 介绍
@@ -941,9 +928,9 @@ iOS 7
     ```js
     //1. 引入插件
     const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-
+    
     module.exports = {
-
+    
         plugins: [
             .
             .
