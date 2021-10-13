@@ -6787,6 +6787,139 @@ export {
 
 
 
+
+
+**暴露方式export**
+
+1.分别暴露
+
+```js
+export 函数/其他数据
+
+===========================================
+export function fn(){};
+export const data='中文汉字';
+```
+
+
+
+2. 统一暴露
+
+```js
+// 这里不是对象的简写,不能写对象的完整形式(变量名:对象名)
+// 用的比较少.可以分别暴露和全部暴露
+export{
+	变量名,
+    变量名
+}
+==========================================
+function fn(a, b){
+    return a+b;
+}
+const name='中文汉字';
+
+export{
+	fn,
+    name
+}
+```
+
+
+
+3.默认暴露
+
+当使用import命令的时候，不需要知道所要加载的变量名或函数名，这就需要用到`export default`命令，为模块制定默认输出。
+
+```javascript
+//export-default.js
+export default function() {
+  console.log('foo');
+}
+
+//import-default.js  其他模块加载该模块时，import命令可以为该匿名函数指定任意名字
+import customName from './export-default';
+customName(); //'foo'
+```
+
+`export default`命令用在非匿名函数前也是可以的：
+
+```javascript
+//export-default.js
+export default function foo() {
+  console.log('foo');
+}
+
+//或者写成如下形式：
+function foo() {
+  console.log('foo');
+}
+export default foo;
+```
+
+上面代码中，`foo`函数的函数名`foo`，在模块外部是无效的。**加载的时候，视同匿名函数加载。**
+
+`export default`命令用于指定模块的默认输出。显然，一个模块只能有一个默认输出，因此`export default`命令只能使用一次。所以，import命令后面才不用加大括号，因为只可能唯一对应`export default`命令。
+
+本质上，`export default`就是输出一个叫做`default`的变量或方法，然后系统允许你为它取任意名字。
+
+```javascript
+//module.js
+function add(x, y) {
+  return x * y;
+}
+export { add as default };
+
+//等同于 export default add;
+
+//app.js
+import { default as foo } from 'modules';
+//等同于 import foo from 'modules';
+```
+
+```javascript
+//√
+export let a = 1;
+
+//×
+let a = 1;
+export a;
+
+//×
+export default let a = 1;
+```
+
+上面代码中，`export default a`的含义是将变量`a`的值赋给变量`default`。所以，最后一种写法会报错。
+
+`export default`命令的本质是将后面的值，赋给`default`变量，所以可以直接将一个值写在`export default`之后：
+
+```javascript
+//正确
+export default 42;
+
+//错误
+export 42;
+```
+
+
+
+```js
+export default 暴露的数据名称
+export default {}
+
+export default{
+    //对象形式居多,其他基本数据类型/函数都可以
+}
+
+
+=======================================
+export default{
+	type:'string',
+    others:'H20201218', //带引号可运行    
+}    
+```
+
+
+
 **注意事项**
 
 1 `export`命令规定的是对外的接口，必须与模块内部的变量建立一一对应关系
@@ -6868,9 +7001,376 @@ a.foo = 'hello'; //合法操作
 
 `import`后面的`from`指定模块文件的位置，可以是相对路径，也可以是绝对路径。如果不带有路径，只是一个模块名，那么必须有配置文件，告诉 JavaScript 引擎该模块的位置。
 
+
+
 **注意事项**
 
+1 `import`具有动态提升效果，会提升到整个模块的头部，首先执行。
 
+```javascript
+foo();
+import { foo } from 'my_module';
+```
+
+上面的代码不会报错，因为`import`的执行早于`foo`的调用。这种行为的本质是，`import`命令是编译阶段执行的，在代码运行之前。
+
+2 不能使用表达式和变量,if语句
+
+由于`import`是静态执行，所以不能使用表达式和变量，这些只有在运行时才能得到结果的语法结构。
+
+```javascript
+//报错
+import {'f' + 'oo' } from 'my_module';
+
+//报错
+let module = 'my_module';
+import { foo } from module;
+
+//报错
+if (x === 1) {
+  import { foo } from 'module1';
+} else {
+  import { foo } from 'module2';
+}
+```
+
+上面三种写法都会报错，因为它们用到了表达式、变量和`if`结构。在静态分析阶段，这些语法都是没法得到值的。
+
+3 多次引入只执行一次
+
+如果多次重复执行同一句`import`语句，那么只会执行一次，而不会执行多次。、
+
+```javascript
+import 'lodash';
+import 'lodash';
+```
+
+上面代码加载了两次`lodash`，但是只会执行一次。
+
+
+
+**引入方式import**
+
+1.通用方式
+
+整体加载，即用星号（`*`）指定一个对象，所有输出值都加载在这个对象上面。
+
+```javascript
+//特点:通杀
+//* 所有
+//as 设置别名
+//将所有暴露的数据都保存在变量m1当中
+import * as m1 from './m1'
+```
+
+
+
+模块整体加载所在的那个对象，应该是可以静态分析的，所以不允许运行时改变。下面的写法都是不允许的。
+
+```javascript
+import * as circle from './circle';
+
+//下面两行都是不允许的
+circle.foo = 'foo';
+circle.area = function() {};
+```
+
+
+
+2.解构赋值形式引入
+
+```js
+分别暴露的引入 import {变量1, 变量2} from './m1'
+统一暴露的引入 import {变量3, 变量4, 变量2 as 新变量2} from './m2' 
+默认暴露的引入 import {default as aaa} from '路径/name.js' //aaa代表暴露的数据 as有设置别名的意思
+
+//一个网页中引入多个模块,模块之间有重名变量的情况,则将其中重名变量使用as更新下变量名
+```
+
+
+
+3.简便导入
+
+```js
+//只支持默认暴露
+//默认暴露,导入名称可以与暴露名称不一致
+
+
+
+export default{
+    cls:'aaaa',
+    type:'niu',   //最后可以加引号
+}
+
+import _ from 'lodash';
+```
+
+如果想在一条`import`语句中，同时输入默认方法和其他接口，可以写成下面这样。
+
+```javascript
+//import-default.js
+import _, {each, forEach } from 'lodash';
+
+//export-default.js
+export default function (obj) {...}
+export function each(obj, iterator) {...}
+export { each as forEach };
+```
+
+上面代码的最后一行的意思是，暴露出`forEach`接口，默认指向`each`接口，即`forEach`和`each`指向同一个方法。
+
+
+
+#### export与import复合写法(?)
+
+如果在一个模块之中，先输入后输出同一个模块，`import`语句可以与`export`语句写在一起。
+
+```javascript
+export {foo, bar} from 'my_module';
+
+//可以简单理解为
+import {foo, bar} from 'my_module';
+export {foo, bar};
+```
+
+上面代码中，`export`和`import`语句可以结合在一起，写成一行。但需要注意的是，写成一行以后，`foo`和`bar`实际上并没有被导入当前模块，只是相当于对外转发了这两个接口，导致当前模块不能直接使用`foo`和`bar`。
+
+
+
+#### 模块的继承
+
+模块之间也可以继承。假设有一个`circleplus`模块，继承了`circle`模块。
+
+```javascript
+//circleplus.js
+
+export * from 'circle';
+export let e = 2.71828182846;
+export default function(x) {
+  return Math.exp(x);
+}
+```
+
+上面代码中的`export *`，表示再输出`circle`模块的所有属性和方法。注意，**`export *`命令会忽略`circle`模块的`default`方法**。
+
+也可以将`circle`的属性或方法，改名后再输出
+
+```javascript
+//circleplus.js
+export {area as circleArea } from 'circle';
+```
+
+
+
+#### 跨模块常量
+
+`const`声明的常量只在当前代码块有效。如果想设置跨模块的常量（即跨多个文件），或者说一个值要被多个模块共享，可以采用下面的写法。
+
+```javascript
+//constants.js模块
+
+export const A = 1;
+export const B = 3;
+
+//test1.js
+import * as constant from './constants';
+console.log(constant.A); //1
+
+//test2.js
+import {A,B} from './constants';
+console.log(A); //1
+```
+
+如果要使用的常量非常多，可以建一个专门的`constants`目录，将各种常量写在不同的文件里面，保存在该目录下。
+
+然后，将这些文件输出的常量，合并在`index.js`里面。
+
+```javascript
+// constants/db.js
+export const db = {
+  url: 'http://my.couchdbserver.local:5984',
+  admin_username: 'admin',
+  admin_password: 'admin password'
+};
+
+// constants/user.js
+export const users = ['root', 'admin', 'staff', 'ceo', 'chief', 'moderator'];
+```
+
+```javascript
+//constants/index.js
+export {db} from './db';
+export {users} from './users';
+```
+
+使用的时候，直接加载`index.js`就可以了。
+
+```javascript
+//script.js
+import {db, users} from './constants/index';
+```
+
+
+
+
+
+#### import()方法
+
+`import`命令会被 JavaScript 引擎静态分析，先于模块内的其他语句执行（`import`命令叫做“连接” binding 其实更合适）。所以，下面的代码会报错。
+
+```javascript
+//报错
+if (x === 2) {
+  import MyModule from './myModule';
+}
+```
+
+上面代码中，引擎处理`import`语句是在编译时，这时不会去分析或执行`if`语句，所以`import`语句放在`if`代码块之中毫无意义，因此会报句法错误，而不是执行时错误。也就是说，`import`和`export`命令只能在模块的顶层，不能在代码块之中（比如，在`if`代码块之中，或在函数之中）。
+
+这样的设计，固然有利于编译器提高效率，但也导致无法在运行时加载模块。在语法上，条件加载就不可能实现。如果`import`命令要取代 Node 的`require`方法，这就形成了一个障碍。因为`require`是运行时加载模块，`import`命令无法取代`require`的动态加载功能。
+
+```javascript
+const path = './' + fileName;
+const myModule = require(path);
+```
+
+上面的语句就是动态加载，`require`到底加载哪一个模块，只有运行时才知道。`import`命令做不到这一点
+
+1 使用说明
+
+[ES2020提案](https://github.com/tc39/proposal-dynamic-import) 引入`import()`函数，支持动态加载模块。
+
+```javascript
+import(specifier)
+```
+
+`import`函数的参数`specifier`，<u>指定所要加载的模块的位置</u>。`import`命令能够接受什么参数，`import()`函数就能接受什么参数，两者区别主要是后者为动态加载。
+
+import()返回一个Promise对象：
+
+```javascript
+const main = document.querySelector('main');
+
+import(`./section-modules/${someVariable}.js`)
+ .then(module => {
+  module.loadPageInto(main);
+})
+ .catch(err => {
+ 	main.textContent = err.message; 
+ })
+```
+
+2 使用位置加载时机
+
+可以用在任何地方。运行时执行（什么时候运行到这一句，就会加载指定的模块）
+
+3 与require的区别
+
+`import()`函数与所加载的模块没有静态连接关系，这点也是与`import`语句不相同。`import()`类似于 Node 的`require`方法，区别主要是前者是异步加载，后者是同步加载。
+
+#### import()适用场景
+
+1 按需加载
+
+`import()`可以在需要的时候，再加载某个模块。
+
+```javascript
+button.addEventListener('click', event => {
+  import('./dialogBox.js')
+  .then(dialogBox => {
+    dialogBox.open();
+  })
+  .catch(error => {
+    //Error handling
+  })
+})
+```
+
+上面代码中，`import()`方法放在`click`事件的监听函数之中，只有用户点击了按钮，才会加载这个模块。
+
+
+
+2 条件加载
+
+`import()`可以放在`if`代码块，根据不同的情况，加载不同的模块
+
+```javascript
+if (condition) {
+  import ('modlueA').then(...);
+} else {
+	import ('moduleB').then(...);
+}
+```
+
+3 动态的模块路径
+
+`import()`允许模块路径动态生成。
+
+```javascript
+import(f())
+.then(...);
+```
+
+上面代码中，根据函数`f`的返回结果，加载不同的模块。
+
+
+
+### import()注意事项
+
+`import()`加载模块成功以后，这个模块会作为一个对象，当作`then`方法的参数。因此，可以使用对象解构赋值的语法，获取输出接口
+
+```javascript
+import('./myModule.js')
+.then(({export1, export2}) => {
+  //...
+})
+```
+
+如果模块有`default`输出接口，可以用参数直接获得。
+
+```javascript
+import('./myModule.js')
+.then(myModule => {
+  console.log(myModule.default);
+})
+```
+
+上面的代码也可以使用具名输入的形式
+
+```javascript
+import('./myModule.js')
+.then(({default: theDefault}) => {
+  console.log(theDefault);
+})
+```
+
+如果想同时加载多个模块，可以采用Promise.all写法
+
+```javascript
+Promise.all([
+  import('./module1.js'),
+  import('./module2.js'),
+  import('./module3.js'),
+])
+.then(([module1,module2,module3]) => {
+  ...
+})
+```
+
+import()也可以用在async函数中
+
+```javascript
+async function main() {
+  const myModule = await import('./myModule.js');
+  const {export1, export2 }  = await import('./myModule.js');
+  const [module1, module2, module3 ] = 
+  	await Promise.all([
+      import('./module1.js'),
+      import('./module2.js'),
+      import('./module3.js'),
+    ]);
+}
+```
 
 
 
@@ -6922,22 +7422,6 @@ import * as xx from './xx.js';
 
 
 
-#### 语法
-
-```
-- 暴露模块
-1.分别暴露 export 暴露内容
-2.统一暴露 export {xxx, yyy}
-3.默认暴露 export default 暴露内容/{暴露内容}
-
-- 引入模块
-1.通用引入 import * as m1 from './m1'
-2.解构赋值形式引入 import {xxx} from './m1';  //不是解构赋值
-3.简便导入 import m3 from './m3'
-```
-
-
-
 #### Babel和Browserify 浏览器端实现ES6
 
 ```js
@@ -6947,107 +7431,9 @@ import * as xx from './xx.js';
 
 
 
-### 暴露方式
-
-#### 1.分别暴露
-
-```js
-export 函数/其他数据
-
-===========================================
-export function fn(){};
-export const data='中文汉字';
-```
 
 
 
-#### 2. 统一暴露
-
-```js
-// 这里不是对象的简写,不能写对象的完整形式(变量名:对象名)
-// 用的比较少.可以分别暴露和全部暴露
-export{
-	变量名,
-    变量名
-}
-==========================================
-function fn(a, b){
-    return a+b;
-}
-const name='中文汉字';
-
-export{
-	fn,
-    name
-}
-```
-
-
-
-#### 3.默认暴露
-
-```js
-export default 暴露的数据名称
-export default {}
-
-export default{
-    //对象形式居多,其他基本数据类型/函数都可以
-}
-
-
-=======================================
-export default{
-	type:'string',
-    others:'H20201218', //带引号可运行    
-}    
-```
-
-
-
-
-
-### 引入方式
-
-#### 1.通用方式
-
-```js
-//特点:通杀
-//* 所有
-//as 设置别名
-//将所有暴露的数据都保存在变量m1当中
-import * as m1 from './m1'
-```
-
-
-
-#### 2.解构赋值形式引入
-
-```js
-
-分别暴露的引入 import {变量1, 变量2} from './m1'
-统一暴露的引入 import {变量3, 变量4, 变量2 as 新变量2} from './m2' 
-默认暴露的引入 import {default as aaa} from '路径/name.js' //aaa代表暴露的数据 as有设置别名的意思
-
-//一个网页中引入多个模块,模块之间有重名变量的情况,则将其中重名变量使用as更新下变量名
-```
-
-
-
-#### 3.简便导入
-
-```js
-//只支持默认暴露
-//默认暴露,导入名称可以与暴露名称不一致
-
-import m3 from './m3';
-console.log(m3);
-
-导出m3.js文件:
-export default{
-    cls:'aaaa',
-    type:'niu',   //最后可以加引号
-}
-```
 
 
 
