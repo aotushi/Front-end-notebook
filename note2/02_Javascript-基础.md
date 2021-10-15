@@ -3374,6 +3374,47 @@ console.log(newObj); //{ '2': 'b', '7': 'c', '100': 'a' }
 
 
 
+
+
+#### Object.values()
+
+> 这个方法返回一个参数对象自身可枚举属性值组成的数组，数组元素顺序和for...in循环相同。(唯一的不同是for...in循环也枚举原型链上的属性)
+>
+> 描述：
+>
+> return an array whose elements are the enumerable property values found on the object. the ordering of the properties is the same as that given by looping over the property values of the object manaually.
+
+```javascript
+const obj = {
+  a: 'something',
+  b: 42,
+  c: false
+};
+
+console.log(Object.values(obj)); //['something', 42, false]
+
+//Array-like object
+const arrayLikeObj = {0: 'a', 1: 'b', 2: 'c'};
+console.log(Object.values(arrayLikeObj)); //['a', 'b', 'c']
+
+//Array-like object with random key ordering
+const arrayLikeObj2 = {100: 'a', 2: 'b', 7: 'c'};
+console.log(Object.values(arrayLikeObj2)); //['b', 'c', 'a']
+
+//getFoo is property which isn't enumerable    enumerable默认为false
+const my_obj = Object.create({}, {getFoo: {value: function() {return this.foo;}}});
+my_obj.foo = 'bar';
+console.log(Object.values(my_obj)); //['bar']
+```
+
+
+
+
+
+
+
+
+
 如何保证对象属性的顺序?
 
 #### Object.getOwnPropertyNames()
