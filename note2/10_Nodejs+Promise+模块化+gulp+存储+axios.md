@@ -6505,19 +6505,15 @@ axios('/user/123')
 
 
 
-## 模块化规范
+## 模块化详解
 
-浏览器无法识别commonjs语法
+### 来源
 
-引入模块require() 相当于在node_modules文件下模块包中的package.json下的main属性对应的值.
+> https://segmentfault.com/a/1190000017466120
 
+### 概况
 
-
-### 扩展阅读
-
-```
-https://segmentfault.com/a/1190000017466120    !!!
-```
+> 前端代码日益膨胀，此时在JS方面就会考虑使用模块化规范去管理
 
 
 
@@ -6525,25 +6521,89 @@ https://segmentfault.com/a/1190000017466120    !!!
 
 ### 模块化介绍
 
-### 模块化好处
 
-### 模块化进化史
 
-```js
+#### 什么是模块
+
+> - 将一个复杂的程序依据一定的规则(规范)封装成几个块(文件), 并进行组合在一起
+> - 块的内部数据与实现是私有的, 只是向外部暴露一些接口(方法)与外部其它模块通信
+
+
+
+#### 模块化进化史
+
 1.全局function阶段
 - 全局函数模式: 将不同的功能封装成不同的全局函数
 - 问题: Global被污染了, 很容易引起命名冲突
 
+```javascript
+function m1() {
+  //...
+}
+
+function m2() {
+  //...
+}
+```
+
+
+
 2.namespace模式(命名空间)//将数据放在对象中,字面量创建对象方式
 - namespace 模式: 简单对象封装
-- 作用: 减少了全局变量
-- 问题: 依然可以修改模块内部代码，不安全
+- 作用: 减少了全局变量,解决命名冲突
+- 问题: 会暴露所有模块成员，内部状态可以被外部改写
+
+```javascript
+let myModule = {
+  data: 'www.baidu.com',
+  foo() {
+    console.log(`foo() ${this.data}`)
+  },
+  bar() {
+    console.log(`bar() ${this.data}`)
+  }
+};
+
+myModule.data = 'other data'; //能直接修改模块内部的数据
+myModule.foo(); //foo() other data
+```
+
+
 
 3.IIFE模式(立即执行函数)
+
 - IIFE模式: 匿名函数自调用(闭包)
 - IIFE : immediately-invoked function expression(立即调用函数表达式)
 - 作用: 数据是私有的, 外部只能通过暴露的方法操作
 - 问题: 如果当前这个模块依赖另一个模块怎么办?
+
+<iframe height="300" style="width: 100%;" scrolling="no" title="Untitled" src="https://codepen.io/westover/embed/PoKNmxR?default-tab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
+  See the Pen <a href="https://codepen.io/westover/pen/PoKNmxR">
+  Untitled</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.
+</iframe>
+
+
+<p class="codepen" data-height="300" data-theme-id="light" data-default-tab="html,result" data-slug-hash="PoKNmxR" data-user="westover" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+  <span>See the Pen <a href="https://codepen.io/westover/pen/PoKNmxR">
+  IIFE模块化</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 4.IIFE模式增强
 - 引入jQuery到项目中
@@ -6559,8 +6619,6 @@ https://segmentfault.com/a/1190000017466120    !!!
   - 依赖模糊
   - 难以维护
 - 这些问题可以通过现代模块化编码和项目构建来解决
-
-```
 
 
 
