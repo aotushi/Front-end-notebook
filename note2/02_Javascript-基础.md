@@ -9487,8 +9487,8 @@ console.log(mc.__proto__ === Myclass.prototype); //返回true 所有被类创建
 =============使用原型prototype更新此前构造函数==============================
 
 function Person(name, age){
-    this.name = name;
-    this.age = age;
+	this.name = name;
+	this.age = age;
 }
 Person.prototype.sayHello=function(){
         alert('hello, 大家好,我是'+this.name); 
