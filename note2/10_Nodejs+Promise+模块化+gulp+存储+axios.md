@@ -6577,63 +6577,114 @@ myModule.foo(); //foo() other data
 - 作用: 数据是私有的, 外部只能通过暴露的方法操作
 - 问题: 如果当前这个模块依赖另一个模块怎么办?
 
-<iframe height="300" style="width: 100%;" scrolling="no" title="Untitled" src="https://codepen.io/westover/embed/PoKNmxR?default-tab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
-  See the Pen <a href="https://codepen.io/westover/pen/PoKNmxR">
-  Untitled</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
-  on <a href="https://codepen.io">CodePen</a>.
-</iframe>
-
-
-<p class="codepen" data-height="300" data-theme-id="light" data-default-tab="html,result" data-slug-hash="PoKNmxR" data-user="westover" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-  <span>See the Pen <a href="https://codepen.io/westover/pen/PoKNmxR">
-  IIFE模块化</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
-  on <a href="https://codepen.io">CodePen</a>.</span>
-</p>
-<script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-4.IIFE模式增强
-- 引入jQuery到项目中
-(function(window, $){})(window, jQuery)
-- IIFE模式增强 : 引入依赖
-- 这就是现代模块实现的基石
-
-
-5.页面加载多个js的问题
-- 一个页面需要引入多个js文件
-- 问题:
-  - 请求过多
-  - 依赖模糊
-  - 难以维护
-- 这些问题可以通过现代模块化编码和项目构建来解决
-
-
-
-### 模块化规范
-
-```js
-Commonjs
-AMD
-CMD
-ES6
+```html
+//index.html
+<script type="text/javascript" src="module.js"></script>
+<script type="text/javascript">
+    myModule.foo()
+    myModule.bar()
+    console.log(myModule.data) //undefined 不能访问模块内部数据
+    myModule.data = 'xxxx' //不是修改的模块内部的data
+    myModule.foo() //没有改变
+</script>
 ```
 
 
 
-#### CommonJS
+```javascript
+//module.js
+(function(window) {
+  let data = 'www.baidu.com'
+  //操作数据的函数
+  function foo() {
+    //用于暴露的函数
+    console.log(`bar() ${data}`)
+  }
+  function bar() {
+    //用于暴露有函数
+    console.log(`bar() ${data}`)
+    otherFun() //内部调用
+  }
+  function otherFun() {
+    //内部私有的函数
+    console.log('otherFun()')
+  }
+  //暴露行为
+  window.myModule = { foo, bar } //ES6写法
+})(window)
+```
+
+```javascript
+//最后得到的结果
+foo() www.baidu.com
+bar() www.baidu.com
+otherFun()
+undefined
+foo() www.baidu.com
+```
+
+IIFE模式增强： 引入依赖
+
+这是现在模块实现的基石
+
+```javascript
+//module.js
+(function(window, $) {
+  let data = 'www.baidu.com'
+  //操作数据的函数
+  function foo() {
+    //用于暴露有函数
+    console.log(`foo() ${data}`)
+    $('body').css('background', 'red')
+  }
+  function bar() {
+    //用于暴露有函数
+    console.log(`bar() ${data}`)
+    otherFun() //内部调用
+  }
+  function otherFun() {
+    //内部私有的函数
+    console.log('otherFun()')
+  }
+  //暴露行为
+  window.myModule = { foo, bar }
+})(window, jQuery)
+```
+
+```html
+// index.html文件
+  <!-- 引入的js必须有一定顺序 -->
+  <script type="text/javascript" src="jquery-1.10.1.js"></script>
+  <script type="text/javascript" src="module.js"></script>
+  <script type="text/javascript">
+    myModule.foo()
+  </script>
+```
+
+上例子通过jquery方法将页面的背景颜色改成红色，所以必须先引入jQuery库，就把这个库当作参数传入。**这样做除了保证模块的独立性，还使得模块之间的依赖关系变得明显**。
+
+
+
+#### 模块化好处
+
+- 避免命名冲突(减少命名空间污染)
+- 更好的分离, 按需加载
+- 更高复用性
+- 高可维护性
+
+
+
+#### 引入多个\<script>后出现的问题
+
+* 请求过多
+* 依赖模糊
+* 难以维护
+
+
+
+## 模块化规范
+
+### 1. CommonJS
 
 #### 说明
 
@@ -6706,59 +6757,19 @@ console.log(uniq(module3.arr)) //[1,2,3]
 
 
 
+### 2. AMD
+
+> https://segmentfault.com/a/1190000017466120
 
 
 
+### 3. CMD
+
+> https://segmentfault.com/a/1190000017466120
 
 
 
-
-
-
-
-#### 实现(两种产品)
-
-```js
-- 服务端实现   Node.js
-- 浏览器端实现 Browserify  //也成为CommonJS的浏览器端的打包工具 http://browserify.org
-
-
-- 区别Node与Browserify
- - Node.js运行时动态加载模块(同步)
- - Browserify是在转译(编译)时就会加载打包(合并)require的模块
-```
-
-
-
-#### Browserify介绍
-
-```
-- 介绍
-打包工具 可以将CommonJS模块化规范的代码打包成单独的一个JS文件
-应对浏览器运行JS文件的场景. 浏览器不支持CommonJS规范代码
-```
-
-#### Browserify使用步骤
-
-```
-- 使用步骤
-
-1.安装 npm i browserify -g //全局安装
-2.用CommonJS模块化语法编写JS代码
- 2.1 要有一个入口文件(app.js/index.js ..)
- 2.2 该文件中编写功能代码 //引入模块 编写功能
- 2.3 如果文件依赖其他模块,使用require函数引入其他模块即可
-3.打包
- browserify 入口文件路径 -o 输出文件路径
-
-4.HTML文件中引入[输出的文件路径]
-```
-
-
-
-
-
-### ES6模块Module
+### 4. ES6模块Module
 
 #### 介绍
 
@@ -6847,7 +6858,7 @@ export {
 
 
 
-**暴露方式export**
+**export的3种暴露方式**
 
 1.分别暴露
 
@@ -6958,23 +6969,7 @@ export default 42;
 export 42;
 ```
 
-
-
-```js
-export default 暴露的数据名称
-export default {}
-
-export default{
-    //对象形式居多,其他基本数据类型/函数都可以
-}
-
-
-=======================================
-export default{
-	type:'string',
-    others:'H20201218', //带引号可运行    
-}    
-```
+   
 
 
 
@@ -7070,7 +7065,7 @@ foo();
 import { foo } from 'my_module';
 ```
 
-上面的代码不会报错，因为`import`的执行早于`foo`的调用。这种行为的本质是，`import`命令是编译阶段执行的，在代码运行之前。
+上面的代码不会报错，因为`import`的执行早于`foo`的调用。这种行为的本质是，<span style="color:blue;">`import`命令是编译阶段执行的，在代码运行之前</span>。
 
 2 不能使用表达式和变量,if语句
 
@@ -7109,7 +7104,7 @@ import 'lodash';
 
 **引入方式import**
 
-1.通用方式
+1.通用引入
 
 整体加载，即用星号（`*`）指定一个对象，所有输出值都加载在这个对象上面。
 
@@ -7283,7 +7278,7 @@ if (x === 2) {
 }
 ```
 
-上面代码中，引擎处理`import`语句是在编译时，这时不会去分析或执行`if`语句，所以`import`语句放在`if`代码块之中毫无意义，因此会报句法错误，而不是执行时错误。也就是说，`import`和`export`命令只能在模块的顶层，不能在代码块之中（比如，在`if`代码块之中，或在函数之中）。
+上面代码中，引擎处理`import`语句是在编译时，这时不会去分析或执行`if`语句，所以`import`语句放在`if`代码块之中毫无意义，因此会报句法错误，而不是执行时错误。也就是说，**`import`和`export`命令只能在模块的顶层，不能在代码块之中**（比如，在`if`代码块之中，或在函数之中）。
 
 这样的设计，固然有利于编译器提高效率，但也导致无法在运行时加载模块。在语法上，条件加载就不可能实现。如果`import`命令要取代 Node 的`require`方法，这就形成了一个障碍。因为`require`是运行时加载模块，`import`命令无法取代`require`的动态加载功能。
 
@@ -7294,7 +7289,7 @@ const myModule = require(path);
 
 上面的语句就是动态加载，`require`到底加载哪一个模块，只有运行时才知道。`import`命令做不到这一点
 
-1 使用说明
+**1 使用说明**
 
 [ES2020提案](https://github.com/tc39/proposal-dynamic-import) 引入`import()`函数，支持动态加载模块。
 
@@ -7304,7 +7299,7 @@ import(specifier)
 
 `import`函数的参数`specifier`，<u>指定所要加载的模块的位置</u>。`import`命令能够接受什么参数，`import()`函数就能接受什么参数，两者区别主要是后者为动态加载。
 
-import()返回一个Promise对象：
+<u>import()返回一个Promise对象</u>：
 
 ```javascript
 const main = document.querySelector('main');
@@ -7318,17 +7313,17 @@ import(`./section-modules/${someVariable}.js`)
  })
 ```
 
-2 使用位置加载时机
+**2 使用位置加载时机**
 
 可以用在任何地方。运行时执行（什么时候运行到这一句，就会加载指定的模块）
 
-3 与require的区别
+**3 与require的区别**
 
 `import()`函数与所加载的模块没有静态连接关系，这点也是与`import`语句不相同。`import()`类似于 Node 的`require`方法，区别主要是前者是异步加载，后者是同步加载。
 
 #### import()适用场景
 
-1 按需加载
+**1 按需加载**
 
 `import()`可以在需要的时候，再加载某个模块。
 
@@ -7348,7 +7343,7 @@ button.addEventListener('click', event => {
 
 
 
-2 条件加载
+**2 条件加载**
 
 `import()`可以放在`if`代码块，根据不同的情况，加载不同的模块
 
@@ -7360,7 +7355,7 @@ if (condition) {
 }
 ```
 
-3 动态的模块路径
+**3 动态的模块路径**
 
 `import()`允许模块路径动态生成。
 
@@ -7373,7 +7368,7 @@ import(f())
 
 
 
-### import()注意事项
+#### import()注意事项
 
 `import()`加载模块成功以后，这个模块会作为一个对象，当作`then`方法的参数。因此，可以使用对象解构赋值的语法，获取输出接口
 
@@ -7434,7 +7429,7 @@ async function main() {
 
 
 
-#### 说明
+#### 模块语法总结
 
 ```js
 - 依赖模块需要编译打包处理
@@ -7480,22 +7475,11 @@ import * as xx from './xx.js';
 
 
 
-#### Babel和Browserify 浏览器端实现ES6
-
-```js
-1. 使用Babel 将ES6内容转换为ES5内容
-2. 使用Browserify编译打包JS
-```
 
 
 
 
-
-
-
-
-
-### ES6模块化代码使用流程
+#### ES6模块化代码使用流程
 
 ```
 1.使用ES6模块化语法编写代码
@@ -7518,7 +7502,7 @@ import * as xx from './xx.js';
 
 
 
-### ES6模块-抽奖案例
+#### ES6模块-抽奖案例
 
 ```html
 src文件下
@@ -7572,7 +7556,7 @@ export function(x,y){
 
 
 
-### gulp
+## gulp
 
 ### 介绍
 
@@ -7984,4 +7968,5 @@ gulp.task('default', gulp.series('jshint', 'babel', 'browserify'));
 * gulp.task(name, [deps], fn) 
   * 定义一个任务
 * gulp.watch() 
-  * 监视文件的变化
+  * 监视文件的变化![]()
+
