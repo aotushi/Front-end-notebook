@@ -6525,8 +6525,13 @@ axios('/user/123')
 
 #### 什么是模块
 
-> - 将一个复杂的程序依据一定的规则(规范)封装成几个块(文件), 并进行组合在一起
-> - 块的内部数据与实现是私有的, 只是向外部暴露一些接口(方法)与外部其它模块通信
+* 模块是自动运行在严格模式下并且没有办法退出运行的JavaScript代码。
+
+* 在模块顶部创建的变量不会自动被添加到全局共享作用域，这个变量仅在模块的顶级作用域中存在，而且模块必须导出一些外部代码可以访问的元素。
+* 模块顶部，this的值是undefined
+* 模块不支持HTML风格的代码注释
+
+
 
 
 
@@ -6820,6 +6825,8 @@ ES6 的模块自动采用严格模式，无论模块头部加不加`"use strict"
 
 一个模块就是一个独立的文件，内部所有变量外部无法获取。外部读取模块内部的某个变量，必须使用export关键字输出该变量。
 
+任何未显式导出的变量、函数或类都是模块私有的，无法从模块外部访问。
+
 export用于规定模块的对外接口，`import`命令用于输入其他模块提供的功能。
 
 `export`可以输出变量，函数或类。
@@ -7031,6 +7038,10 @@ foo()
 
 使用`export`命令定义了模块的对外接口以后，其他 JS 文件就可以通过`import`命令加载这个模块。
 
+import后面的大括号表示从给定模块导入的绑定（binding），关键字from表示从哪个模块导入给定的绑定，该模块由表示模块路径的字符串指定（被称作模块说明符）。
+
+导入绑定的列表看起来与解构对象很相似，但它不是。
+
 **变量重命名**
 
 ```javascript
@@ -7172,6 +7183,26 @@ export { each as forEach };
 
 上面代码的最后一行的意思是，暴露出`forEach`接口，默认指向`each`接口，即`forEach`和`each`指向同一个方法。
 
+#### 无绑定导入
+
+某些模块可能不导出任何东西，它们可能只修改全局作用域中的对象。尽管模块中的顶层变量、函数和类不会自动地出现在全局作用域中，但这并不意味着模块无法访问全局作用域。**内建对象（如Array和Object）的共享定义可以在模块中访问，对这些对象所做的更改将反映在其他模块中。**
+
+例如，给数组新增一个pushAll方法：
+
+```javascript
+//没有export或import的模块代码
+
+Array.prototype.pushAll = function(items) {
+  //items必须是一个数组
+  if (!Array.isArray(items)) {
+    throw new TypeError('参数必须是一个数组');
+  }
+  
+  //使用内建的push()和展开运算符
+  return this.push(...items);
+}
+```
+
 
 
 #### export与import复合写法(?)
@@ -7264,6 +7295,50 @@ import {db, users} from './constants/index';
 ```
 
 
+
+#### 模块语法的限制
+
+export和import的一个重要的限制是，它们必须在其他语句和函数之外使用
+
+```javascript
+if (flag) {
+  export flag; //语法错误
+}
+```
+
+export语句不允许出现在if语句中，不能有条件导出或以任何方式动态导出。模块语法存在的一个原因是要让JavaScript引擎静态地确定哪些可以导出。因此，只能在模块顶部使用export。
+
+同样，import命令也只能在顶部使用。
+
+```javascript
+function tryImport() {
+  import flag from './example.js'; //语法错误
+}
+```
+
+
+
+#### import和export的怪异之处
+
+ECMAScript 6的import语句为变量、函数和类创建的是只读绑定，而不是像正常变量一样简单地引用原始绑定。**标识符只有在被导出的模块中可以修改，**即便是导入绑定的模块也无法更改绑定的值。例如，假设我们想使用这个模块：
+
+```javascript
+//export
+
+export var name = 'Nicholas';
+export function setName(newName) {
+  name = newName;
+};
+
+//import
+import {name, setName} from './example.js';
+console.log(name); //Nicholas
+setName('Greg'); //Greg
+console.log(name); //Greg
+name = 'Nicholas'; //抛出错误
+```
+
+调用setName("Greg")时会回到导出setName()的模块中去执行，并将name设置为"Greg"。请注意，此更改会自动在导入的name绑定上体现。其原因是，name是导出的name标识符的本地名称。**本段代码中所使用的name和模块中导入的name不是同一个**
 
 
 
