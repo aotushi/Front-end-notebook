@@ -918,7 +918,7 @@ null?.someProp
 
 ### 判断数据类型
 
-###   typeof
+####   1.typeof
 
 typeof 运算符 可以用来检查一个变量的数据类型 返回的结果是 ==字符串==
 
@@ -1011,7 +1011,7 @@ typeof undefined === 'undefined'
 
 
 
-### Object.prototype.toString
+#### 2.Object.prototype.toString
 
 ```js
 - toString()方法能返回这个对象的类型(字符串形式)
@@ -1019,87 +1019,7 @@ typeof undefined === 'undefined'
 
 
 
-
-
-
-
-#### null和undefined使用比较
-
-```HTML
-Null
-- Number(null)返回0.
-- 作为函数参数,表示该参数不是对象
-- 对象原型链的终点: Object.prototype.__proto__=null
-
-Undefined
-- Number(undefined)返回NaN
-- 变量声明未赋值;对象属性未赋值;调用函数时,对应参数没有提供;函数没有返回值;数组越界索引
-
-
-===============================
-null作为函数参数的用法:
-function fn(a, b){console.log(a+b);}
-// 需要传递参数，但是我们暂时不想传递，或者不需要传递，那么我们可以传一个空对象null
-fn() ;//结果是NaN
-fn(null,null);//结果: 0
-fn(undefined, undefined);//结果: NaN
-
-函数为什么传入参数null?
-
-
-function sayHello(name='World'){console.log('Hello,'+name+'!');}
-sayHello('jim');//Hello,jim!
-sayHello(undefined);//Hello, World!
-sayHello(null);//Hello, null!
-https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-es6-does-not-use-the-default-parameter-when-on
-```
-
-
-
-### 判断变量是否为数组4种方法
-
-```js
-
-1.instacneof
-
-function isArray(obj){
-    return obj instanceof Array;
-}
-instanceof操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在2个以上不同的全局执行环境，从而存在2个以上不同版本的Array构造函数
-如果你从一个框架向另一个框架传人一个数组，那么传人的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
-
-为解决这个问题，ES5 新增了Array.isArray()方法
-
-
-2.对象的constuctor属性
-var arr = [1,2,3,1]
-alert(arr.constuctor===Array) //true
-
-arr.__proto__ == Array.prototype
-arr.__proto__.constructor == Array
-
-第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
-
-由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
-    
-
-3.Object.prototype.toString.call(obj)
-function isArray(obj){
-    return Object.prototype.toString.call(obj)==='[object Array]'
-}
-
-4.Array.isArray()
-ECMAScript5将Array.isArray()正式引入JavaScript，目的就是准确地检测一个值是否为数组。在IE8之前的版本是不支持的。
-function (obj) {
-    return Array.isArray(obj)
-}
-
-
-```
-
-
-
-### Object.prototype.toString.call原因
+##### 2.1 Object.prototype.toString.call原因
 
 ```js
 https://www.cnblogs.com/youhong/p/6209054.html
@@ -1152,6 +1072,100 @@ console.log(arr.toString()); //[object Array]
 
 
 
+
+
+
+
+
+#### 3.null和undefined使用比较
+
+```HTML
+Null
+- Number(null)返回0.
+- 作为函数参数,表示该参数不是对象
+- 对象原型链的终点: Object.prototype.__proto__=null
+
+Undefined
+- Number(undefined)返回NaN
+- 变量声明未赋值;对象属性未赋值;调用函数时,对应参数没有提供;函数没有返回值;数组越界索引
+
+
+===============================
+null作为函数参数的用法:
+function fn(a, b){console.log(a+b);}
+// 需要传递参数，但是我们暂时不想传递，或者不需要传递，那么我们可以传一个空对象null
+fn() ;//结果是NaN
+fn(null,null);//结果: 0
+fn(undefined, undefined);//结果: NaN
+
+函数为什么传入参数null?
+
+
+function sayHello(name='World'){console.log('Hello,'+name+'!');}
+sayHello('jim');//Hello,jim!
+sayHello(undefined);//Hello, World!
+sayHello(null);//Hello, null!
+https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-es6-does-not-use-the-default-parameter-when-on
+```
+
+
+
+#### 4.判断变量是否为数组4种方法
+
+```js
+
+1.instacneof
+
+function isArray(obj){
+    return obj instanceof Array;
+}
+instanceof操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在2个以上不同的全局执行环境，从而存在2个以上不同版本的Array构造函数
+如果你从一个框架向另一个框架传人一个数组，那么传人的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
+
+为解决这个问题，ES5 新增了Array.isArray()方法
+
+
+2.对象的constuctor属性
+var arr = [1,2,3,1]
+alert(arr.constuctor===Array) //true
+
+arr.__proto__ == Array.prototype
+arr.__proto__.constructor == Array
+
+第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
+
+由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
+    
+
+3.Object.prototype.toString.call(obj)
+function isArray(obj){
+    return Object.prototype.toString.call(obj)==='[object Array]'
+}
+
+4.Array.isArray()
+ECMAScript5将Array.isArray()正式引入JavaScript，目的就是准确地检测一个值是否为数组。在IE8之前的版本是不支持的。
+function (obj) {
+    return Array.isArray(obj)
+}
+
+
+```
+
+
+
+#### 5.识别整数
+
+ECMAScript 6添加了**Number.isInteget()**方法来确定一个值是否为JavaScript整数类型。Number.isInteger()方法利用了浮点数与整数的存储方式不同来判断.
+
+**注意:** 如果有些数字看起来像浮点数，却存储为整数，这会让Number.isInteger()方法判断失效而返回true
+
+```javascript
+console.log(Number.isInteger(25)); //true
+console.log(Number.isInteger(25.0)); //false
+console.log(Number.isInteger(25.1)); //false
+```
+
+在JavaScript中，只给数字添加小数点不会让整数变为浮点数，此处的25.0确实是25，所以会按照整数的形式存储.
 
 
 
@@ -3240,7 +3254,7 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 ### 6.对象中的方法
 
-####  in/delete
+####  in/delete/hasOwnPorperty
 
 ```Markdown
 in 
@@ -3255,6 +3269,8 @@ delete
   delete obj.username
   delete obj['a-b']   
 	
+hasOwnproperty
+hasOwnProperty() 检查属性是否存在于对象自身中
 ```
 
 
@@ -7468,6 +7484,41 @@ console.log(array1.findIndex(isLargeNumber));
 
 
 
+#### includes()
+
+Array.prototype.includes()方法接收两个参数:要搜索的值及开始搜索的位置,第二个参数是可选的.提供第二个参数时,includes()将从该索引开始匹配(默认开始索引位置是0). 如果数组中找到要搜索的值,则返回true,否则返回false.
+
+```javascript
+let values = [1,2,3];
+
+console.log(values.includes(1)); //true
+
+console.log(values.includes(1, 2)); //false
+```
+
+用includes()方法进行值比较时，
+
+* \=\=\=操作符的使用有一个例外：即使NaN\=\=\=NaN的计算结果为false，NaN也被认为是等于NaN，这与indexOf()方法的行为不同，后者严格使用===进行比较.
+* `+0 与 -0` 被认为是相等的. 但includes()与indexOf()表现行为相同
+
+```javascript
+NaN === NaN; //false
+Object.is(NaN, NaN); //true
+
+let arr = [1,2,NaN];
+
+arr.includes(NaN); //true
+arr.indexOf(NaN); //-1
+
+let values2 = [1, +0, 2]; //换成0也一样
+console.log(values2.indexOf(-0)); //1
+console.log(values2.includes(-0)); //true
+```
+
+
+
+
+
 ### 数组其他方法
 
 #### Array.prototype.copyWidthin()
@@ -9296,7 +9347,11 @@ console.log(person.name); //Kevin
 
 构造函数与原型
 
-每个函数都有一个 prototype 属性，函数的 prototype 属性指向了一个对象，这个对象正是调用该构造函数而创建的**实例**的原型。
+* 每个函数都有一个 prototype 属性，函数的 prototype 属性指向了一个对象，这个对象正是调用该构造函数而创建的**实例**的原型。
+ * 这个属性指向的是一个对象,这个对象就是 原型对象
+ * 如果函数作为普通函数调用,则原型对象没有用
+ * 如果函数作为构造函数调用, 那么它所创建的对象都会由一个隐含的属性(__proto__)也指向该原型对象
+ * 原型对象就相当于是一个公共区域,可以被类及该类的所有实例访问 //类-构造函数 实例-函数创建的对象
 
 **什么是原型呢？**
 
@@ -9306,7 +9361,7 @@ console.log(person.name); //Kevin
 
 实例与原型
 
-这是每一个JavaScript对象(除了 null )都具有的一个属性，叫__proto__，这个属性会指向该对象的原型
+这是每一个JavaScript对象(除了 null )都具有的一个属性，叫\_\_proto\_\_，这个属性会指向该对象的原型
 
 ```javascript
 //可以在火狐或者谷歌中输入
@@ -9368,7 +9423,21 @@ null代表什么？
 
 图中由相互关联的原型组成的链状结构就是原型链，也就是蓝色的这条线。
 
+#### 概述
 
+- 当我们要获取一个对象的属性时,浏览器会先在对象自身中寻找
+- 如果有则直接使用,如果没有则去对象的原型中寻找
+- 找到了则使用,没有则去原型的原型里去寻找.以此类推, 直到找到Object的原型,如果依然没有找到则返回undefined
+- Object的原型是所有对象的原型,它的原型没有原型
+
+#### 使用
+
+- 可以将对象中公有的属性(方法)统一存储在原型对象中
+- 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
+
+- 以后在创建构造函数时,
+ 对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
+ 对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
 
 ### 补充
 
@@ -9396,9 +9465,49 @@ person.constructor === Person.prototype.constructor; //true
 
 
 
+
+
 #### 真的是继承吗？
 
 > 继承意味着复制操作，然而 JavaScript 默认并不会复制对象的属性，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，所以与其叫继承，委托的说法反而更准确些。
+
+\_\_proto\_\_特性
+
+* 只能在对象字面量中指定一次\_\_proto\_\_, 如果指定两个则会抛出错误.这是唯一具有该限制的对象字面量属性
+* 可计算形式["__proto__"]的行为类似于普通属性，不会设置或返回当前对象的原型。与对象字面量属性相关的所有规则均适用于此形式，应用不可计算的形式则会抛出异常。
+
+ECMAScript 6引擎中，Object.prototype.\_\_proto\_\_被定义为一个访问器属性，其get方法会调用Object.getPrototypeOf()方法，其set方法会调用Object.setPrototypeOf()方法。因此，使用\_\_proto\_\_和使用Object.getPrototypeOf()方法或Object.setPrototypeOf()方法的区别在于，**\_\_proto\_\_可以直接设置对象字面量的原型**。
+
+```javascript
+let person = {
+  getGreeting() {
+    return 'Hello';
+  }
+};
+
+let dog = {
+  getGreeting() {
+    return 'Woof';
+  }
+};
+
+//原型是person
+let friend = {
+  __proto__: person
+};
+
+console.log(friend.getGreeting()); //'Hello'
+console.log(Object.getPrototypeOf(friend) === person); //true
+console.log(friend.__proto__ === person); //true
+
+//将原型设置为dog
+friend.__proto__ = dog;
+console.log(friend.getGreeting()); //'Woof'
+console.log(friend.__proto__ === dog); //true
+console.log(Object.getPrototypeOf(friend) === dog); //true
+```
+
+此示例没有通过调用Object.create()方法来创建friend对象，而是创建一个标准对象字面量，并将一个值赋给\_\_proto\_\_属性。换句话说，当使用Object.create()方法创建对象时，必须为所有其他对象属性指定完整的属性描述符。
 
 
 
@@ -9462,118 +9571,6 @@ console.log(p.sayHello === p2.sayHello); //现在只有一个函数,故相等
 2.函数定义在外面,每一次都要赋值; //最好的方法是函数只创建一次,值只赋值一次
 
 ```
-
-
-
-#### 原型
-
-```JavaScript
-原型prototype
- - 每一个函数都有一个属性叫做prototype
- - 这个属性指向的是一个对象,这个对象就是 原型对象
- - 如果函数作为普通函数调用,则原型对象没有用
- - 如果函数作为构造函数调用, 那么它所创建的对象都会由一个隐含的属性(__proto__)也指向该原型对象
- - 原型对象就相当于是一个公共区域,可以被类及该类的所有实例访问 //类-构造函数 实例-函数创建的对象
-
-function Myclass(){}
-console.log(Myclass.prototype);//打印结果是一个对象 {constructor: ƒ}
-
-let mc = new Myclass();//mc.__proto__  隐含的属性 不希望访问.下划线开头的都是隐含属性
-let mc2 = new Myclass();
-
-console.log(mc.__proto__ === Myclass.prototype); //返回true 所有被类创建的对象
-
-
-=============使用原型prototype更新此前构造函数==============================
-
-function Person(name, age){
-	this.name = name;
-	this.age = age;
-}
-Person.prototype.sayHello=function(){
-        alert('hello, 大家好,我是'+this.name); 
-}//已知this就是Person类,怎么倒推. 
-
-let p = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 18);
-p.sayHello(); //大家好,我是孙悟空
-p2.sayHello();//大家好,我是猪八戒
-console.log(p.sayHello === p2.sayHello); //true 现在只有一个函数,故相等    
-```
-
-
-
-#### 原型链
-
-```JavaScript
-- 原型链   // 作用域链 
-- 当我们要获取一个对象的属性时,浏览器会先在对象自身中寻找
-- 如果有则直接使用,如果没有则去对象的原型中寻找
-- 找到了则使用,没有则去原型的原型里去寻找.
-以此类推, 直到找到Object的原型,如果依然没有找到则返回undefined
-- Object的原型是所有对象的原型,它的原型没有原型
-
-- 可以将对象中公有的属性(方法)统一存储在原型对象中
-- 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
-
-- 结论:
-以后在创建构造函数时,
- 对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
- 对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
-```
-
-
-
-#### in | hasOwnProperty
-
-```JavaScript
-- 使用in检查一个属性时,无论属性在原型中还是在对象本身,都会返回true
-
-- hasOwnProperty() 检查属性是否存在于对象自身中
-
-- Object的原型是所有原型的原型(最简单的结构下
-                    
-
-function Myclass(){}
-Myclass.prototype.age = 18;
-
-let mc = new Myclass();
-mc.name = '孙悟空';
-
-//使用in检查一个属性是否存在对象中
-
-console.log('age' in mc); //true  为什么是字符串?不加引号就是变量,无意义.对象的属性名可以这么操作. 对象['属性名']|对象.属性名  . 设置let agent = 'age',是新建了一个字符串,和原属性无关
-
-
-//in无法满足具体查询需求,使用hasOwnProperty
-console.log(mc.hasOwnProperty('age')); //false
-
-//hasOwnProperty这个属性是哪里冒出来的?
-
-console.log(mc.hasOwnProperty('hasOwnProperty')); //false,查询这个属性是否是mc的
-console.log(mc.__proto__.hasOwnProperty('hasOwnProperty')); //false,也不是mc原型的
-console.log(mc.__proto__.__proto__.hasOwnProperty('hasOwnProperty'));//true,原型的原型里有
-
-console.log(mc.hello) //undefined 没有找到返回undefined.  作用域链没有找到是报错
-console.log(mc.__proto__); //{age:18, construction:f}
-
-在这里mc.__proto__.__proto__就是Object.__proto__,两者相同
-
-//Object的原型是所有对象的原型
-console.log(mc instanceof Myclass); // true
-
-console.log(mc instanceof Object); //true    ?不是中间隔着一层?
-
-
-掌握以上可以去看mdn文档
-例如:Array.prototype.xxx
-```
-
-
-
-
-
-
 
 
 

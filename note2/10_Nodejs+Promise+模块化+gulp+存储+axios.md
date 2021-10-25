@@ -4810,6 +4810,23 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
+### 1.2 Promise原因
+
+```html
+1.指定回调函数的方式更加灵活
+ 1.1 旧的:必须在启动异步任务前指定
+ 1.2 promise:启动异步任务->返回promise对象->给promise对象绑定回调函数(甚至可以在异步任务结束后指定多个)
+2.支持链式调用,可以解决回调地域的问题
+ 2.1回调地域:回调函数嵌套调用,外部回调函数异步执行的结果是嵌套的回调执行的条件
+ 2.2回调地狱缺点:不便于阅读;不便于处理异常
+ 2.3解决方案:promise链式调用
+ 2.4终极解决方案:async/await
+```
+
+
+
+
+
 ### 2.异步模式
 
 #### 2.1 事件模型
@@ -4829,7 +4846,7 @@ button.onclick = function(event) {
 * 事件模型适用于处理简单的交互；必须要保证事件在添加事件处理程序之后才被触发
 
 * 多个独立的异步调用连接在一起会使程序更加复杂，因为你必须跟踪每个事件的事件目标（如此示例中的button）。
-* 尽管事件模型适用于响应用户交互和完成类似的**低频功能**，但其对于更复杂的需求来说却不是很灵活。
+* 尽管事件模型适用于**响应用户交互**和完成类似的**低频功能**，但其对于更复杂的需求来说却不是很灵活。
 
 
 
@@ -4876,7 +4893,34 @@ readFile('example.txt', function(err, contents) {
 虽然这个模式运行效果很不错，但很快你会发现由于嵌套了太多的回调函数，使自己陷入了回调地狱
 
 ```javascript
+method1(function(err, result) {
+  if (err) {
+    throw err;
+  }
+  
+  method2(function(err, result) {
+    if (err) {
+      throw err;
+    }
+    
+    method3(function(err, result) {
+      if (err) {
+        throw err;
+      }
+      
+      method4(function(err, result) {
+        if (err) {
+          throw err;
+        }
+        
+        method5(result);
+      })
+    })
+  })
+})
 ```
+
+像示例中这样嵌套多个方法调用，会创建出一堆难以理解和调试的代码。如果你想实现更复杂的功能，回调函数的局限性同样也会显现出来，例如，并行执行两个异步操作，当两个操作都结束时通知你；或者同时进行两个异步操作，只取优先完成的操作结果。在这些情况下，你需要跟踪多个回调函数并清理这些操作，而Promise就能非常好地改进这样的情况。
 
 总结：
 
@@ -4949,19 +4993,42 @@ let promise = readFile('example.txt');
 定时器, 文件操作fs,数据库的操作,ajax请求回调
 ```
 
+#### Promise构造函数
+
+```javascript
+Promise(executor){}
+
+1.executor函数: 执行器(resolve, reject)=>{}
+2.resolve函数: 内部定义成功时,调用的函数 value=>{}
+3.reject函数: 内部定义失败时, 调用的函数 reason=>{}
+
+说明:executor会在promise内部立即同步调用,异步操作在执行器中执行
+
+1. Promise 的实例化接收一个 函数类型的参数( 『执行器函数』 )
+2. resolve和 reject 两个形参类型都是 函数.
+3. 执行器函数是一个同步的回调函数
+```
+
 
 
 #### Promise生命周期
 
+**Promise相当于异步操作结果的占位符，它不会去订阅一个事件，也不会传递一个回调函数给目标函数，而是让函数返回一个Promise**
+
+```javascript
+//readFile承诺将在未来某个时刻完成
+let promise = readFile('example.txt');
+```
+
+在这段代码中，readFile()不会立即开始读取文件，函数会先返回一个表示异步读取操作的Promise对象，未来对这个对象的操作完全取决于Promise的生命周期。
+
 每个Promise都会经历一个短暂的生命周期：
 
 * 先是操作尚未完成，处于进行中状态(pening); 
-* 异步操作执行结束，变为已处理状态。
+* 异步操作执行结束，变为已处理状态,Promise可能进入以下两个状态中的其中一个:
 
-例如在之前的示例中，当readFile()函数返回Promise时它变为pening状态，操作结束后，Promise可能会进入到以下两个状态中的其中一个：
-
-* Fulfilled  Promise异步操作成功完成
-* Rejected 由于程序错误或其他原因，Promise异步操作未能成功完成
+  * **Fulfilled**  Promise异步操作成功完成
+  * **Rejected** 由于程序错误或其他原因，Promise异步操作未能成功完成
 
 总结：
 
@@ -4988,537 +5055,354 @@ Promise {<pending>}
     [[PromiseResult]]: undefined
 ```
 
+##### [[PromiseState]]
 
+内部属性[[PromiseState]]被用来表示Promise的3种状态: 'pending', 'fulfilled', 'rejected'.这个属性不暴露在Promise对象上，所以不能以编程的方式检测Promise的状态，只有当Promise的状态改变时，通过then()方法来采取特定的行动。
 
-#### Promise的基本流程
+##### then()
 
-![image-20201215185442341](C:\Users\pm\AppData\Roaming\Typora\typora-user-images\image-20201215185442341.png)
+所有的Promise对象都有then方法,它接收两个参数: 第一个是Promise的状态变为fulfilled时要调用的函数,与异步操作相关的附加数据都会传递给这个完成函数（fulfillment function）；第二个是当Promise的状态变为rejected时要调用的函数，其与完成时调用的函数类似，所有与失败状态相关的附加数据都会传递给这个拒绝函数（rejection function）
 
-```js
-执行器函数中可以是『同步任务』, 也可以是『异步任务』
+then()的两个参数都是可选的，所以可以按照任意组合的方式来监听Promise，执行完成或被拒绝都会被响应
+
+```javascript
+let promise = readFile('example.txt');
+
+promise.then(function(contents) {
+  //完成
+  console.log(contents);
+}, function(err) {
+  //拒绝
+  console.log(err.message);
+});
+
+promise.then(function(contents) {
+  //完成
+  console.log(contents);
+});
+
+promise.then(null, function(err) {
+  //拒绝
+  console.log(err.message);
+})
 ```
 
+上面这3次then()调用操作的是同一个Promise。第一个同时监听了执行完成和执行被拒；第二个只监听了执行完成，错误时不报告；第三个只监听了执行被拒，成功时不报告。
 
+##### catch()
 
-#### 使用Promise原因
+catch()方法，相当于只给其传入拒绝处理程序的then()方法
 
-```html
-1.指定回调函数的方式更加灵活
- 1.1 旧的:必须在启动异步任务前指定
- 1.2 promise:启动异步任务->返回promise对象->给promise对象绑定回调函数(甚至可以在异步任务结束后指定多个)
-2.支持链式调用,可以解决回调地域的问题
- 2.1回调地域:回调函数嵌套调用,外部回调函数异步执行的结果是嵌套的回调执行的条件
- 2.2回调地狱缺点:不便于阅读;不便于处理异常
- 2.3解决方案:promise链式调用
- 2.4终极解决方案:async/await
-```
+```javascript
+promise.catch(function(err) {
+  //拒绝
+  console.log(err.message);
+});
 
-```js
-$.get(url, (data)=>{   //回调是在异步任务前指定
-    console.log(data)
+//与以下调用相同
+promise.then(null, function(err) {
+  //拒绝
+  console.log(err.message);
 })
 ```
 
 
 
+##### then() + catch()
 
+then()方法和catch()方法一起使用才能更好地处理异步操作结果。如果不给Promise添加拒绝处理程序，那所有失败就自动被忽略了，所以一定要添加拒绝处理程序，即使只在函数内部记录失败的结果也行。
 
-### Promise的基本使用
+如果一个Promise处于已处理状态，在这之后添加到任务队列中的处理程序仍将执行。所以无论何时你都可以添加新的完成处理程序或拒绝处理程序，同时也可以保证这些处理程序能被调用。
 
-```html
-<script>
-  // 1) 创建promise对象(pending状态), 指定执行器函数
-  const p = new Promise((resolve, reject) => {
-    // 2) 在执行器函数中启动异步任务
-    setTimeout(() => {
-      const time = Date.now()
-      // 3) 根据结果做不同处理
-      // 3.1) 如果成功了, 调用resolve(), 指定成功的value, 变为resolved状态
-      if (time%2===1) {
-        resolve('成功的值 '+ time)
-      } else { // 3.2) 如果失败了, 调用reject(), 指定失败的reason, 变为rejected状态
-        reject('失败的值' + time)
-      }
-    }, 2000)
+```javascript
+let promise = readFile('example.txt');
+
+//最初的完成处理程序
+promise.then(function(contents) {
+  console.log(contents);
+  
+  //现在又添加一个
+  promise.then(function(contents) {
+    console.log(contents);
   })
-
-  // 4) 用promise指定成功或失败的回调函数来获取成功的vlaue或失败的reason
-  p.then(
-    value => { // 成功的回调函数onResolved, 得到成功的vlaue
-      console.log('成功的value: ', value)
-    },
-    reason => { // 失败的回调函数onRejected, 得到失败的reason
-      console.log('失败的reason: ', reason)
-    }
-  )
-</script>
-
-```
-
-
-
-#### 30%中奖案例
-
-```html
- // 点击按钮, 1s 后显示是否中奖.  30%概率中奖
-// 中奖弹出   恭喜恭喜  显示中奖号码
-// 未中奖弹出  再接再厉  显示号码
-
-//回调函数写法
-<body>
-    <button id='btn'>点击按钮</button>
-    <script>
-        function rand(m, n){
-            return Math.round(Math.random()*(n-m)+m);
-        }
-    	const btn=document.querySelector('#btn');
-        btn.onclick=function(){
-            setTimeout(()=>{
-                let n = random(1,100);
-                if(n<=30){
-                    alert('恭喜恭喜,中奖号码'+n);
-                }else{
-                    alert('再接再厉,中奖号码'+n);
-                }
-            },1000)
-        }
-    </script>   
-</body>
-
-//Promise方法
-<script>
-	btn.onclick=function(){
-        let p=new Promise((resolve, reject)=>{
-            setTimeout(()=>{
-                let n = random(1,100);
-                if(n<=30){
-                    //alert('恭喜恭喜,中奖号码'+n);
-                    resolve(n);
-                }else{
-                    //alert('再接再厉,中奖号码'+n);
-                    reject(n);
-                }
-            },1000)
-        });
-        
-        p.then((value)=>{
-            console.log('成功啦, 恭喜中奖啦!! 中奖号码为 '+value );
-        }, (reason)=>{
-            console.log('失败啦, 再接再厉  号码为' + reason );
-        })
-    }
-</script>
-```
-
-
-
-
-
-#### 读取文件
-
-```html
-//resource文件下有名称为1,2,3的html文件
-
-//无promise版本
-<script>
-const fs = require('fs');
-
-fs.readFile('./resource/1.htmlx', (err, data) => {
-    if(err) throw err;
-    console.log(data.toString());
-});
-    
-//throw err报错信息: err是一个对象
-[Error: ENOENT: no such file or directory, open 'D:\0922frontend\1215\day15\课堂\Promise\代码\1-Promise\1-基础\resource\1.htmlx'] {
-  errno: -4058,
-  code: 'ENOENT',
-  syscall: 'open',
-  path: 'D:\\0922frontend\\1215\\day15\\课堂\\Promise\\代码\\1-Promise\\1-基础\\resource\\1.htmlx'
-}
-    
-</script>
-
-//promise版本
-<script>
-	const fs=require('fs');
-    let p=new Promise((resolve, reject)=>{
-        let data=fs.readFile('./resource/1.html', (err,data)=>{
-            if(err){
-                reject(err);
-            }
-            resolve(data);
-        })
-    });
-    p.then((value)=>{
-        console.log(value.toString())
-    }, (reason)=>{
-        console.log(reason.code);//
-    })
-</script>
-
-
-```
-
-
-
-#### 发送ajax请求
-
-```js
-<scirpt>
-    cosnt btn=document.querySelector('button');
-	btn.onclick=function(){
-        let p = new Promise((resolve, reject)=>{
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'http:');
-            xhr.send();
-            xhr.onreadystatechange = function(){
-                if(xhr.readyState === 4){
-                    if(xhr.status >= 200 && xhr.status < 300){
-                        //成功的情况,成功的值是非常灵活可自定义的
-                        resolve({
-                            status:xhr.status,
-                            statustext:xhr.statusText,
-                            headers:xhr.getAllResponseHeaders(),
-                            body:xhr.responseText
-                        })
-                    }else{ 
-                        //失败的情况  失败的情况也是放在readyState这个判断中的.
-                        reject(xhr.status);
-                    }
-                }
-            }
-        })
-    }
-//对成功和失败的情况进行处理
-//格式:p.then(成功函数1, 失败函数2)
-p.then((value)=>{
-		console.log(value);
-    },(reason)=>{
-		console.log(reason);
-    })
-</script>    
-```
-
-
-
-#### 连接mongoose数据库
-
-```js
-//db.js
-const mongoose = require('mongoose');
-
-mongoose.connect('mongodb://127.0.0.1:27017/h5200922');
-
-//实例化 Promise 对象
-let p = new Promise((resolve, reject) => {
-    //连接成功
-    mongoose.connection.on('open', () => {
-        resolve();
-    });
-    //连接失败
-    mongoose.connection.on('error', () => {
-        reject();
-    });
-});
-
-//暴露
-module.exports = p;
-
-
-//html
-const mongoose = require('mongoose');
-//引入 db.js
-const p = require('./db/db');
-
-p.then(value => {
-    //结构对象
-    const UserSchema = new mongoose.Schema({
-        username:String,
-        password:String,
-        age: Number,
-        gender: String
-    })
-
-    const UserModel = mongoose.model('users', UserSchema);
-
-    //mongoose 提供 promise 的结果处理
-    UserModel.find({username: 'abc'}).then(data => {
-        console.log(data);
-    });
-}, reason => {
-    console.log('连接失败, 请重试');
 })
-
-
 ```
 
+**注意**
 
+每次调用then()方法或catch()方法都会创建一个新任务，当Promise被解决（resolved）时执行。这些任务最终会被加入到一个为Promise量身定制的独立队列中，这个任务队列的具体细节对于理解如何使用Promise而言不重要，通常你只要理解任务队列是如何运作的就可以了。
 
-#### 封装函数读取文件内容
+#### 创建未完成状态的Promise
 
-```js
-/**
- * 作用: 读取文件的中的内容
- * 封装一个函数 mineReadFile
- * 参数        path 文件路径
- * 返回结果    Promise 对象
- */
+用Promise构造函数可以创建新的Promise,构造函数只接收一个参数: 包含初始化Promise代码的执行器(executor)函数. 执行器接受两个参数,分别是resolve()函数和reject()函数. 执行器成功完成时调用resolve()函数,反之失败则调用reject()函数. Promise的执行器会立即执行,然后才执行后续流程中的代码.
 
-根据函数使用形式倒推封装函数:
-mineReadFile('./resource/1.html')
-.then(value=>{console.log(value.toString())}, reason=>{console.log('读取失败')})
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  
+  resolve();
+});
+console.log('Hi');
 
-//函数封装
-const fs=require('fs');
-function mineReadFile(path){
-    return new Promise((resoleve, reject)=>{ //返回一个Promise对象
-        //使用readFile读取文件内容
-        fs.readFile(path, (err, data)=>{
-            if(err){
-                //调用reject函数
-                reject(err);
-            }
-            //成功的状态,调用resolve函数
-            resolve(data);
-        })
-    })
-}
-
-mineReadFile(path).then(value=>{console.log(value), reason=>{console.log(reason)}});
-
-========================彻底封装=======================
-const fs=require('fs');
-function mineReadFile(path){
-    return new Promise((resolve, reject)=>{
-        fs.readFile(path,(err,data)=>{
-            if err reject err;
-            resolve(data);
-        })
-    }).then(value=>{console.log(value)}, reason=>{console.log(reason)})
-}
-
-mineReadFile(path);
+//输出的内容
+Promise
+Hi
 ```
 
+在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。如果你曾经使用过setTimeout()或setInterval()函数，你应该熟悉这种名为**任务编排（job scheduling）**的过程。当编排任务时，会向任务队列中添加一个新任务，并明确指定将任务延后执行。
 
+**调用resolve()后会触发一个异步操作，传入then()和catch()方法的函数会被添加到任务队列中并异步执行**
 
-
-
-### promisify
-
-```
-可以将 fs 模块中的异步的 API, 转化成返回 promise 对象形式的函数
-```
-
-
-
-```js
-//nodejs中的内置模块
-//传入一个错误优先的回调函数
-const util=require('util');
-const fs=require('fs');
-
-//获取读取文件的函数 将函数转换为promise形态
-const mineReadFile=util.promisify(fs.readFile);
-
-========第二种形式===============
-const {promisify}=require('util');
-const myReadFile=promisify(require('fs').readFile);
-
-//读取文件
-mineReadFile('./resource/1.html')
-.then(value=>{
-    console.log(value.toString());
-}, reason=>{
-    console.log(reason);
-})
-
-```
-
-
-
-
-
-### API-如何使用promise
-
-#### Promise构造函数介绍
-
-```js
-Promise(executor){}
-
-1.executor函数: 执行器(resolve, reject)=>{}
-2.resolve函数: 内部定义成功时,调用的函数 value=>{}
-3.reject函数: 内部定义失败时, 调用的函数 reason=>{}
-
-说明:executor会在promise内部立即同步调用,异步操作在执行器中执行
- 1. Promise 的实例化接收一个 函数类型的参数( 『执行器函数』 )
- 2. resolve和 reject 两个形参类型都是 函数.
- 3. 执行器函数是一个同步的回调函数
- 
- const p = new Promise((resolve, reject) => {
-     console.log(111);
- });
-console.log(222);
-
-
-//then方法
-//then 方法是 Promise 实例对象中的一个方法
-Promise.prototype.then方法: (onResolved, onRejected)=>{}
-1.onResolved函数:成功的回调函数 (value)=>{}
-2.onRejected函数:失败的回调函数 (reason)=>{}
-说明:指定用于得到成功value的成功回调和用于得到失败reason的失败回调返回一个新的promise对象
-```
-
-
-
-#### catch
-
-```js
-//catch 是属于 Promise 的实例对象的 只能指定失败的回调
-Promise.prototype.catch方法: (onRejected) => {}
-(1)	onRejected函数: 失败的回调函数 (reason) => {}
-说明: then()的语法糖, 相当于: then(undefined, onRejected)
-
-
-const p=new Promise((resolve, reject)=>{
-    reject('失败');
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  
+  resolve();
 });
 
-p.then(undefined, (reason)=>{
-    console.log(reason);
+promise.then(function() {
+  console.log('Resolved');
 });
-//catch方法指定失败回调
-p.catch(reason=>{console.log(reason)})
+
+//输出结果
+Promsie
+Hi
+Resolved
 ```
 
+**完成处理程序和拒绝处理程序总是在执行器完成后被添加到任务队列的末尾**
 
+#### 创建已处理的Promise
 
-#### resolve
+创建未处理Promise的最好方法是使用Promise的构造函数，这是由于Promise执行器具有动态性.
 
-```js
-# 介绍:
+但如果你想用Promise来表示一个已知值，则编排一个只是简单地给resolve()函数传值的任务并无实际意义，反倒是可以用以下两种方法根据特定的值来创建已解决Promise。
+
+##### Promise.resolve()
+
+Promise.resolve()方法只接受一个参数并返回一个完成态的Promise，也就是说不会有任务编排的过程，而且<u>需要向Promise添加**一至多个完成处理程序**来获取值</u>。
+
+**概况**
+
 - resolve是Promise函数对象的方法 //Promise.resolve()
 - 将一个值转换为Promise对象,值可以是任意类型
 - Promise.resolve()可以看做是new Promise(resolve=>resolve())的简写,可以用于快速封装字面量对象或其他对象,将其封装成Promise实例.
-# 返回值
-let p = Promise.resolve(123);
-- log结果:
- Promise {<fulfilled>: 123}
- fulfilled:是Promise对象成功的状态
- rejected:  是Promise对象失败的状态
- 
-- 详细结果:
-__proto__: Promise
-[[PromiseState]]: "fulfilled"
-[[PromiseResult]]: 123
-
-# 案例
-//如果resolve方法里是一个promise对象,则这个promise对象的返回状态决定了resolve的返回状态,它成功的结果值就是resolve的成功状态返回结果值
-let p3=Promise.resolve(new Promise((resolve, reject)=>{resolve('ok')}));
-console.log(p3);
-log结果:
-Promise {<fulfilled>: "ok"}
-详细结果:
-
-//resolve返回状态和结果值都和作为参数的promise对象相同
-let p4=Promise.resolve(new Promise((resolve, reject)=>{reject('ok')}));
-console.log(p4);
-log结果:
-Promise {<rejected>: "ok"}
-详细结果:
-Promise {<rejected>: "ok"}
-    __proto__: Promise
-    [[PromiseState]]: "rejected"
-    [[PromiseResult]]: "ok"
-
-解析: 里面的promise对象的状态决定了resolve返回的对象的状态.
-      如果里面是个成功的promise,则返回结果也是成功的promise.
-      如果里面是一个失败的promise,则返回的结果也是失败的promise.
 
 
 
+```javascript
+let p1 = Promise.resolve(new Promise(function(resolve, reject) {resolve()}));
+let p2 = Promise.resolve(new Promise(function(resolve, reject) {reject()}));
+
+console.log(p1); //Promise {<fulfilled>: undefined}
+console.log(p2); //Promise {<rejected>: undefined}
+```
+
+这段代码创建了一个已完成Promise，完成处理程序的形参value接受了传入值42，由于该Promise永远不会存在拒绝状态，因而该Promise的拒绝处理程序永远不会被调用。
+
+
+
+##### Promise.reject()
+
+可通过Promise.reject()方法来创建已拒绝Promise，它与Promise.resolve()很像，唯一的区别是创建出来的是拒绝态的Promise.
+
+无论内部promise的返回结果是成功还是失败,reject的返回结果永远都是失败
+
+```javascript
+let p1 = Promise.reject(new Promise(function(resolve, reject) {resolve()}));
+let p2 = Promise.reject(new Promise(function(resolve, reject) {reject()}));
+
+console.log(p1); //Promise {<rejected>: Promise}
+console.log(p2); //Promise {<rejected>: Promise}
+
+let p3 = Promise.reject(new Promise(function(resolve, reject) {resolve(42)}));
+console.log(p3); //Promise {<rejected>: Promise}
 ```
 
 
 
+##### 返回Promise ???
+
+如果向Promise.resolve()方法或Promise.reject()方法传入一个Promise，那么这个Promise会被直接返回。
+
+```javascript
+let promise = Promise.resolve(new Promise(function() {}));
+console.log(promise); //Promise {<pending>}
+promise.then(function(value) {
+  console.log(value);  //不会执行 因为返回的未完成状态的promise
+});
 
 
-#### reject
-
-```js
-是Promise函数对象的方法,将一个值转换为(失败的Promise)对象
-
-# 返回值
-let p = Promise.reject(123);
-console.log(p)
-log结果:
-Promise {<rejected>: 123}
-详细结果:
-Promise {<rejected>: 123}
-    __proto__: Promise
-    [[PromiseState]]: "rejected"
-    [[PromiseResult]]: 123
-
-
-# 案例
-let p3=Promise.reject(new Promise((resolve, reject)=>{resolve('ok')}));
-console.log(p3);
-log结果:
-Promise {<rejected>: Promise}
-详细log结果:
-Promise {<rejected>: Promise}
-__proto__: Promise
-[[PromiseState]]: "rejected"
-[[PromiseResult]]: Promise
-    __proto__: Promise
-    [[PromiseState]]: "fulfilled"
-    [[PromiseResult]]: "ok"
-# 解析:无论内部promise的返回结果是成功还是失败,reject的返回结果永远都是失败                       
-
-let p = Promise.reject(Promise.reject(Promise.reject(Promise.reject('abc'))));
-console.log(p)
-//log结果:
-Promise {<rejected>: Promise}
-    __proto__: Promise
-    [[PromiseState]]: "rejected"
-    [[PromiseResult]]: Promise
-        __proto__: Promise
-        [[PromiseState]]: "rejected"
-        [[PromiseResult]]: Promise
-            __proto__: Promise
-            [[PromiseState]]: "rejected"
-            [[PromiseResult]]: Promise
-                __proto__: Promise
-                [[PromiseState]]: "rejected"
-                [[PromiseResult]]: "abc"
-
-
-let p = Promise.resolve(Promise.resolve(Promise.resolve(Promise.reject('abc'))));
-
-
-
-let p = Promise.resolve(Promise.resolve(Promise.resolve(Promise.reject('abc'))));
-console.log(p);
-
-//详细结果:
-Promise {<rejected>: "abc"}
-    __proto__: Promise
-    [[PromiseState]]: "rejected"
-    [[PromiseResult]]: "abc"
+let promise2 = Promise.reject(new Promise(function() {}));
+console.log(promise2); //Promise{<rejected>: Promise}
+promise2.catch(function(value) {
+  console.log(value); // 会执行
+});
 ```
 
+#### 执行器错误
 
+如果执行器内部抛出一个错误，则Promise的拒绝处理程序就会被调用.**每个执行器中都隐含一个try-catch块**，所以错误会被捕获并传入拒绝处理程序. 例如
 
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  throw new Error('Explosion');
+});
 
+promise.catch(function(error) {
+  console.log(error.message); //'Explosion'
+})
 
+//以上等价于
+let promise = new Promise(function(resolve, reject) {
+  try {
+    throw new Error('Explosion');
+  } catch(err) {
+    reject(err);
+  }
+});
 
+promise.catch(function(error) {
+  console.log(error.message); //Explosion
+})
+```
 
-#### resolve和reject
+为了简化这种常见的用例，执行器会捕获所有抛出的错误，但只有当拒绝处理程序存在时才会记录执行器中抛出的错误，否则错误会被忽略掉.
 
-```js
-- resolve 执行, 改变了 p 对象的状态(PromiseState)『fulfilled』, 设置 p 对象成功的结果值(PromiseResult)为 『ok』
-- reject 执行, 改变了 p 对象的状态(PromiseState) 『rejected』 , 设置 p 对象失败的结果值(PromiseResult)为 『error』
+### 4.全局的Promise拒绝处理
 
+有关Promise的其中一个最具争议的问题是，如果在没有拒绝处理程序的情况下拒绝一个Promise，那么不会提示失败信息，这是JavaScript语言中唯一一处没有强制报错的地方.
+
+Promise的特性决定了很难检测一个Promise是否被处理过
+
+```javascript
+let rejected = Promise.reject(42);
+
+//此时,rejected还没有被处理
+
+//过了一会
+rejected.catch(function(value) {
+  //现在rejected已经被处理
+  console.log(value);
+})
+```
+
+任何时候都可以调用then()方法或catch()方法，无论Promise是否已解决这两个方法都可以正常运行，但这样就很难知道一个Promise何时被处理。在此示例中，Promise被立即拒绝，但是稍后才被处理。
+
+任何时候都可以调用then()方法或catch()方法，无论Promise是否已解决这两个方法都可以正常运行，但这样就很难知道一个Promise何时被处理。在此示例中，Promise被立即拒绝，但是稍后才被处理。
+
+#### 4.1 Node.js
+
+在Node.js中，处理Promise拒绝时会触发process对象上的两个事件：
+
+* unhandledRejection 在一个事件循环中，当Promise被拒绝，并且没有提供拒绝处理程序时被调用。
+* rejectionHandled      在一个事件循环后，当Promise被拒绝，并且没有提供拒绝处理程序时被调用
+
+**unhandledRejection**
+
+拒绝原因（通常是一个错误对象）及被拒绝的Promise作为参数被传入unhandledRejection事件处理程序中，以下代码展示了unhandledRejection的实际应用：
+
+```javascript
+let rejected;
+
+process.on('unhandledRejection', function(reason, promise) {
+  console.log(reason.message); //'Explosion'
+  console.log(rejected === promise); //true
+});
+
+rejected = Promise.reject(new Error('Explosion'));
+```
+
+这个示例创建了一个已拒绝Promise和一个错误对象，并监听了unhandledRejection事件，事件处理程序分别接受错误对象和Promise作为它的两个参数。
+
+**rejectionHandled**
+
+rejectionHandled事件处理程序只有一个参数，也就是被拒绝的Promise
+
+```javascript
+let rejected;
+
+process.on('rejectionHandled', function(promise) {
+  console.log(rejected === promise); //true
+});
+
+rejected = Promise.reject(new Error('Explosion'));
+
+//等待添加拒绝处理程序
+setTimeout(() => {
+  rejected.catch(function(value) {
+    console.log(value.message); //Explosion
+  })
+},1000)
+```
+
+这里的rejectionHandled事件在拒绝处理程序最后被调用时触发，如果在创建rejected之后直接添加拒绝处理程序，那么rejectionHandled事件不会被触发，因为rejected创建的过程与拒绝处理程序的调用在同一个事件循环中，此时rejectionHandled事件尚未生效。
+
+通过事件rejectionHandled和事件unhandledRejection将潜在未处理的拒绝存储为一个列表，等待一段时间后检查列表便能够正确地跟踪潜在的未处理拒绝。例如下面这个简单的未处理拒绝跟踪器
+
+```javascript
+let possiblyUnhandledRejections = new Map();
+
+//如果一个拒绝没被处理,则将它添加到map集合中
+process.on('unhandledRejection', function(reason, promise) {
+  possiblyUnhandleRjections.set(promise, reason);
+});
+
+process.on('rejectionHandled', function(promise) {
+  possiblyUnhandleRejections.delete(promise);
+});
+
+setInterval(function() {
+  possiblyUnhandledRejections.forEach(function(reason, promise) {
+    console.log(reason.message ? reason.message : reason);
+    
+    //做一些什么来处理这些拒绝
+    handleRejection(promise, reason);
+  });
+  
+  possiblyUnhandledRejections.clear();
+}, 60000);
+```
+
+这段代码使用Map集合来存储Promise及其拒绝原因，每个Promise键都有一个拒绝原因的相关值。每当触发unhandledRejection事件时，会向Map集合中添加一组Promise及拒绝原因；每当触发rejectionHandled事件时，已处理的Promise会从Map集合中移除。结果是，possiblyUnhandledRejections会随着事件调用不断扩充或收缩。setInterval()调用会定期检查列表，将可能未处理的拒绝输出到控制台（实际上你会通过其他方式记录或者直接处理掉这个拒绝）。在这个示例中使用的是Map集合而不是WeakMap集合，这是因为你需要定期检查Map集合来确认一个Promise是否存在，而这是WeakMap无法实现的。
+
+#### 4.2 浏览器
+
+浏览器也是通过触发两个事件来识别未处理的拒绝的，虽然这些事件是在window对象上触发的，但实际上与Node.js中的完全等效。
+
+* unhandledrejection　在一个事件循环中，当Promise被拒绝，并且没有提供拒绝处理程序时被调用。
+* rejectionhandled　    在一个事件循环后，当Promise被拒绝，并且没有提供拒绝处理程序时被调用。
+
+在Node.js实现中，事件处理程序接受多个独立参数；而在浏览器中，事件处理程序接受一个有以下属性的事件对象作为参数：
+
+* type　事件名称（"unhandledrejection"或"rejectionhandled"）
+*  promise　被拒绝的Promise对象
+* reason　来自Promise的拒绝值
+
+浏览器实现中的另一处不同是，在两个事件中都可以使用拒绝值（reason），例如：
+
+```javascript
+let rejected;
+
+window.onunhandledrejection = function(event) {
+  console.log(event.type); //unhandledrejection
+  console.log(event.reason.message); //Explosion
+  console.log(rejected === event.promise); //true
+}
+
+window.onrejectionhandled = function(event) {
+  console.log(event.type); //rejectionhandled
+  console.log(event.reason.message); //Explosion
+  console.log(rejected === event.promise); //true
+}
+
+rejected = Promise.reject(new Error('Explosion'));
+```
+
+这段代码用DOM 0级记法的onunhandledrejection和onrejectionhandled给两个事件处理程序赋值，如果你愿意的话也可以使用addEventListener("unhandledrejection")和addEventListener("rejectionhandled")，每个事件处理程序接受一个含有被拒绝Promise信息的事件对象，该对象的属性type、promise和reason在这两个事件处理程序中均可使用。在浏览器中，跟踪未处理拒绝的代码也与Node.js中的非常相似：
+
+```javascript
+//深入理解Es6 11.3章
 ```
 
 
@@ -5894,6 +5778,324 @@ then方法回调执行是异步的
 222
 111
 ```
+
+
+
+### Promise的使用案例
+
+```html
+<script>
+  // 1) 创建promise对象(pending状态), 指定执行器函数
+  const p = new Promise((resolve, reject) => {
+    // 2) 在执行器函数中启动异步任务
+    setTimeout(() => {
+      const time = Date.now()
+      // 3) 根据结果做不同处理
+      // 3.1) 如果成功了, 调用resolve(), 指定成功的value, 变为resolved状态
+      if (time%2===1) {
+        resolve('成功的值 '+ time)
+      } else { // 3.2) 如果失败了, 调用reject(), 指定失败的reason, 变为rejected状态
+        reject('失败的值' + time)
+      }
+    }, 2000)
+  })
+
+  // 4) 用promise指定成功或失败的回调函数来获取成功的vlaue或失败的reason
+  p.then(
+    value => { // 成功的回调函数onResolved, 得到成功的vlaue
+      console.log('成功的value: ', value)
+    },
+    reason => { // 失败的回调函数onRejected, 得到失败的reason
+      console.log('失败的reason: ', reason)
+    }
+  )
+</script>
+
+```
+
+
+
+#### 30%中奖案例
+
+```html
+ // 点击按钮, 1s 后显示是否中奖.  30%概率中奖
+// 中奖弹出   恭喜恭喜  显示中奖号码
+// 未中奖弹出  再接再厉  显示号码
+
+//回调函数写法
+<body>
+    <button id='btn'>点击按钮</button>
+    <script>
+        function rand(m, n){
+            return Math.round(Math.random()*(n-m)+m);
+        }
+    	const btn=document.querySelector('#btn');
+        btn.onclick=function(){
+            setTimeout(()=>{
+                let n = random(1,100);
+                if(n<=30){
+                    alert('恭喜恭喜,中奖号码'+n);
+                }else{
+                    alert('再接再厉,中奖号码'+n);
+                }
+            },1000)
+        }
+    </script>   
+</body>
+
+//Promise方法
+<script>
+	btn.onclick=function(){
+        let p=new Promise((resolve, reject)=>{
+            setTimeout(()=>{
+                let n = random(1,100);
+                if(n<=30){
+                    //alert('恭喜恭喜,中奖号码'+n);
+                    resolve(n);
+                }else{
+                    //alert('再接再厉,中奖号码'+n);
+                    reject(n);
+                }
+            },1000)
+        });
+        
+        p.then((value)=>{
+            console.log('成功啦, 恭喜中奖啦!! 中奖号码为 '+value );
+        }, (reason)=>{
+            console.log('失败啦, 再接再厉  号码为' + reason );
+        })
+    }
+</script>
+```
+
+
+
+
+
+#### 读取文件
+
+```html
+//resource文件下有名称为1,2,3的html文件
+
+//无promise版本
+<script>
+const fs = require('fs');
+
+fs.readFile('./resource/1.htmlx', (err, data) => {
+    if(err) throw err;
+    console.log(data.toString());
+});
+    
+//throw err报错信息: err是一个对象
+[Error: ENOENT: no such file or directory, open 'D:\0922frontend\1215\day15\课堂\Promise\代码\1-Promise\1-基础\resource\1.htmlx'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'D:\\0922frontend\\1215\\day15\\课堂\\Promise\\代码\\1-Promise\\1-基础\\resource\\1.htmlx'
+}
+    
+</script>
+
+//promise版本
+<script>
+	const fs=require('fs');
+    let p=new Promise((resolve, reject)=>{
+        let data=fs.readFile('./resource/1.html', (err,data)=>{
+            if(err){
+                reject(err);
+            }
+            resolve(data);
+        })
+    });
+    p.then((value)=>{
+        console.log(value.toString())
+    }, (reason)=>{
+        console.log(reason.code);//
+    })
+</script>
+
+
+```
+
+
+
+#### 发送ajax请求
+
+```js
+<scirpt>
+    cosnt btn=document.querySelector('button');
+	btn.onclick=function(){
+        let p = new Promise((resolve, reject)=>{
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'http:');
+            xhr.send();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    if(xhr.status >= 200 && xhr.status < 300){
+                        //成功的情况,成功的值是非常灵活可自定义的
+                        resolve({
+                            status:xhr.status,
+                            statustext:xhr.statusText,
+                            headers:xhr.getAllResponseHeaders(),
+                            body:xhr.responseText
+                        })
+                    }else{ 
+                        //失败的情况  失败的情况也是放在readyState这个判断中的.
+                        reject(xhr.status);
+                    }
+                }
+            }
+        })
+    }
+//对成功和失败的情况进行处理
+//格式:p.then(成功函数1, 失败函数2)
+p.then((value)=>{
+		console.log(value);
+    },(reason)=>{
+		console.log(reason);
+    })
+</script>    
+```
+
+
+
+#### 连接mongoose数据库
+
+```js
+//db.js
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://127.0.0.1:27017/h5200922');
+
+//实例化 Promise 对象
+let p = new Promise((resolve, reject) => {
+    //连接成功
+    mongoose.connection.on('open', () => {
+        resolve();
+    });
+    //连接失败
+    mongoose.connection.on('error', () => {
+        reject();
+    });
+});
+
+//暴露
+module.exports = p;
+
+
+//html
+const mongoose = require('mongoose');
+//引入 db.js
+const p = require('./db/db');
+
+p.then(value => {
+    //结构对象
+    const UserSchema = new mongoose.Schema({
+        username:String,
+        password:String,
+        age: Number,
+        gender: String
+    })
+
+    const UserModel = mongoose.model('users', UserSchema);
+
+    //mongoose 提供 promise 的结果处理
+    UserModel.find({username: 'abc'}).then(data => {
+        console.log(data);
+    });
+}, reason => {
+    console.log('连接失败, 请重试');
+})
+
+
+```
+
+
+
+#### 封装函数读取文件内容
+
+```js
+/**
+ * 作用: 读取文件的中的内容
+ * 封装一个函数 mineReadFile
+ * 参数        path 文件路径
+ * 返回结果    Promise 对象
+ */
+
+根据函数使用形式倒推封装函数:
+mineReadFile('./resource/1.html')
+.then(value=>{console.log(value.toString())}, reason=>{console.log('读取失败')})
+
+//函数封装
+const fs=require('fs');
+function mineReadFile(path){
+    return new Promise((resoleve, reject)=>{ //返回一个Promise对象
+        //使用readFile读取文件内容
+        fs.readFile(path, (err, data)=>{
+            if(err){
+                //调用reject函数
+                reject(err);
+            }
+            //成功的状态,调用resolve函数
+            resolve(data);
+        })
+    })
+}
+
+mineReadFile(path).then(value=>{console.log(value), reason=>{console.log(reason)}});
+
+========================彻底封装=======================
+const fs=require('fs');
+function mineReadFile(path){
+    return new Promise((resolve, reject)=>{
+        fs.readFile(path,(err,data)=>{
+            if err reject err;
+            resolve(data);
+        })
+    }).then(value=>{console.log(value)}, reason=>{console.log(reason)})
+}
+
+mineReadFile(path);
+```
+
+
+
+
+
+#### promisify
+
+```
+可以将 fs 模块中的异步的 API, 转化成返回 promise 对象形式的函数
+```
+
+
+
+```js
+//nodejs中的内置模块
+//传入一个错误优先的回调函数
+const util=require('util');
+const fs=require('fs');
+
+//获取读取文件的函数 将函数转换为promise形态
+const mineReadFile=util.promisify(fs.readFile);
+
+========第二种形式===============
+const {promisify}=require('util');
+const myReadFile=promisify(require('fs').readFile);
+
+//读取文件
+mineReadFile('./resource/1.html')
+.then(value=>{
+    console.log(value.toString());
+}, reason=>{
+    console.log(reason);
+})
+
+```
+
+
+
+
 
 
 
@@ -7202,6 +7404,12 @@ Array.prototype.pushAll = function(items) {
   return this.push(...items);
 }
 ```
+
+**注意:**
+
+无绑定导入最有可能被应用于创建polyfill和Shim.
+
+
 
 
 
