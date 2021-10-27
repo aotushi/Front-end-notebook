@@ -24,7 +24,7 @@
 * [01_html&css](./note2/01_html&css.md)
 * [02_Javascript-基础](./note2/02_Javascript-基础.md)
 * [03_Javascript-DOM](./note2/03_Javascript-DOM.md)
-* [04_JavaScript-高级](./note2/04_JavaScript-高级.md)
+* [04_JavaScript-高级(上下文-作用域-原型链-闭包-事件循环).md](./note2/04_JavaScript-高级(上下文-作用域-原型链-闭包-事件循环).md)
 * [05_PC项目-less](./note2/05_PC项目-less.md)
 * [06_BOM](./note2/06_BOM.md)
 * [07_jQuery](./note2/07_jQuery.md)

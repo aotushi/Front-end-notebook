@@ -5835,29 +5835,49 @@ console.log(numbers2) //2,3,4
 
 > 注意： 如果一个对象既是类数组又是可迭代的，那么Array.from()方法会根据迭代器来决定转换哪个值。
 
+##### 3.2.3 使用
 
+参数
 
-
-
-
-
-```JavaScript
-# 如何创建数组 //使用类来创建对象
-const arr = new Array(); //使用const之后,不能改变的是变量arr,而其中的属性是可以更改的.函数同理
-
-let arr = Array();
-let arr = new Array();
-let arr = [];  //let arr = [元素1, 元素2, 元素3, ...];
-
-数组中的元素可以是任意的数据类型.数组长度可以任意修改 一般我们在使用数组时,同一个数组只放同一类型的数据
-
-# 数组中的数据存储的也是数据的内存地址
-let arr = new Array(4); //创建长度为4的数组,值为空
-console.log(arr, arr.length); //empty*4  4
-
-var a = [,,]; 每一项的值是undefined
-function getArr(...args){} //...三点运算符 函数形参中的rest运算符 允许将一个不定数量的参数表示为一个数组.
+```javascript
+arrayLike 类数组或可迭代对象
+mapFn 可选 映射函数被数组中每一个元素调用
+thisArg 可选 当执行映射函数时候使用这个值
 ```
+
+
+
+`Array.from()` 方法从一个类似数组或可迭代对象创建一个新的，浅拷贝的数组实例
+
+```javascript
+//语法
+Array.from(arrayLike[,mapFn[,thisArg]])
+arrayLike 要转换成数组的伪数组对象或可迭代对象
+mapFn 如果指定了该参数，新数组中的每个元素会执行该回调函数
+thisArg 可选参数，执行回调函数 mapFn 时 this 对象
+
+//返回值
+一个新的数组
+
+//描述
+Array.from() 可以通过以下方式来创建数组对象：
+ - 伪数组对象（拥有一个 length 属性和若干索引属性的任意对象）
+ - 可迭代对象（可以获取对象中的元素,如 Map和 Set 等）
+```
+
+
+
+Array.from()的另一个应用是，将字符串转为数组，然后返回字符串的长度。因为它能正确处理各种 Unicode 字符,可以避免 JavaScript 将大于`\uFFFF`的 Unicode 字符，算作两个字符的 bug。
+
+```javascript
+function countSymbols(string) {
+  return Array.from(string).length;
+}
+
+countSymbols('\uD842\uDFB7'); //1
+```
+
+
 
 
 
@@ -5915,184 +5935,6 @@ arr[6] = 15;
 arr[10] = 14;
 
 数组的长度,最大索引10+1,是11个元素.但有好几个是空的,日常中比较少见.,意义不大
-```
-
-
-
-### 数组操作
-
-#### 获取元素
-
-```JavaScript
-# 获取数组中的元素
-	
-- 数组[索引]
-- 获取数组中没有的元素,不会报错,会返回undefined
-```
-
-
-
-#### 判断是否存在数组中 in
-
-```js
-//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in
-
-//作用
-如果指定的属性在指定的对象或其原型链中，则in 运算符返回true。
-//语法
-prop in object
- prop: 一个字符串类型或者 symbol 类型的属性名或者数组索引（非symbol类型将会强制转为字符串）
- objectname: 检查它（或其原型链）是否包含具有指定名称的属性的对象。
-
-//案例
-let trees = new Array('redwood', 'bay', 'cedar', 'oak');
-1 in trees //返回true
-2 in trees //返回true
-'bay' in trees //false
-
-//数组空位
-0 in [undefined, undefined]; //true
-0 in [,,,]; //false
-```
-
-
-
-
-
-#### 向数组中添加元素
-
-```JavaScript
-* 向数组中添加元素
-	数组[索引] = 值
-arr[0] = 10;
-arr[1] = 11;
-arr[2] = 12;
-arr[6] = 15;   
-```
-
-
-
-#### 删除元素
-
-```JavaScript
-# 删除数组中的元素,但是位置还在
-
-- delete 数组[索引]
-```
-
-
-
-#### 获取数组长度|length
-
-```JavaScript
-# 获取数组的长度
-	
-数组.length
-length的值实际就是数组的最大索引+1
-
-数组length属性是可以修改的 //字符串长度不能被修改
-    arr.length = 8; //假如数组长度为6,但是认为加长到8.所以多的是空元素
-	arr.length = 4; //删除数组中最后两个元素.再改回长度6的话,显示的空元素
-```
-
-
-
-#### 数组最后添加元素
-
-```JavaScript
-# 向数组的最后添加元素
-    
-数组[数组.length] = 值;
-```
-
-
-
-#### 访问数组最后一位
-
-```JavaScript
-# 访问数组最后一位
-   
-arr[arr.length-1] //可以理解最后一位是负1,倒数第二位是负2....
-```
-
-
-
-#### 判断两个数组是相等
-
-```js
-//https://segmentfault.com/a/1190000016574183
-//https://juejin.cn/post/6860071737196429319
-//https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
-
-
-//1.如果两个数组均为字符串或数字类型,元素顺序无需一致. 使用sort排序/every/遍历来判断
-a.length === b.length && a.sort().toString() === b.sort.toString()
-a.length === b.length && a.every(item => b.includes(item));
-
-//1.简单方案 适用于大多数情况.除了null !== undefined,它们转换成JSON都代表null并被认为相等.
-function (a1, a2) {
-  //数组中必须没有对象或未定义行为?? 
-  return JSON.stringify(a1) === JSON.stringify(a2);
-}
-
-使用JSON来stringify对象的话,ES6规定了属性的迭代顺序,所以可以对相同对象使用
-
-//2.
-
-function arraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
-  
-  for (let i=0; i<a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-```
-
-
-
-#### 合并两个数组的方法
-
-**1.concat**
-
-```js
-var a = [1,2,3];
-var b = [4,5,6];
-var c = a.concat(b);//c=[1,2,3,4,5,6];
-```
-
-这里有一个问题，concat方法连接a、b两个数组后，a、b两个数组的数据不变，同时会返回一个新的数组。这样当我们需要进行多次的数组合并时，会造成很大的内存浪费，所以这个方法肯定不是最好的。
-
-
-
-**2.for循环**
-
-> 这样的写法可以解决第一种方案中对内存的浪费，但是会有另一个问题：丑
-
-```js
-for(var i in b){
-  a.push(b[i]);
-}
-```
-
-**3.apply**
-
-```js
-a.push.apply(a,b);
-```
-
-调用a.push这个函数实例的apply方法，同时把，b当作参数传入，这样a.push这个方法就会遍历b数组的所有元素，达到合并的效果。上面的操作就等同于：`a.push(4,5,6);`
-
-
-
-**4.扩展运算符**
-
-```js
-var a = [1,2,3];
-var b = [4,5,6];
-var newA = [...a,...b]
 ```
 
 
@@ -7456,7 +7298,25 @@ arr.every((item)=>{
 
 
 
-#### find()
+#### find()/findIndex()
+
+##### 概况
+
+在ECMAScript 5以前的版本中，由于没有内建的数组搜索方法，因此想在数组中查找元素会比较麻烦，于是ECMAScript 5正式添加了indexOf()和lastIndexOf()两个方法，可以用它们在数组中查找特定的值。
+
+这两种方法仍有局限之处，即每次只能查找一个值，如果想在一系列数字中查找第一个偶数，则必须自己编写代码来实现。于是ECMAScript 6引入了find()方法和findIndex()方法来解决这个问题。
+
+##### 参数
+
+find()方法和findIndex()方法都接受<u>两个参数：一个是回调函数；另一个是可选参数，用于指定回调函数中this的值。</u>
+
+执行回调函数时，传入的参数分别为：数组中的某个元素和该元素在数组中的索引及数组本身，与传入map()和forEach()方法的参数相同。
+
+##### 返回值
+
+如果给定的值满足定义的标准，回调函数应返回true，一旦回调函数返回true，find()方法和findIndex()方法都会立即停止搜索数组剩余的部分。
+
+
 
 find() 方法返回数组中满足提供的测试函数的第一个元素的值。否则返回 undefined
 
@@ -7469,8 +7329,6 @@ console.log(found); //4
 
 
 
-#### findIndex()
-
 findIndex()方法返回数组中满足提供的测试函数的第一个元素的索引。若没有找到对应元素则返回-1。
 
 ```js
@@ -7481,6 +7339,56 @@ const isLargeNumber = (element) => element > 13;
 console.log(array1.findIndex(isLargeNumber));
 // expected output: 3
 ```
+
+
+
+#### fill()
+
+fill()方法可以用指定的值填充一至多个数组元素。当传入一个值时，fill()方法会用这个值重写数组中的所有值, 同时也返回重写后的新数组.
+
+```javascript
+//参数
+arr.fill(传入的值, [开始索引,[结束索引(不包括)]])
+
+//返回值 重写后的新数组
+
+```
+
+
+
+#### copyWith()
+
+copyWithin()方法与fill()方法相似，其也可以同时改变数组中的多个元素。fill()方法是将数组元素赋值为一个指定的值，而copyWithin()方法则是从数组中复制元素的值。调用copyWithin()方法时需要传入两个参数：一个是该方法开始填充值的索引位置，另一个是开始复制值的索引位置。
+
+```javascript
+//复制数组前两个元素到后两个元素
+let numbers = [1,2,3,4];
+//从数组e索引2开始黏贴值 从数组的索引0开始复制值
+
+number.copyWith(2, 0);
+
+console.log(numbers.toString()); //1,2,1,2
+```
+
+这段代码从numbers的索引2开始粘贴值，所以索引2和3将被重写。给copyWithin()传入第二个参数0表示，从索引0开始复制值并持续到没有更多可复制的值。
+
+默认情况下，copyWithin()会一直复制直到数组末尾的值，但是你可以提供可选的第三个参数来限制被重写元素的数量。第三个参数是不包含结束索引，用于指定停止复制值的位置。在代码中它是这样的：
+
+```javascript
+let numbers = [1,2,3,4];
+
+//从数组的索引2开始粘贴值
+//从数组的索引0开始复制值
+//当位于索引1时停止复制值
+
+numbers.copyWith(2,0,1);
+
+console.log(numbers.toString()); //1,2,1,4
+```
+
+
+
+
 
 
 
@@ -7517,86 +7425,6 @@ console.log(values2.includes(-0)); //true
 
 
 
-
-
-### 数组其他方法
-
-#### Array.prototype.copyWidthin()
-
-`copyWithin() `方法浅复制数组的一部分到同一数组中的另一个位置，并返回它，不会改变原数组的长度
-
-```js
-```
-
-
-
-#### Array.prototype.fill()
-
-
-
-#### Array.from()
-
-`Array.from()` 方法从一个类似数组或可迭代对象创建一个新的，浅拷贝的数组实例
-
-```js
-//语法
-Array.from(arrayLike[,mapFn[,thisArg]])
-arrayLike 要转换成数组的伪数组对象或可迭代对象
-mapFn 如果指定了该参数，新数组中的每个元素会执行该回调函数
-thisArg 可选参数，执行回调函数 mapFn 时 this 对象
-
-//返回值
-一个新的数组
-
-//描述
-Array.from() 可以通过以下方式来创建数组对象：
- - 伪数组对象（拥有一个 length 属性和若干索引属性的任意对象）
- - 可迭代对象（可以获取对象中的元素,如 Map和 Set 等）
-```
-
-```js
-//示例
-从String生成数组
-Array.from('foo');
-//['f','o','o']
-
-从Set生成数组
-const set = new Set(['foo','bar','baz','foo']);
-Array.from(set);
-//['foo','bar','baz']
-
-从Map生成数组
-
-从类数组对象(arguments)生成数组
-function fn(){
-  return Array.from(arguments);
-}
-fn(1,2,3); //[1,2,3]
-
-在Array.from中使用箭头函数
-Array.from([1,2,3],x=>x+x);  //等同于 Array.from(arrLike).map(x=>x+x)
-//[2,4,6]
-
-数组去重合并
-let m =[1,2,3]; let n = [2,3,4];
-function combine(){
-  let arr = [].concat.apply([],arguments);
-  return Array.from(new Set(arr));
-}
-console.log(combine(m,n))
-
-其他
-Array.from({legnth:2},()=>'jack');
-//['jack','jack']
-
-
-Array.from()的另一个应用是，将字符串转为数组，然后返回字符串的长度。因为它能正确处理各种 Unicode 字符，可以避免 JavaScript 将大于\uFFFF的 Unicode 字符，算作两个字符的 bug。
-```
-
-
-
-
-
 #### Array.prototype.xxx.call()
 
 >  [来源](https://github.com/getify/You-Dont-Know-JS): 通过“借用”数组的方法可以很方便的处理字符串。可以“借用”数组的非变更方法，但不能“借用”数组的可变更方法.
@@ -7619,7 +7447,183 @@ let e = Array.prototype.reverse.call(a);
 
 
 
-### 数组练习
+### 数组操作
+
+#### 获取元素
+
+```JavaScript
+# 获取数组中的元素
+	
+- 数组[索引]
+- 获取数组中没有的元素,不会报错,会返回undefined
+```
+
+
+
+#### 判断是否存在数组中 in
+
+```js
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in
+
+//作用
+如果指定的属性在指定的对象或其原型链中，则in 运算符返回true。
+//语法
+prop in object
+ prop: 一个字符串类型或者 symbol 类型的属性名或者数组索引（非symbol类型将会强制转为字符串）
+ objectname: 检查它（或其原型链）是否包含具有指定名称的属性的对象。
+
+//案例
+let trees = new Array('redwood', 'bay', 'cedar', 'oak');
+1 in trees //返回true
+2 in trees //返回true
+'bay' in trees //false
+
+//数组空位
+0 in [undefined, undefined]; //true
+0 in [,,,]; //false
+```
+
+
+
+
+
+#### 向数组中添加元素
+
+```JavaScript
+* 向数组中添加元素
+	数组[索引] = 值
+arr[0] = 10;
+arr[1] = 11;
+arr[2] = 12;
+arr[6] = 15;   
+```
+
+
+
+#### 删除元素
+
+```JavaScript
+# 删除数组中的元素,但是位置还在
+
+- delete 数组[索引]
+```
+
+
+
+#### 获取数组长度|length
+
+```JavaScript
+# 获取数组的长度
+	
+数组.length
+length的值实际就是数组的最大索引+1
+
+数组length属性是可以修改的 //字符串长度不能被修改
+    arr.length = 8; //假如数组长度为6,但是认为加长到8.所以多的是空元素
+	arr.length = 4; //删除数组中最后两个元素.再改回长度6的话,显示的空元素
+```
+
+
+
+#### 数组最后添加元素
+
+```JavaScript
+# 向数组的最后添加元素
+    
+数组[数组.length] = 值;
+```
+
+
+
+#### 访问数组最后一位
+
+```JavaScript
+# 访问数组最后一位
+   
+arr[arr.length-1] //可以理解最后一位是负1,倒数第二位是负2....
+```
+
+
+
+#### 判断两个数组是相等
+
+```js
+//https://segmentfault.com/a/1190000016574183
+//https://juejin.cn/post/6860071737196429319
+//https://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
+
+
+//1.如果两个数组均为字符串或数字类型,元素顺序无需一致. 使用sort排序/every/遍历来判断
+a.length === b.length && a.sort().toString() === b.sort.toString()
+a.length === b.length && a.every(item => b.includes(item));
+
+//1.简单方案 适用于大多数情况.除了null !== undefined,它们转换成JSON都代表null并被认为相等.
+function (a1, a2) {
+  //数组中必须没有对象或未定义行为?? 
+  return JSON.stringify(a1) === JSON.stringify(a2);
+}
+
+使用JSON来stringify对象的话,ES6规定了属性的迭代顺序,所以可以对相同对象使用
+
+//2.
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  
+  for (let i=0; i<a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+```
+
+
+
+#### 合并两个数组的方法
+
+**1.concat**
+
+```js
+var a = [1,2,3];
+var b = [4,5,6];
+var c = a.concat(b);//c=[1,2,3,4,5,6];
+```
+
+这里有一个问题，concat方法连接a、b两个数组后，a、b两个数组的数据不变，同时会返回一个新的数组。这样当我们需要进行多次的数组合并时，会造成很大的内存浪费，所以这个方法肯定不是最好的。
+
+
+
+**2.for循环**
+
+> 这样的写法可以解决第一种方案中对内存的浪费，但是会有另一个问题：丑
+
+```js
+for(var i in b){
+  a.push(b[i]);
+}
+```
+
+**3.apply**
+
+```js
+a.push.apply(a,b);
+```
+
+调用a.push这个函数实例的apply方法，同时把，b当作参数传入，这样a.push这个方法就会遍历b数组的所有元素，达到合并的效果。上面的操作就等同于：`a.push(4,5,6);`
+
+
+
+**4.扩展运算符**
+
+```js
+var a = [1,2,3];
+var b = [4,5,6];
+var newA = [...a,...b]
+```
+
+
 
 #### 伪数组转换为真数组的3种方法
 
@@ -7661,7 +7665,7 @@ console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
 
 
 
-#### 数组去重3种方法
+#### 数组去重方法
 
 嵌套循环+indexOf
 
@@ -7733,6 +7737,19 @@ let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index
 let arr=[...new Set([1,2,2,4,null,null])]
 ```
 
+Array.from()之数组去重合并
+
+```javascript
+//mdn https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+funtion combine() {
+  let arr = [].contact.apply([], arguments);
+  return Array.from(new Set(arr));
+}
+
+let m = [1,2,2], n = [2,3,3];
+console.log(combine(m, n)); //[1,2,3]
+```
+
 
 
 #### 数组排序|冒泡排序
@@ -7772,99 +7789,6 @@ for(let j=0; j<arr.length-1; j++){
 console.log(arr);
 
 ```
-
-
-
-
-
-### 回调函数
-
-![](https://pic2.zhimg.com/0ef3106510e2e1630eb49744362999f8_r.jpg?source=1940ef5c)
-
-编程分为两类：系统编程（system programming）和应用编程（application programming）。所谓系统编程，简单来说，就是编写**库**；而应用编程就是利用写好的各种库来编写具某种功用的程序，也就是**应用**。在抽象层的图示里，库位于应用的底下
-
-当程序跑起来时，一般情况下，应用程序（application program）会时常通过API调用库里所预先备好的函数。但是有些库函数（library function）却要求应用先传给它一个函数，好在合适的时候调用，以完成目标任务。这个被传入的、后又被调用的函数就称为**回调函数**（callback function）
-
-```js
-https://www.zhihu.com/question/19801131/answer/27459821
-```
-
-
-
-#### 实例
-
-```js
-- 简单理解: 函数b是以参数形式传给函数a的,那么函数b就叫做回调函数.
-
-function a(callback){
-	callback();
-	console.log('父函数');
-}
-
-function b(){
-	setTimeout("console.log('子函数')", 3000); //延时操作
-}
-
-a(b); 
-//输出结果先后顺序是:父函数 子函数
-//父函数不用等回调函数执行完,可以接着执行自己的代码
-
-
-- 匿名函数形式,没有变量灵活性不高
-function a(a, callback){
-    alert(a);
-    if(typeof callback == 'function'){
-        callback();
-    }
-}
-
-a("回调函数", function(){alert('回调函数执行')})
-```
-
-
-
-#### 实例2
-
-```js
-- call()方法 回调函数
-
-function Thing(name){
-	this.name = name;
-    //this是谁? 实参赋值,this是Joe
-}
-
-Thing.prototype.doSomething = function(callback){
-    callback.call(this);
-    //this是谁?  
-    //构造函数创建的对象是 Thing{name:'Joe', doSomething:ƒ}
-}
-
-function foo(){
-    alert(this.name); //'Joe'
-}
-
-var t = new Thing('Joe');
-t.doSomething(foo);  
-//Thing.prototype.doSomething = t.doSomething = t.__proto__.doSomething
-
-- 更新:传参数
-function(name){
-    this.name = name;
-}
-Thing.prototype.doSomething = fucntion(callback, salutation){
-    callback.call(this,salutation);
-}
-
-function foo(salutation){
-    alert(salutation + "" + this.name);
-}
-
-var t = new Thing('Joe');
-t.doSomething(foo, 'Hi');
-
-```
-
-
 
 
 
@@ -9437,7 +9361,7 @@ null代表什么？
 
 - 以后在创建构造函数时,
  对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
- 对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
+  对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
 
 ### 补充
 

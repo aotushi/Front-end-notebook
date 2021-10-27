@@ -1603,7 +1603,7 @@ for(let i of team2['members']){
 
 
 
-### set集合
+## set集合
 
 > ES6 提供了新的数据结构 Set（集合）。它类似于数组，但成员的值都是唯一的，集合实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历，
 >
@@ -1690,7 +1690,7 @@ let inter =[...new Set(arr)].filter(item=>{
 
 
 
-### Map数据类型
+## Map数据类型
 
 > 它类似于==对象和集合==，也是键值对的集合。但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。Map也实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历
 >
@@ -1794,72 +1794,370 @@ console.log(m);//
 
 
 
-### 对象声明
+## class 类
 
-> ES6 提供了更接近传统语言的写法，引入了 Class（类）这个概念，作为对象的模板。通过class关键字，可以定义类。基本上，ES6 的class可以看作只是一个语法糖，它的绝大部分功能，ES5 都可以做到，新的class写法只是让对象原型的写法更加清晰、更像面向对象编程的语法而已.
+大多数面向对象的编程语言都支持类和类继承的特性，而JavaScript却不支持这些特性，只能通过其他方法定义并关联多个相似的对象。
 
+在ECMAScript 6中引入了类的特性。ECMAScript 6中的类与其他语言中的还是不太一样，其语法的设计实际上借鉴了JavaScript的动态性
 
+ECMAScript 5中的近类结构
 
-#### class要点
-
-```
-类中的赋值语句是加到实例上的,相当于在构造器中添加了this.变量=值的形式
-
-类中的4种方法: 构造方法,一般方法, 赋值语句, 静态属性
-
-
-```
-
-
-
-
-
-#### ES5 对象声明
-
-```js
-//构造方法
-function Phone(brand, price){
-    this.brand = brand;
-    this.price = price;
+```javascript
+function PersonType(name) {
+  this.name = name;
 }
-//原型添加方法
-Phone.prototype.call = function(someone){console.log('可以给'+someone+'打电话')}
-Phone.prototype.sendMessage = function(somebody){console.log('`我可以给${somebody}发送短信`')}
 
-//实例化
-const hw = new Phon('华为', 2500);
-console.log(hw);
+PersonType.prototype.sayName = function() {
+  console.log(this.name);
+};
 
+let person = new PersonType('Nicholas');
+person.sayName(); //Nicholas
+
+console.log(person instanceof PersonType); //true
+console.log(person instanceof Object); //true
 ```
 
 
 
-#### ES6 class类的声明
+### 定义类的2种方式
 
-```js
-//类的声明 里面只有构造方法和一般方法
+#### 1.类声明
 
-class Phone{
-    constructor(brand, price){//构造方法,名字constructor不能修改.且构造方法只能有一个.
-        this.brand = brand;//实例化参数
-        this.price = price;
-    }
-    
-    //声明成员方法  一般方法
-    call(someone){
-        //代码体
-        console.log('可以给'+someone+'打电话');
-    }
-    
-    sendMessage(somebody){
-        console.log(`可以给${somebody}发短信`);
-    }
-    
+要声明一个类，首先编写class关键字，紧跟着的是类的名字，其他部分的语法类似于对象字面量方法的简写形式，但不需要在类的各元素之间使用逗号分隔
+
+```javascript
+class PersonClass {
+  //等价于PersonType构造函数
+  constructor(name) {
+    this.name = name;
+  }
+  
+  //等价于PersonType.prototype.sayName
+  sayName() {
+    console.log(this.name);
+  }
 }
-//实例化对象
-let xiaomi = new Phone('xiaomi', 5000);
-console.log(xiaomi);//log结果:{brand: "小米", price: 5000}
+
+let person = new PersonClass('Nicholas');
+person.sayName(); //'Nicholas'
+
+console.log(person instanceof PersonClass); //true
+console.log(person instanceof Object); //true
+
+console.log(typeof PersonClass); //function
+console.log(typeof PersonClass.prototype.sayName); //true
 ```
+
+过类声明语法定义PersonClass的行为与之前创建PersonType构造函数的过程相似，只是这里直接在类中通过特殊的constructor方法名来定义构造函数，且由于这种类使用简洁语法来定义方法，因而不需要添加function关键字。除constructor外没有其他保留的方法名，所以可以尽情添加方法。
+
+**私有属性**
+
+私有属性是实例中的属性，不会出现在原型上，且只能在类的构造函数或方法中创建，此例中的name就是一个私有属性。这里建议你在构造函数中创建所有私有属性，从而只通过一处就可以控制类中的所有私有属性。
+
+**总结**
+
+有趣的是，类声明仅仅是基于已有自定义类型声明的语法糖。typeof PersonClass最终返回的结果是"function"，所以PersonClass声明实际上创建了一个具有构造函数方法行为的函数。
+
+与函数不同的是，类属性不可被赋予新值，在之前的示例中，PersonClass.prototype就是这样一个只可读的类属性。
+
+#### 类声明的差异
+
+* 函数声明可以被提升，而类声明与let声明类似，不能被提升；真正执行声明语句之前，它们会一直存在于临时死区中。
+*  类声明中的所有代码将自动运行在严格模式下，而且无法强行让代码脱离严格模式执行。·
+* 在自定义类型中，需要通过Object.defineProperty()方法手工指定某个方法为不可枚举；而在类中，所有方法都是不可枚举的。·
+* 每个类都有一个名为[[Construct]]的内部方法，通过关键字new调用那些不含[[Construct]]的方法会导致程序抛出错误。·
+* 使用除关键字new以外的方式调用类的构造函数会导致程序抛出错误。·
+* 在类中修改类名会导致程序报错。
+
+```javascript
+//等价PersonClass
+
+let PersonType2 = (function() {
+  'use strict';
+  const PersonType2 = function(name) {
+    //确保通过关键字new调用该函数
+    if (typeof new.target === 'undefined') {
+      throw new Error('必须通过关键字new调用构造函数');
+    }
+    
+    this.name = name;
+  }
+  
+  Object.defineProperty(PersonType2.prototype, 'sayName', {
+    value: function() {
+      //确保不会通过关键字new调用该方法
+      if (typeof new.target !== 'undefined') {
+        throw new Error('不可使用new关键字调用该函数');
+      }
+      
+      console.log(this.name);
+    },
+    enumerable: false,
+    writable: true,
+    configurable: true
+  });
+  
+  return PersonType2;
+})();
+```
+
+这段代码中有两处PersonType2声明：一处是外部作用域中的let声明，一处是立即执行函数表达式（IIFE）中的const声明，这也从侧面说明了为什么可以在外部修改类名而内部却不可修改。在构造函数中，先检查new.target是否通过new调用，如果不是则抛出错误；紧接着，将sayName()方法定义为不可枚举，并再次检查new.target是否通过new调用，如果是则抛出错误；最后，返回这个构造函数。
+
+从这个示例我们可以看到，尽管可以在不使用new语法的前提下实现类的所有功能，但如此一来，代码变得极为复杂。
+
+
+
+#### 2.类表达式
+
+类和函数都有两种存在形式：声明形式和表达式形式。声明形式的函数和类都由相应的关键字（分别为function和class）进行定义，随后紧跟一个标识符；表达式形式的函数和类与之类似，只是不需要在关键字后添加标识符。类表达式的设计初衷是为了声明相应变量或传入函数作为参数。
+
+**类声明和类表达式区别**
+
+* 二者均不会像函数声明和函数表达式一样被提升，所以在运行时状态下无论选择哪一种方式代码最终的执行结果都没有太大差别。
+* 最重要的区别是name属性不同，匿名类表达式的name属性值是一个空字符串，而类声明的name属性值为类名，
+
+##### 2.1 匿名类表达式
+
+```javascript
+let PersonClass = class {
+  //等价于PersonType构造函数
+  constructor(name) {
+    this.name = name;
+  }
+  
+  //等价于PersonClass.prototype.sayName
+  sayName() {
+    console.log(this.name);
+  }
+};
+
+let person = new PersonClass('Nicholas');
+person.sayName(); //Nicholas
+
+console.log(person instanceof PersonClass); //true
+console.log(person instanceof Object); //true
+
+console.log(typeof PersonClass); //function
+console.log(typeof PersonClass.prototype.sayName); //function
+```
+
+
+
+##### 2.2 名命类表达式
+
+声明时，在关键字class后添加一个标识符即可定义为命名类表达式
+
+```javascript
+let PersonClass = class PersonClass2 {
+  //等价于PersonType构造函数
+  constructor(name) {
+    this.name = name;
+  }
+  
+  //等价于PersonType.prototype.sayName
+  sayName() {
+    console.log(this.name);
+  }
+};
+
+console.log(typeof PersonClass); //function
+console.log(typeof PersonClass2); //undefined
+```
+
+类表达式被命名为PersonClass2，由于标识符PersonClass2只存在于类定义中，因此它可被用在像sayName()这样的方法中。而在类的外部，由于不存在一个名为PersonClass2的绑定，因而typeof PersonClass2的值为"undefined"。
+
+```javascript
+//等价于命名类表达式PersonClass
+
+let PersonClass = (function() {
+  'use strict'
+  const PersonClass2 = function(name) {
+    //确保通过关键字new调用该函数
+    if (typeof new.target === 'undefined') {
+      throw new Error('必须通过关键字new调用该构造函数');
+    }
+    this.name = name;
+  }
+  
+  Object.defineProperty(PersonClass2.prototype, 'sayName', {
+    value: function() {
+      //确保不会通过关键字new调用该方法
+      if (typeof new.target !== 'undefined') {
+        throw new Error('不可使用new调用该方法');
+      }
+      console.log(this.name);
+    },
+    enumerable: false,
+    writable: true,
+    configurable: true
+  });
+  
+  return PersonClass2;
+})();
+```
+
+在JavaScript引擎中，类表达式的实现与类声明稍有不同。对于类声明来说，通过let定义的外部绑定与通过const定义的内部绑定具有相同名称；而命名类表达式通过const定义名称，从而PersonClass2只能在类的内部使用。
+
+
+
+### 一等公民-类
+
+在程序中，一等公民是指一个可以传入函数，可以从函数返回，并且可以赋值给变量的值
+
+JavaScript函数,类都是一等公民（函数也被称作头等函数）
+
+```javascript
+function createObject(classDef) {
+  return new classDef();
+}
+
+let obj = createObject(class {
+  sayHi() {
+    console.log('Hi');
+  }
+});
+
+obj.sayHi(); //Hi
+```
+
+在这个示例中，调用createObject()函数时传入一个匿名类表达式作为参数，然后通过关键字new实例化这个类并返回实例，将其储存在变量obj中。
+
+类表达式还有另一种使用方式，通过立即调用类构造函数可以创建单例。用new调用类表达式，紧接着通过一对小括号调用这个表达式
+
+```javascript
+let person = new class {
+  constructor(name) {
+    this.name = name;
+  }
+  sayName() {
+    console.log(this.name);
+  }
+}('Nicholas');
+
+person.sayName(); //Nicholas
+```
+
+这里先创建一个匿名类表达式，然后立即执行。依照这种模式可以使用类语法创建单例，并且不会在作用域中暴露类的引用，其后的小括号表明正在调用一个函数，而且可以传参数给这个函数。
+
+
+
+### 访问器属性
+
+尽管应该在类构造函数中创建自己的属性，但是类也支持直接在原型上定义访问器属性。创建getter时，需要在关键字get后紧跟一个空格和相应的标识符；创建setter时，只需把关键字get替换为set即可
+
+```javascript
+class CustomeHTMLElement {
+  constructor(element) {
+    this.element = element;
+  }
+  
+  get html() {return this.element.innerHTML;}
+  set html(value) {this.element.innerHTML = value;}
+}
+
+let descriptor = Object.getOwnPropertyDescriptor(CustomHTMLElement.prototype, 'html');
+console.log('get' in descriptor); //true
+console.log('set' in descriptor); //true
+console.log(descriptor.enumerable); //false
+```
+
+
+
+```javascript
+//非类形式下等价实现
+
+let CustomHTMLElement = (function() {
+  'use stric'
+  const CustomHTMLElement = function(element) {
+    //确保通过关键字new调用该函数
+    if (typeof new.target === 'undefined') {
+      throw new Error('必须通过关键字new调用该函数');
+    }
+    this.element = element;
+  }
+  
+  Object.defineProperty(CustomeHTMLElement.prototype, 'html', {
+    enumerable: false,
+    configurable: true,
+    get: function() {return this.element.innerHTML},
+    set: function(value) {this.element.innerHTML = value;}
+  })
+})
+```
+
+由上可见，比起非类等效实现，类语法可以节省很多代码。在非类等效实现中，仅html访问器属性定义的代码量就与类声明一样多。
+
+
+
+### 可计算成员名称
+
+类方法和访问器属性也支持使用可计算名称。就像在对象字面量中一样，用方括号包裹一个表达式即可使用可计算名称.
+
+通过相同的方式可以在访问器属性中应用可计算名称
+
+```javascript
+let methodName = 'sayName';
+
+class PersonClass {
+  constructor(name) {this.name = name;}
+  [methodName]() {console.log(this.name);}
+};
+
+let me = new PersonClass('Nicholas');
+me.sayName(); //Nicholas
+```
+
+### 生成器方法
+
+在对象字面量中，可以通过在方法名前附加一个星号（*）的方式来定义生成器，在类中亦是如此，可以将任何方法定义成生成器。
+
+```javascript
+//待
+```
+
+
+
+### 静态成员
+
+在ECMAScript 5及早期版本中，直接将方法添加到构造函数中来模拟静态成员是一种常见的模式
+
+```javascript
+function PersonType(name) {
+  this.name = name;
+}
+
+//静态方法
+PersonType.create = function(name) {
+  return new PersonType(name);
+};
+
+//实例方法
+PersonType.prototype.sayName = function() {
+  console.log(this.name);
+}
+```
+
+由于工厂方法PersonType.create()使用的数据不依赖PersonType的实例，因而其会被认为是一个静态方法。ECMAScript 6的类语法简化了创建静态成员的过程，在方法或访问器属性名前使用正式的静态注释即可
+
+```javascript
+class PersonClass {
+  //等价于PersonType构造函数
+  constructor(name) {this.name = name; }
+  //等价于PersonType.prototype.sayName
+  sayName() {console.log(this.name); }
+  //等价于PersonType.create
+  static create(name) {return new PersonClass(name); }
+}
+
+let person = PersonClass.create('Nicholas');
+```
+
+类中的所有方法和访问器属性都可以用static关键字来定义，唯一的限制是不能将static用于定义构造函数方法。
+
+不可在实例中访问静态成员，必须要直接在类中访问静态成员。
+
+
 
 
 
@@ -2088,7 +2386,7 @@ console.log(Computer.storage);//128g   Computer.storage没有括号调用,自动
 
 
 
-### 数值扩展(了解)
+## 数值扩展(了解)
 
 #### 1.进制
 
@@ -2238,7 +2536,7 @@ console.log(res);
 
 
 
-### 对象扩展
+## 对象扩展
 
 #### Object.is
 

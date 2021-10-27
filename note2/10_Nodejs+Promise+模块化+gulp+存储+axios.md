@@ -5149,7 +5149,11 @@ Promise
 Hi
 ```
 
-在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。如果你曾经使用过setTimeout()或setInterval()函数，你应该熟悉这种名为**任务编排（job scheduling）**的过程。当编排任务时，会向任务队列中添加一个新任务，并明确指定将任务延后执行。
+在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。
+
+**任务编排**
+
+如果你曾经使用过setTimeout()或setInterval()函数，你应该熟悉这种名为**任务编排（job scheduling）**的过程。当编排任务时，会向任务队列中添加一个新任务，并明确指定将任务延后执行。
 
 **调用resolve()后会触发一个异步操作，传入then()和catch()方法的函数会被添加到任务队列中并异步执行**
 
@@ -5407,67 +5411,297 @@ rejected = Promise.reject(new Error('Explosion'));
 
 
 
+### 5.串联Promise
 
+#### 5.1 then/catch返回Promise
 
-#### all
+每次调用then()方法或catch()方法时实际上创建并返回了另一个Promise，只有当第一个Promise完成或被拒绝后，第二个才会被解决。
 
-```js
-Promise.all方法: (promises) => {}
-(1)	promises: 包含n个promise的数组
-说明: 返回一个新的promise, 只有所有的promise都成功才成功, 只要有一个失败了就直接失败. 成功的时候返回的是一个结果数组，而失败的时候则返回最先被reject失败状态的值。
-
-// all 方法也是属于函数对象的
-// 接受一个参数, 这个参数是promise数组
-// 返回值
-// 若数组中每一个promise对象状态都为 fulfilled 则返回的 promise 对象状态为成功, 并且数组中成功promise对象的结果, 为返回 promise 对象成功的结果
-// 若数组中有一个promise对象是失败的, 则返回的 promise 对象状态为失败, 且返回的promise对象失败的结果为, 那个失败promise对象失败结果
-
-
-let p1 = new Promise((resolve, reject) => {
-    resolve('ok');
-});
-// let p2 = Promise.resolve('success');
-let p2 = Promise.reject('error');
-let p3 = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        resolve('yeah!!');
-    }, 1000);
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
 });
 
-let result = Promise.all([p1, p2, p3]);
+p1.then(function(value) {
+  console.log(value);
+}).then(function(){
+  console.log('Finished');
+});
 
-console.log(result);
+//代码输出的内容
+42
+Finished
+
+//示例拆解
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
+});
+
+let p2 = p1.then(function(resolve, reject) {
+  console.log(value);
+});
+
+p2.then(function(){
+  console.log('Finished');
+});
+
+```
+
+在这个非串联版本的代码中，调用p1.then()的结果被存储在了p2中，然后p2.then()被调用来添加最终的完成处理程序。你可能已经猜到，调用p2.then()返回的也是一个Promise，只是在此示例中我们并未使用它。
+
+#### 5.2 捕获错误
+
+* 完成处理程序或拒绝处理程序中可能发生错误，而Promise链可以用来捕获这些错误;
+* 链式Promise调用可以感知到链中其他Promise的错误。
+* 务必在Promise链的末尾留有一个拒绝处理程序以确保能够正确处理所有可能发生的错误。
+
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  throw Error('Explosion');
+});
+
+p1.catch(function(err) {
+  console.log(err.message); //Explosion
+  throw new Error('Boom');
+}).catch(function(err) {
+  console.log(err.message); //Boom
+})
+```
+
+#### 5.3 Promise链的返回值
+
+Promise链的另一个重要特性是可以给下游Promise传递数据，我们已经看到了从执行器resolve()处理程序到Promise完成处理程序的数据传递过程，如果在完成处理程序中指定一个返回值，则可以沿着这条链继续传递数据。
+
+```javascript
+//完成处理程序传递值
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
+});
+
+p1.then(function(value) {
+  console.log(value); //42
+  return value + 1;
+}).then(function(value) {
+  console.log(value); //43
+});
+
+//拒绝处理程序返回值
+let p1 = new Promise(function(resolve, reject) {
+  reject(42);
+});
+
+p1.catch(function(value) {
+  //第一个完成处理程序
+  console.log(value); //42
+  return value + 1;
+}).then(function(value) {
+  console.log(value); //43
+})
+```
+
+#### 5.4 在Promise链中返回Promise
+
+在Promise间可以通过完成和拒绝处理程序中返回的**原始值**来传递数据，但如果返回的是对象呢？如果返回的是Promise对象，会通过一个额外的步骤来确定下一步怎么走。
+
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
+});
+
+let p2 = new Promise(function(resolve, reject) {
+  resolve(43);
+});
+
+p1.then(function(value) {
+  //第一个完成处理程序
+  console.log(value); //42
+  return 42;
+}).then(function(value) {
+  //第二个完成处理程序
+  console.log(value); //43
+})
+```
+
+在这段代码中，p1编排的任务解决并传入42，然后p1的完成处理程序返回一个已解决状态的Promise p2，由于p2已经被完成，因此第二个完成处理程序被调用；如果p2被拒绝，则调用拒绝处理程序。
+
+关于这个模式，最需要注意的是，**第二个完成处理程序被添加到了第三个Promise而不是p2**，所以之前的示例等价于
+
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
+});
+let p2 = new Promise(function(resolve, reject) {
+  resolve(43);
+});
+
+let p3 = p1.then(function(value) {
+  //第一个完成处理程序
+	console.log(value); //42
+  return p2;
+});
+
+p3.then(function(value) { 
+  //第二个完成处理程序    此处第二个完成处理程序被添加到p3而非p2
+  console.log(value); //43
+})
+```
+
+在完成或拒绝处理程序中返回**Thenable对象**不会改变Promise执行器的执行时机，先定义的Promise的执行器先执行，后定义的后执行，以此类推。返回Thenable对象仅允许你为这些Promise结果定义额外的响应。
+
+**在完成处理程序中创建新的Promise可以推迟完成处理程序的执行**. 在一个Promise被解决后触发另一个Promise，这个模式很有用.
+
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
+});
+
+p1.then(function(value) {
+  console.log(value); //42
+  
+  //创建一个新的Promise
+  let p2 = new Promise(function(resolve, reject) {
+    resolve(43);
+  });
+  return p2;
+}).then(function(value) {
+  console.log(value); //43
+})
 ```
 
 
 
-#### race
+### 6.响应多个Promise
 
-```js
-race是属于Promise函数对象的
-race接受一个promise的数组
+如果你想通过监听多个Promise来决定下一步的操作，则可以使用ECMAScript 6提供的Promise.all()和Promise.race()两个方法来监听多个Promise。
 
-// race 是属于 Promise 函数对象的.  race 赛跑
-// race 接受一个 promise 的数组
-// 返回结果也是 promise 对象
-// 对象的状态由数组中, 第一个改变状态的对象决定.
+#### 6.1 Promise.all()
 
-let p2 = Promise.resolve('success');
+Promise.all()方法只接受一个参数并返回一个Promise，该参数是一个含有多个受监视Promise的可迭代对象（例如，一个数组）.只有当可迭代对象中所有Promise都被解决后返回的Promise才会被解决, 只有当可迭代对象中所有Promise都被完成后返回的Promise才会被完成;所有传入Promise.all()方法的Promise只要有一个被拒绝，那么返回的Promise没等所有Promise都完成就立即被拒绝：
 
-let p1 = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        resolve('ok');
-    },10);
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
 });
 
-const result = Promise.race([p1, p2]);//通过这里查看先后顺序. 异步执行下p1状态为pending,race结果由p2返回决定.
+let p2 = new Promise(function(resolve, reject) {
+  resolve(43);
+});
 
-console.log(result);
+let p3 = new Promise(function(resolve, reject) {
+  resolve(44);
+});
+
+//这些值按照Promise被解决的顺序存储，所以可以根据每个结果来匹配对应的Promise。
+let p4 = Promise.all([p1,p2,p3]);
+p4.then(function(value) {
+  console.log(Array.isArray(value)); //true
+  console.log(value[0]); //42
+  console.log(value[1]); //43
+  console.log(value[2]); //44
+})
 ```
 
 
 
-### 关键问题
+```javascript
+let p1 = new Promise(function(resolve, reject) {
+  resolve(42);
+});
+let p2 = new Promise(function(resolve, reject) {
+  reject(43);
+});
+let p3 = new Promise(function(resolve, reject) {
+  resolve(44);
+});
+
+let p4 = Promise.all([p1,p2,p3]);
+p4.catch(function(value) {
+  console.log(Array.isArray(value)); //false
+  console.log(value); //43
+})
+```
+
+在这个示例中，p2被拒绝并传入值43，没等p1或p3结束执行，p4的拒绝处理程序就立即被调用。（p1和p3的执行过程会结束，只是p4并未等待。
+
+
+
+#### 6.2 Promise.race()
+
+它也接受含多个受监视Promise的可迭代对象作为唯一参数并返回一个Promise，但只要有一个Promise被解决返回的Promise就被解决，无须等到所有Promise都被完成。一旦数组中的某个Promise被完成，Promise.race()方法也会像Promise.all()方法一样返回一个特定的Promise
+
+```js
+let p1 = Promise.resolve(42);
+let p2 = new Promise(function(resolve, reject) {
+  resolve(43);
+});
+let p3 = new Promise(function(resolve, reject) {
+  resolve(44);
+});
+let p4 = Promise.race([p1,p2,p3]);
+p4.then(function(value) {
+  console.log(value); //42
+})
+```
+
+如果先解决的是已完成Promise，则返回已完成Promise；如果先解决的是已拒绝Promise，则返回已拒绝Promise
+
+### 7.自Promise继承
+
+Promise与其他内建类型一样，也可以作为基类派生其他类，所以你可以定义自己的Promise变量来扩展内建Promise的功能。例如，假设你想创建一个既支持then()方法和catch()方法又支持success()方法和failure()方法的Promise，则可以这样创建该Promise类型
+
+```javascript
+class MyPromise extends Promise {
+  //使用默认的构造函数
+  success(resolve, reject) {
+    return this.then(resolve, reject);
+  }
+  
+  failure(reject) {
+    return this.catch(reject);
+  }
+}
+
+let promise = new MyPromise(function(resolve, reject) {
+  resolve(42);
+});
+
+promise.success(function(value) {
+  console.log(value); //42
+}).failur(function(value) {
+  console.log(value);
+})
+```
+
+由于静态方法会被继承，因此派生的Promise也拥有MyPromise.resolve()、MyPromise.reject()、MyPromise.race()和MyPromise.all()这4个方法，后二者与内建方法完全一致，而前二者却稍有不同。
+
+由于MyPromise.resolve()方法和MyPromise.reject()方法通过Symbol.species属性（参见第9章）来决定返回Promise的类型，故调用这两个方法时无论传入什么值都会返回一个MyPromise的实例。如果将内建Promise作为参数传入其他方法，则这个Promise将被解决或拒绝，然后该方法将会返回一个新的MyPromise，于是就可以给它的成功处理程序及失败处理程序赋值。
+
+```javascript
+//es6 第11章 
+
+```
+
+
+
+### 8.基于Promise的异步任务执行
+
+```javascript
+待 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 9.相关问题
 
 #### 如何改变promise的状态?
 
@@ -5735,9 +5969,9 @@ p.then((value)=>{
 
 
 
+### 10.自定义实现
 
-
-### 自定义Promise
+#### 自定义Promise
 
 ```js
 
@@ -5747,41 +5981,19 @@ p.then((value)=>{
 
 
 
-### 自定义promise-异常传透
+#### 自定义promise-异常传透
 
 
 
-### 自定义promise-值传递
+#### 自定义promise-值传递
 
 
 
-### 自定义promise-中断链条
+#### 自定义promise-中断链条
 
 
 
-### then方法回调执行是异步
-
-```HTML
-then方法回调执行是异步的
-
-<scirpt>
-	let p = new Promise((resolve, reject)=>{
-    	resolve('success');
-    });
-    
-    p.then(value=>{
-    	console.log(111)
-    });
-    console.log(222);
-</scirpt>
-//打印顺序:
-222
-111
-```
-
-
-
-### Promise的使用案例
+### 11.Promise的使用案例
 
 ```html
 <script>
