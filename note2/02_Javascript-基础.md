@@ -3840,17 +3840,23 @@ function compareObj(obj1, obj2) {
 
 ### 概要
 
-在 JavaScript中，函数是**头等(**first-class**)**对象，因为它们可以像任何其他**对象**一样具有属性和方法。它们与其他对象的区别在于函数可以被调用。简而言之，它们是`Function`对象. 要使用一个函数，你必须将其定义在你希望调用它的作用域内。
+在 JavaScript中，函数实际上是对象。每个函数都是Function类型的实例，而Function 也有属性和方法，跟其他引用类型一样。因为函数是对象，所以函数名就是指向函数对象的**[指针](https://www.zhihu.com/question/265576824)**，而且不一定与函数本身紧密绑定。
 
-### 定义函数的4种方式
+> 指针
+>
+> JavaScript中没有指针，引用的工作机制也不尽相同。在JavaScript中变量不可能成为指向另一个变量的引用。
+> JavaScript引用指向的是值。如果一个值有10个引用，这些引用指向的都是同一个值，*他们相互之间没有引用/指向关系*。
+> ———《你不知道的JavaScript 中卷》2.5 值和引用，第1版28页。
 
-函数创建有3种方式: 函数声明,函数表达式,及Function声明.
+### 函数定义的方式及比较
 
-在函数体中改变了参数中的值. 如果参数是原始数据类型,那么不会影响到全局;如果参数是引用数据类型,例如对象或数组,这种改变对函数外部是可见的.
+函数创建有4种方式: 函数声明,函数表达式,及Function声明.
 
-#### 函数声明
+#### 1. 方式
 
-在关键字'function'之后,必须指定函数的名称. 在函数体中,函数必须将一个值返回给调用方.遇到return语句后,该函数会立即停止执行.
+##### 1.1 函数声明
+
+在关键字'function'之后,必须指定函数的名称. 在函数体中,函数必须将一个值返回给调用方.遇到return语句后,该函数会立即停止执行. 函数定义最后没有加分号.
 
 - 原始数据作为值传递给函数,如果函数改变了这个参数,不会影响到全局或调用函数.
 - 引用数据作为值传递给函数,如果函数改变了这个对象的属性,这种外边对函数外部是可见的.
@@ -3870,20 +3876,29 @@ console.log(obj.newpro, obj['newpro'])
 
 
 
-#### 函数表达式
+##### 1.2 函数表达式
 
-通常这种方法与变量分配相同.  简言之,函数主题被视为一个表达式,并且该表达式被分配给一个变量.
+使用这种语法定义的函数可以是**命名函数或匿名函数**.函数表达式与函数声明几乎是等价的.函数定义最后有分号;当函数作为参数传递给另一个函数时,函数表达式很方便.
 
-使用这种语法定义的函数可以是**命名函数或匿名函数**.
+两种形式:
 
-函数表达式提供函数名后,可以用于在函数内部代指其本身.
+```javascript
+//匿名函数(anonymous function)
+let fn = function() {};
+//命名函数
+let fn = function functionName() {};
+```
+
+
+
+函数表达式提供函数名后,可以用于在函数内部代指其本身.(函数声明也可以)
 
 ```js
 //一般使用const而非let来声明函数表达式的变量
 
 const fn = function fun(n){
   return n<2?1:n*fn(n-1)
-}
+};
 console.log(fn(3))
 
 //函数表达式提供了函数名
@@ -3891,31 +3906,160 @@ const factorial = function fac(n){return n<2?1:n*fac(n-1)};
 console.log(factorial(3))
 
 //函数表达式中的函数名只能在函数体内使用,在函数提外使用函数名会报错.
-let y =function x(){};
-console.log(x); //x is not defined;
+let y =function x(){console.log(x)};
+console.log(x); 
+//ƒ x(){console.log(x)}
+//Uncaught ReferenceError: x is not defined
 ```
 
-当函数作为参数传递给另一个函数时,函数表达式很方便.
 
-#### 箭头函数
+
+在判断语句中的定义(函数声明和函数表达式)!!
+
+```javascript
+//不要这么做
+if (condition) {
+  function sayHi() { console.log('Hi!');}
+} else {
+  function sayHi() { console.log('Hi!');}
+}
+//这段代码看起来很正常,事实上，这种写法在ECAMScript 中不是有效的语法。JavaScript 引擎会尝试将其纠正为适当的声明。问题在于浏览器纠正这个问题的方式并不一致。
+//多数浏览器会忽略condition 直接返回第二个声明。Firefox 会在condition 为true 时返回第一个声明。这种写法很危险，不要使用。
+
+//不过把上面的函数声明换成函数表达式就没问题了:
+let sayHi;
+if (condition) {
+	sayHi = function() {
+		console.log("Hi!");
+	};
+} else {
+	sayHi = function() {
+		console.log("Yo!");
+	};
+}
+```
+
+
+
+
+
+```javascript
+
+```
+
+
+
+##### 1.3 箭头函数(arrow function)
 
 ```javascript
 let sum = (num1, num2) => {return num1 + num2};
 ```
 
-#### Function构造函数
+##### 1.4 Function构造函数
 
-> 这个构造函数接收任意多个字符串参数，最后一个参数始终会被当成函数体，而之前的参数都是新函数的参数
+使用Function 构造函数. 这个构造函数接收任意多个字符串参数，最后一个参数始终会被当成函数体，而之前的参数都是新函数的参数
 
 ```js
 let sum = new Function('num1', 'num2', 'return num1 + num2'); //不推荐
 ```
 
-我们不推荐使用这种语法来定义函数，因为这段代码会被解释两次：第一次是将它当作常规ECMAScript 代码，第二次是解释传给构造函数的字符串。这显然会影响性能。不过，把函数想象为对象，把函数名想象为指针是很重要的。而上面这种语法很好地诠释了这些概念。
+我们不推荐使用这种语法来定义函数，**因为这段代码会被解释两次**(?)：第一次是将它当作常规ECMAScript 代码，第二次是解释传给构造函数的字符串。这显然会影响性能。不过，把函数想象为对象，把函数名想象为指针是很重要的。而上面这种语法很好地诠释了这些概念。
+
+
+
+#### 2. 比较(函数声明和函数表达式)
+
+* JS引擎对函数声明和函数表达式生成函数定义时机不同: 代码执行前(函数声明提升);代码执行到
+* 因为执行时机不同,函数声明可提前调用;函数表达式则不能.
+* 除了函数什么时候定义之外,这两种语法等价
+
+JavaScript 引擎在加载数据时对它们是区别对待的。JavaScript 引擎在任何代码执行之前，会先读取函数声明，并在执行上下文中生成函数定义。而函数表达式必须等到代码执行到它那一行，才会在执行上下文中生成函数定义。
+
+```javascript
+//正常运行
+console.log(sum(10, 10));
+function sum(num1, num2) { return num1 + num2;}
+```
+
+以上代码可以正常运行，因为函数声明会在任何代码执行之前先被读取并添加到执行上下文。这个过程叫作**函数声明提升（function declaration hoisting).**在执行代码时，JavaScript 引擎会先执行一遍扫描，把发现的函数声明提升到源代码树的顶部。因此即使函数定义出现在调用它们的代码之后，引擎也会把函数声明提升到顶部。
+
+如果把前面代码中的函数声明改为等价的函数表达式，那么执行的时候就会出错：
+
+```javascript
+//报错
+console.log(sum(10, 10));
+let sum = function(num1, num2) { return num1 + num2; }
+```
+
+上面的代码之所以会出错，是因为这个函数定义包含在一个变量初始化语句中，而不是函数声明中。这意味着代码如果没有执行到加粗的那一行，那么执行上下文中就没有函数的定义，所以上面的代码会出错。这并不是因为使用let 而导致的，使用var 关键字也会碰到同样的问题：
+
+```javascript
+//报错
+console.log(sum(10, 10));
+var sum = function(num1, num2) { return num1 + num2; }
+```
+
+
+
+### 函数名
+
+因为函数名就是指向函数的指针，所以它们跟其他包含对象指针的变量具有相同的行为。这意味着
+一个函数可以有多个名称.
+
+* 使用不带括号的函数名会访问函数指针，而不会执行函数
+* 把函数名称 设置为null之后，就切断了它与函数之间的关联
+* ECMAScript 6 的所有函数对象都会暴露一个只读的name 属性，其中包含关于函数的信息。
+  * 多数情况下，这个属性中保存的就是一个函数标识符，或者说是一个字符串化的变量名
+  * 即使函数没有名称，也会如实显示成空字符串。
+  * 如果它是使用Function 构造函数创建的，则会标识成"anonymous
+  * 如果函数是一个获取函数、设置函数，或者使用bind()实例化，那么标识符前面会加上一个前缀
+
+```javascript
+function sum(num1, num2) {
+	return num1 + num2;
+}
+console.log(sum(10, 10)); // 20
+let anotherSum = sum;
+console.log(anotherSum(10, 10)); // 20
+sum = null;
+console.log(anotherSum(10, 10)); // 20
+
+//函数的name属性
+function foo() {}
+let bar = function() {};
+let baz = () => {};
+console.log(foo.name); //foo
+console.log(bar.name); //bar
+console.log(baz.name); //baz
+console.log((() => {}).name); //(空字符串)
+console.log((new Function()).name); //anonymous
+
+//设置函数,获取函数,bind方法绑定的函数的name值
+function foo() {}
+console.log(foo.bind(null).name); //bound foo
+
+let dog = {
+  years: 1,
+  get age() {
+    return this.years;
+  },
+  set age(newAge) {
+    this.years = newAge;
+  }
+};
+
+let propertyDescriptor = Object.getOwnPropertyDescriptor(dog, 'age');
+console.log(propertyDescriptor.get.name); // get age
+console.log(propertyDescriptor.set.name); // set age
+```
 
 
 
 ### 函数参数
+
+ECMAScript 函数既不关心传入的参数个数，也不关心这些参数的数据类型。调用时传入参数数量不要求于定义时参数数值一致.因为ECMAScript 函数的参数在内部表现为一个数组, 在function关键字定义(非箭头)函数时,可以在函数内部访问arguments对象.
+
+**ECMAScript 中函数的参数就是局部变量**。
 
 #### 形参与实参🔸
 
@@ -3923,9 +4067,7 @@ let sum = new Function('num1', 'num2', 'return num1 + num2'); //不推荐
 
 **形参**: 调用函数时，传递给函数的值对应位置的函数参数名叫作形参.
 
-如果**<font color="yellowgreen">实参是一个包含原始值</font>**(数字，字符串，布尔值)的变量，则就算函数在内部改变了对应形参的值，返回后，该实参变量的值也不会改变。
 
-如果**<font color="yellowgreen">实参是一个对象引用</font>**，则对应形参会和该实参指向同一个对象。假如函数在内部改变了对应形参的值，返回后，实参指向的对象的值也会改变. 如
 
 ```js
 # 形参(形式参数)
@@ -3953,25 +4095,21 @@ function fn(a, b){
 
 #### 函数参数的传递方式🔸:
 
-```js
-函数参数都是传递,只是因为不同的内存分配机制带来了不同的访问机制.
-原始数据类型值都存放在栈内存中,引用数据类型值都存放在堆内存中,但不可以直接操作存在堆内存中的对象,因此在栈内存中存放了对象的地址.
-当传参的时候也就是直接把栈内存的值复制了一份,只是复制的值对原始值来说直接就是原始值,但对对象来说就是其引用.
-```
+**ECMAScript 中所有函数的参数都是按值传递的**。这意味着函数外的值会被复制到函数内部的参数
+中，就像从一个变量复制到另一个变量一样。
 
+如果是原始值，那么就跟原始值变量的复制一样，
 
+如果是引用值，那么就跟引用值变量的复制一样。传递的是对象的引用.
 
-js高级程序中写到,函数的参数都是按值传递的“.
-
-1.按值传递,分为两类:基本类型值的传递和函数参数的传递. 函数参数的传递又有基本类型值的参数传递和引用类型值的参数传递. 
-
-引用类型值的传递实际上传递的是对象的引用(引用=内存中的地址=值),而非传递的对象本身. 因为执行的操作是复制保存操作.
-
-2.按引用传递: 传递的是完整的对象本身.
+> 在按值传递参数时，值会被复制到一个局部变量（即一个命名参数，或者用ECMAScript 的话说，就是arguments 对象中的一个槽位）。
+>
+> 在按引用传递参数时，值在内存中的位置会被保存在一个局部变量，这意味着对本地变量的修改会反映到函数外部。（这在ECMAScript 中是不可能的。）
+>
+> ---Javascript高级程序设计 4.1.3 传递参数
 
 ```js
 //证明对象在函数的参数传递中是按值传递的代码
-
 function setName(obj) {
     obj.name = "Nicholas";   //obj地址没有改变
     obj = new Object();      //obj地址改变
@@ -3996,11 +4134,18 @@ alert(person.name); // "Nicholas"
 
 
 
-#### 默认参数
+#### ES6-默认参数
 
-从ECMAScript 6开始，有两个新的类型的参数：默认参数，剩余参数
+在ECMAScript5.1 及以前，实现默认参数的一种常用方式就是检测某个参数是否等于undefined，
+如果是则意味着没有传这个参数，那就给它赋一个值; ES6支持显式定义默认参数.
 
-在JavaScript中，函数参数的默认值是`undefined`.  使用默认参数，在函数体的检查就不再需要了
+在使用默认参数时，arguments 对象的值不反映参数的默认值，只反映传给函数的参数。
+
+跟ES5 严格模式一样，修改命名参数也不会影响arguments 对象，它始终以调用函数时传入的值为准.
+
+默认参数值并不限于原始值或对象类型，也可以使用调用函数返回的值
+
+函数的默认参数只有在函数被调用时才会求值，不会在函数定义时求值. 且计算默认值的函数只有在调用函数但未传相应参数时才会被调用。
 
 ```js
 //未使用默认参数
@@ -4015,57 +4160,218 @@ function multiplay(a,b=1){
   return a*b;
 }
 multiply(5)
+
+//arguments对象始终以传入的值为准
+function makeKing(name = 'Henry') {
+  name = 'Louis';
+  return `King ${arguments[0]}`;
+}
+makeKing(); //King undefined
+makeKing('Louis'); //King 
+
+//默认参数值使用函数返回值
+let romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+let ordinality = 0;
+function getNumerals() {
+  //每次调用后递增
+  return romanNumerals[ordinary++];
+}
+function makeKing(name='Henry', numerals = getNumerals()) {
+  return `King ${name} ${numerals}`;
+}
+console.log(makeKing()); // 'King Henry I'
+console.log(makeKing('Louis', 'XVI')); // 'King Louis XVI'
+console.log(makeKing()); // 'King Henry II'
+console.log(makeKing()); // 'King Henry III'
 ```
 
 
 
-#### 剩余参数
+**默认参数作用域与暂时性死区**!
+
+因为在求值默认参数时可以定义对象，也可以动态调用函数，所以函数参数肯定是在某个作用域中
+求值的。给多个参数定义默认值实际上跟使用let 关键字顺序声明变量一样.
+
+因为参数是按顺序初始化的，所以后定义默认值的参数可以引用先定义的参数
+
+参数初始化顺序遵循“暂时性死区”规则，即前面定义的参数不能引用后面定义的
+
+参数也存在于自己的作用域中，它们不能引用函数体的作用域
+
+```javascript
+function makeKing(name = 'Henry', numerals = 'VIII') {
+	return `King ${name} ${numerals}`;
+}
+console.log(makeKing()); // King Henry VIII
+//这里的默认参数会按照定义它们的顺序依次被初始化。可以依照如下示例想象一下这个过程：
+function makeKing() {
+  let name = 'Henry';
+  let numerals = 'VIII';
+  return `King ${name} ${numerals}`;
+}
+
+//因为参数是按顺序初始化的，所以后定义默认值的参数可以引用先定义的参数
+function makeKing(name = 'Henry', numerals = name) {
+	return `King ${name} ${numerals}`;
+}
+console.log(makeKing()); // King Henry Henry
+
+//参数初始化顺序遵循“暂时性死区”规则，即前面定义的参数不能引用后面定义的
+// 调用时不传第一个参数会报错
+function makeKing(name = numerals, numerals = 'VIII') {
+	return `King ${name} ${numerals}`;
+}
+
+//参数也存在于自己的作用域中，它们不能引用函数体的作用域
+// 调用时不传第二个参数会报错
+function makeKing(name = 'Henry', numerals = defaultNumeral) {
+	let defaultNumeral = 'VIII';
+	return `King ${name} ${numerals}`;
+}
+```
+
+
+
+
+
+#### ES6-剩余参数
 
 [剩余参数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Rest_parameters)语法允许将不确定数量的参数表示为数组
+
+```javascript
+function fn(x, ...r) {
+  //r是一个数组,收集了除第一个参数外其他参数组成的一个数组
+}
+```
+
+
+
+#### ES6-参数扩展与收集
+
+**扩展参数**
+
+在给函数传参时，有时候可能不需要传一个数组，而是要分别传入数组的元素.
+
+```javascript
+//假设有如下函数定义，它会将所有传入的参数累加起来：
+let values = [1,2,3,4];
+function sum() {
+  let sum = 0;
+  for (let i=0; i<arguments.length; i++) {
+    sum += arguments[i];
+  }
+  return sum;
+}
+//es5中 想把定义在这个函数这面的数组拆分，那么就得求助于apply()方法
+console.log(sum().apply(null, values));
+
+//es6 扩展操作符
+console.log(sum(...values));
+```
+
+arguments 对象只是消费扩展操作符的一种方式。在普通函数和箭头函数中，也可以将扩展操作符用于命名参数，当然同时也可以使用默认参数.
+
+```javascript
+function getProduct(a, b, c = 1) {
+	return a * b * c;
+}
+let getSum = (a, b, c = 0) => {
+	return a + b + c;
+}
+console.log(getProduct(...[1,2])); // 2
+console.log(getProduct(...[1,2,3])); // 6
+console.log(getProduct(...[1,2,3,4])); // 6
+
+console.log(getSum(...[0,1])); // 1
+console.log(getSum(...[0,1,2])); // 3
+console.log(getSum(...[0,1,2,3])); // 3
+```
+
+
+
+**收集参数**
+
+在函数定义时，可以使用扩展操作符把不同长度的独立参数组合为一个数组(Array的实例)
+
+收集参数的前面如果还有命名参数，则只会收集其余的参数；如果没有则会得到空数组。因为收集
+参数的结果可变，所以只能把它作为最后一个参数：
+
+使用收集参数并不影响arguments 对象，它仍然反映调用时传给函数的参数
+
+```javascript
+//位置 只能放在最后
+function getProduct(...values, lastValue) {} //不可以
+
+//不影响arguments对象
+getSum(1,2,3);
+function getSum(...values) {
+  console.log(arguments.length); //3
+  console.log(arguments); //[1,2,3]
+  console.log(values); //[1,2,3]
+}
+```
 
 
 
 #### 隐藏参数-arguments
 
-数的实际参数会被保存在一个类似数组的arguments对象中.
+在使用function 关键字定义（非箭头）函数时，可以在函数内部访问arguments 对象，从中取得传进来的每个参数值。
 
-在函数内，你可以按如下方式找出传入的参数：第一个传来的参数会是`arguments[0]`。参数的数量由`arguments.length`表示. `arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个索引编号和`length`属性。尽管如此，它并不拥有全部的Array对象的操作方法。
+`arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个索引编号和`length`属性。尽管如此，它并不拥有全部的Array对象的操作方法。
+
+arguments 对象是一个类数组对象（但不是Array 的实例）:
+
+* 使用中括号语法访问传入的实参,而不必定义形参
+* 访问arguments.length,确定传入参数个数
+* arguments对象可以跟命名参数一起使用
+* arguments对象的值始终与对应的命名参数同步,但内存地址时不同的.
+* arguments 对象的长度是根据传入的参数个数，而非定义函数时给出的命名参数个数确定的
+* 如果只传了1个参数,然后为arguments[1]赋值,这个值并不会反映到第二个命名参数.
+* 严格模式下,为arguments[n]赋值不会改变传入实参的值;重写arguments对象会导致语法错误
+* 箭头函数中不能访问arguments,但可以在包装函数中将其传给箭头函数
 
 ```JavaScript
-- 除了this,函数中还有一个隐含参数:arguments
-- arguments是一个类数组对象(伪数组)
-
-- 它具有length属性,同时也可以通过 索引 来操作元素,可以遍历,不能使用数组的方法,它的类型不是数组Array
-
-- arguments是用来存储实参的对象,所有的实参都存储在arguments对象
-- 通过arguments,我们不定义形参就可以直接使用实参
-```
-
-
-
-```JavaScript
-//案例
-
-function fn(){
-    alert(arguments);
-    alert(arguments.length); //0
-    alert(arguments instanceof Array); // fasel 伪数组 可以求长度,遍历,获取某个元素.但是数组的方法无法使用.
-}
-fn(); //和this类似,是存在可以被输出的. 输出的结果是[object Arguments]
-==============================================================
-
-//定义一个函数,求任意数量数字的和
-      
-  function fn(){
-      let sum = 0; //定义变量,存储结果
-      for(let i=0; i<arguments.length; i++){ //遍历arguments中的值
-          sum += arguments[i];
-      }
-      return sum;
+//与命名参数一起使用
+function doAdd(num1, num2) {
+  if (arguments.length === 1) {
+    console.log(num1 + 10);
+  } else if (arguments.length === 2) {
+    console.log(argments[0] + num2);
   }
+}
 
-  console.log(fn(1,2,3));
+//始终与命名参数同步
+function doAdd(num1 ,num2) {
+  arguments[1] = 10; //修改arguments[1]也会修改num2 的值
+  console.log(arguments[0] + num2);
+}
+
+//arguments.length由传参个数确定,而非形参个数
+doAdd(10, 10) //2
+function doAdd(num1, num2, num3) {
+	console.log(arguments.length)
+}
+
+//实参只有一个的话,arguments[1]的赋值不会改变第二个;形参有俩实参传1个,则第二个为undefined
+
+//严格模式下,arguments中括号语法不会改变实参的值;
+function sum(num1, num2) {
+  'use strict'
+  arguments[1] = 2;
+  return num1 + num2;
+}
+sum(10, 10);
+//20
+//严格模式下,重写arguments会导致语法错误
+function sum(num1, num2) {
+  'use strict'
+  arguments = {};
+}
+
+//Uncaught SyntaxError: Unexpected eval or arguments in strict mode
 ```
+
+
 
 
 
@@ -4659,22 +4965,55 @@ console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,
 
 ### 箭头函数
 
-#### 概要
+ECMAScript 6 新增了使用胖箭头（=>）语法定义函数表达式的能力。很大程度上，箭头函数实例
+化的函数对象与正式的函数表达式创建的函数对象行为是相同的。**任何可以使用函数表达式的地方，都可以使用箭头函数**：
 
-```JavaScript
-- 语法:
-形参 => 返回值
-(参数1, 参数2) => 返回值
-形参 => {
-    语句..
-    return 值;
+#### 语法
+
+```javascript
+//箭头函数简洁的语法非常适合嵌入函数的场景
+let ints = [1, 2, 3];
+console.log(ints.map(function(i) { return i + 1; })); // [2, 3, 4]
+console.log(ints.map((i) => { return i + 1 })); // [2, 3, 4]
+
+//如果只有一个参数，那也可以不用括号。只有没有参数，或者多个参数的情况下，才需要使用括号
+// 以下两种写法都有效
+let double = (x) => { return 2 * x; };
+let triple = x => { return 3 * x; };
+// 没有参数需要括号
+let getRandom = () => { return Math.random(); };
+// 多个参数需要括号
+let sum = (a, b) => { return a + b; };
+// 无效的写法：
+let multiply = a, b => { return a * b; };
+
+//箭头函数也可以不用大括号:使用大括号就说明包含“函数体”，可以在一个函数中包含多条语句，跟常规的函数一样。如果不使用大括号，那么箭头后面就只能有一行代码.省略大括号会隐式返回这行代码的值
+// 以下两种写法都有效，而且返回相应的值
+let double = (x) => { return 2 * x; };
+let triple = (x) => 3 * x;
+// 可以赋值
+let value = {};
+let setName = (x) => x.name = "Matt";
+setName(value);
+console.log(value.name); // "Matt"
+// 无效的写法：
+let multiply = (a, b) => return a * b;
+
+
+
+//箭头函数不能使用arguments、super 和new.target，也不能用作构造函数。此外，箭头函数也没有prototype 属性。
+
+//虽然箭头函数中没有arguments对象,但是可以在包装函数中把它提供非箭头函数 ??
+function foo() {
+  let bar = () => {
+    console.log(arguments[0]); //5
+  };
+  bar();
 }
-
-箭头函数,主要是用来设置回调函数的
-箭头函数,主要是设置简单的函数
-箭头函数有多个返回值时,需要使用return
-箭头函数,只有一行表达式,表示自带return
+foo(5);
 ```
+
+
 
 
 
@@ -4702,12 +5041,6 @@ let obj = {
 };
 obj.say.Hello();
 ```
-
-
-
-#### 不适用场景
-
-> 箭头函数不能使用arguments、super 和new.target，也不能用作构造函数。此外，箭头函数也没有prototype 属性。
 
 
 
