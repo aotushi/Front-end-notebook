@@ -4236,13 +4236,7 @@ function makeKing(name = 'Henry', numerals = defaultNumeral) {
 
 #### ES6-剩余参数
 
-[剩余参数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Rest_parameters)语法允许将不确定数量的参数表示为数组
-
-```javascript
-function fn(x, ...r) {
-  //r是一个数组,收集了除第一个参数外其他参数组成的一个数组
-}
-```
+就是下面的参数收集
 
 
 
@@ -4313,9 +4307,14 @@ function getSum(...values) {
 
 
 
-#### 隐藏参数-arguments
+### 函数内部
 
-在使用function 关键字定义（非箭头）函数时，可以在函数内部访问arguments 对象，从中取得传进来的每个参数值。
+在ECMAScript 5 中，函数内部存在两个特殊的对象：arguments 和this。ECMAScript 6 又新增
+了new.target 属性。
+
+#### arguments
+
+arguments 对象前面讨论过多次了，它是一个类数组对象，包含调用函数时传入的所有参数
 
 `arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个索引编号和`length`属性。尽管如此，它并不拥有全部的Array对象的操作方法。
 
@@ -4371,11 +4370,33 @@ function sum(num1, num2) {
 //Uncaught SyntaxError: Unexpected eval or arguments in strict mode
 ```
 
+**callee属性**
+
+arguments 对象的callee 属性，是一个指向arguments 对象所在函数的指针。阶乘函数要正确执行就必须保证函数名是factorial，从而导致了紧密耦合。使用arguments.callee 就可以让函数逻辑与函数名解耦.
+
+```javascript
+//使用callee属性解决阶乘函数的耦合
+
+function factorial(num) {
+  if (num <= 1) {
+    return 1;
+  } else {
+    return num * arguments.callee(num - 1);
+    //return num * factorial(num - 1);
+  }
+}
+//用arguments.callee 代替了之前硬编码的factorial。这意味着无论函数叫什么名称，都可以引用正确的函数
+let trueFactorial = factorial;
+factorial = function() { return 0; }
+console.log(trueFactorial(5)); //120
+console.log(factorial(5)); //0
+```
 
 
 
 
-#### 隐藏参数-this
+
+#### this
 
 ```javascript
 我们希望根据调用对象的不同，fn()函数打印的结果也不同
@@ -4596,6 +4617,51 @@ doIt(thing.logFoo);//undefined
 
 
 
+#### caller
+
+ECMAScript 5 也会给函数对象上添加一个属性：caller。这个属性引用的是调用当前函数的函数，或者如果是在全局作用域中调用的则为null。
+
+```javascript
+function outer() {
+	inner();
+}
+function inner() {
+	console.log(inner.caller);
+}
+outer();
+//以上代码会显示outer()函数的源代码。这是因为ourter()调用了inner()，inner.caller指向outer()。如果要降低耦合度，则可以通过arguments.callee.caller 来引用同样的值：
+
+function inner() {
+  console.log(arguments.callee.caller); //降低耦合度
+}
+
+
+```
+
+在严格模式下访问arguments.callee 会报错。ECMAScript 5 也定义了arguments.caller，但
+在严格模式下访问它会报错，在非严格模式下则始终是undefined。这是为了分清rguments.caller
+和函数的caller 而故意为之的。而作为对这门语言的安全防护，这些改动也让第三方代码无法检测同一上下文中运行的其他代码。
+严格模式下还有一个限制，就是不能给函数的caller 属性赋值，否则会导致错误。
+
+#### new.target
+
+ECMAScript 6 新增了检测函数是否使用new 关键字调用的new.target 属性.
+
+如果函数是正常调用的, 则new.target 的值是undefined；
+
+如果是使用new 关键字调用的，则new.target 将引用被调用的构造函数。
+
+```javascript
+function King() {
+  if (!new.target) {
+    throw 'King must be instantiated using "new" '
+  }
+  console.log('King instantiated using "new" ');
+}
+new King(); // King instantiated using "new"
+King(); // Error: King must be instantiated using "new"
+```
+
 
 
 
@@ -4621,139 +4687,48 @@ const square = function(n){return n*n};
 
 
 
-#### 函数调用1-递归
 
-函数可以被递归，就是说函数可以调用其本身
 
-```js
-//阶乘
-function factorial(n){
-  if(n===0||n===1) return 1;
-  return factorial(n-1)*n;
+### 函数属性与方法
+
+ECMAScript 中的函数是对象，因此有属性和方法。**每个函数都有两个属性：length和prototype**。其中，length 属性保存函数定义的命名参数的个数，
+
+#### **属性-length**
+
+```javascript
+function sayName(name) {
+	console.log(name);
 }
-
-factorial(5); 120
+function sum(num1, num2) {
+	return num1 + num2;
+}
+function sayHi() {
+	console.log("hi");
+}
+console.log(sayName.length); // 1
+console.log(sum.length); // 2
+console.log(sayHi.length); // 0
 ```
 
 
 
-#### 函数调用2-其他方式🔸
+#### **属性-prototype**
 
-常见的一些情形是某些地方需要动态调用函数，或者函数的实参数量是变化的，或者调用函数的上下文需要指定为在运行时确定的特定对象。显然，函数本身就是对象，因此这些对象也有方法（参考[`Function`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function) ）。作为此中情形之一，[`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)方法可以实现这些目的
-
-
-
-#### call()/apply()方法调用
-
-```JavaScript
-call() 
- - 当我们调用函数call()方法时,函数会立即执行就好像我们直接调用了函数
- - call()方法的第一个参数会自动成为函数中的this
- - call()的实参是从第二个参数一个一个传递
- 
-
-apply()
- - apply()的作用和call()方法是一样的,都可以指定函数的this
- - apply()的实参是直接传递一个数组作用于第二个参数
- - 使用apply()方法传递需要使用数组
-
-
-- 使用场景:
- - es5,原型继承. 父类.call(this,属性1,属性2);
-
-- 第一个参数传入null或undefined时, this指向的是window.
-
-
-# this到底是谁?
- 1.以函数形式调用,this是window
- 2.以方法形式调用,this就是调用方法的对象
- 3.以构造函数形式调用,this是新建的对象
- 4.以call和apply调用,this是他们的第一个参数
-```
+prototype 是保存引用类型所有实例方法的地方，这意味着toString()、valueOf()等方法实际上都保存在prototype 上，进而由所有实例共享。在ECMAScript 5中，prototype 属性是不可枚举的，因此使用for-in 循环不会返回这个属性。
 
 
 
-```js
-- call方法的参数,应该是对象obj.如果参数为空或null或undefined, 则默认传参全局对象.
-
-var obj={};
-var f=function(){return this};
-console.log(f()===window);//log: true
-console.log(f.call(obj)===obj);//log: true
-
-- 如果call传参不是以上的类型,则转换成相应的包装对象,然后传入方法.例如,5转成number实例.
-var f=function(){return this};
-f.call(5);//log:Number {5}
-```
 
 
+#### **方法-call()**
 
-```js
-//示例 mdn
-1.使用call方法调用父构造函数
-function Product(name,price){
-    this.name = name;
-    this.price = price;
-}
+以指定的this 值来调用函数,即会设置调用函数时函数体内this 对象的值。
 
-function Food(name,price){
-    Product.call(this,name,price);
-    this.category = 'food';
-}
-function Toy(name,price){
-    Product.call(this, name, price);
-    this.category = 'toy';
-}
+call()方法接收两个参数：函数内this 的值和逐个传递的参数.
 
-let cheese = new Food('feta',5);
-let fun = new Toy('robot',40);
+**语法**
 
-console.log(cheese.name, cheese.price)
-
-//使用call方法调用匿名函数
-var animals = [
-  { species: 'Lion', name: 'King' },
-  { species: 'Whale', name: 'Fail' }
-];
-
-for(let i=0;i<animals.length;i++){
-    (function(i){
-        this.print=function(){
-            console.log('#'+i+''+this.species+':'+this.name)
-        }
-    }).call(animals[i],i)
-}
-//使用 call 方法调用函数并且指定上下文的 'this'
-function greet(){
-    let reply = [this.animal, 'typically sleep between',this.sleepDuration].join('');
-    console.log(reply);
-}
-let obj = {animal:'cats', sleepDuration:'12 and 16 hours'};
-greet.call(obj); // cats typically sleep between 12 and 16 hours
-
-//使用 call 方法调用函数并且不指定第一个参数（argument）
-let sData = 'wisen';
-function display(){
-    console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
-}
-display.call(); //sData value is 
-
-//在严格模式下，this 的值将会是 undefined
-'use strict'
-let sData = 'wisen';
-function display(){
-    console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
-}
-display.call(); //can't read the property of 'sData' of undefined 
-```
-
-
-
-#### Function.prototype.call()
-
-`call()` 方法使用一个指定的 `this` 值和单独给出的一个或多个参数来调用一个函数
-
-```js
+```javascript
 //语法
 function.call(thisArg,arg1,arg2,...)
 
@@ -4771,13 +4746,179 @@ arg1,arg2...
 //描述
 call() 允许为不同的对象分配和调用属于一个对象的函数/方法
 call() 提供新的 this 值给当前调用的函数/方法。你可以使用 call 来实现继承：写一个方法，然后让另外一个新的对象来继承它（而不是在新对象中再写一次这个方法）
+
+//实例
+function sum(num1, num2) {
+	return num1 + num2;
+}
+function callSum(num1, num2) {
+	return sum.call(this, num1, num2);
+}
+console.log(callSum(10, 10)); // 20
 ```
 
 
 
+**call()方法中this值参数**
+
+如果这个函数处于非严格模式下，则指定为 null 或 undefined 时会自动替换为指向全局对象，原始值会被包装。
+
+```javascript
+- call方法的第一个参数,如果参数为空或null或undefined, 则默认传参全局对象.
+var obj={};
+var f=function(){return this};
+console.log(f()===window);//log: true
+console.log(f.call(obj)===obj);//log: true
+console.log(f.call(null) === window); //true
+console.log(f.call(undefined) === window); //true
+
+- 如果call传参不是以上的类型,则转换成相应的包装对象,然后传入方法.例如,5转成number实例.
+var f=function(){return this};
+f.call(5);//log:Number {5}
+```
+
+**call()方法实例**
+
+```javascript
+//示例 mdn
+1.使用call方法调用父构造函数
+function Product(name,price){
+  this.name = name;
+  this.price = price;
+}
+
+function Food(name,price){
+  Product.call(this,name,price);
+  this.category = 'food';
+}
+function Toy(name,price){
+  Product.call(this, name, price);
+  this.category = 'toy';
+}
+
+let cheese = new Food('feta',5);
+let fun = new Toy('robot',40);
+
+console.log(cheese.name, cheese.price)
+
+//使用call方法调用匿名函数
+var animals = [
+  { species: 'Lion', name: 'King' },
+  { species: 'Whale', name: 'Fail' }
+];
+
+for(let i=0;i<animals.length;i++){
+  (function(i){
+    this.print=function(){
+      console.log('#'+i+''+this.species+':'+this.name)
+    }
+  }).call(animals[i],i)
+}
+
+//使用 call 方法调用函数并且指定上下文的 'this'
+function greet(){
+  let reply = [this.animal, 'typically sleep between',this.sleepDuration].join('');
+  console.log(reply);
+}
+let obj = {animal:'cats', sleepDuration:'12 and 16 hours'};
+greet.call(obj); // cats typically sleep between 12 and 16 hours
+
+//使用 call 方法调用函数并且不指定第一个参数（argument）
+let sData = 'wisen';
+function display(){
+	console.log('sData value is %s', this.sData);//%s 相当于%string  相当于占位符作用
+}
+display.call(); //sData value is 
+
+//在严格模式下，this 的值将会是 undefined
+'use strict'
+let sData = 'wisen';
+function display(){
+	console.log('sData value is %s', this.sData);   //%s 相当于%string  相当于占位符作用
+}
+display.call(); //can't read the property of 'sData' of undefined 
+```
 
 
 
+#### **方法-apply()**
+
+以指定的this 值来调用函数,即会设置调用函数时函数体内this 对象的值。
+
+apply()方法接收两个参数：函数内this 的值和一个参数数组。第二个参数可以是Array 的实例，但也可以是arguments 对象。
+
+```javascript
+function sum(num1, num2) {
+	return num1 + num2;
+}
+function callSum1(num1, num2) {
+	return sum.apply(this, arguments); // 传入arguments 对象
+}
+function callSum2(num1, num2) {
+	return sum.apply(this, [num1, num2]); // 传入数组
+}
+console.log(callSum1(10, 10)); // 20
+console.log(callSum2(10, 10)); // 20
+```
+
+#### **call()和apply()总结**
+
+```javascript
+call() 
+ - 当我们调用函数call()方法时,函数会立即执行就好像我们直接调用了函数
+ - call()方法的第一个参数会自动成为函数中的this
+ - call()的实参是从第二个参数一个一个传递
+ 
+
+apply()
+ - apply()的作用和call()方法是一样的,都可以指定函数的this
+ - apply()的实参是直接传递一个数组作用于第二个参数
+ - 使用apply()方法传递需要使用数组
+
+
+- 使用场景:
+ - es5,原型继承. 父类.call(this,属性1,属性2);
+ - 第一个参数传入null或undefined时, this指向的是window.
+ - 如果想直接传arguments对象或者一个数组，那就用apply()；否则，就用call()。如果不用	 给被调用的函数传参，则使用哪个方法都一样。
+
+
+# this到底是谁?
+ 1.以函数形式调用,this是window;严格模式下this指向undefined
+ 2.以方法形式调用,this就是调用方法的对象
+ 3.以构造函数形式调用,this是新建的对象
+ 4.以call和apply调用,this是他们的第一个参数
+```
+
+
+
+#### **bind()**
+
+bind()方法会创建一个新的函数实例，其this 值会被绑定到传给bind()的对象
+
+```javascript
+window.color = 'red';
+var o = { color: 'blue' };
+
+function sayColor() {
+  console.log(this.color);
+}
+let objectSayColor = sayColor.bind(o);//objectSayColor()中的this 值被设置为o
+objectSayColor(); //blue
+```
+
+
+
+#### **继承的方法-toLocaleString()/toString()/valueOf()**
+
+对函数而言，继承的方法toLocaleString()和toString()始终返回函数的代码。返回代码的具体格式因浏览器而异。因此不能在重要功能中依赖这些方法返回的值，而只应在调试中使用它们。
+
+继承的方法valueOf()返回函数本身.
+
+```javascript
+//valueOf()
+function fn() {}
+console.log(fn.valueOf());
+```
 
 
 
@@ -4893,45 +5034,50 @@ function loop(x){
 loop(0)
 ```
 
+#### 递归中的解耦
 
+```javascript
+//阶乘 非严格模式下-arguments.callee
+//在严格模式下运行的代码是不能访问arguments.callee
+function factorial(num) {
+  if (num <= 1) {
+    return 1;
+  } else {
+    return num * arguments.callee(num - 1);//非严格模式下使用
+  }
+}
 
-
-
-### 立即执行函数(IIEF)/匿名函数
-
-#### 匿名函数
-
-没有函数名的函数被称为匿名函数 function之后直接跟括号
-
-```JavaScript
-* 匿名函数可以用一个变量来保存
-	let fn = function(){console.log('aaa')};  //这是一个赋值语句,注意有分号 
-* 匿名函数的调用
-	fn();
-	
-
-* 匿名函数的打印效果:
-	console.log(fn);
-'
-	ƒ (){console.log('aaa')}  //可以看出没有函数名
-'
+//阶乘 严格模式下(非严格模式下也可以用)-命名函数表达式
+const factorial = (function f(num) {
+  if (num <= 1) {
+    return 1;
+  } else {
+    return num * f(num - 1);
+  }
+});
 ```
 
 
 
-#### 立即执行函数
+
+
+### 立即调用的匿名函数(IIEF)
+
+立即调用的匿名函数又被称作立即调用的函数表达式（IIFE，Immediately Invoked Function Expression）。它类似于函数声明，但由于被包含在括号中，所以会被解释为函数表达式。紧跟在第一组括号后面的第二组括号会立即调用前面的函数表达式。
+
+使用IIFE 可以模拟块级作用域，即在一个函数表达式内部声明变量，然后立即调用这个函数。这样位于函数体作用域的变量就像是在块级作用域中一样。ECMAScript 5 尚未支持块级作用域，使用IIFE模拟块级作用域是相当普遍的。
+
+在ECMAScript 5.1 及以前，为了防止变量定义外泄，IIFE 是个非常有效的方式。这样也不会导致闭包相关的内存问题，因为不存在对这个匿名函数的引用。为此，只要函数执行完毕，其作用域链就可以被销毁。
+
+在ECMAScript 6 以后，IIFE 就没有那么必要了，因为块级作用域中的变量无须IIFE 就可以实现同样的隔离。下面展示了两种不同的块级作用域形式
 
 ```JavaScript
 * 立即执行函数,在函数定义完毕后立即调用,只会调用一次
 * 语法:
 	(function(){语句...})() //调用括号放在里外都可以
-    (function(){console.log(语句);}())
+  (function(){console.log(语句);}())
                 
-* 其他
- (fucntion(){
-  	console.log('我是一个匿名函数');
-  }());
-(function(){语句...}());
+
 ```
 
 
