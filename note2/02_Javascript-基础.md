@@ -116,7 +116,7 @@ JS作为弱类型语言(某一个变量被定义类型,该变量可以根据环�
 
 #### 字面量(Literals)
 
-字面量是由语法表达式定义的常量；或，通过由一定字词组成的语词表达式定义的常量
+<u>字面量是由语法表达式定义的常量；或，通过由一定字词组成的语词表达式定义的常量</u>
 
 字面量是常量，其值是固定的，而且在程序脚本运行中不可更改.
 
@@ -773,7 +773,7 @@ console.log(foo);//5
 
 #### **字符串(string)**
 
-* JS中字符串需要用引号引起来, 单双引号皆可, 不能混用,不能跨行使用.  新版使用反斜杠+n换行
+* JS中字符串需要用引号引起来, 单双引号皆可, 不能混用,不能跨行使用.  新版使用反斜杠和n换行(\\n)
 
 * 同类型引号之间不能嵌套 
 
@@ -782,7 +782,7 @@ console.log(foo);//5
   * \n 换行   document.write()需要使用标签\<br>进行换行
   * \t  制表符(缩进)
 
-#### 模板字符串
+**模板字符串**
 
   > 以上特性是ES6新特性,老版本浏览器中不要使用
   >
@@ -801,6 +801,8 @@ console.log(foo);//5
     * 模板字符串可以直接引用变量
       * 语法: ${变量} 
       * 范例: s=\` ${变量} 说今天天气好. ${变量} ${变量}${变量}   \`
+
+
 
 #### 数值(number)
 
@@ -8687,7 +8689,27 @@ alert(str.name);
 
 
 
-### 字符串方法
+## 字符串
+
+### 编码格式
+
+在ECMAScript 6出现以前，JavaScript字符串一直基于16位字符编码（UTF-16）进行构建。每16位的序列是一个编码单元（code unit），代表一个字符. length、charAt()等字符串属性和方法都是基于这种编码单元构造的。在过去16位足以包含任何字符，直到Unicode引入扩展字符集，Unicode的目标是为全世界每一个字符提供全球唯一的标识符。如果我们把字符长度限制在16位，码位数量将不足以表示如此多的字符。
+
+UTF-16中，前2<sup>16</sup>个码位均以16位的编码单元表示，这个范围被称作基本多文种平面（BMP，Basic Multilingual Plane）。超出这个范围的码位则要归属于某个辅助平面（supplementaryplane），其中的码位仅用16位就无法表示了。为此，UTF-16引入了代理对（surrogate pair），其规定用两个16位编码单元表示一个码位。
+
+字符串里的字符有两种，一种是由一个编码单元16位表示的BMP字符，另一种是由两个编码单元32位表示的辅助平面字符。
+
+```javascript
+let text = '𠮷';
+console.log(text.length); //2
+console.log(/^.$/.test(text)); //false
+console.log(text.charAt(0)); //''
+console.log(text.charAt(1)); //''
+console.log(text.charCodeAt(0)); //55362
+console.log(text.charCodeAt(1)); //57271
+
+//Unicode字符“[插图]”是通过代理对来表示的，因此，这个示例中的JavaScript字符串操作将其视为两个16位字符。
+```
 
 
 
@@ -8698,45 +8720,174 @@ let str = 'Hello'; --> ['H', 'e', 'l', 'l', 'o'];
 因为字符串是不可变数据类型,所以数组的破坏性方法无法使用.
 ```
 
-#### str.charAt()
 
-> 根据索引获取指定的字符, 返回获得的字符结果.
 
-```HTML
-let str = 'hello';
+### 字符串方法
 
-str.charAt();//log: h
-str.charAt(0);//log: h
-str.charAt('');//log: h
-str.charAt(null);//log:h
-str.charAt(false);//log:h
-str.charAt(true);//log: e
-str.charAt(9);//log:没有返回值
+#### Unicode支持
+
+##### codePointAt()
+
+ECMAScript 6新增加了完全支持UTF-16的codePointAt()方法，这个方法接受编码<u>单元的位置而非字符位置作为参数</u>，返回与字符串中给定位置对应的码位，即一个整数值。
+
+```javascript
+let text = '𠮷a';
+
+console.log(text.charCodeAt(0)); //55362
+console.log(text.charCodeAt(1)); //57271
+console.log(text.charCodeAt(2)); //97
+
+console.log(text.codePointAt(0)); //134071
+console.log(text.codePointAt(1)); //57271
+console.log(text.codePointAt(2)); //97
+```
+
+**对于BMP字符集中的字符，codePointAt()方法的返回值与charCodeAt()方法的相同，而对于非BMP字符集来说返回值则不同。**字符串text中的第一个字符是非BMP的，包含两个编码单元，所以它的length属性值为3。charCodeAt()方法返回的只是位置0处的第一个编码单元，而codePointAt()方法则返回完整的码位，即使这个码位包含多个编码单元。对于位置1（第一个字符的第二个编码单元）和位置2（字符“a”），二者的返回值相同。
+
+要检测一个字符占用的编码单元数量，最简单的方法是调用字符的codePointAt()方法，可以写这样的一个函数来检测：
+
+```javascript
+function is32Bit(c) {
+  return c.codePointAt(0) > 0XFFFF;  //0xffff是65535
+}
+
+console.log(is32Bit('𠮷')); //true
+console.log(is32Bit('a')); //false
 ```
 
 
 
-#### str.charCodeAt()
+##### String.fromCodePoint()
 
-> 根据索引获取指定字符的字符编码 需要变量接收
+ECMAScript通常会面向同一个操作提供正反两种方法。你可以使用codePointAt()方法在字符串中检索一个字符的码位，也可以使用String.fromCodePoint()方法根据指定的码位生成一个字符。
 
-```HTML
-let str = 'hello';
-
-str.charCodeAt();//log: 104 就是h的编码
-str.charCodeAt('h');//log:104 
-str.charCodeAt('hello')//log:104
-str.charCodeAt(10);//log:NaN
+```javascript
+console.log(String.fromCodePoint(134071)); //𠮷
 ```
 
 
 
-#### String.fromCharCode()
+##### normalize()
 
-> 根据字符编码返回字符 需要变量接收
+Unicode的另一个有趣之处是，如果我们要对不同字符进行排序或比较操作，会存在一种可能，它们是等效的。有两种方式可以定义这种关系。首先，规范的等效是指无论从哪个角度来看，两个序列的码位都是没有区别的；第二个关系是兼容性，两个互相兼容的码位序列看起来不同，但是在特定的情况下可以被互相交换使用。
 
-```HTML
-String.fromCharCode(222);//
+但如果你曾经开发过一款国际化的应用，那么normalize()方法就有用得多了。
+
+所以，代表相同文本的两个字符串可能包含着不同的码位序列。举个例子，字符“æ”和含两个字符的字符串“ae”可以互换使用，但是严格来讲它们不是等效的，除非通过某些方法把这种等效关系标准化。
+
+ECMAScript 6为字符串添加了一个normalize()方法，它可以提供Unicode的标准化形式。这个方法接受一个可选的字符串参数，指明应用以下的某种Unicode标准化形式：
+
+· 以标准等价方式分解，然后以标准等价方式重组（"NFC"），默认选项。
+
+· 以标准等价方式分解（"NFD"）。
+
+· 以兼容等价方式分解（"NFKC"）。
+
+· 以兼容等价方式分解，然后以标准等价方式重组（"NFKD"）。
+
+对于这4种形式之间差异的解读不在本书的范围之内，你只需牢记**，在对比字符串之前，一定先把它们标准化为同一种形式。**举个例子：
+
+```javascript
+let normalized = values.map(function(text) {
+  return text.normalize();
+})
+
+normalized.sort(function(first, second) {
+  if (first < second) {
+    return -1;
+  } else if (first === second) {
+    return 0;
+  } else {
+    return 1;
+  }
+})
+```
+
+以上这段代码将values数组中的所有字符串都转换成同一种标准形式，因此该数组可以被正确地排序。<u>如果你想对原始数组进行排序，则可以在比较函数中添加normalize()方法</u>，就像这样：
+
+```javascript
+values.sort(function(first, second) {
+  let firstNormalized = first.nromalize(),
+      secondNormalized = second.normalize();
+  
+  if (firstNormalized < secondNormalized) {
+    return -1;
+  } else if (firstNormalized === secondNormalized) {
+    return 0;
+  } else {
+    return 1;
+  }
+})
+```
+
+切记在进行排序和比较操作前，将被操作字符串按照同一标准进行标准化。这里的示例都采用默认的NFC形式，你也可以明确指定其他形式：
+
+```javascript
+values.sort(function(first, second) {
+  let firstNormalized = first.nromalize('NFD'),
+      secondNormalized = second.normalize('NFD');
+  
+  if (firstNormalized < secondNormalized) {
+    return -1;
+  } else if (firstNormalized === secondNormalized) {
+    return 0;
+  } else {
+    return 1;
+  }
+})
+```
+
+
+
+#### 子串识别
+
+##### includes()
+
+##### startsWith()
+
+##### endsWith()
+
+自JavaScript首次被使用以来，开发者们就开始使用indexOf()方法来在一段字符串中检测另一段子字符串，而在ECMAScript 6中，提供了以下3个类似的方法可以达到相同效果：
+
+* includes()方法，如果在字符串中检测到指定文本则返回true，否则返回false
+* startsWith()方法，如果在字符串的起始部分检测到指定文本则返回true，否则返回false
+* endsWith()方法，如果在字符串的结束部分检测到指定文本则返回true，否则返回false。
+
+以上的3个方法都接受两个参数：
+
+第一个参数指定要搜索的文本；
+
+第二个参数是可选的，指定一个开始搜索的位置的索引值。
+
+如果指定了第二个参数，则includes()方法和startsWith()方法会从这个索引值的位置开始匹配，endsWith()方法则从字符串长度减去这个索引值的位置开始匹配；如果不指定第二个参数，includes()方法和startsWith()方法会从字符串起始处开始匹配，endsWith()方法从字符串末尾处开始匹配。实际上，指定第二个参数会大大减少字符串被搜索的范围。
+
+##### ES6方法和ES5比较
+
+尽管这3个方法执行后返回的都是布尔值，也极大地简化了子串匹配的方法，但是如果你需要在一个字符串中寻找另一个子字符串的实际位置，还需使用indexOf()方法或lastIndexOf()方法。
+
+对于startsWith()、endsWith()及includes()这3个方法，如果你没有按照要求传入一个字符串，而是传入一个正则表达式，则会触发一个错误产生；而对于indexOf()和
+
+
+
+#### repeat()
+
+ECMAScript 6还为字符串增添了一个repeat()方法，其接受一个number类型的参数，表示该字符串的重复次数，返回值是当前字符串重复一定次数后的新字符串
+
+```javascript
+console.log('x'.repeat(3)); //'xxx'
+console.log('hello'.repeat(2)); //hellohello
+console.log('abc'.repeat(4)); //abcabcabcabc
+```
+
+使用场景.例如其在操作文本时非常有用，比如在代码格式化工具中创建缩进级别，
+
+```javascript
+//缩进指定数量的空格
+let indent = ' '.repeat(4),
+    indentLevel = 0;
+
+//当需要增加缩进时
+let newIndent = indent.repeat(++indentLevel);
 ```
 
 
@@ -8851,14 +9002,6 @@ fromIndex 可选. 待匹配字符串searchValue的开头一位字符从str的第
 fromIndex默认值是+Infinity.
 如果fromIndex>=str.length,则会搜索整个字符串.
 如果fromIndex<0, 则等同于fromIndex==0.
-```
-
-
-
-#### lastIndexOf()实例
-
-```HTML
-'abadefgacm'.lastIndexOf('ab', 7);// 返回0. 两个条件,字符串'ab',从第7位回向查找.
 ```
 
 
@@ -9210,13 +9353,202 @@ alert(check.test(str));
 
 
 
+#### 3.2 u修饰符
+
+正则表达式可以完成简单的字符串操作，但默认将字符串中的每一个字符按照16位编码单元处理。为解决这个问题，ECMAScript 6给正则表达式定义了一个支持Unicode的u修饰符.
+
+<u>当一个正则表达式添加了u修饰符时，它就从编码单元操作模式切换为字符模式</u>，如此一来正则表达式就不会视代理对为两个字符，从而完全按照预期正常运行。例如，以下这段代码：
+
+```javascript
+let text = '𠮷';
+
+console.log(text.length); //2
+console.log(/^.$/.test(text)); //false
+console.log(/^.$/u.test(text)); //true
+```
+
+正则表达式/^.$/匹配所有单字符字符串。没有使用u修饰符时，会匹配编码单元，因此使用两个编码单元表示的日文字符不会匹配这个表达式；使用了u修饰符后，正则表达式会匹配字符，从而就可以匹配日文字符了。
+
+
+
+#### 3.3 计算码位数量
+
+虽然ECMAScript 6不支持字符串码位数量的检测（length属性仍然返回字符串编码单元的数量），但有了u修饰符后，你就可以通过正则表达式来解决这个问题.
+
+```javascript
+function codePointLength(text) {
+	let result = text.match(/[\s\S]/gu);
+  return result ? result.length : 0;
+}
+
+console.log(codePointLength('abc')); //3
+console.log(codePointLength('𠮷bc')); //3
+```
+
+在这个示例中，创建一个支持Unicode且应用于全局的正则表达式，通过调用match()方法来检查空格和非空格字符（使用[\s\S]来确保这个模式能够匹配新行）。当匹配到至少一个字符时，返回的数组中包含所有匹配到的字符串，其长度为字符串中码位的数量。在Unicode中，字符串"abc"和"[插图]bc"都有3个字符，所以数组长度是3。
+
+这个方法尽管有效，但是当统计长字符串中的码位数量时，运行效率很低。因此，你也可以使用字符串迭代器（将在第8章讨论）解决效率低的问题，总体而言，只要有可能就尝试着减小码位计算的开销。
+
+
+
+#### 3.4 检测u修饰符支持
+
+u修饰符是语法层面的变更，尝试在不兼容ECMAScript 6的JavaScript引擎中使用它会导致语法错误。如果要检测当前引擎是否支持u修饰符，最安全的方式是通过以下这个函数：
+
+```javascript
+function hasRegExpU() {
+  try {
+    var pattern = new RegExp('.', 'u');
+    return true;
+  } catch (ex) {
+    return false;
+  }
+}
+```
+
+这个函数使用了RegExp构造函数并传入字符串"u"作为参数，老式的浏览器引擎支持这个语法，但是如果当前引擎不支持u修饰符会抛出错误。
+
+[插图]如果你的代码仍然需要运行在老式的JavaScript引擎中，那么在使用u修饰符时切记使用RegExp构造函数，这样可以避免发生语法错误，并且你可以有选择地检测和使用u修饰符，而不会造成系统异常终止。
+
+
+
+#### 3.5 y修饰符
+
+y修饰符曾在Firefox中被实现，现在它经ECMAScript 6标准化后正式成为正则表达式的一个专有扩展。它会影响正则表达式搜索过程中的**sticky属性**，当在字符串中开始字符匹配时，<u>它会通知搜索从正则表达式的**lastIndex属性**开始进行</u>，如果在指定位置没能成功匹配，则停止继续匹配。
+
+```javascript
+let text = 'hello1 hello2 hello3',
+    pattern = /hello\d\s?/,
+    result = pattern.exec(text),
+    globalPattern = /hello\d\s?/g,
+    globalResult = globalPattern.exec(text),
+    stickyPattern = /hello\d\s?/y,
+    stickyResult = stickyPattern.exec(text);
+
+console.log(result[0]); // 'hello1 '
+console.log(globalResult[0]); // 'hello1 '
+console.log(stickyResult[0]); // 'hello1 '
+
+
+pattern.lastIndex = 1;
+globalPattern.lastIndex = 1;
+stickyPattern.lastIndex = 1;
+
+result = pattern.exec(text);
+globalResult = globalPatten.exec(text);
+stickyPatten = stickyPattern.exec(text);
+
+console.log(result[0]); //hello1
+console.log(globalResult[0]); //hello2
+console.log(stickyResult[0]); //抛出错误
+```
+
+在这个示例中有3个正则表达式，pattern没有修饰符，globalPattern使用了g修饰符，stickyPattern使用了y修饰符。第一组console.log()方法调用返回的结果都应该是"hello1 "，注意字符串末尾有一个空格。
+
+随后，所有3种模式的lastIndex属性都被更改为1，此时正则表达式应该从字符串的第二个字符开始匹配。没有修饰符的表达式自动忽略这个变化，仍然匹配"hello1 "；使用了g修饰符的表达式，从第二个字符"e"开始搜索，继续向后成功匹配"hello2 "；使用了y修饰符的粘滞正则表达式，由于从第二个字符开始匹配不到相应字符串，就此终止，所以stickyResult的值为null。
+
+<u>当执行操作时，y修饰符会把上次匹配后面一个字符的索引保存在lastIndex中；如果该操作匹配的结果为空，则lastIndex会被重置为0。g修饰符的行为与此相同</u>，示例如下：
+
+```javascript
+let text = 'hello1 hello2 hello3',
+    pattern = /hello\d\s?/,
+    result = pattern.exec(text),
+    globalPattern = /hello\d\s?/g,
+    globalResult = globalPattern.exec(text),
+    stickyPattern = /hello\d\s?/y,
+    stickyResult = stickyPattern.exec(text);
+
+console.log(result[0]); // 'hello1 '
+console.log(globalResult[0]); // 'hello1 '
+console.log(stickyResult[0]); // 'hello1 '
+
+
+console.log(pattern.lastIndex); //0
+console.log(globalPattern.lastIndex); //7
+console.log(stickyPattern.lastIndex); //7;
+
+result = pattern.exec(text);
+globalResult = globalPatten.exec(text);
+stickyPatten = stickyPattern.exec(text);
+
+console.log(result[0]); //hello1
+console.log(globalResult[0]); //hello2
+console.log(stickyResult[0]); //hello2
+
+console.log(pattern.lastIndex); //0
+console.log(globalPattern.lastIndex); //14
+console.log(stickyPattern.lastIndex); //14
+```
+
+当第一次调用exec()方法时，stickyPattern和globalPattern两个变量的lastIndex值改变为7，第二次调用之后改变为14。
+
+关于y修饰符还需要记住两点：首先，只有调用exec()和test()这些正则表达式对象的方法时才会涉及lastIndex属性；调用字符串的方法，例如match()，则不会触发粘滞行为。
+
+其次，对于粘滞正则表达式而言，如果使用^字符来匹配字符串开端，只会从字符串的起始位置或多行模式的首行进行匹配。当lastIndex的值为0时，如果正则表达式中含有^，则是否使用粘滞正则表达式并无差别；如果此时lastIndex的值不为0，则该表达式永远不会匹配到正确结果。
+
+若要检测y修饰符是否存在，与检测其他正则表达式修饰符类似，可以通过属性名来检测。此时此刻，应该检查sticky属性，就像这样：
+
+```javascript
+let pattern = /hello\d/y;
+console.log(pattern.sticky); //true
+```
+
+如果JavaScript引擎支持粘滞修饰符，则sticky属性的值为true，否则为false。这个属性是只读的，其值由该修饰符的存在性所决定，不可在代码中任意改变。
+
+y修饰符与u修饰符类似，它也是一个新增的语法变更，所以在老式的JavaScript引擎中使用会触发错误。可以使用以下方法来检测引擎对它的支持程度：
+
+```javascript
+function hasRegExpY() {
+  try {
+    let pattern = new RegExp('.', 'y');
+    return true;
+  } catch(ex) {
+    return false;
+  }
+}
+```
+
+同样，与检测u修饰符时类似，如果不能创建一个使用y修饰符的正则表达式就返回false；如果你需要在老式JavaScript引擎中运行含有y修饰符的代码，切记使用RegExp构造函数，通过定义正则表达式来规避语法错误
+
+
+
+#### 3.6 正则表达式的复制
+
+在ECMAScript 5中，可以通过给RegExp构造函数传递正则表达式作为参数来复制这个正则表达式，就像这样：
+
+```javascript
+let re1 = /ab/i,
+    re2 = new RegExp(re1);
+```
+
+此处的变量re2只是变量re1的一份拷贝，但如果给RegExp构造函数提供第二个参数，为正则表达式指定一个修饰符，则代码无法运行，请看这个示例：
+
+```javascript
+let re1 = /ab/i,
+    re2 = new RegExp(re1, 'g'); //在ES5中抛出错误,在ES6中正常运行
+```
+
+如果在ECMAScript 5环境中执行这段代码会抛出一个错误：当第一个参数为正则表达式时不可以使用第二个参数。ECMAScript 6中修改了这个行为，即使第一个参数为正则表达式，也可以通过第二个参数修改其修饰符。举个例子：
+
+```javascript
+let re1 = /ab/i,
+    re2 = new RegExp(re1, 'g'); //在ES5中抛出错误,在ES6中正常运行
+
+console.log(re1.toString()); // '/ab/i'
+console.log(re2.toString()); // '/ab/g'
+
+console.log(re1.test('ab')); //true
+console.log(re2.test('ab')); //true
+
+console.log(re1.test('AB')); //true
+console.log(re2.test('AB')); //false
+```
 
 
 
 
 
-
-### 正则的一些固定格式
+### 固定用法
 
 ```js
 //空行
@@ -9233,36 +9565,6 @@ alert(check.test(str));
 ```
 
 
-
-
-
-#### 练习
-
-```javascript
-- 创建一个正则表达式,来检查一个字符串是否时手机号
-找规律:
- 第一位,1开头
- 第二位,3-9任意一个数字
- 第三位,0-9任意9位
- 
-/^1[3-9][0-9]{9}$/ 
-
-let str = '13065551561';
-let phonecheck = /^1[3-9][0-9]{9}$/;
-alert(phonecheck.test(phonecheck));
-```
-
-
-
-```JavaScript
-编写一个正则表达式,检查一个字符串是否时合法的电子邮件地址
-
-aaaa@aaa.com.cn
-简化规则:
-任意单词字符一位以上 . 任意单词字符一位以上(有没有都可以) @ 任意字母数字一位以上 .任意字母2-5位(1-2次)
-
- \w+(\.\w+)*@[A-Za-z0-9]+(\.[A-Za-z0-9]{2-5}){1,2}
-```
 
 
 
@@ -9342,11 +9644,63 @@ result = str.match(/1[3-9][0-9]{9}/g);
 
 
 
+### 正则的方法
+
+#### exec()
+
+`exec() `方法在一个指定字符串中执行一个搜索匹配。返回一个结果数组或 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)。
+
+在设置了 [`global`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/global) 或 [`sticky`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) 标志位的情况下（如 `/foo/g` or `/foo/y`），JavaScript [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象是**有状态**的。他们会将上次成功匹配后的位置记录在 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性中。使用此特性，`exec()` 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），而相比之下， [`String.prototype.match()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match) 只会返回匹配到的结果。
+
+如果你只是为了判断是否匹配（true或 false），可以使用 [`RegExp.test()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) 方法，或者 [`String.search()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/search) 方法。
+
+```javascript
+const regex1 = RegExp('foo*', 'g');
+const str1 = 'table football, foosball';
+let array1;
+
+while((array1 = regex1.exec(str1)) !== null) {
+  console.log(`Found ${array1[0]}. Next Found at ${regexp1.lastIndex}.`)
+}
+
+// "Found foo. Next starts at 9."
+// "Found foo. Next starts at 19."
+```
+
+
+
+**返回值**
+
+如果匹配成功，`exec()` 方法返回一个数组（包含额外的属性 `index` 和 `input` ，参见下方表格），并更新正则表达式对象的 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性。完全匹配成功的文本将作为返回数组的第一项，从第二项起，后续每项都对应正则表达式内捕获括号里匹配成功的文本。
+
+如果匹配失败，`exec()` 方法返回 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)，并将 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 重置为 0 。
+
+**实例**
+
+```javascript
+let re = /quick\s(brown).+?(jumps)ig;
+let result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
+```
+
+| 对象   | 属性/索引  | 描述                                                         | 例子                                        |
+| ------ | ---------- | ------------------------------------------------------------ | ------------------------------------------- |
+| result | [0]        | 匹配的全部字符串                                             | Quick Brown Fox Jumps                       |
+|        | [1],...[n] | 括号中的分组捕获                                             | [1] = Brown [2] = Jumps                     |
+|        | index      | 匹配到字符位于原始字符串的基于0的索引值                      | 4                                           |
+|        | input      | 原始字符串                                                   | The Quick Brown Fox Jumps Over The Lazy Dog |
+| re     | lastIndex  | 下一次匹配开始的位置                                         | 25                                          |
+|        | ignoreCase | 是否使用了'i'标记使正则忽略大小写                            | true                                        |
+|        | global     | 是否使用了'g'标记来进行全局的匹配                            | true                                        |
+|        | multiline  | 是否使用了 "`m`" 标记使正则工作在多行模式（也就是，^ 和 $ 可以匹配字符串中每一行的开始和结束（行是由 \n 或 \r 分割的），而不只是整个输入字符串的最开始和最末尾处。） | false                                       |
+|        | source     | 正则匹配的字符串                                             | quick\s(brown).+?(jumps)                    |
 
 
 
 
-### JSON
+
+
+
+## JSON
 
 ### 1.介绍
 
