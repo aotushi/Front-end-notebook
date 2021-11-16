@@ -29,6 +29,16 @@ function arrayDiff(a,b) {
   return arr;
 }
 
+
+//2021.11.16
+
+function arrayDiff(a, b) {
+  if (a.length > b.length) {
+    return a.filter(item => !b.includes(item));
+  } else {
+    return b.filter(item => !a.includes(item));
+  }
+}
 ```
 
 

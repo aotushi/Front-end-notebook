@@ -74,6 +74,27 @@ function comp(a, b) {
     return false;
   }
 }
+
+
+//2021.11.16
+function comp(a, b) {
+  if (a.length !== b.length) return '两个数组长度不一致';
+  
+  a.sort((a, b) => a - b);
+  b.sort((a, b) => a - b);
+  
+  function sortAndComp(x, y) {
+    return x.map(item => item ** 2).every((item, index) => item === y[index]);
+  }
+  
+  if (a.every((item, index) => item <= b[index])) {
+    // a 平方根
+    return sortAndComp(a, b);
+  } else {
+    // b 平方根
+    return sortAndComp(b, a);
+  }
+}
 ```
 
 
@@ -83,8 +104,9 @@ function comp(a, b) {
 
 function comp(array1, array2) {
   if(array1 === null || array2 === null) return false;
-  array1.sort((a, b) => a-b); array.sort((a,b) => a-b);
-  return array.map(v=>v*v).every.((v,i)=>v===array2[i])
+  array1.sort((a, b) => a - b); 
+  array2.sort((a, b) => a - b);
+  return array1.map(v=>v*v).every.((v,i)=>v===array2[i])
 }
 
 
