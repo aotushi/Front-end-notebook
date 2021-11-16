@@ -9218,23 +9218,221 @@ console.log(namelist);
 
 
 
-#### str.startsWith()
+### 模板字面量
 
-> startsWith() 方法用于检测字符串是否以指定的子字符串开始。
->
-> 如果是以指定的子字符串开头返回 true，否则 false。
->
-> startsWith() 方法对大小写敏感。
->
-> **注意:** IE 11 及更早版本不支持 startsWith() 方法 。
+#### 基础语法
+
+模板字面量最简单的用法，看起来好像只是用反撇号（`）替换了单、双引号。
+
+#### 多行字符串
+
+由于JavaScript长期以来一直存在一个语法bug，在一个新行最前方添加反斜杠（\）可以承接上一行的代码，因此确实可以利用这个bug来创造多行字符串：
+
+```javascript
+let msg = 'Multiline \
+					string';
+console.log(msg); //Multiline   string
+```
+
+当把字符串message打印到控制台时其并未按照跨行方式显示，<u>因为反斜杠在此处代表行的延续</u>，而非真正代表新的一行。
+
+<u>如果想输出为新的一行，需要手动加入换行符</u>：
+
+```javascript
+let msg = 'Multiline \n\
+string';
+
+console.log(msg); //multiline
+									//string
+```
+
+在ECMAScript 6之前的版本中，通常都依靠数组或字符串拼接的方法来创建多行字符串，例如： ????
+
+```javascript
+let msg = [
+  'Multiline ',
+  'string'
+].join('\n');
+
+let msg = 'Multiline \n' +
+    'string';
+```
 
 
 
-#### str.endsWith()
+#### 简化多行字符串
 
-> endsWith() 方法用于测试字符串是否以指定的后缀结束。
+ECMAScript 6的模板字面量的语法简单，其极大地简化了多行字符串的创建过程。如果你需要在字符串中添加新的一行，只需在代码中直接换行，此处的换行将同步出现在结果中。
 
+```javascript
+let msg = `multiline
+string`;
 
+console.log(msg); // 'multiline
+									// string'
+console.log(msg.length); 16
+```
+
+在反撇号中的所有空白符都属于字符串的一部分，所以千万要小心缩进。
+
+```javascript
+let msg = `multiline
+					string`;
+
+console.log(msg.length); //31
+```
+
+如果你一定要通过适当的缩进来对齐文本，则可以考虑在多行模板字面量的第一行留白，并在后面的几行中缩进
+
+```javascript
+let html = `
+<div>
+	<h1>Title</h1>
+</div>`.trim();
+```
+
+在这段代码中，模板字面量的第一行没有任何文字，第二行才有内容。HTML标签缩进正确，且可以通过调用trim()方法移除最初的空行。
+
+也可以在模板字面量中显式地使用\n来指明应当插入新行的位置：
+
+```javascript
+let msg = `multiline\nstring`;
+
+console.log(msg);//'multiline
+								 //string'
+
+console.log(msg.length); //16
+```
+
+#### 字符串占位符
+
+在一个模板字面量中，你可以把任何合法的JavaScript表达式嵌入到占位符中并将其作为字符串的一部分输出到结果中。
+
+占位符由一个左侧的${和右侧的}符号组成，中间可以包含任意的JavaScript表达式。举个占位符最简单的例子，你可以直接将一个本地变量嵌入到输出的字符串中.
+
+[插图]模板字面量可以访问作用域中所有可访问的变量，无论在严格模式还是非严格模式下，尝试嵌入一个未定义的变量总是会抛出错误。
+
+可以嵌入除变量外的其他内容，如运算式、函数调用，等等。就像这样：
+
+```javascript
+let count = 10,
+    price = 0.25,
+    message = `${count} items cost $${(count * price).toFixed(2)}.`;
+
+console.log(message); //10 items cost $2.50
+```
+
+模板字面量本身也是JavaScript表达式，<u>所以你可以在一个模板字面量里嵌入另外一个</u>
+
+```javascript
+let name = 'Nicholas',
+    msg = `Hello, ${
+			`my name is ${name}`
+		}.`;
+
+console.log(msg); //Hello, my name is Nicholas
+```
+
+#### 标签模板!!
+
+模板字面量真正的威力来自于标签模板，每个模板标签都可以执行模板字面量上的转换并返回最终的字符串值。标签指的是在模板字面量第一个反撇号（`）前方标注的字符串.
+
+```javascript
+let msg = tag`Hello world`;  //在这个例子中的模板标签是tag
+```
+
+标签可以是一个函数，调用时传入加工过的模板字面量各部分数据，但必须结合每个部分来创建结果。**第一个参数是一个数组，包含JavaScript解释过后的字面量字符串，它之后的所有参数都是每一个占位符的解释值。**
+
+标签函数通常使用不定参数特性来定义占位符，从而简化数据处理的过程，就像这样：
+
+```javascript
+function tag(literals, ...substitutions) {
+  //返回一个字符串
+}
+```
+
+```javascript
+let count = 10,
+    price = .25,
+    msg = passthru`${count} items cost $${(count * price).toFixed(2)}.`;
+```
+
+如果你有一个名为passthru()的函数，那么作为一个模板字面量标签，它会接受3个参数：首先是一个literals数组，包含以下元素：
+
+* 第一个占位符前的空字符串（""）
+* 第一、二个占位符之间的字符串（" items cost $"）
+* 第二个占位符后的字符串（"."）
+
+下一个参数是变量count的解释值，传参为10，它也成为了substitutions数组里的第一个元素；最后一个参数是(count * price).toFixed(2)的解释值，传参为"2.50"，它是substitutions数组里的第二个元素。
+
+注意，literals里的第一个元素是一个空字符串，这确保了literals[0]总是字符串的始端，就像literals[literals.length - 1]总是字符串的结尾一样。substitutions的数量总比literals少一个，这也意味着表达式substitutions.length === literals.length - 1的结果总为true。
+
+通过这种模式，我们可以将literals和substitutions两个数组交织在一起重组结果字符串。先取出literals中的首个元素，再取出substitution中的首个元素，然后交替继续取出每一个元素，直到字符串拼接完成。于是可以通过从两个数组中交替取值的方式模拟模板字面量的默认行为，就像这样：
+
+```javascript
+function passthru(literal, ...substitution) {
+  let result = '';
+  //根据substitution的数量来确定循环的执行次数
+  for (let i=0; i<substitution; i++) {
+    result += literals[i];
+    result += substitution[i];
+  }
+  
+  //合并最后一个literal
+  result += literals[literals.length - 1];
+  
+  return result;
+}
+
+let count = 10,
+    price = 25,
+    message = passthru`${count} items cost $${(count * price).toFixed(2)}.`;
+
+console.log(message); //10 items cost $2.50.
+```
+
+这个示例定义了一个passthru标签，模拟模板字面量的默认行为，展示了一次转换过程。此处的小窍门是使用substitutions.length来为循环计数，使用literals.length常常会越界。这段代码可以正常运行，在ECMAScript 6中已经详尽地定义了literals和substitutions二者间的关系。
+
+数组substitutions里包含的值不一定是字符串，就像之前的示例一样，如果一个表达式求值后得到一个数值，那么传入的就是这个数值。至于这些值怎么在结果中输出，就是标签（Tag）的职责了。
+
+#### 模板字面量中使用原始值
+
+模板标签同样可以访问原生字符串信息，也就是说通过模板标签可以访问到字符转义被转换成等价字符前的原生字符串。最简单的例子是使用内建的**String.raw()**标签：
+
+```javascript
+let msg1 = `Multiline\nstring`,
+    msg2 = String.raw`Multiline\nstring`;
+
+console.log(msg1); //'Multiline
+									 //string'
+
+console.log(msg2); //Multiline\\nstring
+```
+
+在这段代码中，变量message1中的\n被解释为一个新行，而变量message2获取的是\n的原生形式"\\\n"（反斜杠与n字符），必要的时候可以像这样来检索原生的字符串信息。
+
+原生字符串信息同样被传入模板标签，标签函数的第一个参数是一个数组，它有一个额外的属性raw，是一个包含每一个字面值的原生等价信息的数组。举个例子，literals[0]总有一个等价的literals.raw[0]，包含着它的原生字符串信息。了解之后，可以使用以下代码模仿String.raw()
+
+```javascript
+function raw(literals, ...substitutions) {
+  let result = '';
+  //根据substitutions的数量来确定循环的执行次数
+  for (let i=0; i<substitutions.length; i++) {
+    //使用原生值
+    result += literals.raw[i];
+    result += substitutions[i];
+  }
+  
+  //合并最后一个literals
+  result += literals.raw[literals.length - 1];
+  return result;
+}
+
+let msg = raw`Multiline\nstring`;
+
+console.log(msg); //'Multiline\\nstring'
+console.log(msg.length); //27
+```
 
 
 
@@ -9545,6 +9743,34 @@ console.log(re2.test('AB')); //false
 ```
 
 
+
+#### 3.7 flags属性
+
+为了配合新加入的修饰符，ECMAScript 6还新增了一个与之相关的新属性。在ECMAScript 5中，你可能通过source属性获取正则表达式的文本，但如果要获取使用的修饰符，就需要使用如下代码格式化toString()方法输出的文本：
+
+```javascript
+function getFlags(re) {
+  let text = re.toString();
+  return text.substring(text.lastIndexOf('/') + 1, text.length);
+}
+
+
+```
+
+这段代码会将正则表达式转换成字符串并识别最后一个/后面的字符，以此来确定使用了哪些修饰符。
+
+为了使获取修饰符的过程更加简单，ECMAScript 6新增了一个flags属性；它与source属性都是只读的原型属性访问器，对其只定义了getter方法，这极大地简化了调试和编写继承代码的复杂度。
+
+在ECMAScript 6最近的一个版本中，访问flags属性会返回所有应用于当前正则表达式的修饰符字符串。举个例子：
+
+```javascript
+let re = /ab/g;
+
+console.log(re.source); //'ab'
+console.log(re.flags); //g
+```
+
+以上两行代码获取了变量re的所有修饰符，这比toString()技术所使用的代码量更少，并将修饰符打印在了控制台中。结合source属性和flags属性可以免去格式化正则表达式之忧。
 
 
 
