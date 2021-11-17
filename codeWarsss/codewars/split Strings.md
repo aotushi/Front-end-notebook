@@ -35,6 +35,36 @@ function solution(str) {
   }
   return arr;
 }
+
+
+//2021.11.17 不得不说推荐的方法还是非常简单的 字符串可以使用中括号来取得相应索引的元素
+function solution(str) {
+  if (str.length %2 !== 0) {
+    str += '_';
+  }
+  let arr = [];
+  str.split('').forEach((_, index) => {
+    if ((index + 1) % 2 === 0) {
+      arr.push(str.split('')[index - 1] + str.split('')[index])
+    }
+  });
+  
+  return arr;
+}
+
+
+function solution(str) {
+  if (str.length % 2 !== 0) {
+    str += '_';
+  }
+  let arr = [];
+  
+  for (let i=0; i<=str.length/2; i+=2) {
+    arr.push(str.slice(i, i+2));
+  }
+  
+  return arr;
+}
 ```
 
 

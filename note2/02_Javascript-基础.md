@@ -239,56 +239,12 @@ let re = /ab+c/;
 >
 > 字符串必须被相同类型的引用符号限制.
 
-**字符串中使用特殊的字符**
+**字符串中使用转义字符**
 
 > 除了普通字符, 也能在字符串中使用特殊字符.
 
 ```js
 'one line \n another line'
-```
-
-以下列表展示可以在JS字符串中使用的特殊字符:
-
-| 自身character                    | 含义                                        |
-| -------------------------------- | ------------------------------------------- |
-| \0                               | 零字节  console.log('stri\0ng') //'stri ng' |
-| \b                               | 退格符                                      |
-| \f                               | 换页符                                      |
-| \n                               | 换行符                                      |
-| \r  Carriage return              | 回车                                        |
-| \t                               | tab(制表符)                                 |
-| \v Vertical tab                  | 垂直标签                                    |
-| \\'   Apostrophe or single quote | 撇号或单引号                                |
-| \\" double quote                 | 双引号                                      |
-| \\\   Backslash character        | 反斜杠字符                                  |
-| \XXX                             |                                             |
-| \xXX                             |                                             |
-| \uXXX                            |                                             |
-| \u{XXXXX}                        |                                             |
-
-**转义字符Escaping characters**
-
-> 对于表格中没有的字符, 前置的反斜杠将会被忽略. 但是这种用法不推荐且应该避免.
-
-你能在一个字符串内部通过前置反斜杠插入一个引号. 这称为转移引号(this is known as escaping the quotation mark)
-
-```js
-let quote = "he read \"the cremation of sam mcgee\" by r.w. service.";
-console.log(quote);
-
-//he read "the cremation of sam mcgee" by r.w. service.
-```
-
-你能通过在换行符之前使用反斜杠来转义换行(line breaks)
-
-```js
-let str = 'this string \
-is broken \
-across multiple \
-lines.'
-
-console.log(str);
-//this string is broken across multiple lines.
 ```
 
 
@@ -361,7 +317,7 @@ var和let的区别:
 
 ### 块级作用域
 
-#### 1.var声明及变量提升（Hoisting）机制
+#### 1. var声明及变量提升（Hoisting）机制
 
 > 在函数作用域或全局作用域中通过关键字var声明的变量，无论实际上是在哪里声明的，都会被当成在当前作用域顶部声明的变量，这就是我们常说的提升（Hoisting）机制。
 
@@ -396,7 +352,7 @@ function getValue(condition) {
 
 变量value的声明被提升至函数顶部，而初始化操作依旧留在原处执行，这就意味着在else子句中也可以访问到该变量，且由于此时变量尚未初始化，所以其值为undefined. ECMAScript 6引入块级作用域来强化对变量生命周期的控制。
 
-#### 2.块级声明
+#### 2. 块级声明
 
 > 块级声明用于声明在指定块的作用域之外无法访问的变量。块级作用域（亦被称为词法作用域）存在于：
 >
@@ -515,7 +471,7 @@ if(condition) {
 
 typeof是在声明变量value的代码块外执行的，此时value并不在TDZ中。这也就意味着不存在value这个绑定，typeof操作最终返回"undefined"。
 
-#### 3.循环中的块作用域绑定
+#### 3. 循环中的块作用域绑定
 
 ```javascript
 for (var i=0; i<10; i++) {
@@ -706,7 +662,7 @@ Note: 如果希望在全局对象下定义变量，仍然可以使用var。这�
 
 
 
-#### 5.最佳实践
+#### 5. 最佳实践
 
 > 默认使用const，只有确实需要改变变量的值时使用let
 
@@ -8691,6 +8647,152 @@ alert(str.name);
 
 ## 字符串
 
+### 语法
+
+#### 声明
+
+* 字符串字面量
+* String函数  使用 `String` 函数将其他值生成或转换成字符串
+
+```javascript
+'string text'
+"string text"
+"中文/汉语"
+
+String(str)  //任何可以被转换成字符串的值
+new String(str)
+```
+
+
+
+#### 模板字面量
+
+从 ECMAScript 2015 开始，字符串字面量也可以称为[模板字面量](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)：
+
+```javascript
+`hello world` `hello! world!` `hello ${who}`
+```
+
+
+
+#### 转义字符
+
+除了普通的可打印字符以外，一些有特殊功能的字符可以通过转义字符的形式放入字符串中
+
+??? 为什么在浏览器控制台中输出`a\nb`不会换行，换成console.log和alert才可以
+
+以下列表展示可以在JS字符串中使用的特殊字符:
+
+| 自身character                    | 含义                                        |
+| -------------------------------- | ------------------------------------------- |
+| \0                               | 零字节  console.log('stri\0ng') //'stri ng' |
+| \b                               | 退格符                                      |
+| \f                               | 换页符                                      |
+| \n                               | 换行符                                      |
+| \r  Carriage return              | 回车                                        |
+| \t                               | tab(制表符)                                 |
+| \v Vertical tab                  | 垂直标签                                    |
+| \\'   Apostrophe or single quote | 撇号或单引号                                |
+| \\" double quote                 | 双引号                                      |
+| \\\   Backslash character        | 反斜杠字符                                  |
+| \XXX                             |                                             |
+| \xXX                             | Latin-1字符（x小写)                         |
+| \uXXX                            | Unicode码                                   |
+| \u{XXXXX}                        |                                             |
+
+**转义字符Escaping characters**
+
+> 对于表格中没有的字符, 前置的反斜杠将会被忽略. 但是这种用法不推荐且应该避免.
+
+你能在一个字符串内部通过前置反斜杠插入一个引号. 这称为转移引号(this is known as escaping the quotation mark)
+
+```js
+let quote = "he read \"the cremation of sam mcgee\" by r.w. service.";
+console.log(quote);
+
+//he read "the cremation of sam mcgee" by r.w. service.
+```
+
+你能通过在换行符之前使用反斜杠来转义换行(line breaks)
+
+```js
+let str = 'this string \
+is broken \
+across multiple \
+lines.'
+
+console.log(str);
+//this string is broken across multiple lines.
+```
+
+
+
+
+
+
+
+#### JS中处理转义字符
+
+> https://segmentfault.com/q/1010000024547184
+
+
+
+
+
+#### 长字符串的2种实现方式
+
+两种方法:
+
+* 使用 + 运算符将多个字符串连接起来
+* 每行末尾使用反斜杠字符（“\”）
+
+```javascript
+let longString = "This is a very long string which needs " +
+                 "to wrap across multiple lines because " +
+                 "otherwise my code is unreadable.";
+
+//确保反斜杠后面没有空格或任何除换行符之外的字符或缩进; 否则反斜杠将不会工作。 
+let longString = "This is a very long string which needs \
+to wrap across multiple lines because \
+otherwise my code is unreadable.";
+```
+
+
+
+### 描述
+
+#### 从字符串中获取单个字符
+
+* charAt()
+* 中括号语法
+
+#### 字符串比较
+
+在 JavaScript 中，你只需要使用[比较操作符(>/</>=/<=)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators)
+
+```javascript
+let a = 'a',
+    b = 'b';
+
+if (a < b) {
+  //
+} else {
+  //
+}
+```
+
+使用从字符串实例继承而来的 [`localeCompare`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare) 方法也能达到同样的效果
+
+#### 基本字符串和字符串对象的区别
+
+字符串字面量 (通过单引号或双引号定义) 和 直接调用 String 方法(没有通过 new 生成字符串对象实例)的字符串都是基本字符串。
+
+JavaScript会自动将基本字符串转换为字符串对象，只有将基本字符串转化为字符串对象之后才可以使用字符串对象的方法。
+
+当基本字符串需要调用一个字符串对象才有的方法或者查询值的时候(基本字符串是没有这些方法的)，JavaScript 会自动将基本字符串转化为字符串对象并且调用相应的方法或者执行查询。
+
+
+
 ### 编码格式
 
 在ECMAScript 6出现以前，JavaScript字符串一直基于16位字符编码（UTF-16）进行构建。每16位的序列是一个编码单元（code unit），代表一个字符. length、charAt()等字符串属性和方法都是基于这种编码单元构造的。在过去16位足以包含任何字符，直到Unicode引入扩展字符集，Unicode的目标是为全世界每一个字符提供全球唯一的标识符。如果我们把字符长度限制在16位，码位数量将不足以表示如此多的字符。
@@ -8722,7 +8824,9 @@ let str = 'Hello'; --> ['H', 'e', 'l', 'l', 'o'];
 
 
 
-### 字符串方法
+
+
+### 方法
 
 #### Unicode支持
 
@@ -8865,7 +8969,23 @@ values.sort(function(first, second) {
 
 尽管这3个方法执行后返回的都是布尔值，也极大地简化了子串匹配的方法，但是如果你需要在一个字符串中寻找另一个子字符串的实际位置，还需使用indexOf()方法或lastIndexOf()方法。
 
-对于startsWith()、endsWith()及includes()这3个方法，如果你没有按照要求传入一个字符串，而是传入一个正则表达式，则会触发一个错误产生；而对于indexOf()和
+对于startsWith()、endsWith()及includes()这3个方法，如果你没有按照要求传入一个字符串，而是传入一个正则表达式，则会触发一个错误产生；而对于indexOf()和???
+
+
+
+#### 字符串中获取单个字符
+
+获取字符串的某个字符有两种方法。 第一种是使用 [`charAt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/charAt) 方法;另一种是把字符串当作一个类似数组的对象，其中的每个字符对应一个数值索引。
+
+使用括号访问字符串不可以对其进行删除或添加，因为字符串对应未知的属性并不是可读或配置的。 (更多的信息请参阅 [`Object.defineProperty`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)。 )
+
+```javascript
+'string'.charAt(0); //'s'
+
+'string'[0]; //'s'
+```
+
+
 
 
 

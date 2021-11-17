@@ -21,8 +21,11 @@
 
  ```js
  String.prototype.toJanDenCase = function () {
-   return this.split(' ').map(item => item[0].toUpperCase().concat(item.slice(1,item.length)))
+   return this.split(' ').map(item => item[0].toUpperCase().concat(item.slice(1,item.length))).join(' ');
+   //或  this.split(' ').map(item => item[0].toLocaleUpperCase() + item.slice(1)).join(' ');
  }
+ 
+ 这个地方还是使用charAt(0)获取首字符比较合理，唯一的问题的charAt()不支持BMP字符，需要函数写法兼容
  ```
 
 
