@@ -8785,11 +8785,37 @@ if (a < b) {
 
 #### 基本字符串和字符串对象的区别
 
-字符串字面量 (通过单引号或双引号定义) 和 直接调用 String 方法(没有通过 new 生成字符串对象实例)的字符串都是基本字符串。
+<u>字符串字面量 (通过单引号或双引号定义) 和 直接调用 String 方法(没有通过 new 生成字符串对象实例)的字符串都是基本字符串。</u>
 
-JavaScript会自动将基本字符串转换为字符串对象，只有将基本字符串转化为字符串对象之后才可以使用字符串对象的方法。
+<u>JavaScript会自动将基本字符串转换为字符串对象</u>，只有将基本字符串转化为字符串对象之后才可以使用字符串对象的方法。
 
 当基本字符串需要调用一个字符串对象才有的方法或者查询值的时候(基本字符串是没有这些方法的)，JavaScript 会自动将基本字符串转化为字符串对象并且调用相应的方法或者执行查询。
+
+```javascript
+let s_prim = 'foo';
+let s_obj = new String(s_prim);
+
+console.log(typeof s_prim); //'string'
+console.log(typeof s_ojb); //'object'
+```
+
+当使用 [`eval`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/eval)时，基本字符串和字符串对象也会产生不同的结果。`eval` 会将基本字符串作为源代码处理; 而字符串对象则被看作对象处理, 返回对象。
+
+```javasript
+let s1 = '2 + 2';
+let s2 = new String('2 + 2');
+
+console.log(eval(s1)); //4
+console.log(eval(s2)); //'2+2'
+```
+
+
+
+利用 [`valueOf`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/valueOf) 方法，我们可以将字符串对象转换为其对应的基本字符串
+
+```javascript
+console.log()
+```
 
 
 
