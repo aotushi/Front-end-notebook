@@ -2156,31 +2156,79 @@ student?.score?.math?.[2]?.();
 
 
 
-#### 5.3 双问号运算符??
+#### 5.3 空值合并运算符??
 
-<kbd>??</kbd> 空值合并  注意兼容性
-
-```js
-let c = "haha";
-c = null; //没值
-c = undefined; //没值
-c = NaN; //是一个值
-//如果c有值就赋值给d,如果c没值就把空值合并后的  
-let d = c ?? 'c没有值';
-console.log(d);
+```javascript
+a ?? b
+//如果 a 是已定义的，则结果为 a，既不是 null 也不是 undefined 的表达式称为“已定义的（defined）
+//如果 a 不是已定义的，则结果为 b。
 ```
 
-```js
-//双问号运算符??，我理解是为了解决或运算符||而设计出来的。
-或运算符用法:当左侧的数据为假值(数字 0, 布尔类型的 false，空字符串，undefined, null)时，则执行右侧的语句。
-1.双问好运算符可以解决, false和0都是正常的值,或运算符出错的问题.
+如果第一个参数不是 `null/undefined`，则 `??` 返回第一个参数。否则，返回第二个参数。
 
-const getScore=(score)=>{return score ?? 1;};
-getScore(0);                         
+```javascript
+//重写
 
-2.双问好运算符可以与等号结合成一个赋值操作,当左侧为null或undefined时,则将右侧语句的结果赋值给左侧的变量.                 score ??= 1; //1
+let result = (a!==null && a!== undefined) ? a : b;
+```
+
+**使用场景**
+
+* 为可能是未定义的变量提供一个默认值
+
+```javascript
+let user;
+console.log(user ?? 'Anonymous'); //Anonymous
+            
+let user = 'John';
+console.log(user ?? 'Anonymous'); //John
+```
 
 
+
+* 从一系列值中选择出第一个非`null/undefined`的值
+
+```javascript
+//用这些变量之一显示用户名，如果这些变量的值都是未定义的，则显示 “Anonymous”。
+
+let firstName = null,
+    lastName = null,
+    nickName = 'John';
+
+console.log(firstName ?? lastName ?? nickName ?? 'Anonymous'); //John
+```
+
+
+
+**与或运算符区别**
+
+或运算符 `||` 可以以与 `??` 运算符相同的方式使用, 例如，在上面的代码中，我们可以用 `||` 替换掉 `??`，也可以获得相同的结果.
+
+重要区别:
+
+- `||` 返回第一个 **真** 值。 (除了 `null undefined false 0 ''`之外的值)
+- `??` 返回第一个 **已定义的** 值。 (除了`undefined, null`之外的值)
+
+
+
+**优先级**
+
+`??` 运算符的优先级相当低：在 [MDN table](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#Table) 中为 `5`。因此，`??` 在 `=` 和 `?` 之前计算，但在大多数其他运算符（例如，`+` 和 `*`）之后计算。
+
+如果我们需要在还有其他运算符的表达式中使用 `??` 进行取值，需要考虑加括号
+
+
+
+**?? 与 && 或 || 一起使用**
+
+出于安全原因，JavaScript 禁止将 `??` 运算符与 `&&` 和 `||` 运算符一起使用，除非使用括号明确指定了优先级。
+
+```javascript
+//下面的代码会触发一个语法错误：
+let x = 1 && 2 ?? 3; // Syntax error
+
+//这个限制无疑是值得商榷的，但它被添加到语言规范中是为了避免人们从 || 切换到 ?? 时的编程错误。
+let x = (1 && 2) ?? 3; // 正常工作了
 ```
 
 
