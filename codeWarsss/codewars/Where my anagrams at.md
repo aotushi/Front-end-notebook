@@ -31,11 +31,11 @@ For Go: Empty string slice is expected when there are no anagrams found.
 
 ```javascript
 //my
-//两个判断条件：字符串长度相同 字符也相同
+//两个判断条件：字符串长度相同 字符也相同 ?? 字符相同即可
 
 function anagrams(word, words) {
   return words.filter(item => {
-    return item.length === word.length && item.split('').sort().join('').toString() === word.split('').sort().join('').toString();
+    return item.length === word.length && item.split('').sort().join('') === word.split('').sort().join('');
   })
 }
 ```
@@ -45,7 +45,13 @@ function anagrams(word, words) {
 ```javascript
 //recommend
 
+String.prototype.sort = function() {
+  return this.split('').sort().join('');
+}
 
+function anagrams(word, words) {
+  return words.filter(item => item.sort() === word.sort())
+}
 ```
 
 

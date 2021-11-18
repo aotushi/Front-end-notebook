@@ -82,7 +82,7 @@ script标签同时只能有一个功能,要么引入要么输出
 > 比如, 变量名,函数名,类名
 
 * 标识符命名遵循规范:
-  * 标识符可以含有==字母,数字,下划线,$==,但不能以数字开头. 
+  * 标识符可以含有字母,数字,下划线,$,但不能以数字开头. 
     * 下划线开头的变量一般是隐藏变量,不需要被别人访问
     * $开头的变量一般是系统用的变量
     * 严格区分大小写
@@ -3969,7 +3969,14 @@ let sum = (num1, num2) => {return num1 + num2};
 let sum = new Function('num1', 'num2', 'return num1 + num2'); //不推荐
 ```
 
-我们不推荐使用这种语法来定义函数，**因为这段代码会被解释两次**(?)：第一次是将它当作常规ECMAScript 代码，第二次是解释传给构造函数的字符串。这显然会影响性能。不过，把函数想象为对象，把函数名想象为指针是很重要的。而上面这种语法很好地诠释了这些概念。
+我们不推荐使用这种语法来定义函数，<span style="color:red;">**因为这段代码会被解释两次**</span>(???)：第一次是将它当作常规ECMAScript 代码，第二次是解释传给构造函数的字符串。这显然会影响性能。不过，把函数想象为对象，把函数名想象为指针是很重要的。而上面这种语法很好地诠释了这些概念。
+
+ECMAScript 6增强了Function构造函数的功能，支持在创建函数时定义默认参数和不定参数. 对于Function构造函数，新增的默认参数和不定参数这两个特性使其具备了与声明式创建函数相同的能力。
+
+```javascript
+let add = new Function('first', 'second = first', 'return first + second');
+let add = new Function('...args', 'return args[0]');
+```
 
 
 
@@ -4193,6 +4200,42 @@ console.log(makeKing()); // 'King Henry III'
 
 
 
+**默认参数表达式**
+
+默认参数除了原始值,还可以是非原始值.例如函数.
+
+```javascript
+function getValue() {
+  return 5;
+}
+
+function add(first, second = getValue()) {
+  return first + second;
+}
+
+console.log(add(1, 2)); //3
+console.log(add(1)); //6
+```
+
+初次解析函数声明时不会调用getValue()方法，只有当调用add()函数且不传入第二个参数时才会调用。
+
+注意，当使用函数调用结果作为默认参数值时，如果忘记写小括号，例如，second= getValue，则最终传入的是对函数的引用，而不是函数调用的结果。
+
+正因为默认参数是在函数调用时求值，所以可以使用先定义的参数作为后定义参数的默认值
+
+```javascript
+function add(first, second = first) {
+  return first + second;
+}
+
+console.log(add(1, 1)); //2
+console.log(add(1)); //2
+```
+
+
+
+
+
 **默认参数作用域与暂时性死区**!
 
 因为在求值默认参数时可以定义对象，也可以动态调用函数，所以函数参数肯定是在某个作用域中
@@ -4236,7 +4279,7 @@ function makeKing(name = 'Henry', numerals = defaultNumeral) {
 }
 ```
 
-
+函数参数有自己的作用域和临时死区，其与函数体的作用域是各自独立的，也就是说参数的默认值不可访问函数体内声明的变量。
 
 
 
@@ -4311,6 +4354,22 @@ function getSum(...values) {
 }
 ```
 
+参数收集(剩余参数, 不定参数)的使用限制:
+
+* 每个函数最多只能声明一个不定参数,而且一定要放在所有参数的末尾;
+* 不定参数不能用于对象字面量setter之中
+
+```javascript
+//抛出语法错误.当不定参在对象字面量setter中使用
+let obj = {
+  set name(...value) {
+    //
+  }
+}
+
+//之所以存在这条限制，是因为对象字面量setter的参数有且只能有一个。而在不定参数的定义中，参数的数量可以无限多，所以在当前上下文中不允许使用不定参数。
+```
+
 
 
 ### 函数内部
@@ -4320,9 +4379,9 @@ function getSum(...values) {
 
 #### arguments
 
-arguments 对象前面讨论过多次了，它是一个类数组对象，包含调用函数时传入的所有参数
+arguments 对象是一个类数组对象，包含调用函数时传入的所有参数.
 
-`arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个索引编号和`length`属性。尽管如此，它并不拥有全部的Array对象的操作方法。
+`arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个<u>索引编号和`length`属性</u>。它并不拥有全部的Array对象的操作方法。
 
 arguments 对象是一个类数组对象（但不是Array 的实例）:
 
@@ -4332,7 +4391,8 @@ arguments 对象是一个类数组对象（但不是Array 的实例）:
 * arguments对象的值始终与对应的命名参数同步,但内存地址时不同的.
 * arguments 对象的长度是根据传入的参数个数，而非定义函数时给出的命名参数个数确定的
 * 如果只传了1个参数,然后为arguments[1]赋值,这个值并不会反映到第二个命名参数.
-* 严格模式下,为arguments[n]赋值不会改变传入实参的值;重写arguments对象会导致语法错误
+* ES5严格模式下,为arguments[n]赋值不会改变传入实参的值;重写arguments对象会导致语法错误
+* ES6中,如果一个函数使用了默认参数值,则无论是否显式定义严格模式,arguments对象的行为与ES5严格模式下一致(参数变化但arguments不变)
 * 箭头函数中不能访问arguments,但可以在包装函数中将其传给箭头函数
 
 ```JavaScript
@@ -4365,8 +4425,17 @@ function sum(num1, num2) {
   arguments[1] = 2;
   return num1 + num2;
 }
-sum(10, 10);
-//20
+sum(10, 10); //20
+
+
+//ES5严格模式下或ES6存在默认参数下,参数变化但arguments对象不会变
+function fn(a, b = 1) {
+  a = 3;
+  b = 4;
+  console.log(a === arguments[0]); //false
+  console.log(b === arguments[1]); //false
+}
+
 //严格模式下,重写arguments会导致语法错误
 function sum(num1, num2) {
   'use strict'
@@ -4651,11 +4720,60 @@ function inner() {
 
 #### new.target
 
-ECMAScript 6 新增了检测函数是否使用new 关键字调用的new.target 属性.
+**概述!!!**
 
-如果函数是正常调用的, 则new.target 的值是undefined；
+JavaScript函数有两个不同的内部方法：**[[Call]]和[[Construct]]**。
 
-如果是使用new 关键字调用的，则new.target 将引用被调用的构造函数。
+* 当通过new关键字调用函数时，执行的是[[Construct]]函数，它负责创建一个通常被称作实例的新对象，然后再执行函数体，将this绑定到实例上；具有[[Construct]]方法的函数被统称为构造函数。
+
+* 如果不通过new关键字调用函数，则执行[[Call]]函数，从而直接执行代码中的函数体。
+* 不是所有函数都有[[constructor]]方法,因此不是所有函数都可以通过new来调用.例如箭头函数
+
+
+
+**ES5 ES6判断函数是否通过new调用**
+
+在ECMAScript 5中，如果想确定一个函数是否通过new关键字被调用（或者说，判断该函数是否作为构造函数被调用），最流行的方式是使用instanceof
+
+```javascript
+function Person(name) {
+  if (this instanceof Person) {
+    this.name = name; //如果通过new关键字调用;
+  } else {
+    throw new Error('必须通过new关键字来调用Person');
+  }
+}
+
+let person = new Person('Nicholas');
+let person = Person('Nicholas'); //抛出错误
+```
+
+由于[[Construct]]方法会创建一个Person的新实例，并将this绑定到新实例上，通常来讲这样做是正确的，但这个方法也不完全可靠，因为有一种不依赖new关键字的方法也可以将this绑定到Person的实例上
+
+```javascript
+function Person(name) {
+  if (this instanceof Person) {
+    this.name = name; 
+  } else {
+    throw new Error('必须通过new关键字来调用Person');
+  }
+}
+
+let person = new Person('Nicholas');
+let notAPerson = Person.call(person, 'Michael'); //有效
+```
+
+调用Person.call()时将变量person传入作为第一个参数，相当于在Person函数里将this设为了person实例。<u>对于函数本身，无法区分是通过Person.call()（或者是Person.apply()）还是new关键字调用得到的Person的实例。</u>
+
+**用途**
+
+* 为了解决判断函数是否通过new关键字调用的问题
+
+为了解决判断函数是否通过new关键字调用的问题，ECMAScript 6引入了new.target这个元属性. <u>元属性是指非对象的属性，其可以提供非对象目标的补充信息（例如new）</u>
+
+当调用函数的[[Construct]]方法时，n<u>ew.target被赋值为new操作符的目标，通常是新创建对象实例，也就是函数体内this的构造函数;</u>(????)    如果调用[[Call]]方法，则new.target的值为undefined。
+
+
 
 ```javascript
 function King() {
@@ -4666,9 +4784,28 @@ function King() {
 }
 new King(); // King instantiated using "new"
 King(); // Error: King must be instantiated using "new"
+
+
+function Person(name) {
+  if (typeof new.target !== 'undefined') {
+    this.name = name;
+  } else {
+    throw new Error('必须通过new关键字来调用函数');
+  }
+}
+let person = new Person('Nicholas');
+let notAPerson = Person.call(person, 'Michael'); //抛出错误
 ```
 
+* 检查new.target是否被某个特定构造函数所调用
 
+```javascript
+function Person(name) {
+  if (typeof new.target === Person) {
+    
+  }
+}
+```
 
 
 
@@ -4697,7 +4834,7 @@ const square = function(n){return n*n};
 
 ### 函数属性与方法
 
-ECMAScript 中的函数是对象，因此有属性和方法。**每个函数都有两个属性：length和prototype**。其中，length 属性保存函数定义的命名参数的个数，
+ECMAScript 中的函数是对象，因此有属性和方法。**每个函数都有两个属性：length和prototype**。其中，length 属性保存函数定义的命名参数的个数,剩余参数的加入不会影响length属性的值.
 
 #### **属性-length**
 
@@ -4714,7 +4851,60 @@ function sayHi() {
 console.log(sayName.length); // 1
 console.log(sum.length); // 2
 console.log(sayHi.length); // 0
+
+function sayName(name, ...obj) {
+  //
+}
+console.log(sayName.length); //1
 ```
+
+
+
+#### 属性-name
+
+> 辨别函数就是一项具有挑战性的任务. 此外, 匿名函数表达式的广泛使用更是加大了调试的难度，开发者们经常要追踪难以解读的栈记录。为了解决这些问题，ECMAScript 6中为所有函数新增了name属性.
+
+
+
+* 函数声明的name: 函数名称
+* 匿名函数表达式的name: 变量名称
+* 非匿名函数表达式的name: 函数名称权重大于变量
+* 对象中的方法的name: 方法名称
+* 对象中setter和getter方法的name: 'get 函数名称' 'set 函数名称'
+* 通过bind()函数创建的函数的name: 'bound 函数名称'
+* 通过Function构造函数创建的函数的name: 'anonymous'
+
+```javascript
+//函数声明 函数表达式
+function doSomething() {
+  //
+}
+let doAnotherThing = function() {};
+
+console.log(doSomething.name); //doSomething
+console.log(doAnotherThing.name); //doAnotherThing
+
+//非匿名函数表达式
+let doAnotherThing = function doSomething() {};
+console.log(doAnotherThing.name); //doSomething
+
+//对象方法中的name值
+let person = {
+  get firstName() { return 'Nicholas'},
+  sayName() {console.log(this.name)}
+};
+console.log(person.firstName.name); //'get firstName'
+console.log(person.sayName.name); //sayName
+
+//通过bind()函数创建的函数
+let doSomething = function() {};
+console.log(doSomething.bind().name); //'bound doSomething'
+
+//通过Function创建的函数
+console.log((new Function()).name); //'anonymous'
+```
+
+**切记**，函数name属性的值不一定引用同名变量，它只是协助调试用的额外信息，所以<u>不能使用name属性的值来获取对于函数的引用</u>。
 
 
 
@@ -4911,6 +5101,10 @@ function sayColor() {
 let objectSayColor = sayColor.bind(o);//objectSayColor()中的this 值被设置为o
 objectSayColor(); //blue
 ```
+
+
+
+#### 方法-[[call]]/[[constructor]]
 
 
 

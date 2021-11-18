@@ -6307,6 +6307,72 @@ mineReadFile('./resource/1.html')
 
 
 
+####  如何将Promise.then中的值直接return出来
+
+> https://www.wenyuanblog.com/blogs/javascript-how-to-return-value-in-promise.html
+
+需求: 定义一个 `foo` 函数，在里面执行异步操作，然后取得 `Promise.then` 中的值并 `return` 出来，以便在别的地方使用该返回值。
+
+不可能实现直接将 `Promise.then` 中的值 `return` 出来. 直接return那只将结果return到then中,如果赋值给外部变量,则存在同步异步问题
+
+```javascript
+//直接return
+
+function foo() {
+  let p = new Promise((resolve, reject) => {
+    resolve('hello');
+  });
+  p.then(value => value);
+}
+let result = foo();
+console.log(result); //undefined  foo函数没有返回值
+
+
+//没有返回正确的值
+function foo() {
+  let result = '';
+  let p = new Promise((resolve, reject) => {
+    resolve('hello');
+  })
+  p.then(value => {
+    result = value;
+  })
+  
+  return result;
+}
+
+result = foo();
+console.log(result); //''
+
+前面声明了 result，而后面对它的赋值发生在异步操作中
+```
+
+正确的使用方式只能是：`return` 出 `Promise` 对象，然后在 `.then` 的执行体中处理异步请求得到的值（或者用 `async/await`）
+
+```javascript
+//异步请求封装成一个方法 并return异步请求的结果给变量
+
+function getSomething() {
+  return new Promise((resolve, reject) => {
+    service.getList().then(res => {
+      resolve(res);
+    })
+  })
+}
+//Promise + async实现
+async function asyncFn() {
+  let resultData = await getSomething();
+  return result;
+}
+
+//then 不正确
+asyncFn().then(value => {
+  let data = value;
+})
+```
+
+
+
 
 
 
