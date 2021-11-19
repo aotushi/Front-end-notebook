@@ -55,10 +55,52 @@ function deleteNth(arr, n) {
 // deleteNth([1, 2, 3, 4, 2, 3, 4,2,3,4, 5], 2);
 deleteNth([1,1,3,3,7,2,2,2,2], 3)
 
+=========
+
+function deleteNth(arr, n) {
+  function getNumber(arr, ele) {
+    //统计元素在数组中出现的次数
+    let count = 0;
+    arr.forEach(item => {
+      if (item === ele) {
+        count++;
+      }
+    })
+    return count;
+  }
+  
+  return arr.reduce((pre,value,index,arr) => {
+   if (!pre.includes(value) || getNumber(pre, value) < n) {
+     pre.push(value);
+   }
+    return pre;
+  }, []);
+}
+
+
+          
+          
+```
+
+
+
+```javascript
+//recommend
+function deleteNth(arr, x) {
+  let cache = {};
+  return arr.filter(n => {
+    cache[n] = (cache[n]||0) + 1;
+    return cache[n] <= x;
+  })
+}
 
 
 function deleteNth(arr, n) {
-  arr.map(item => )
+  let count = {};
+  return arr.filter(item => {
+    count[item] = ~~count[a] + 1;
+    return count[a] <= x;
+  })
 }
 ```
 
