@@ -3194,6 +3194,17 @@ console.timeEnd();
 
 ## 对象
 
+### 0. 对象的类别
+
+ECMAScript 6规范清晰定义了每一个类别的对象
+
+* **普通(Ordinary)对象** 具有JavaScript对象所有的默认内部行为。
+* **特异(Exotic)对象** 具有某些与默认行为不符的内部行为
+* **标准(Standard)对象** ECMAScript 6规范中定义的对象，例如，Array、Date等。标准对象既可以是普通对象，也可以是特异对象。
+* **内建对象** 脚本开始执行时存在于JavaScript执行环境中的对象，所有标准对象都是内建对象。
+
+
+
 ### 1.基本认识
 
 ```js
@@ -3223,7 +3234,7 @@ let ojb = {};       //对象字面量
 如果属性名太过特殊,则需要使用一个特殊的方式来设置:
 ```
 
-#### 对象字面量
+#### 1.定义
 
 使用**字面量**创建对象,可以在创建对象的同时向对象中添加属性. 使用**大括号{}**创建一个对象, 以在对象中指定需要的属性, 属性名和属性值以 **冒号** 连接,以 **逗号** 结尾, 最后一个属性最好不要写逗号
 
@@ -4156,6 +4167,86 @@ var sum = function(num1, num2) { return num1 + num2; }
 
 
 
+#### 3. 函数声明的形式- 块级函数
+
+在ECMAScript 3和早期版本中，在代码块中声明一个块级函数严格来说是一个语法错误,但是每个浏览器对这个特性的支持都稍有不同，所以最好不要使用这个特性（最好的选择是使用函数表达式）。
+
+为了遏制这种相互不兼容的行为，ECMAScript 5的严格模式中引入了一个错误提示，当在代码块内部声明函数时程序会抛出错误：
+
+```javascript
+'use strict'
+if (true) {
+  //在ES5中抛出语法错误,在Es6中不报错
+  function doSomething() {
+    //空函数
+  }
+}
+```
+
+<u>在ECMAScript 6中，会将doSomething()函数视作一个块级声明，从而可以在定义该函数的代码块内访问和调用它。</u>
+
+```javascript
+'use strict'
+if (true) {
+  console.log(typeof doSomething); //'function'
+  
+  function doSomething() {
+    //函数体
+  }
+  
+  doSomething();
+}
+
+console.log(typeof doSomething); //'undefined'
+```
+
+**在定义函数的代码块内，块级函数会被提升至顶部**，所以typeof doSomething的值为"function"，这也佐证了，即使你在函数定义的位置前调用它，还是能返回正确结果；但是一旦if语句代码块结束执行，doSomething()函数将不再存在。
+
+##### 块级函数的使用场景
+
+块级函数与let函数表达式类似，一旦执行过程流出了代码块，函数定义立即被移除。二者的区别是，在该代码块中，块级函数会被提升至块的顶部，而用let定义的函数表达式不会被提升
+
+```javascript
+'use strict'
+if (true) {
+  console.log(typeof doSomething); //'function'
+  
+  let doSomething = function () {
+    //函数体
+  };
+  
+  doSomething();
+}
+
+console.log(typeof doSomething);
+```
+
+在这段代码中，当执行到typeof doSomething时，由于此时尚未执行let声明语句，doSomething()还在当前块作用域的临时死区中，因此程序被迫中断执行。
+
+##### ES6非严格模式下的块级函数
+
+在ECMAScript 6中，即使处于非严格模式下，也可以声明块级函数，但其行为与严格模式下稍有不同。<span style="text-decoration-line:underline; text-decoration-style:dashed;text-decoration-color:red;">这些函数不再提升至代码块的顶部，而是提升至外围函数或全局作用域的顶部。</span>
+
+```javascript
+//ES6中的行为
+
+if (true) {
+  console.log(typeof doSomething); //'function'
+  
+  function doSomething() {
+    //函数体
+  }
+  
+  doSomething();
+}
+
+console.log(typeof doSomething); //'function'
+```
+
+在这个示例中，doSomething()函数被提升至全局作用域，所以在if代码块外也可以访问到。ECMAScript 6将这个行为标准化了，移除了之前存在于各浏览器间不兼容的行为，所以所有ECMAScript 6的运行时环境都将执行这一标准。
+
+
+
 ### 函数名
 
 因为函数名就是指向函数的指针，所以它们跟其他包含对象指针的变量具有相同的行为。这意味着
@@ -4291,8 +4382,7 @@ alert(person.name); // "Nicholas"
 
 #### ES6-默认参数
 
-在ECMAScript5.1 及以前，实现默认参数的一种常用方式就是检测某个参数是否等于undefined，
-如果是则意味着没有传这个参数，那就给它赋一个值; ES6支持显式定义默认参数.
+在ECMAScript5.1 及以前，实现默认参数的一种常用方式就是检测某个参数是否等于undefined，如果是则意味着没有传这个参数，那就给它赋一个值; ES6支持显式定义默认参数.
 
 在使用默认参数时，arguments 对象的值不反映参数的默认值，只反映传给函数的参数。
 
@@ -4855,10 +4945,7 @@ function inner() {
 
 ```
 
-在严格模式下访问arguments.callee 会报错。ECMAScript 5 也定义了arguments.caller，但
-在严格模式下访问它会报错，在非严格模式下则始终是undefined。这是为了分清rguments.caller
-和函数的caller 而故意为之的。而作为对这门语言的安全防护，这些改动也让第三方代码无法检测同一上下文中运行的其他代码。
-严格模式下还有一个限制，就是不能给函数的caller 属性赋值，否则会导致错误。
+在严格模式下访问arguments.callee 会报错。ECMAScript 5 也定义了arguments.caller，但在严格模式下访问它会报错，在非严格模式下则始终是undefined。这是为了分清rguments.caller和函数的caller 而故意为之的。而作为对这门语言的安全防护，这些改动也让第三方代码无法检测同一上下文中运行的其他代码。严格模式下还有一个限制，就是不能给函数的caller 属性赋值，否则会导致错误。
 
 #### new.target
 
@@ -4909,9 +4996,9 @@ let notAPerson = Person.call(person, 'Michael'); //有效
 
 **用途**
 
-* 为了解决判断函数是否通过new关键字调用的问题
+* **为了解决判断函数是否通过new关键字调用的问题**
 
-为了解决判断函数是否通过new关键字调用的问题，ECMAScript 6引入了new.target这个元属性. <u>元属性是指非对象的属性，其可以提供非对象目标的补充信息（例如new）</u>
+为了解决判断函数是否通过new关键字调用的问题，ECMAScript 6引入了new.target这个**元属性**. <u>元属性是指非对象的属性，其可以提供非对象目标的补充信息（例如new）</u>
 
 当调用函数的[[Construct]]方法时，n<u>ew.target被赋值为new操作符的目标，通常是新创建对象实例，也就是函数体内this的构造函数;</u>(????)    如果调用[[Call]]方法，则new.target的值为undefined。
 
@@ -4939,15 +5026,28 @@ let person = new Person('Nicholas');
 let notAPerson = Person.call(person, 'Michael'); //抛出错误
 ```
 
-* 检查new.target是否被某个特定构造函数所调用
+* **检查new.target是否被某个特定构造函数所调用**
 
 ```javascript
 function Person(name) {
   if (typeof new.target === Person) {
-    
+    this.name = naem;
+  } else {
+    throw new Error('必须通过new关键字来调用Person')
   }
 }
+
+function anotherPerson(name) {
+  Person.call(this, name);
+}
+
+let person = new Person('Nicholas'); 
+let anotherPerson = new anotherPerson('Nicholas'); //抛出错误
 ```
+
+真正的调用Person.call(this, name)没有使用new关键字，因此new.target的值为undefined会抛出错误。
+
+**注意:**  在函数外使用new.target是一个语法错误。
 
 
 
@@ -4969,8 +5069,6 @@ console.log(square); //square is hoisted with an initial value undefined;
 console.log(square(5)); //Uncaught TypeError: square is not a function
 const square = function(n){return n*n};
 ```
-
-
 
 
 
@@ -5044,6 +5142,9 @@ console.log(doSomething.bind().name); //'bound doSomething'
 
 //通过Function创建的函数
 console.log((new Function()).name); //'anonymous'
+
+//箭头函数的name
+console.log((() => {}).name); //''
 ```
 
 **切记**，函数name属性的值不一定引用同名变量，它只是协助调试用的额外信息，所以<u>不能使用name属性的值来获取对于函数的引用</u>。
@@ -5453,10 +5554,37 @@ console.log(b); //10 函数作用域,函数内部声明的变量是局部变量,
 
 ### 箭头函数
 
-ECMAScript 6 新增了使用胖箭头（=>）语法定义函数表达式的能力。很大程度上，箭头函数实例
-化的函数对象与正式的函数表达式创建的函数对象行为是相同的。**任何可以使用函数表达式的地方，都可以使用箭头函数**：
+ECMAScript 6 新增了使用胖箭头（=>）语法定义函数表达式的能力。很大程度上，箭头函数实例化的函数对象与正式的函数表达式创建的函数对象行为是相同的。**任何可以使用函数表达式的地方，都可以使用箭头函数**：
 
-#### 语法
+#### 1. 与传统函数的差异
+
+* **没有`this`, `super`, `arguments`, `new.target`绑定.** 箭头函数中的这些值由外围最近一层非箭头函数决定
+* **不能通过`new`关键字来调用.** 箭头函数没有`[[constructor]]`方法,所以不能用作构造函数,如果通过new关键字调用箭头函数,抛出错误
+* **没有原型**. 由于不可以通过new关键字调用箭头函数，因而没有构建原型的需求，所以箭头函数不存在prototype这个属性。
+* **不可以改变`this`的绑定**. 函数内部的this值不可被改变，在函数的生命周期内始终保持一致。
+* this值取决于外部非箭头函数的this值,且不能通过`call()`, `apply()`, `bind()`方法来改变this的值.
+* **不支持`arguments`对象**. 箭头函数没有arguments绑定，所以你必须通过命名参数和不定参数这两种形式访问函数的参数。
+* **不支持重复的命名参数**. 无论在严格还是非严格模式下，箭头函数都不支持重复的命名参数；而在传统函数的规定中，只有在严格模式下才不能有重复的命名参数。
+* 箭头函数同样也有一个name属性,这与其他函数的规则不同.  空字符串
+
+#### 2. 差异的原因
+
+> this绑定是JavaScript程序中一个常见的错误来源，在函数内很容易就对this的值失去控制，其经常导致程序出现意想不到的行为，箭头函数消除了这方面的烦恼；
+>
+> 其次，如果限制箭头函数的this值，简化代码执行的过程，则JavaScript引擎可以更轻松地优化这些操作，而常规函数往往同时会作为构造函数使用或者以其他方式对其进行修改。
+>
+> 在箭头函数内，其余的差异主要是减少错误以及理清模糊不清的地方。这样一来，JavaScript引擎就可以更好地优化箭头函数的执行过程。
+
+
+
+#### 3. 语法
+
+* 当箭头函数只有一个参数时，可以直接写参数名，箭头紧随其后，箭头右侧的表达式被求值后便立即返回。即使没有显式的返回语句，这个箭头函数也可以返回传入的第一个参数，不需要更多的语法铺垫。
+* 如果要传入两个或两个以上的参数，要在参数的两侧添加一对小括号
+* 如果函数没有参数，也要在声明的时候写一组没有内容的小括号
+* 如果你希望为函数编写由多个表达式组成的更传统的函数体，那么需要用花括号包裹函数体，并显式地定义一个返回值
+* 如果想创建一个空函数，需要写一对没有内容的花括号
+* <span style="text-decoration-line:underline; text-decoration-color:red; text-decoration-style:double;"> 如果想在箭头函数外返回一个对象字面量，则需要将该字面量包裹在小括号里</span>
 
 ```javascript
 //箭头函数简洁的语法非常适合嵌入函数的场景
@@ -5501,11 +5629,65 @@ function foo() {
 foo(5);
 ```
 
+#### 4. 箭头函数的this
+
+箭头函数中没有this绑定，必须通过查找作用域链来决定其值,取决于该函数外部非箭头函数的this值。如果箭头函数被非箭头函数包含，则this绑定的是最近一层非箭头函数的this；否则，this的值会被设置为undefined。且不能通过call()、apply()或bind()方法来改变this的值。
+
+```javascript
+//1st version
+let pageHandler = {
+  id: '123456',
+  init: function() {
+    document.addEventListener('click', function(event) {
+      this.doSomething(event.type); //抛出错误
+    }, false)
+  },
+  
+  doSomething: function(type) {
+    console.log('Handling' + type + 'for' + this.id);
+  }
+}
+
+//2ed version
+let pageHandler = {
+  id: '123456',
+
+  init: function() {
+    document.addEventListener('click', (function(event) {
+      this.doSomething(event.type);
+    }).bind(this), false);
+  },
+
+  doSomething: function(type) {
+    console.log('Handing' + type + 'for' + this.id);
+  }
+}
+调用bind(this)后事实上创建了一个新函数，它的this被绑定到当前的this，也就是PageHandler。为了避免创建一个额外的函数，我们可以通过一个更好的方式来修正这段代码：使用箭头函数。
+
+//3rd
+let pageHandler = {
+  id: '123456',
+  
+  init: function() {
+    document.addEventListener('click', event => this.doSomething(event.type), false);
+  },
+  
+  doSomething: function(type) {
+    console.log('Handling' + type + ' for ' + this.id);
+  }
+}
+```
 
 
 
+箭头函数缺少正常函数所拥有的prototype属性，它的设计初衷是“即用即弃”，所以不能用它来定义新的类型。如果尝试通过new关键字调用一个箭头函数，会导致程序抛出错误，
 
-#### 箭头函数-this
+```javascript
+let MyType = () => {},
+    object = new MyType(); //错误,不可以通过new关键字调用箭头函数
+```
+
+
 
 ```JavaScript
 this:
@@ -5532,22 +5714,16 @@ obj.say.Hello();
 
 
 
-#### 案例
+#### 5. 案例
 
 ```JavaScript
-let fn = a => a + 10;  //a就是形参
-fn(a, b) => a + b;
-fn(a, b){   		//多个形参
-    console.log('hello'); 
-    return a + b;    //当有多个返回值,需要使用return
-}
 
 
-箭头函数-数组排序
+//箭头函数-数组排序
 arr = [3, 1, 2, 4, 5, 7, 8, 9, 6];
 arr.sort((a,b) => a - b); 从小到大,升序排列
 
-箭头函数-返回值是个对象 格式需要加括号
+//箭头函数-返回值是个对象 格式需要加括号
 fn = () => {name:'孙悟空'};
 alert(fn()); //返回值是undefined  原因:对象是大括号,返回值也有大括号,浏览器无法分清.
 
@@ -5557,7 +5733,7 @@ alert(fn()); //[object Object]
 
 
 
-箭头函数- this是谁
+//箭头函数- this是谁
 fn=()=>alert(this); 
 fn(); 
 //[object window] 以函数形式调用,this是window
@@ -5617,13 +5793,7 @@ console.log(obj.get()())
 var b = obj.get;
 console.log(b()())
 
-
-```
-
-
-
-```js
-//函数的参数
+//函数的arguments参数
 function fn(a,b) {
      return (...rest) => {
         console.log(argumnets)  //argumnets访问的是外层作用域的
@@ -5631,19 +5801,65 @@ function fn(a,b) {
 }
 
 fn(1, 2)(3,4)
+```
 
+#### 6. 使用
 
+**箭头函数与数组**
 
-// function fn1(a, b) {
-//     return function (c, d) {
-//         console.log(arguments)
-//     }
-// }
+诸如sort()、map()及reduce()这些可以接受回调函数的数组方法，都可以通过箭头函数语法简化编码过程并减少编码量
 
-// fn1(1,2)(2,3)
+```js
+let result = values.sort(function(a, b) {
+  return a - b;
+})
+
+let result = values.sort((a, b) => a - b);
+
+```
+
+**箭头函数没有arguments绑定**
+
+箭头函数没有自己的arguments对象，且未来无论函数在哪个上下文中执行，**箭头函数始终可以访问外围函数的arguments对象**
+
+```javascript
+function createArrowFunctionReturningFirstArg() {
+  return () => arguments[0];
+}
+
+let arrowFunction = createArrowFunctionReturningFirstArg(5);
+
+console.log(arrowFunction()); //5
 ```
 
 
+
+**箭头函数辨识方法**
+
+使用typeof和instanceof操作符调用箭头函数与调用其他函数并无二致。
+
+```javascript
+let comparator = (a, b) => a - b;
+
+console.log(typeof comparator); //'function'
+console.log(comparator instanceof Function); //true
+```
+
+仍然可以在箭头函数上调用call()、apply()及bind()方法，但与其他函数不同的是，箭头函数的this值不会受这些方法的影响
+
+```javascript
+let sum = (num1, num2) => num1 + num2;
+
+console.log(sum.call(null, 1, 2)); //3
+console.log(sum.apply(null, [1, 2])); //3
+
+let boundSum = sum.bind(null, 1, 2);
+console.log(boundSum()); //3
+```
+
+通过call()方法和apply()方法调用sum()函数并传递参数；通过bind()方法创建boundSum()函数，并传入参数1和2。这些参数都不需要直接传入。
+
+包括回调函数在内所有使用匿名函数表达式的地方都适合用箭头函数来改写。
 
 ### 作用域(scope)
 
@@ -6268,8 +6484,6 @@ new的构造函数后跟括号优先级会提升.
 
 #### 构造函数执行流程
 
-
-
 ```JavaScript
 # 构造函数的执行流程
 
@@ -6337,6 +6551,107 @@ console.log(per.name = '朝天阙'); //朝天阙
 ```
 
 
+
+### 尾调用优化
+
+ECMAScript 6关于函数最有趣的变化可能是尾调用系统的引擎优化. 尾调用指的是函数作为另一个函数的最后一条语句被调用:
+
+```javascript
+function doSomething() {
+  return doSomething(); //尾调用
+}
+```
+
+在ECMAScript 5的引擎中，尾调用的实现与其他函数调用的实现类似：创建一个新的**栈帧（stackframe）**，将其推入调用栈来表示函数调用。也就是说，在循环调用中，每一个未用完的栈帧都会被保存在内存中，当调用栈变得过大时会造成程序问题。
+
+#### ES6中的尾调用优化
+
+ECMAScript 6缩减了严格模式下尾调用栈的大小（非严格模式下不受影响），如果满足以下条件，尾调用不再创建新的栈帧，而是清除并重用当前栈帧：
+
+* 尾调用不访问当前栈帧的变量（也就是说函数不是一个闭包）
+* 在函数内部，尾调用是最后一条语句
+* 尾调用的结果作为函数值返回
+
+```javascript
+//以下这段示例代码满足上述的三个条件，可以被JavaScript引擎自动优化：
+'use strict'
+function doSomething() {
+  //优化后
+  return doSomethingElse();
+}
+```
+
+在这个函数中，尾调用doSomethingElse()的结果立即返回，不调用任何局部作用域变量。如果做一个小改动，不返回最终结果，那么引擎就无法优化当前函数：
+
+```javascript
+'use strict'
+function doSomething() {
+  //无法优化 无返回
+  doSomethingElse();
+}
+```
+
+同样地，如果你定义了一个函数，在尾调用返回后执行其他操作，则函数也无法得到优化：
+
+```javascript
+'use strict'
+function doSomething() {
+  //无法优化 尾调用不在尾部
+  let result = doSomethingElse();
+  return result;
+}
+```
+
+由于没有立即返回doSomethingElse()函数的值，因此此例中的代码无法被优化。
+
+可能最难避免的情况是闭包的使用，它可以访问作用域中所有变量，因而导致尾调用优化失效
+
+```javascript
+'use strict'
+function doSomething() {
+  var num = 1,
+      func = () => num;
+  
+  //无法优化,该函数是一个闭包
+  return func();
+}
+```
+
+
+
+#### 如何利用尾调用优化
+
+实际上，尾调用的优化发生在引擎背后，除非你尝试优化一个函数，否则无须思考此类问题。递归函数是其最主要的应用场景，此时尾调用优化的效果最显著。请看下面这个阶乘函数：
+
+```javascript
+function factorial(n) {
+  if (n <= 1) {
+    return 1;
+  } else {
+    //无法优化,必须在返回后执行乘法操作
+    return n * factorial(n - 1);
+  }
+}
+```
+
+由于在递归调用前执行了乘法操作，因而当前版本的阶乘函数无法被引擎优化。如果n是一个非常大的数，则调用栈的尺寸就会不断增长并存在最终导致栈溢出的潜在风险。
+
+优化这个函数，首先要确保乘法不会在函数调用后执行，你可以通过默认参数来将乘法操作移出return语句，结果函数可以携带着临时结果进入到下一个迭代中。以下这段新代码具有相同的行为，但可以被ECMAScript 6引擎优化：
+
+```javascript
+function factorial(n, p = 1) {
+  if (n <= 1) {
+    return 1 * p;
+  } else {
+    let result = n * p;
+    
+    //优化后
+    return factorial(n - 1, result);
+  }
+}
+```
+
+当你写递归函数的时候，记得使用尾递归优化的特性，如果递归函数的计算量足够大，则尾递归优化可以大幅提升程序的性能。
 
 
 
@@ -6530,6 +6845,8 @@ console.log(items1[0]); //2
 
 
 let items2 = Array.of(2);
+console.log(items2.length); //1
+console.log(items2[0]) //2
 ```
 
 
@@ -6696,6 +7013,19 @@ function countSymbols(string) {
 }
 
 countSymbols('\uD842\uDFB7'); //1
+```
+
+
+
+### 4. 如何创建一个包含1 … N的数组
+
+```javascript
+//https://www.codenong.com/3746725/
+Array.from(Array(num).keys())
+[...Array(10).keys()]
+
+[...Array(10).keys()].map(x => ++x) ???
+Array(N).fill().map(i => i+1)
 ```
 
 
