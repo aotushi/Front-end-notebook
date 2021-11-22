@@ -3374,7 +3374,7 @@ Object {enumearble: false, configurable: false, get:function, set:function}
 
 
 
-### 4.读取对象属性2种方法
+### 4.读取/添加对象属性
 
 ```js
 对象.属性名
@@ -3390,21 +3390,30 @@ var obj={
 var xx = 'username'
 obj.xx 错误
 obj[xx] 最终极端的obj['username']===obj.username
+
+
+//向对象中添加属性
+-- 语法:
+对象.属性名 = 属性值
+对象['属性名'] = 属性值;
 ```
 
 
 
-### 5.向对象种添加属性
+### 5.重复的对象字面量属性
 
-```js
-* 向对象中添加属性
--- 语法:
-对象.属性名 = 属性值
-对象['属性名'] = 属性值;
+ECMAScript 5严格模式中加入了对象字面量重复属性的校验，当同时存在多个同名属性时会抛出错误。
 
-//obj.name = '孙悟空';
-//obj.age = 19;
-//obj.name = 'xxx' 后面的可以把前面相同的属性值的覆盖掉
+但是在ECMAScript6中重复属性检查被移除了，无论是在严格模式还是非严格模式下，代码不再检查重复属性，**对于每一组重复属性，都会选取最后一个取值**.
+
+```javascript
+//ES6
+'use strict'
+let person = {
+  name: 'Nicholas',
+  name: 'Greg'
+};
+console.log(person.name); //'Greg'
 ```
 
 
@@ -3413,7 +3422,60 @@ obj[xx] 最终极端的obj['username']===obj.username
 
 ### 6.对象中的方法
 
-####  in/delete/hasOwnPorperty
+#### 1. super 和[[HomeObject]]
+
+**[[HomeObject]]**
+
+在ECMAScript 6以前从未正式定义“方法”的概念，方法仅仅是一个具有功能而非数据的对象属性。而<u>在ECMAScript 6中正式将方法定义为一个函数，它会有一个内部的**[[HomeObject]]属性**来容纳这个方法从属的对象。</u>
+
+```javascript
+let person = {
+  //方法
+  getGreeting() {
+    return 'Hello';
+  }
+};
+
+//不是方法
+function shareGreeting() {
+  return 'Hi';
+}
+```
+
+由于直接把函数赋值给了person对象，因而getGreeting()方法的[[HomeObject]]属性值为person。而创建shareGreeting()函数时，由于未将其赋值给一个对象，因而该方法没有明确定义[[HomeObject]]属性。在大多数情况下这点小差别无关紧要，但是当使用Super引用时就变得非常重要了。
+
+**Super**
+
+可以使用super关键字调用对象原型上的方法，此时的this绑定会被自动设置为当前作用域的this值。
+
+<span style="text-decoration:underline wavy blue">Super的所有引用都通过[[HomeObject]]属性来确定后续的运行过程。第一步是在[[HomeObject]]属性上调用Object.getPrototypeOf()方法来检索原型的引用；然后搜寻原型找到同名函数；最后，设置this绑定并且调用相应的方法。</span>
+
+```javascript
+let person = {
+  getGreeting() {
+    return 'Hello';
+  }
+};
+
+//以person对象为原型
+let friend = {
+  getGreeting() {
+    return super.getGreeting() + ', hi';
+  }
+};
+
+Object.setPropertyOf(frined, person);
+
+console.log(friend.getGreeting()); //'Hello, hi'
+```
+
+friend.getGreeting()方法的[[HomeObject]]属性值是friend，friend的原型是person，所以**super.getGreeting()等价于person.getGreeting.call(this)**。
+
+
+
+
+
+####  2. in/delete/hasOwnPorperty
 
 ```Markdown
 in 
@@ -3450,7 +3512,7 @@ obj.test.tt = Object();
 
 
 
-#### 方法函数
+#### 3. 方法函数
 
 ```JavaScript
 * 对象的属性可以是一个函数
@@ -3486,13 +3548,108 @@ obj.sayHello(); //运行alert函数
 
 ### 7.对象静态方法
 
+> ECMAScript其中一个设计目标是：不再创建新的全局函数，也不在Object.prototype上创建新的方法。
+>
+> 从ECMAScript 5开始，避免创建新的全局方法和在Object.prototype上创建新的方法。 当开发者想向标准添加新方法时，他们会找一个适当的现有对象。
+>
+> 而在ECMAScript 6中，为了使某些任务更易完成，在全局Object对象上引入了一些新方法。
+
+
+
+#### Object.is
+
+当你想在JavaScript中比较两个值时，多使用全等运算符（===），从而避免在比较时触发强制类型转换的行为。
+
+判断两个值是否为[同一个值](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness).  于相等运算符,全等运算符一起可以来判断操作数是否为同一个对象的实例.
+
+与`==`运算符不同,`Object.is`不会强制转换两边的值.
+
+与`===`运算符不同,`Object.is`会将`-0`和`+0`视为不相等,将`Number.NaN`与`NaN`视为相等.
+
+`+0  `和 `-0`在JavaScript引擎中被表示为两个完全不同的实体
+
+ECMAScript 6引入了Object.is()方法来弥补全等运算符的不准确运算。这个方法接受两个参数，如果这两个参数类型相同且具有相同的值，则返回true。
+
 ```js
-https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object#%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95
+Object.is(value1,value2)
+
+返回值:布尔值
+
+//判断条件:
+
+
+
+//示例
+Object.is([], []);           // false
+
+var foo = { a: 1 };
+var bar = { a: 1 };
+Object.is(foo, foo);         // true
+Object.is(foo, bar);         // false
+
+Object.is(null, null);       // true
+
+Object.is(0, -0);            // false 
+Object.is(0, +0);            // true
+Object.is(-0, -0);           // true
+Object.is(NaN, 0/0);         // true
+Object.is(NaN,NaN);          //true
 ```
 
 
 
 #### Object.assign()
+
+**ES5实现ES6Object.assign()功能**
+
+混合（Mixin）是JavaScript中实现对象组合最流行的一种模式。在一个mixin方法中，一个对象接收来自另一个对象的属性和方法
+
+```javascript
+function mixin(receiver, supplier) {
+  Object.keys(supplier).forEach(key => receiver[key] = supplier[key]);
+}
+```
+
+mixin()函数遍历supplier的自有属性并复制到receiver中（<u>此处的复制行为是浅复制，当属性值为对象时只复制对象的引用</u>）。这样一来，receiver不通过继承就可以获得新属性，请参考这段代码：
+
+```javascript
+function EventTarget() { }
+EventTarget.prototype = {
+    constructor: EventTarget,
+    emit: function() {},
+    on: function() {}
+  };
+
+let myObject = {};
+mixin(myObject, EventTarget.prototype);
+
+myObject.emit('somethingChanged');
+```
+
+在这段代码中，myObject接收EventTarget.prototype对象的所有行为，从而使myObject可以分别通过emit()方法发布事件或通过on()方法订阅事件。
+
+这种混合模式非常流行，因而ECMAScript 6添加了Object.assign()方法来实现相同的功能，这个方法接受一个接收对象和任意数量的源对象，最终返回接收对象。<u>mixin()方法使用赋值操作符（assignment operator）=来复制相关属性，却不能复制访问器属性到接收对象中</u>，因此最终添加的方法弃用mixin而改用assign作为方法名。
+
+任何使用mixin()方法的地方都可以直接使用Object.assign()方法来替换
+
+```javascript
+function EventTarget() {}
+EventTarget.prototype = {
+  constructor: EventTarget,
+  emit: function() {},
+  on: function() {}
+}
+
+let myObject = {};
+Object.assign(myObject, EventTarget.prototype);
+myObject.emit('somethingChanged');
+```
+
+Object.assign()方法可以接受任意数量的源对象，并按指定的顺序将属性复制到接收对象中。所以如果多个源对象具有同名属性，则排位靠后的源对象会覆盖排位靠前的
+
+
+
+
 
 **Object.assign()** 方法用于**将所有可枚举属性的值**从一个或多个源对象分配到目标对象。它将返回目标对象. 同时它也可以实现**浅拷贝**.因为 `Object.assign()`拷贝的是（可枚举）属性值。
 
@@ -3511,6 +3668,30 @@ console.log(returnTarget);//{ a: 1, b: 4, c: 5 }
 target['e']=5;
 console.log(returnTarget.e) //5
 ```
+
+
+
+**访问器属性**
+
+Object.assign()方法不能将提供者的访问器属性复制到接收对象中。由于Object.assign()方法执行了赋值操作，因此<u>提供者的访问器属性最终会转变为接收对象中的一个数据属性.</u>
+
+```javascript
+let receiver = {},
+    supplier = {
+      get name() {
+        return 'file.js'
+      }
+    };
+
+Object.assign(receiver, supplier);
+
+let descriptor = Object.getOwnPropertyDescriptor(receiver, 'name');
+
+console.log(descriptor.value); //'file.js'
+console.log(descriptor.get); //undefined
+```
+
+
 
 
 
@@ -3615,43 +3796,46 @@ Object.keys.sort()
 
 
 
-#### Object.is
-
-判断两个值是否为[同一个值](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness).  于相等运算符,全等运算符一起可以来判断操作数是否为同一个对象的实例.
-
-与`==`运算符不通,`Object.is`不会强制转换两边的值.
-
-与`===`运算符不同,`Object.is`会将`-0`和`+0`视为不相等,将`Number.NaN`与`NaN`视为相等.
-
-```js
-Object.is(value1,value2)
-
-返回值:布尔值
-
-//判断条件:
-
-
-
-//示例
-Object.is([], []);           // false
-
-var foo = { a: 1 };
-var bar = { a: 1 };
-Object.is(foo, foo);         // true
-Object.is(foo, bar);         // false
-
-Object.is(null, null);       // true
-
-Object.is(0, -0);            // false
-Object.is(0, +0);            // true
-Object.is(-0, -0);           // true
-Object.is(NaN, 0/0);         // true
-Object.is(NaN,NaN);          //true
-```
-
 
 
 ### 8.对象属性枚举for-in
+
+#### 0. ES5和ES6属性枚举的区别
+
+>  ECMAScript 5中未定义对象属性的枚举顺序，由JavaScript引擎厂商自行决定。然而，ECMAScript6严格规定了对象的自有属性被枚举时的返回顺序，这会影响到Object.getOwnPropertyNames()方法
+>
+> Reflect.ownKeys返回属性的方式，
+>
+> Object.assign()方法处理属性的顺序.
+
+
+
+#### 1. 自有属性枚举顺序规则
+
+* 所有数字键按升序排序
+* 所有字符串键按照他们被加入对象的顺序排序
+* 所有Symbol键按照他们被加入对象的顺序排序
+
+ ```javascript
+ let obj = {
+   a: 1,
+   0: 1,
+   c: 1,
+   2: 1,
+   b: 1,
+   1: 1
+ };
+ 
+ obj.d = 1;
+ 
+ console.log(Object.getOwnPropertyNames(obj).join('')); '012acbd'
+ ```
+
+**注意**
+
+对于for-in循环，由于并非所有厂商都遵循相同的实现方式，因此仍未指定一个明确的枚举顺序；而<span style="text-decoration:underline double red;">Object.keys()方法和JSON.stringify()方法都指明与for-in使用相同的枚举顺序，因此它们的枚举顺序目前也不明晰。</span>
+
+#### 2. for...in枚举
 
 `for...in`语句以任意顺序遍历一个对象的除了[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
 
@@ -3659,9 +3843,7 @@ Object.is(NaN,NaN);          //true
 
 for...in不应该用于迭代一个关注索引顺序的Array
 
-`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`.
-
-处理有`key-value`数据（比如属性用作“键”），需要检查其中的任何键是否为某值的情况时，还是推荐用`for ... in`
+`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`处理有`key-value`数据（比如属性用作“键”），需要检查其中的任何键是否为某值的情况时，还是推荐用`for ... in`
 
 **仅迭代自身的属性?**
 
@@ -3714,7 +3896,7 @@ for(let i in newObj){
 
 
 
-### 9遍历对象的方法.
+### 9.遍历对象的方法.
 
 ```js
 for循环 for..in    for..of  object.keys()
@@ -3823,7 +4005,7 @@ clone.name = "Pete"; // 改变了其中的数据
 alert( user.name ); // 原来的对象中的 name 属性依然是 John
 ```
 
-##### 2.Object.assign
+##### 2. Object.assign
 
 用 `Object.assign` 代替 `for..in` 循环来进行简单克隆
 
@@ -3988,6 +4170,123 @@ function compareObj(obj1, obj2) {
 //https://stackoverflow.com/questions/201183/how-to-determine-equality-for-two-javascript-objects
 
 ```
+
+
+
+### 13. ES6-属性初始值简写
+
+在ECMAScript 5及更早版本中，对象字面量只是简单的<u>键值对集合</u>，这意味着初始化属性值时会有一些重复.
+
+```javascript
+//ES5
+function createPerson(name, age) {
+  return {
+    name: name,
+    age: age
+  };
+}
+```
+
+在ECMAScript 6中，通过使用属性初始化的简写语法，可以消除这种属性名称与局部变量之间的重复书写。**当一个对象的属性与本地变量同名时，不必再写冒号和值，简单地只写属性名即可。**
+
+```javascript
+//ES6
+function createPerson(name, age) {
+  return {
+    name,
+    age
+  }
+}
+```
+
+对象字面量里只有一个属性的名称时，JavaScript引擎会在可访问作用域中查找其同名变量；如果找到，则该变量的值被赋给对象字面量里的同名属性。
+
+
+
+### 14. ES6-对象方法简写
+
+在ECMAScript 6中，语法更简洁，消除了冒号和function关键字
+
+```javascript
+//ES5
+let person = {
+  name: 'Nicholas',
+  sayName() {
+    console.log(this.name);
+  }
+};
+
+//ES6
+let person = {
+  name: 'Nicholas',
+  sayName() {
+    console.log(this.name);
+  }
+}
+```
+
+通过对象方法简写语法，在person对象中创建一个sayName()方法，该属性被赋值为一个匿名函数表达式，它拥有在ECMAScript 5中定义的对象方法所具有的全部特性。<span style="text-decoration:underline double red;">二者唯一的区别是，简写方法可以使用super关键字.</span>
+
+
+
+### 15. 可计算属性名
+
+#### ES5可计算属性名
+
+在ECMAScript 5及早期版本的对象实例中，如果想要通过计算得到属性名，就需要**用方括号代替点记法**。有些包括某些字符的字符串字面量作为标识符会出错，其和变量放在方括号中都是被允许的。
+
+```javascript
+//ES5
+let person = {},
+    lastName = 'last name';
+
+person['first name'] = 'Nicholas';
+person['lastName'] = 'Zakas';
+
+console.log(person['first name']); //'Nicholas'
+console.log(person[lastName]); //'Zakas'
+```
+
+在对象字面量中，可以直接使用字符串字面量作为属性名称
+
+```javascript
+let person = {
+  'first name': 'Nicholas'
+};
+console.log(person['first name']); //'Nicholas'
+```
+
+这种模式适用于属性名提前已知或可被字符串字面量表示的情况。然而，如果属性名称"firstname"被包含在一个变量中（就像之前示例中的那样），或者需要通过计算才能得到该变量的值，那么在ECMAScript 5中是无法为一个对象字面量定义该属性的。
+
+#### ES6可计算属性名
+
+<u>而在ECMAScript 6中，可在对象字面量中使用可计算属性名称，其语法与引用对象实例的可计算属性名称相同，也是使用方括号</u>
+
+```javascript
+let lastName = 'last Name';
+let person = {
+  'first name': 'Nicholas',
+  [lastName]: 'Zakas'
+};
+
+console.log(person['first name']); //'Nicholas'
+console.log(person[lastName]); //'Zakas'
+```
+
+在对象字面量中使用方括号表示的该属性名称是可计算的，它的内容将被求值并被最终转化为一个字符串，因而同样可以**使用表达式作为属性的可计算名称**
+
+```javascript
+let suffix = ' name';
+let person = {
+  ['first' + suffix]: 'Nicholas',
+  ['last' + suffix]: 'Zakas'
+};
+
+console.log(person['first name']); //
+console.log(person['last name']); //
+```
+
+任何可用于对象实例括号记法的属性名，也可以作为字面量中的计算属性名。
 
 
 
@@ -10293,6 +10592,312 @@ let msg = raw`Multiline\nstring`;
 console.log(msg); //'Multiline\\nstring'
 console.log(msg.length); //27
 ```
+
+
+
+## 解构
+
+### 0.对象解构
+
+#### 解构
+
+将对象解构应用到了变量的声明中
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo'
+};
+
+let {type, name} = node;
+
+console.log(type); //'Identifier'
+console.log(name); //'foo'
+```
+
+#### 初始化程序
+
+如果使用var、let或const解构声明变量，则必须要提供初始化程序（也就是等号右侧的值）
+
+如果不使用解构功能，则var和let声明不强制要求提供初始化程序，但是对于cosnt声明，无论如何必须提供初始化程序.
+
+```javascript
+var {type, name}; //语法错误
+let {type, name}; //语法错误
+const {type, name}; //语法错误
+```
+
+#### 解构赋值
+
+到目前为止，我们已经将对象解构应用到了变量的声明中。然而，我们同样可以在给变量赋值时使用解构语法。举个例子，你可能在定义变量之后想要修改它们的值，就像这样：
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo'
+},
+    type = 'Literal',
+    name = 5;
+
+//使用解构语法为多个变量赋值
+({type, name} = node);
+
+console.log(type); //'Identifier'
+console.log(name); //'foo'
+```
+
+在这个示例中，声明变量type和name时初始化了一个值，在后面几行中，通过解构赋值的方法，从node对象读取相应的值重新为这两个变量赋值。请注意，<span style="text-decoration:underline double red">一定要用一对小括号包裹解构赋值语句，JavaScript引擎将一对开放的花括号视为一个代码块，而语法规定，代码块语句不允许出现在赋值语句左侧，添加小括号后可以将块语句转化为一个表达式，从而实现整个解构赋值的过程。</span>
+
+**解构赋值表达式的值与表达式右侧（也就是=右侧）的值相等**，如此一来，在任何可以使用值的地方你都可以使用解构赋值表达式。想象一下给函数传递参数值的过程：
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo'
+},
+    type = 'Literal',
+    name = 5;
+
+function outputInfo(value) {
+  console.log(value === node); //true
+}
+
+outputInfo({type, name} = node); //变量从作用域中查找
+
+console.log(type);//'Identifier'
+console.log(name);//'foo'
+```
+
+解构赋值表达式（也就是=右侧的表达式）如果为null或undefined会导致程序抛出错误。也就是说，任何尝试读取null或undefined的属性的行为都会触发运行时错误。
+
+
+
+#### 默认值
+
+使用解构赋值表达式时，如果指定的局部变量名称在对象中不存在，那么这个局部变量会被赋值为undefined
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo'
+};
+
+let {type, name, value} = node;
+
+console.log(value); //undefined
+```
+
+当指定的属性不存在时，可以随意定义一个默认值，在属性名称后添加一个等号（=）和相应的默认值即可：
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo'
+};
+
+let {type, name, value = true} = node;
+
+console.log(value); //true
+```
+
+为变量value设置了默认值true，只有当node上没有该属性或者该属性值为undefined时该值才生效.
+
+
+
+#### 为非同名局部变量赋值
+
+如果希望使用不同命名的局部变量来存储对象属性的值，ECMAScript 6中的一个扩展语法可以满足你的需求，这个语法与完整的对象字面量属性初始化程序的很像
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo'
+};
+
+let {type: localType, name: localName} = node;
+
+console.log(localType); //'Identifier'
+console.log(lcoalName); //'foo'
+```
+
+type: localType语法的含义是读取名为type的属性并将其值存储在变量localType中，这种语法实际上与传统对象字面量的语法相悖，原来的语法名称在冒号左边，值在右边；现在值在冒号右边，而对象的属性名在左边。
+
+当使用其他变量名进行赋值时也可以添加默认值，只需在变量名后添加等号和默认值即可：
+
+```javascript
+let node = {
+  type: 'Identifier'
+};
+
+let {type: localType, name:lcoalName = 'bar'} = node;
+
+console.log(localType); //'Identifier'
+console.log(localName); //'bar'
+```
+
+
+
+#### 嵌套解构对象
+
+解构嵌套对象仍然与对象字面量的语法相似，可以将对象拆解以获取你想要的信息：
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo',
+  loc: {
+    start: {
+      line: 1,
+      colum: 1
+    },
+    end: {
+      line: 1,
+      cloumn: 4
+    }
+  }
+};
+
+let {loc: { start }} = node;
+```
+
+在上面的解构示例中，<span style="text-decoration:underline double red;">所有冒号前的标识符都代表在对象中的检索位置，其右侧为被赋值的变量名；如果冒号后是花括号，则意味着要赋予的最终值嵌套在对象内部更深的层级中。</span>
+
+更进一步，也可以使用一个与对象属性名不同的局部变量名：
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo',
+  loc: {
+    start: {
+      line: 1,
+      column: 1
+    },
+    end: {
+      line: 1,
+      column: 4
+    }
+  }
+};
+
+//提取node.loc.start
+
+let {loc: {start: localStart}} = node;
+
+console.log(localStart); //1
+console.log(localStart); //1
+```
+
+**语法警示**
+
+在使用嵌套解构功能时请注意，你很可能无意中创建了一个无效表达式。内空花括号在对象解构的语法中是合法的，然而这条语句却什么都不会做：
+
+```javascript
+//未声明任何变量
+let {loc: {}} = node;
+```
+
+
+
+### 1. 数组解构
+
+#### 解构
+
+数组解构使用的是数组字面量，且解构操作全部在数组内完成，而不是像对象字面量语法一样使用对象的命名属性.
+
+```javascript
+let colors = ['red', 'green', 'blue'];
+
+let [firstColor, secondColor] = colors;
+
+console.log(firstColor);  //'red'
+console.log(secondColor); //'green'
+```
+
+<u>在数组解构语法中，我们通过值在数组中的位置进行选取，且可以将其存储在任意变量中，未显式声明的元素都会直接被忽略。</u>切记，在这个过程中，数组本身不会发生任何变化。
+
+在解构模式中，也可以直接省略元素，只为感兴趣的元素提供变量名。举个例子，如果你只想取数组中的第3个值，则不需要提供第一个和第二个元素的变量名称：
+
+```javascript
+let colors = ['red', 'green', 'blue'];
+let [,, thirdColor] = colors;
+
+console.log(thirdColor); //'blue'
+```
+
+当通过var、let或const声明数组解构的绑定时，必须要提供一个初始化程序，这一条规定与对象解构的规定类似。
+
+#### 解构赋值
+
+数组解构也可用于赋值上下文，但不需要用小括号包裹表达式，这一点与对象解构的约定不同。
+
+```javascript
+let colors = ['red', 'green', 'blue'],
+    firstColor = 'black',
+    secondColor = 'purple';
+
+[firstColor, secondColor] = colors;
+
+console.log(firstColor); //'red'
+console.log(secondColor); //'green'
+```
+
+数组解构语法还有一个独特的用例：交换两个变量的值。如果要在ECMAScript 5中交换两个变量的值，则须引入第三个临时变量：
+
+```javascript
+//ES5
+let a = 1,
+    b = 2,
+    temp;
+
+temp = a;
+a = b;
+b = temp;
+
+//ES6
+let a = 1,
+    b = 2;
+[a, b] = [b, a];
+```
+
+**注意**
+
+如果右侧数组解构赋值表达式的值为null或undefined，则会导致程序抛出错误，这一特性与对象解构赋值很相似。
+
+
+
+#### 默认值
+
+可以在数组解构赋值表达式中为数组中的任意位置添加默认值，当指定位置的属性不存在或其值为undefined时使用默认值
+
+```javascript
+let colors = ['red'];
+let [ firstColor, secondColor = 'green'] = colors;
+
+console.log(firstColor); //'red'
+console.log(secondColor); //'green'
+```
+
+
+
+#### 嵌套数组解构
+
+嵌套数组解构与嵌套对象解构的语法类似，在原有的数组模式中插入另一个数组模式，即可将解构过程深入到下一个层级
+
+```javascript
+let colors = ['red', ['green', 'lightgreen'], 'blue'];
+
+let [firstColor, [secondColor]] = colors;
+
+console.log(firstColor); //'red'
+console.log(secondColor); //'green'
+```
+
+
+
+#### 不定元素
+
+
 
 
 
