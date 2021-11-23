@@ -146,104 +146,6 @@ console.log(passat);
 >
 > 此方法执行在一个对象上定义新的属性或修改现有属性,并返回该对象.
 
-```js
-https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties
-
-var thingPad={
-    name: 'ThinkPad',
-    price: 4000
-};
-Object.definedProperties(thinkPad, {
-    //添加属性
-    screen:{
-        value:'14inch',
-        writable: true,
-        configurable: true,
-        enumerable: true
-    },
-    
-    weight: {
-        get: function(){return '1.5kg';}
-    }
-});
-
-console.log(thinkPad);
-console.log(thinkPad.weight);
-```
-
-
-
-
-
-#### 案例
-
-```js
-//要求添加 total 属性, 获得班级的总分数
-var banji = {
-    name: 'HTML',
-    scores: [
-        {
-            name: '张三',
-            score: 90
-        },
-        {
-            name: '李四',
-            score: 85
-        },
-        {
-            name: '王五',
-            score: 95
-        },
-        {
-            name: '赵六',
-            score: 88
-        }
-    ]
-};
-
-Object.defineProperties(banji, {
-    total:{
-        get:function(){
-            var total = 0;
-            for(var i=0; i<banji.scores.length; i++){
-                total += this.scores[i].score;
-            }
-			return total;
-        }
-    }
-})
-
-console.log(banji.total);
-```
-
-
-
-
-
-
-
-### call-apply-bind
-
-```js
--bind使用方式与call和apply相同, 返回结果是新的函数
--复制函数时,要想到bind
--bind() 方法创建一个新的函数，在 bind() 被调用时，这个新函数的 this 被指定为 bind() 的第一个参数，而其余参数将作为新函数的参数，供调用时使用。
-
-function add(a,b,c){
-    console.log(this);
-    console.log(a+b+c);
-}
-
-//调用函数
-add(1,2,3);// window, 6
-add.call({}, 1,2,3); //{}, 6
-add.apply({}, [1,2,3]); //{}, 6
-var fn = add.bind({name:'test'});
-fn(3,4,5);// {name: 'test'}  12
-```
-
-
-
 
 
 
@@ -467,7 +369,7 @@ len//5
 
 ### 变量的解构赋值
 
-> 解构赋值: ES6允许按照一定模式从==数组和对象==中提取==属性/值==, 对==变量==进行赋值, 这被称为解构赋值[Destructuring].
+> 解构赋值: ES6允许按照一定模式从数组和对象中提取属性/值, 对变量进行赋值, 这被称为解构赋值[Destructuring].
 >
 > 
 >
@@ -1298,7 +1200,7 @@ console.log(s1); //Symbol()
 console.log(typeof s1); //symbol
 
 const s2 = Symbol('aa');
-console.log(s2); //log结果: Symbol(aa)
+console.log(s2); //Symbol(aa)
 console.log(typeof s2); //symbol
 
 //每个返回的symbol值都是唯一的,所以相同值的symbol比较运算,返回false.
@@ -1309,23 +1211,251 @@ Symbol('aa') === Symbol('aa') //false
 
 
 
-### 2.Symbol创建对象的属性和方法
+### 2. 创建Symbol
 
-> Symbol唯一且合理的使用方式, 是为对象添加[属性]
+> 所有原始值,除了Symbol依赖都有各自的字面形式(字符串,数字,布尔值,null,undefined).
+>
+> Symbol唯一且合理的使用方式, 是为对象添加[属性].
 >
 > 调用Symbol()函数时,也可以传入一个字符串参数作为对符号的描述,将来可以通过这个字符串来调试代码.但这个字符串参数与符号定义或标识符无关.
 >
-> 属性:值为基本数据类型的
->
-> 方法:函数
+
+
+
+#### 0. 创建Symbol
+
+可以通过全局的Symbol函数创建一个Symbol. 
+
+```javascript
+//创建了一个名为firstName的Symbol，用它将一个新的属性赋值给person对象
+let firstName = Symbol(),
+    person = {};
+
+person[firstName] = 'Nicholas';
+console.log(person[firstName]); //'Nicholas'
+```
+
+**注意**
+
+>  由于Symbol是原始值，因此调用new Symbol()会导致程序抛出错误。也可以执行new Object（你的Symbol）创建一个Symbol的实例，但目前尚不清楚这个功能何时可以使用。
+
+
+
+#### 1. Symbol函数
+
+**Symbol函数接受一个可选参数**，其可以让你添加一段文本描述即将创建的Symbol，这段描述不可用于属性访问，但是建议你在每次创建Symbol时都添加这样一段描述，以便于阅读代码和调试Symbol程序
+
+```javascript
+let firstName = Symbol('first name'),
+    person = {};
+
+person[firstName] = 'Nicholas';
+
+console.log('first name' in person); //false
+console.log(person[firstName]); //'Nicholas'
+console.log(firstName); //'Symbol("first name")'
+```
+
+**[[Description]]**
+
+Symbol的描述被存储在内部的[[Description]]属性中，只有当调用Symbol的toString()方法时才可以读取这个属性。在执行console.log()时隐式调用了firstName的toString()方法，所以它的描述会被打印到日志中，但<u>不能直接在代码里访问[[Description]].</u>
+
+```javascript
+let firstName = Symbol('first name'),
+    result = firstName.toString();
+
+console.log(result); //'Symbol(first name)'
+```
+
+
+
+**Symbole的辨识方法**
+
+Symbol是原始值，且ECMAScript 6同时扩展了typeof操作符，支持返回"Symbol"，所以可以用typeof来检测变量是否为Symbol类型。
+
+通过其他间接方式也可以检测变量是否为Symbol类型，但是typeof操作符是最准确也是你最应首选的检测方式。
+
+```javascript
+let symbol = Symbol('test symbol');
+console.log(teypof symbol); //'symbol'
+```
+
+
+
+### 3. Symbol的使用方法
+
+使用场景包括: 
+
+* 所有使用可计算属性名的地方
+* Object.defineProperty()
+* Object.defineProperties()
+
+```javascript
+let firstName = Symbol('first name');
+//使用一个可计算对象字面量属性
+let person = {
+  [firstName]: 'Nicholas'
+};
+
+//将属性设置为只读
+Object.defineProperty(person, firstName, {writable: false});
+
+let lastName = Symbol('last name');
+Object.defineProperty(person, {
+  [lastName]: {
+    value: 'Zakas',
+    writable: false
+  }
+});
+
+console.log(person[firstName]); //'Nicholas'
+console.log(person[lastName]); //'Zakas'
+```
+
+尽管在所有使用可计算属性名的地方，都可以使用Symbol来代替，但是为了在不同代码片段间有效地共享这些Symbol，需要建立一个体系。
+
+
+
+### 3. Symbol共享体系
+
+#### 0. 背景
+
+希望在不同的代码中共享同一个Symbol，例如，在你的应用中有两种不同的对象类型，但是你希望它们使用同一个Symbol属性来表示一个独特的标识符。一般而言，在很大的代码库中或跨文件追踪Symbol非常困难而且容易出错，出于这些原因，ECMAScript 6提供了一个可以随时访问的**全局Symbol注册表**。
+
+
+
+#### 1. Symbol.for()
+
+如果想创建一个可共享的Symbol，要使用Symbol.for()方法。它只接受一个参数，也就是即将创建的Symbol的字符串标识符，这个参数同样也被用作Symbol的描述
+
+```javascript
+let uid = Symbol('uid'),
+    obj = {};
+
+obj[uid] = '12345';
+
+console.log(obj[uid]); //'12345'
+console.log(uid); //'Symbol(uid)'
+```
+
+Symbol.for()方法首先在全局Symbol注册表中搜索键为"uid"的Symbol是否存在，如果存在，直接返回已有的Symbol；否则，创建一个新的Symbol，并使用这个键在Symbol全局注册表中注册，随即返回新创建的Symbol。
+
+后续如果再传入同样的键调用Symbol.for()会返回相同的Symbol
+
+```javascript
+let uid = Symbol.for('uid'),
+    obj = {
+      [uid]: '12345'
+    };
+
+console.log(obj[uid]); //'12345'
+console.log(uid); //'Symbol(uid)'
+
+let uid2 = Symbol.for('uid');
+
+console.log(uid === uid2); //true
+console.log(obj[uid2]); //'12345'
+console.log(uid); //'Symbol(uid)'
+```
+
+
+
+#### 2. Symbole.keyFor()
+
+可以使用Symbol.keyFor()方法在Symbol全局注册表中检索与Symbol有关的键
+
+```javascript
+let uid = Symbol.for('uid');
+console.log(Symbol.keyFor(uid)); //'uid'
+
+let uid2 = Symbol.for('uid');
+console.log(Symbole.keyFor(uid2)); //'uid'
+
+let uid3 = Symbol('uid');
+console.log(Symbol.keyFor(uid3)); //undefined
+```
+
+Symbol全局注册表是一个类似全局作用域的共享环境，也就是说你不能假设目前环境中存在哪些键。当使用第三方组件时，尽量使用Symbol键的命名空间以减少命名冲突。举个例子，jQuery的代码可以为所有键添加"jquery"前缀，就像"jquery.element"或其他类似的键。
+
+
+
+### 4. Symbol与类型强制转换
+
+自动转型是JavaScript中的一个重要语言特性，利用这个特性能够在特定场景下将某个数据强制转换为其他类型。然而，<u>其他类型没有与Symbol逻辑等价的值</u>，因而Symbol使用起来不是很灵活，<u>尤其是不能将Symbol强制转换为字符串和数字类型</u>，否则如果不小心将其作为对象属性，最终会导致不一样的执行结果。
+
+**与字符串类型**
+
+使用console.log()方法来输出Symbol的内容，它会调用Symbol的String()方法并输出有用的信息。也可以像这样直接调用String()方法来获得相同的内容
+
+```javascript
+let uid = Symbol.for('uid'),
+    desc = String(uid);
+
+console.log(desc); //'Symbol(uid)'
+```
+
+String()函数调用了uid.toString()方法，返回字符串类型的Symbol描述里的内容。但是，如果你尝试将Symbol与一个字符串拼接，会导致程序抛出错误：
+
+```javascript
+let uid = Symbol.for('uid'),
+    desc = uid + ''; //报错
+```
+
+将uid与空字符串拼接，首先要将uid强制转换为一个字符串，而Symbol不可以被转换为字符串，故程序直接抛出错误。
+
+**与数字类型**
+
+将Symbol与每一个数学运算符混合使用都会导致程序抛出错误
+
+```javascript
+let uid = Symbol.for('uid'),
+    sum = uid / 1; //报错
+```
+
+这个示例尝试将Symbol除1，程序直接抛出错误。而且无论使用哪一个数学操作符，都无法正常运行
+
+**与逻辑操作符**
+
+Symbol与JavaScript中的非空值类似，其等价布尔值为true
+
+### 5. Symbol属性检索
+
+Object.keys()方法和Object.getOwnPropertyNames()方法可以检索对象中所有的属性名：前一个方法返回所有可枚举的属性名；后一个方法不考虑属性的可枚举性一律返回。然而为了保持ECMAScript 5函数的原有功能，这两个方法都不支持Symbol属性，而是在ECMAScript 6中添加一个**Object.getOwnPropertySymbols()**方法来检索对象中的Symbol属性。
+
+**Object.getOwnPropertySymbols()**
+
+Object.getOwnPropertySymbols()方法的返回值是一个包含所有Symbol自有属性的数组
+
+```javascript
+let uid = Symbol.for('uid');
+let obj = {
+  [uid]: '12345'
+};
+
+let symbols = Object.getOwnPropertySymbols(obj);
+
+console.log(symbols.length); //1
+console.log(symbols[0]); //'Symbol(uid)'
+```
+
+
+
+**继承**
+
+所有对象一开始都没有自己独有的属性，但是对象可以从原型链中继承Symbol属性。ECMAScript 6通过一些well-known Symbol预定义了这些属性。
+
+
 
 ```js
 //要求: 向对象中添加方法up
-//使用symbol为对象obj属性的两种方式: 对象块作用域外: obj[属性名称];  对象块作用域内: obj{[s]:值}
+//使用symbol为对象obj属性的两种方式: 
+//		对象块作用域外: obj[属性名称];  
+//		对象块作用域内: obj{[s]:值}
 
 let game = {
     name: 'name1'
 };
+
 //添加方式0
 //弊端: 无法判断对象里是否有重名的属性或方法
  game.up = function(){

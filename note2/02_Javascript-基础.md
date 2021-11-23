@@ -3775,7 +3775,7 @@ console.log(Object.values(my_obj)); //['bar']
 
 #### Object.getOwnPropertyNames()
 
-Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不可枚举属性
+Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不可枚举属性. 但为了和ES5保持一致,不包括Symbol属性.
 
 ```js
 https://juejin.cn/post/6844903796062191624
@@ -7761,7 +7761,7 @@ ES6中使用Array.of()来代替Array.prototype.slice.call(arguments),将argument
 
 
 
-#### splice-删除或替换
+#### splice-删除 替换 新增
 
 **`splice()`** 方法通过**删除或替换**现有元素或者**原地添加**新的元素来修改数组,并以数组形式返回被修改的内容。此方法会改变原数组。
 
@@ -10668,7 +10668,7 @@ console.log(type);//'Identifier'
 console.log(name);//'foo'
 ```
 
-解构赋值表达式（也就是=右侧的表达式）如果为null或undefined会导致程序抛出错误。也就是说，任何尝试读取null或undefined的属性的行为都会触发运行时错误。
+解构赋值表达式（也就是=右侧的表达式）如果为null或undefined会导致程序抛出错误。也就是说，<u>任何尝试读取null或undefined的属性的行为都会触发运行时错误</u>。
 
 
 
@@ -10897,7 +10897,213 @@ console.log(secondColor); //'green'
 
 #### 不定元素
 
+在数组解构语法中有一个和函数不定参数相似的概念：不定元素。在数组中，可以通过...语法将数组中的其余元素赋值给一个特定的变量.
 
+在被解构的数组中，不定元素必须为最后一个条目，在后面继续添加逗号会导致程序抛出语法错误
+
+```javascript
+let colors = ['red', 'green', 'blue'];
+
+let [firstColor, ...restColors ] = colors;
+
+console.log(firstColor); //'red'
+console.log(restColors); //['green', 'blue']
+```
+
+**使用**
+
+* 不定元素语法有助于从数组中提取特定元素并保证其余元素可用
+* 数组复制
+
+```javascript
+//ES5实现数组复制功能-concat
+let colors = ['red', 'green', 'blue'];
+let clonedColors = colors.concat();
+
+console.log(clonedColors); //['red', 'green', 'blue']
+
+//ES6的数组复制
+let colors = ['red', 'green', 'blue'];
+let [...clonedColors] = colors;
+
+console.log()
+
+
+```
+
+比较这个方法与concat()方法的可读性，二者孰优孰劣是一个见仁见智的问题
+
+
+
+### 2. 混合解构
+
+可以混合使用对象解构和数组解构来创建更多复杂的表达式，如此一来，可以从任何混杂着对象和数组的数据解构中提取你想要的信息
+
+```javascript
+let node = {
+  type: 'Identifier',
+  name: 'foo',
+  loc: {
+    start: {
+      line: 1,
+      column: 1
+    },
+    end: {
+      line: 1,
+      column: 4
+      }
+  },
+  range: [0, 3]
+};
+
+let {
+  loc: {start},
+  range: [startIndex]
+} = node;
+
+console.log(start.line); //1
+console.log(start.column); //1
+console.log(startIndex); //0
+```
+
+解构模式中的loc:和range:仅代表它们在node对象中所处的位置（也就是该对象的属性）。当你使用混合解构的语法时，则可以从node提取任意想要的信息。这种方法极为有效，<u>尤其是当你从JSON配置中提取信息时，不再需要遍历整个结构了。</u>
+
+
+
+### 3. 解构参数
+
+#### 0. 基本使用
+
+当定义一个接受大量可选参数的JavaScript函数时，我们通常会创建一个可选对象，将额外的参数定义为这个对象的属性
+
+```javascript
+//options的属性标识其他参数
+function setCookie(name, value, options) {
+  options = options || {};
+  
+  let secure = options.secure,
+      path = options.path,
+      domain = options.domain,
+      expires = options.expires;
+  
+  //设置cookie代码
+}
+
+//第三个参数映射到options中
+setCookie('type', 'js', {
+  secure: true,
+  expires: 6000
+})
+```
+
+> 许多JavaScript库中都有类似的setCookie()函数，而在示例函数中，name和value是必需参数，而secure、path、domain和expires则不然，这些参数相对而言没有优先级顺序，将它们列为额外的命名参数也不合适，此时为options对象设置同名的命名属性是一个很好的选择。
+>
+> 现在的问题是，仅查看函数的声明部分，无法辨识函数的预期参数，必须通过阅读函数体才可以确定所有参数的情况。
+
+如果将options定义为解构参数，则可以更清晰地了解函数预期传入的参数。解构参数需要使用对象或数组解构模式代替命名参数
+
+```javascript
+function setCookie(name, value, {secure, path, domain, expires}) {
+  //函数体
+}
+
+setCookie('type', 'js', {
+  type: true,
+  expires: 6000
+})
+```
+
+这个函数与之前示例中的函数具有相似的特性，只是现在使用<u>解构语法代替了第3个参数来提取必要的信息</u>，其他参数保持不变，但是对于调用setCookie()函数的使用者而言，解构参数变得更清晰了
+
+**解构参数可以使用默认值、混合对象和数组的解构模式及非同名变量存储提取出来的信息。**
+
+
+
+#### 1. 必须传值的解构参数
+
+解构参数有一个奇怪的地方，默认情况下，如果调用函数时不提供被解构的参数会导致程序抛出错误
+
+```javascript
+//调用上一个示例中的setCookit()函数，如果不传递第3个参数，会报错
+setCookie('type', 'js');
+```
+
+缺失的第3个参数，其值为undefined，而解构参数只是将解构声明应用在函数参数的一个简写方法，其会导致程序抛出错误。
+
+<u>如果解构赋值表达式的右值为null或undefined，则程序会报错</u>，同理，若调用setCookie()函数时不传入第3个参数，也会导致程序抛出错误。
+
+如果解构参数是必需的，大可忽略掉这些问题；但如果希望将解构参数定义为可选的，那么就必须为其**提供默认值**来解决这个问题：
+
+```javascript
+function setCookie(name, value, {secure, path, domain, expires} = {}) {
+  //...
+}  
+```
+
+
+
+#### 2. 解构参数的默认值
+
+可以为解构参数指定默认值，就像在解构赋值语句中做的那样，只需在参数后添加等号并且指定一个默认值即可
+
+```javascript
+function setCookie(name, value, {
+  secure = false,
+  path = '/',
+  domain = 'exmaple.com',
+  expires = new Date(Date.now() + 3600000000)
+}) {
+  //...
+}
+```
+
+ 在这段代码中，解构参数的每一个属性都有默认值，从而无须再逐一检查每一个属性是否都有默认值。
+
+然而，这种方法也有很多缺点：
+
+* 首先，函数声明变得比以前复杂了；
+
+* 其次，<u>如果解构参数是可选的，那么仍然要给它添加一个空对象作为参数</u>，否则像setCookie（"type"，"js"）这样的调用会导致程序抛出错误。
+
+这里建议对于对象类型的解构参数，为其赋予相同解构的默认参数：
+
+```javascript
+function setCookie(name, value, {
+  secure = false,
+  path = '/',
+  domain = 'example.com',
+  expires = new Date(Date.now() + 3600000000)
+} = {
+  secure = false,
+  path = '/',
+  domain = 'example.com',
+  expires = new Date(Date.now() + 3600000000)
+}) {
+  //...
+}
+```
+
+现在函数变得更加完整了，第一个对象字面量是解构参数，第二个为默认值。但是这会造成非常多的**代码冗余**，你可以将默认值提取到一个**独立对象**中，并且使用该对象作为解构和默认参数的一部分，从而消除这些冗余
+
+```javascript
+const setCookieDefaults = {
+  secure: false,
+  path: '/',
+  domain: 'example.com',
+  expires: new Date(Date.now() + 3600000000)
+};
+
+function setCookie(name, value, {
+  secure = setCookieDefaults.secure,
+  path = setCookieDefaults.path,
+  domain = setCookieDefaults.domain,
+  expires = setCookieDefaults.expires
+} = setCookieDefaults) {
+  //...
+}
+```
+
+在这段代码中，默认值已经被放到setCookieDefaults对象中，除了作为默认参数值外，在解构参数中可以直接使用这个对象来为每一个绑定设置默认参数。使用解构参数后，不得不面对处理默认参数的复杂逻辑，但它也有好的一面，如果要改变默认值，可以立即在setCookieDefaults中修改，<u>改变的数据将自动同步到所有出现过的地方。</u>
 
 
 
