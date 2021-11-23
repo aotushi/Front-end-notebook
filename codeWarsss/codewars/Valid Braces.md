@@ -58,6 +58,14 @@ function judgeBraces(str) {
     let firstIndex = index,
         lastIndex = 
   })
+  
+  
+   let pairIndex = 0;
+  result.forEach((item, index) => {
+    if (item === result[0] && index !== 0) {
+      pairIndex = index;
+    }
+  });
 }
 
 
