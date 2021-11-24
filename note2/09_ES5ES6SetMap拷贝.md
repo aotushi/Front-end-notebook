@@ -1490,7 +1490,15 @@ game[methodDown]();
 
 
 
-### Symbol内置属性
+### 6. Symbol属性 ??
+
+
+
+
+
+### 7. 其他
+
+#### 1. Symbol内置属性
 
 > 扩展对象内置的功能, 不需要手动调用, 某些场景下会被动执行. 
 
@@ -1518,7 +1526,7 @@ replace方法
 
 
 
-### symbol为什么没有包装类型
+#### 2. symbol为什么没有包装类型
 
 ```js
 https://www.zhihu.com/question/316717095/answer/628772556
@@ -1733,187 +1741,772 @@ for(let i of team2['members']){
 
 
 
-## set集合
+## Set集合
 
-> ES6 提供了新的数据结构 Set（集合）。它类似于数组，但成员的值都是唯一的，集合实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历，
->
-> 无法使用普通for循环, 因为==set是无序==的.  集合是键值对形式,但是键值是一样的.
+### 0. 背景
+
+在ECMAScript 6标准制定以前，由于可选的集合类型有限，数组使用的又是数值型索引，因而经常被用于创建队列和栈。如果开发者们需要使用非数值型索引，就会用非数组对象创建所需的数据结构，而这就是Set集合与Map集合的早期实现。
+
+Set集合是一种无重复元素的列表，通常的做法是检测给定的值在某个集合中是否存在。
+
+Map集合内含多组键值对，集合中每个元素分别存放着可访问的键名和它对应的值，Map集合经常被用于缓存频繁取用的数据
+
+Set集合常被用于检查对象中是否存在某个键名，而Map集合常被用于获取已存的信息
 
 
 
-```js
-//声明集合
-const s =new Set(); //打印结果: Set(0) {}
-const s1 =new Set([1,2,3,4,1,2,3]); //打印结果: Set(4) {1, 2, 3, 4}
+### 1. ES5实现set/map
 
-//1.size  元素个数
-console.log(s1.size);//4 自动去重后的结果
+在ECMAScript 5中，开发者们用对象属性来模拟这两种集合:
 
-//2.add() 添加  更改的是原set结构
-s1.add(5);
-console.log(s1);// Set(5) {1, 2, 3, 4, 5}
+<u>这里的变量set是一个原型为null的对象，不继承任何属性</u>。在ECMAScript 5中，开发者们经常用类似的方法检查对象的某个属性值是否存在。
 
-//3.delete 删除
-s1.delete(1);
-console.log(s1); //Set(3) {2, 3, 4}
+```javascript
+//ES5模拟set集合
 
-//4.has() 检测集合是否包含某个元素
-console.log(s1.has(2));//true
+let set = Object.create(null);
 
-//5. clear() 清空
-s1.clear();
-console.log(s1); //Set(0)
+set.foo = true;
 
-//6. for..of遍历
-
-for(let i of s1){
-    console.log(i);//遍历的是集合里的值
+//检查属性是否存在
+if (set.foo) {
+  //执行的代码
 }
+```
 
-7.扩展运算符 ...  展开集合
-let arr = [...s1];
-console.log(arr);//[1, 2, 3, 4]
+模拟这两种集合对象的唯一区别是存储的值不同,set中是布尔值.
+
+```javascript
+//ES5模拟map集合
+
+let map = Object.create(null);
+map.foo = 'bar';
+
+//获取已存值
+let value = map.foo;
+
+console.log(value); //'bar'
 ```
 
 
 
-### Set类型案例
+### 2. ES5方案的缺点
 
-```js
-//1.数组去重
+#### 1. 类型转换
+
+**数字转换为字符串**
+
+如果程序很简单，确实可以用对象来模拟Set集合与Map集合，但如果触碰到对象属性的某些限制，那么这个方法就会变得更加复杂。例如，所有对象的属性名必须是字符串类型，必须确保每个键名都是字符串类型且在对象中是唯一的
+
+```javascript
+//number类型作为属性会自动类型转换为字符串
+let map = Object.create(null);
+
+map[5] = 'foo';
+
+console.log(map['5']); //'foo'
+```
+
+对象的某个属性赋值为字符串"foo"，而这个属性的键名是数值型的5，它会被自动转换成字符串，所以<u>map["5"]和map[5]引用的其实是同一个属性。如果你想分别用数字和字符串作为对象属性的键名，则内部的自动转换机制会导致很多问题。当然，用对象作为属性的键名也会遇到类似的问题</u>
+
+**对象转换为字符串**
+
+```javascript
+//对象作为属性会自动发生类型转换
+let map = Object.create(null),
+    key1 = {},
+    key2 = {};
+map[key1] = 'foo';
+
+console.log(map[key2]); //'foo'
+```
+
+<span style="text-decoration: underline double red;">由于对象属性的键名必须是字符串，因而这段代码中的key1和key2将被转换为对象对应的默认字符串"[object Object]"，所以map[key2]和map[key1]引用的是同一个属性。</span>
+
+**属性值为假值时**
+
+对于Map集合来说，如果它的属性值是假值，则在要求使用布尔值的情况下（例如在if语句中）会被自动转换成false。强制转换本身没有问题，但如果考虑这个值的使用场景，就有可能导致错误发生。
+
+如果map.count的值为0或者不存在，if语句中的代码块将不会被执行. <u>在大型软件应用中，一旦发生此类问题将难以定位及调试，从而促使ECMAScript 6在语言中加入Set集合与Map集合这两种新特性。</u>
+
+```javascript
+let map = Object.create(null);
+map.count = 1;
+
+//本意是检查'count'属性是否存在,实际上检查的是该值是否非零
+if (map.count) {
+  //执行的代码
+}
+```
+
+在JavaScript中有一个**in运算符**，其不需要读取对象的值就可以判断属性在对象中是否存在，如果存在就返回true。但是，in运算符也会检索对象的原型，**只有当对象原型为null时使用这个方法才比较稳妥**。
+
+
+
+### 3. Set集合
+
+#### 0. 概要
+
+ECMAScript 6中新增的Set类型是一种**有序列表**，其中含有一些**相互独立的非重复值**，通过Set集合可以快速访问其中的数据，更有效地追踪各种离散值。
+
+ES6 新的数据结构 Set（集合）,它类似于数组，但**成员的值都是唯一的**，集合实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历，   无法使用普通for循环, 因为set是无序的.  集合是键值对形式,但是键值是一样的.?????
+
+
+
+#### 1. 创建Set集合
+
+**new Set()**
+
+调用**new Set()**创建Set集合,调用**add()方法**向集合中添加元素，访问集合的**size属性**可以获取集合中目前的元素数量。
+
+```javascript
+let set = new Set();
+set.add(5);
+set.add('5');
+
+console.log(set.size); //2
+```
+
+#### 2. 参数
+
+<span style="text-decoration:underline double red">Set构造函数可以接受所有可迭代对象作为参数，数组、Set集合、Map集合都是可迭代的</span>，因而都可以作为Set构造函数的参数使用；构造函数通过**迭代器**从参数中提取值。
+
+**在Set集合中，不会对所存值进行强制的类型转换**，数字5和字符串“5”可以作为两个独立元素存在（引擎内部使用第4章介绍的Object.is()方法检测两个值是否一致）。当然，<u>如果向Set集合中添加多个对象，则它们之间彼此保持独立：</u>
+
+```javascript
+//Set集合中添加多个空对象
+
+let set = new Set(),
+    key1 = {},
+    key2 = {};
+
+set.add(key1);
+set.add(key2);
+
+console.log(set.size); //2
+```
+
+由于key1和key2不会被转换成字符串，因而它们在Set集合中是两个独立的元素；如果被转换，则二者的值都是"[object Object]"。
+
+
+
+### 4. 方法
+
+#### 0. add()
+
+**如果多次调用add()方法并传入相同的值作为参数，那么后续的调用实际上会被忽略**：
+
+```javascript
+let set = new Set();
+set.add(5);
+set.add('5');
+set.add(5); //重复- 本地调用直接被忽略
+
+console.log(set.size); //2
+```
+
+#### 1. size
+
+访问集合的**size属性**可以获取集合中目前的元素数量
+
+```javascript
+let set = new Set(4);
+//VM23977:1 Uncaught TypeError: number 4 is not iterable (cannot read property Symbol(Symbol.iterator))
+
+let set = new Set([4]);
+console.log(set.size); //1
+```
+
+#### 2. has()
+
+通过has()方法可以检测Set集合中是否存在某个值,返回值为布尔值
+
+```javascript
+let set = new Set();
+set.add(5);
+set.add('5');
+
+console.log(set.has(5)); //true
+console.log(set.has(6)); //false
+```
+
+#### 3. delete()/clear()
+
+调用delete()方法可以移除Set集合中的某一个元素，调用clear()方法会移除集合中的所有元素
+
+```javascript
+let set = new Set();
+set.add(5);
+set.add('5');
+
+console.log(set.has(5)); //true
+
+set.delete(5);
+
+console.log(set.has(5)); //false
+console.log(set.size); //1
+
+set.clear();
+
+console.log(set.has('5')); //false
+console.log(set.size); //0
+```
+
+#### 4. forEach()
+
+如果你想在Set集合中添加元素并在每一个元素上执行操作
+
+```javascript
+mySet.forEach((value, value, set) => {}, thisArg)
+```
+
+
+
+forEach()方法的回调函数接收以下3个参数:
+
+* 元素的值
+* 元素的值(由于集合对象中没有索引(keys)，所以前两个参数都是`Set`中元素的值(**values**))
+* 被遍历的Set集合本身
+
+然而**Set集合没有键名**，ECMAScript 6标准制定委员会本可以规定Set集合的forEach()函数的回调函数只接受两个参数，但这可能导致几个方法之间分歧过大，于是他们最终决定所有函数都接受3个参数：**Set集合中的每个元素也按照键名和值的形式储存**，从而才能保证在所有forEach()方法的回调函数中前两个参数值具有相同含义。
+
+在Set集合的forEach()方法中，第二个参数也与数组的一样，如果需要在回调函数中使用this引用，则可以将它作为第二个参数传入forEach()函数
+
+
+
+#### 5. Set集合转数组
+
+尽管Set集合更适合用来跟踪多个值，而且又可以通过forEach()方法操作集合中的每一个元素，但是你<u>不能像访问数组元素那样直接通过索引访问集合中的元素</u>。如有需要，最好先将Set集合转换成一个数组。
+
+```javascript
+let set = new Set([1,2,3,4,5,5,5,]),
+    array = [...set];
+
+console.log(array); //[1,2,3,4,5]
+```
+
+
+
+可以用数组来初始化Set集合，Set构造函数同样会过滤掉重复的值从而保证集合中的元素各自唯一。
+
+```javascript
+let set = new Set([1,2,3,4,5,5,5,5,5,5]);
+console.log(set.size); //5
+```
+
+自动去重的功能对于将已有代码或JSON结构转换为Set集合执行得非常好。
+
+
+
+### 5. Weak Set集合
+
+#### 0. 概要
+
+将对象存储在Set的实例与存储在变量中完全一样，只要Set实例中的引用存在，垃圾回收机制就不能释放该对象的内存空间，于是之前提到的Set类型可以被看作是一个**强引用的Set集合**.
+
+```javascript
+let set = new Set(),
+    key = {};
+
+set.add(key);
+console.log(set.size); //1
+
+//移除原始引用
+key = null;
+
+console.log(set.size); //1
+
+//重新取回原始引用
+key = [...set][0]
+```
+
+将变量key设置为null时便清除了对初始对象的引用，但是Set集合却保留了这个引用，你仍然可以使用展开运算符将Set集合转换成数组格式并从数组的首个元素取出该引用。但有时候你会希望当其他所有引用都不再存在时，让Set集合中的这些引用随之消失。举个例子，如果你在Web页面中通过JavaScript代码记录了一些DOM元素，这些元素有可能被另一段脚本移除，而你又不希望自己的代码保留这些DOM元素的最后一个引用。（这个情景被称作内存泄露。）
+
+ECMAScript 6中引入了另外一个类型：Weak Set集合（弱引用Set集合）,<span style="text-decoration:underline wavy blue">Weak Set集合只存储对象的弱引用，并且不可以存储原始值；集合中的弱引用如果是对象唯一的引用，则会被回收并释放相应内存</span>。
+
+#### 1. 创建Weak Set集合
+
+用WeakSet构造函数可以创建Weak Set集合，集合支持3个方法：add()、has()和delete()。
+
+```javascript
+let set = new WeakSet(),
+    key = {};
+
+set.add(key);
+
+console.log(set.has(key)); //true
+
+set.delete(key);
+
+console.log(set.has(key)); //false
+```
+
+可以调用WeakSet构造函数并传入一个可迭代对象来创建Weak Set集合
+
+```javascript
+let key1 = [],
+    key2 = [],
+    set = new WeakSet([key1, key2]);
+
+console.log(set.has(key1)); //true
+console.log(set.has(key2)); //false
+```
+
+
+
+### 6. 强引用和弱引用Set的区别
+
+**0. 两种Set类型之间最大的区别是Weak Set保存的是对象值的弱引用**
+
+```javascript
+let set = new WeakSet(),
+    key = {};
+
+//向set集合中添加对象
+set.add(key);
+
+console.log(set.has(key)); //true
+
+//移除对象key的最后一个强引用(Weak Set中的引用也自动移除)
+key = null;
+
+console.log(set.has(key)); //false  在浏览器中可以打印出flase. 如果使用add添加原始类型就会报错
+
+```
+
+这段代码执行过后，就无法访问Weak Set中key的引用了。由于我们需要向has()方法传递一个强引用才能验证这个弱引用是否已被移除，因此测试有点儿难以进行下去，但是请你相信，JavaScript引擎一定会正确地移除最后一个弱引用。????
+
+**1. 在WeakSet的实例中，如果向add()、has()和delete()这3个方法传入非对象参数都会导致程序报错**
+
+浏览器环境中add(), delete()会正常报错,has()不会
+
+```javascript
+new WeakSet().has('a'); //测试,在浏览器环境中不会报错
+```
+
+**2.Weak Set集合不可迭代，所以不能被用于for-of循环**
+
+```javascript
+
+```
+
+**3.Weak Set集合不暴露任何迭代器（例如keys()和values()方法），所以无法通过程序本身来检测其中的内容。**????
+
+```javascript
+```
+
+4.Weak Set集合不支持forEach()方法
+
+5.Weak Set集合不支持size属性
+
+
+
+
+
+### 7. Set集合案例
+
+如果你只需要跟踪对象引用，你更应该使用Weak Set集合而不是普通的Set集合。Set类型可以用来处理列表中的值，但是不适用于处理键值对这样的信息结构。ECMAScript 6也添加了Map集合来解决类似的问题。
+
+#### 0. 数组去重
+
+```javascript
 const arr = ['大事儿','小事儿','好事儿','坏事儿','小事儿'];
 const arr2 = [...new Set(arr)];
 
-//2.取交集
-let arr = [1,2,3,4,1,2];
-let arr2 = [3,4,5,6,4,3];
+//封装函数
+function eliminateDuplicates(items) {
+  return [...new Set(items)];
+}
+```
 
-let jiaoji = [...new Set(arr)].filter(item=>{
-    let s2 = new Set(arr2);
-    if(s2.has(item)){
-        return true;
-    }else{
-        return false;
-    }
+#### 1. 数组交集
+
+```javascript
+//集合论中，设A，B是两个集合，由所有属于集合A且属于集合B的元素所组成的集合，叫做集合A与集合B的交集
+let arr = [1,2,3,4,1,2],
+		arr2 = [3,4,5,6,4,3];
+
+let result = [...new Set(arr)].filter(item => [...new Set(arr2)].some(item2 => item2 === item));
+```
+
+
+
+#### 2. 数组合集
+
+```javascript
+//给定两个集合A，B，把他们所有的元素合并在一起组成的集合，叫做集合A与集合B的并集
+let arr = [1,2,3,4,1,2],
+    arr2 = [3,4,5,6,4,3];
+
+let result = [...new Set([...arr, ...arr2])];
+```
+
+
+
+#### 3. 数组差集
+
+```javascript
+//对于给定的两个集合，返回一个包含所有存在于第一个集合且不存在于第二个集合的元素的新集合
+let arr = [1,2,3,4,1,2],
+    arr2 = [3,4,5,6,4,3];
+
+let result = [...new Set(arr)].filter(item => ![...new Set(arr2)].includes(item));
+let result = [...new Set(arr)].filter(item => !(new Set(arr2)).has(item));
+```
+
+
+
+
+
+
+
+
+
+## Map集合
+
+### 0. 背景
+
+ECMAScript 6中的Map类型是一种储存着许多**键值对的有序列表**，其中的键名和对应的值支持所有的数据类型。<u>键名的等价性判断是通过调用Object.is()方法实现的</u>，所以数字5与字符串“5”会被判定为两种类型，可以分别作为独立的两个键出现在程序中，这一点与对象中不太一样，因为对象的属性名总会被强制转换成字符串类型。
+
+它类似于==对象和集合==，也是键值对的集合。但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。Map也实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历
+
+
+
+### 1. Map集合
+
+#### 0. 声明
+
+```javascript
+new Map(); //创建映射
+```
+
+在对象中，无法用对象作为对象属性的键名；但是在Map集合中，却可以这样做
+
+```javascript
+let map = new Map(),
+    key1 = {},
+    key2 = {};
+
+map.set(key1, 5);
+map.set(key2, 42);
+
+console.log(map.get(key1)); //5
+console.log(map.get(key2)); //42
+```
+
+在这段代码中，分别用对象key1和key2作为两个键名在Map集合里存储了不同的值。这些键名不会被强制转换成其他形式，所以这两个对象在集合中是独立存在的，也就是说，<u>以后你不再需要修改对象本身就可以为其添加一些附加信息</u>。
+
+#### 1. 初始化方法
+
+可以向Map构造函数传入数组来初始化一个Map集合，这一点同样与Set集合相似。数组中的每个元素都是一个子数组，子数组中包含一个键值对的键名与值两个元素
+
+```javascript
+let map = new Map([['name', 'Nicholas'], ['age', 25]]);
+
+console.log(map.has('name')); //true
+console.log(map.get('name')); //'Nicholas'
+console.log(map.has('age')); //true
+console.log(map.get('age')); //25
+console.log(map.size); //2
+```
+
+数组包裹数组的模式看起来可能有点儿奇怪，但由于Map集合可以接受任意数据类型的键名，<u>为了确保它们在被存储到Map集合中之前不会被强制转换为其他数据类型，因而只能将它们放在数组中，因为这是唯一一种可以准确地呈现键名类型的方式</u>。!!!!????
+
+
+
+### 2. 方法与属性
+
+#### 0. set()
+
+如果要向Map集合中添加新的元素，可以调用set()方法并分别传入键名和对应值作为两个参数
+
+```javascript
+let map = new Map();
+map.set('title', 'Understanding ECMAScript 6');
+map.set('year', 2016);
+
+```
+
+
+
+#### 1. get()
+
+调用get()方法可以获得两个键名对应的值。如果调用get()方法时传入的键名在Map集合中不存在，则会返回undefined。
+
+```javascript
+let map = new Map();
+map.set('title', 'Understanding ECMAScript 6');
+map.set('year', 2016);
+
+console.log(map.get('title')); //Understanding ECMAScript 6
+console.log(map.get('year')); //2016
+```
+
+
+
+#### 2. has(key)
+
+检测指定的键名在Map集合中是否已经存在
+
+#### 3. delete(key)
+
+从Map集合中移除指定键名及其对应的值
+
+#### 4. clear()
+
+移除Map集合中的所有键值对.clear()方法可以快速清除Map集合中的数据，同样，Map集合也支持批量添加数据????
+
+#### 5. size
+
+代表当前集合中包含的键值对数量
+
+#### 6. forEach()
+
+Map集合的forEach()方法与Set集合和数组中的forEach()方法类似，回调函数都接受3个参数
+
+* Map集合中下一次索引的位置(值)
+* 值对应的键名(键)
+* Map集合本身
+
+```javascript
+let map = new Map([['name', 'Nicholas'], ['age', 25]]);
+
+map.forEach((value, key, ownermap) => {
+  console.log(key + ' ' + value);
+  console.log(ownermap === map);
 });
 
-console.log(jiaoji);
-
-
-//3. 求并集
-let arr = [1,2,3,4,1,2];
-let arr2 = [3,4,5,6,4,3];
-
-let union =[...new Set([...new Set(arr), ...new Set(arr2)])];
-console.log(union);
-
-//4.差集  以a集合为主, a集合里有的b集合里没有,a集合里的这部分就是差集. arr与arr2差集是1和2,以arr为主arr2为从.
-let diff = [...new Set(arr)].filter(item=>!(new Set(arr2)).has(item))
-
-let inter =[...new Set(arr)].filter(item=>{
-    let s2=new Set(arr2);
-    return !s2.has(item);
-})
+//name Nicholas
+//true
+//age 25
+//true
 ```
 
+可以指定forEach()函数的第二个参数作为回调函数的this值。
 
+### 3. Weak Map集合
 
+#### 0. 概要
 
+Weak Map是弱引用Map集合，也用于存储对象的弱引用。**Weak Map集合中的键名必须是一个对象，如果使用非对象键名会报错**；集合中保存的是这些对象的弱引用，如果在弱引用之外不存在其他的强引用，引擎的垃圾回收机制会自动回收这个对象，同时也会移除Weak Map集合中的键值对。但是只有集合的键名遵从这个规则，键名对应的值如果是一个对象，则保存的是对象的强引用，不会触发垃圾回收机制。
 
-## Map数据类型
+**Weak Map集合最大的用途是保存Web页面中的DOM元素**，例如，一些为Web页面打造的JavaScript库，会通过自定义的对象保存每一个引用的DOM元素。
 
-> 它类似于==对象和集合==，也是键值对的集合。但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。Map也实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历
->
-> 使用场景: 缓存.
+使用这种方法最困难的是，一旦从Web页面中移除保存过的DOM元素，如何通过库本身将这些对象从集合中清除；否则，可能由于库过于庞大而导致内存泄露，最终程序不再正常执行。如果用WeakMap集合来跟踪DOM元素，这些库仍然可以通过自定义的对象整合每一个DOM元素，而且当DOM元素消失时，可以自动销毁集合中的相关对象。
 
- 
+#### 1. 创建
 
-#### 声明
+Weak Map类型是一种存储着许多键值对的无序列表，列表的**键名必须是非null类型的对象，键名对应的值则可以是任意类型**。Weak Map的接口与Map非常相似，通过**set()方法添加数据，通过get()方法获取数据**
 
-```HTML
-let m = new Map(); //创建映射
-console.log(m);//Map(0) {}
+```javascript
+let map = new Weak Map(),
+  	element = document.querySelector('.element');
+
+map.set(element, 'Original');
+
+//移除element元素
+element.parentNode.removeChild(element);
+element = null;
+
+//此时Weak Map集合为空
 ```
 
+与Weak Set集合相似的是，Weak Map集合也不支持size属性，从而无法验证集合是否为空；同样，由于没有键对应的引用，因而无法通过get()方法获取到相应的值，Weak Map集合自动切断了访问这个值的途径，当垃圾回收程序运行时，被这个值占用的内存将会被释放。
 
+#### 2. Weak Map集合初始化
 
-#### 返回元素个数size
+Weak Map集合的初始化过程与Map集合类似，调用WeakMap构造函数并传入一个数组容器，容器内包含其他数组，每一个数组由两个元素构成：第一个元素是一个键名，传入的值必须是非null的对象；第二个元素是这个键对应的值（可以是任意类型）
 
-```js
-let count = m.size;
-console.log(count);
+```javascript
+let key1 = {},
+    key2 = {},
+    map = new Weak Map([[key1, 'hello'], [key2, '42']]);
+
+console.log(map.has(key1)); //true
+console.log(map.get(key1)); //'hello'
+console.log(map.has(key2)); //true
+console.log(map.get(key2)); //42
 ```
 
+如果给WeakMap构造函数传入的诸多键值对中含有非对象的键，会导致程序抛出错误。
+
+#### 3. 方法
+
+Weak Map集合只支持两个可以操作键值对的方法：
+
+has()方法可以检测给定的键在集合中是否存在；
+
+delete()方法可以移除指定的键值对。
+
+**Weak Map集合与Weak Set集合一样，二者都不支持键名枚举，从而也不支持clear()方法**
+
+Weak Map集合的键名只支持非null的对象值；调用delete()方法可以从Weak Map集合中移除指定的键值对，此时如果再调用has()方法检查这个键名会返回false，调用get()方法返回undefined。
 
 
-#### 设置元素set
 
-```js
-- 键值对形式
-- 增加一个新元素, 返回当前mMap
+#### 4. 私有对象数据!!!!????
 
-m.set('name', 'target');
-let key ={n:'school'};
-m.set(key, function(){alert('nihao')})
+尽管Weak Map集合会被大多数开发者用于储存DOM元素，但它其实也有许多其他的用途: 其中的一个实际应用是**存储对象实例的私有数据**。在ECMAScript 6中对象的所有属性都是公开的，如果想要储存一些只对对象开放的数据. 怎么做呢.
 
-console.log(m)
+```javascript
+function Person(name) {
+  this._name = name;
+}
+
+Person.prototype.getName = function() {
+  return this._name;
+}
 ```
 
+这段代码中，约定前缀为下划线\_的属性为私有属性，不允许在对象实例外改变这些属性。例如，只能通过getName()方法读取this.\_name属性，不允许改变它的值。然而没有任何标准规定如何写\_name属性，所以它也有可能在无意间被覆写。
 
+在ECMAScript 5中，可以通过以下这种模式创建一个对象接近真正的私有数据：
 
-
-
-#### 获取元素get
-
-```js
-console.log(m.get('name'));
-console.log(m.get(key));
-
-如果map映射中键的值是个对象,那么使用m.get()方法无法获取到这个对象的值,会返回undefined.
-例如:
-let m =new Map();
-m.set({name:'guigu'}, function(){console.log('print')});
-m.get({name:'guigu'});//log结果: undefined. 因为不是同一个对象,是两个地址.解决方法:变量传递.
-
-//变量传递
-let m = new Map();
-let key = {name:'guigu'};
-m.set(key, function(){console.log('print')})
-console.log(m.get(key));//function()
+```javascript
+let Person = (function() {
+  let privateDate = {},
+      privateId = 0;
+  
+  function Person(name) {
+    Object.defineProperty(this, '_id', {value: privateId++});
+    privateDate[this._id] = {name: name};
+  }
+  
+  Person.prototype.getName = function() {
+    return privateData[this._id].name;
+  };
+  
+  return Person;
+})();
 ```
 
+在上面的示例中，变量Person由一个立即调用函数表达式（IIFE）生成，包括两个私有变量：privateData和privateId。privateData对象储存的是每一个实例的私有信息，privateId则为每个实例生成一个独立ID。当调用Person构造函数时，属性_id的值会被加1，这个属性不可枚举、不可配置并且不可写。
 
+然后，新的条目会被添加到privateData对象中，条目的键名是对象实例的ID；privateData对象中储存了所有实例对应的名称。调用getName()函数，即可通过this.\_id获得当前实例的ID，并以此从privateData对象中提取实例名称。在IIFE外无法访问privateData对象，即使可以访问this.\_id，数据实际上也很安全。
 
-#### 删除元素delete
+这种方法最大的问题是，如果不主动管理，由于无法获知对象实例何时被销毁，因此privateData中的数据就永远不会消失。而使用Weak Map集合就可以解决这个问题
 
-```js
-m.delete('name');
-console.log(m);
+```javascript
+let Person = (function() {
+  let privateData = new WeakMap();
+  
+  function Person(name) {
+    privateData.set(this, {name: name});
+  }
+  
+  Person.prototype.getName = function() {
+    return privateData.get(this).name;
+  };
+  
+  return Person;
+})();
 ```
 
+#### 5. 使用方式及限制
+
+当你要在Weak Map集合与普通的Map集合之间做出选择时，需要考虑的主要问题是，是否只用对象作为集合的键名。如果是，那么Weak Map集合是最好的选择。当数据再也不可访问后集合中存储的相关引用和数据都会被自动回收，这有效地避免了内存泄露的问题，从而优化了内存的使用。
+
+相对Map集合而言，Weak Map集合对用户的可见度更低，其不支持通过forEach()方法、size属性及clear()方法来管理集合中的元素。如果你非常需要这些特性，那么Map集合是一个更好的选择，只是一定要留意内存的使用情况。
+
+当然，如果你只想使用非对象作为键名，那么普通的Map集合是你唯一的选择。
 
 
-#### 检测是否包含has
 
-```js
-m.has('name');//有返回true,没有返回false
+## 迭代器(iterator)和生成器(generator)
+
+### 0. 背景
+
+迭代器的使用可以极大地简化数据操作，于是ECMAScript 6也向JavaScript中添加了这个迭代器特性。**新的数组方法和新的集合类型（例如Set集合与Map集合）都依赖迭代器的实现**，这个新特性对于高效的数据处理而言是不可或缺的，你也会发现在语言的其他特性中也都有迭代器的身影：**新的for-of循环、展开运算符（...），甚至连异步编程都可以使用迭代器**。
+
+### 1. for循环的问题
+
+```javascript
+let colors = ['red', 'green', 'blue'];
+for (let i = 0; i < colors.length; i++) {
+  console.log(colors[i]);
+}
 ```
 
+虽然循环语句的语法简单，但是<u>如果将多个循环嵌套则需要追踪多个变量</u>，代码的复杂度会大大增加，一不小心就错误使用了其他for循环的跟踪变量，从而导致程序出错。迭代器的出现旨在消除这种复杂性并减少循环中的错误。
 
+### 2. 迭代器
 
-#### 元素个数
+迭代器是一种特殊对象，它具有一些专门为迭代过程设计的专有接口，所有的迭代器对象都有一个next()方法，每次调用都返回一个结果对象。结果对象有两个属性：一个是value，表示下一个将要返回的值；另一个是done，它是一个布尔类型的值，当没有更多可返回数据时返回true。迭代器还会保存一个内部指针，用来指向当前集合中值的位置，每调用一次next()方法，都会返回下一个可用的值。
 
-```js
-console.log(m.size);//
+如果在最后一个值返回后再调用next()方法，那么返回的对象中属性done的值为true，属性value则包含迭代器最终返回的值，这个返回值不是数据集的一部分，它与函数的返回值类似，是函数调用过程中最后一次给调用者传递信息的方法，如果没有相关数据则返回undefined。
+
+用ECMAScript 5的语法创建一个迭代器
+
+```javascript
+function createIterator(items) {
+  let i = 0;
+  return {
+    next: function() {
+      let done = (i >= items.length),
+          value = !done ? item[i++] : undefined;
+      
+      return {
+        done: done,
+        value: value
+      };
+    }
+    
+  }
+}
+
+let iterator = createIterator([1,2,3]);
+
+console.log(iterator.next()); //"{value: 1, done: false}"
+console.log(iterator.next()); //"{value: 2, done: false}"
+console.log(iterator.next()); //"{value: 3, done: false}"
+console.log(iterator.next()); //"{value: undefined, done: true}"
+
+//之后所有的调用都会返回相同内容
+console.log(iterator.next()); //"{value: undefined, done: true}"
 ```
 
+在ECMAScript 6中，迭代器的编写规则也同样复杂，但ECMAScript 6同时还引入了一个生成器对象，它可以让创建迭代器对象的过程变得更简单。
 
+### 3. 生成器
 
-#### 清空clear
+**生成器是一种返回迭代器的函数**，通过function关键字后的星号（*）来表示，函数中会用到新的关键字yield。星号可以紧挨着function关键字，也可以在中间添加一个空格
 
-```js
-m.clear();
-console.log(m);//
+```javascript
+//生成器
+function *createIterator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+//生成器的调用方式与普通函数相同,只不过返回的是一个迭代器
+let iterator = createIterator();
+console.log(iterator.next().value); //1
+console.log(iterator.next().value); //2
+console.log(iterator.next().value); //3
+```
+
+在这个示例中，createIterator()前的星号表明它是一个生成器；yield关键字也是ECMAScript 6的新特性，可以通过它来指定调用迭代器的next()方法时的返回值及返回顺序。生成迭代器后，连续3次调用它的next()方法返回3个不同的值，分别是1、2和3。生成器的调用过程与其他函数一样，最终返回的是创建好的迭代器。
+
+每当执行完一条yield语句后函数就会自动停止执行。举个例子，在上面这段代码中，执行完语句yield 1之后，函数便不再执行其他任何语句，直到再次调用迭代器的next()方法才会继续执行yield 2语句.
+
+使用yield关键字可以返回任何值或表达式，所以可以通过生成器函数批量地给迭代器添加元素.例如，可以在循环中使用yield关键字：
+
+```javascript
+function *createIterator(items) {
+  for (let i = 0; i < items.length; i++) {
+    yield items[i];
+  }
+}
+
+let iterator = createIterator([1,2,3]);
+console.log(iterator.next()); //"{value: 1, done: false}"
+console.log(iterator.next()); //"{value: 2, done: false}"
+console.log(iterator.next()); //"{value: 3, done: false}"
+console.log(iterator.next()); //"{value: undefined, done: true}"
+
+//之后所有的调用都会返回相同内容
+console.log(iterator.next()); //"{value: undefined, done: true}"
 ```
 
 

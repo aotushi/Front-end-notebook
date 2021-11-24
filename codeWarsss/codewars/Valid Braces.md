@@ -30,10 +30,11 @@
 
 ```javascript
 //my
-//判断条件: 任何两个相同的元素之间的元素个数为偶数(0,2,4),且不为0时里面的元素
+//判断条件: 任何两个相同的元素之间的元素个数为偶数(0,2,4)
 
 function judgeBraces(str) {
   if (str.length % 2 !== 0) return false;
+  
   let result = str.split('').map(item => {
     switch(item) {
       case '(':
@@ -54,18 +55,16 @@ function judgeBraces(str) {
     }
   });
   
-	result.every((item, index) => {
-    let firstIndex = index,
-        lastIndex = 
-  })
-  
-  
-   let pairIndex = 0;
-  result.forEach((item, index) => {
-    if (item === result[0] && index !== 0) {
-      pairIndex = index;
+	for (let i=0; i<result.length; i++) {
+    let firstIndex = i,
+        lastIndex = result.findIndex((ele, index) => ele === result[firstIndex] && index > firstIndex);
+    
+    if ((lastIndex - firstIndex - 1) % 2 === 0) {
+      return true;
+    } else {
+      return false;
     }
-  });
+  }
 }
 
 
