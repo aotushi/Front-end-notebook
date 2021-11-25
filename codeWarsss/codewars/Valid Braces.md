@@ -56,17 +56,26 @@ function judgeBraces(str) {
   });
   
 	for (let i=0; i<result.length; i++) {
+    
     let firstIndex = i,
         lastIndex = result.findIndex((ele, index) => ele === result[firstIndex] && index > firstIndex);
     
-    if ((lastIndex - firstIndex - 1) % 2 === 0) {
+    if ((lastIndex - firstIndex - 1) % 2 === 0 && (result[lastIndex - 1] - result[firstIndex + 1] === 0)) {
       return true;
     } else {
       return false;
     }
   }
+  
 }
 
+
+```
+
+
+
+```javascript
+//recommend
 
 ```
 
