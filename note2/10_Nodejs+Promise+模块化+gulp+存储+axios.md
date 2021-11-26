@@ -1951,16 +1951,19 @@ npm unpublish 包名 --force
 
 #### 介绍
 
-cnpm 是淘宝对国外 npm 服务器的一个完整镜像版本，也就是淘宝 npm 镜像，网站地址<http://npm.taobao.org/>
+cnpm 是淘宝对国外 npm 服务器的一个完整镜像版本，也就是淘宝 npm 镜像，网站地址:
+
+* 旧地址 http://npm.taobao.org/  (2022.05.31到期)
+* 新地址 https://npmmirror.com
 
 #### 安装
 
 安装配置方式有两种
 
-* npm install -g cnpm --registry=https://registry.npm.taobao.org
-* alias cnpm="npm --registry=https://registry.npm.taobao.org \
+* npm install -g cnpm --registry=https://registry.npmmirror.com
+* alias cnpm="npm --registry=https://registry.npmmirror.com \
   --cache=$HOME/.npm/.cache/cnpm \
-  --disturl=https://npm.taobao.org/dist \
+  --disturl=https://registry.npmmirror.com/dist \
   --userconfig=$HOME/.cnpmrc"       (只能在Linux下使用)
 
 #### 使用
@@ -1978,7 +1981,7 @@ cnpm install lodash
 npm get registry
 
 //淘宝镜像
-npm config set registry https://registry.npm.taobao.org
+npm config set registry https://registry.npmmirror.com
 //官方镜像   
 npm config set registry https://registry.npmjs.org/
 

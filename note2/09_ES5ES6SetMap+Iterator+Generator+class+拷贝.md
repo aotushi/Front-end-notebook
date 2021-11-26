@@ -3242,7 +3242,7 @@ run(function *() {
 
 在ECMAScript 6中引入了类的特性。ECMAScript 6中的类与其他语言中的还是不太一样，其语法的设计实际上借鉴了JavaScript的动态性
 
-### 0. ECMAScript 5中的近类结构:
+### ECMAScript 5中的近类结构:
 
 首先创建一个构造函数，然后定义另一个方法并赋值给构造函数的原型
 
@@ -3264,9 +3264,9 @@ console.log(person instanceof Object); //true
 
 
 
-### 1. 定义类的2种方式
+### 定义类的2种方式
 
-#### 1.类声明
+#### 0. 类声明
 
 要声明一个类，首先编写class关键字，紧跟着的是类的名字，其他部分的语法类似于对象字面量方法的简写形式，但不需要在类的各元素之间使用逗号分隔
 
@@ -3293,26 +3293,36 @@ console.log(typeof PersonClass); //function
 console.log(typeof PersonClass.prototype.sayName); //true
 ```
 
-过类声明语法定义PersonClass的行为与之前创建PersonType构造函数的过程相似，只是这里直接在类中通过特殊的constructor方法名来定义构造函数，且由于这种类使用简洁语法来定义方法，因而不需要添加function关键字。除constructor外没有其他保留的方法名，所以可以尽情添加方法。
+通过类声明语法定义PersonClass的行为与之前创建PersonType构造函数的过程相似
+
+**构造函数**
+
+这里直接在类中通过特殊的constructor方法名来定义构造函数. <u>除constructor外没有其他保留的方法名，所以可以尽情添加方法</u>。
+
+**方法**
+
+使用简洁语法来定义方法，因而不需要添加function关键字。
 
 **私有属性**
 
-私有属性是实例中的属性，不会出现在原型上，且只能在类的构造函数或方法中创建，此例中的name就是一个私有属性。这里建议你在构造函数中创建所有私有属性，从而只通过一处就可以控制类中的所有私有属性。
+<u>私有属性是实例中的属性，不会出现在原型上，且只能在类的构造函数或方法中创建</u>。<u>建议你在构造函数中创建所有私有属性，从而只通过一处就可以控制类中的所有私有属性</u>。
 
 **总结**
 
-有趣的是，类声明仅仅是基于已有自定义类型声明的语法糖。typeof PersonClass最终返回的结果是"function"，所以PersonClass声明实际上创建了一个具有构造函数方法行为的函数。
+类声明仅仅是基于已有自定义类型声明的语法糖。typeof PersonClass最终返回的结果是"function"，所以PersonClass声明实际上创建了一个具有构造函数方法行为的函数。
 
-与函数不同的是，类属性不可被赋予新值，在之前的示例中，PersonClass.prototype就是这样一个只可读的类属性。
+<u>与函数不同的是，类属性不可被赋予新值</u>，在之前的示例中，PersonClass.prototype就是这样一个只可读的类属性。
 
-#### 类声明的差异
+**1.类与自定义类型对象之间的差异**
 
 * 函数声明可以被提升，而类声明与let声明类似，不能被提升；真正执行声明语句之前，它们会一直存在于临时死区中。
-*  类声明中的所有代码将自动运行在严格模式下，而且无法强行让代码脱离严格模式执行。·
-* 在自定义类型中，需要通过Object.defineProperty()方法手工指定某个方法为不可枚举；而在类中，所有方法都是不可枚举的。·
-* 每个类都有一个名为[[Construct]]的内部方法，通过关键字new调用那些不含[[Construct]]的方法会导致程序抛出错误。·
-* 使用除关键字new以外的方式调用类的构造函数会导致程序抛出错误。·
-* 在类中修改类名会导致程序报错。
+*  类声明中的所有代码将自动运行在严格模式下，而且无法强行让代码脱离严格模式执行.
+* 在自定义类型中，需要通过Object.defineProperty()方法手工指定某个方法为不可枚举；而在类中，所有方法都是不可枚举的.
+* 每个类都有一个名为**[[Construct]]**的内部方法，通过关键字new调用那些不含[[Construct]]的方法会导致程序抛出错误.
+* 使用除关键字new以外的方式调用类的构造函数会导致程序抛出错误.
+* 在类中修改类名会导致程序报错.
+
+了解了这些差异之后，我们可以用除了类之外的语法为之前示例中的PersonClass声明编写等价代码：
 
 ```javascript
 //等价PersonClass
@@ -3346,20 +3356,38 @@ let PersonType2 = (function() {
 })();
 ```
 
-这段代码中有两处PersonType2声明：一处是外部作用域中的let声明，一处是立即执行函数表达式（IIFE）中的const声明，这也从侧面说明了为什么可以在外部修改类名而内部却不可修改。在构造函数中，先检查new.target是否通过new调用，如果不是则抛出错误；紧接着，将sayName()方法定义为不可枚举，并再次检查new.target是否通过new调用，如果是则抛出错误；最后，返回这个构造函数。
+这段代码中有两处PersonType2声明：一处是外部作用域中的let声明，一处是立即执行函数表达式（IIFE）中的const声明，<span style="text-decoration: underline wavy blue;">这也从侧面说明了为什么可以在外部修改类名而内部却不可修改</span>。
+
+在构造函数中，先检查new.target是否通过new调用，如果不是则抛出错误；紧接着，将sayName()方法定义为不可枚举，并再次检查new.target是否通过new调用，如果是则抛出错误；最后，返回这个构造函数。
 
 从这个示例我们可以看到，尽管可以在不使用new语法的前提下实现类的所有功能，但如此一来，代码变得极为复杂。
+
+**常量类名**
+
+类的名称只在类中为常量，所以尽管不能在类的方法中修改类名，但可以在外部修改
+
+```javascript
+class Foo {
+  constructor() {
+    Foo = 'bar'; // 执行时会抛出错误
+  }
+}
+
+//但在类声明结束后就可以修改
+Foo = 'bar';
+```
 
 
 
 #### 2.类表达式
 
-类和函数都有两种存在形式：声明形式和表达式形式。声明形式的函数和类都由相应的关键字（分别为function和class）进行定义，随后紧跟一个标识符；表达式形式的函数和类与之类似，只是不需要在关键字后添加标识符。类表达式的设计初衷是为了声明相应变量或传入函数作为参数。
+类和函数都有两种存在形式：声明形式和表达式形式。声明形式的函数和类都由相应的关键字（分别为function和class）进行定义，随后紧跟一个标识符；表达式形式的函数和类与之类似，只是不需要在关键字后添加标识符。<u>类表达式的设计初衷是为了声明相应变量或传入函数作为参数。</u>
 
 **类声明和类表达式区别**
 
 * 二者均不会像函数声明和函数表达式一样被提升，所以在运行时状态下无论选择哪一种方式代码最终的执行结果都没有太大差别。
-* 最重要的区别是name属性不同，匿名类表达式的name属性值是一个空字符串，而类声明的name属性值为类名，
+* 最重要的区别是name属性不同，匿名类表达式的name属性值是一个空字符串，而类声明的name属性值为类名
+* 在JavaScript引擎中，类表达式的实现与类声明稍有不同: 类声明，通过let定义的外部绑定与通过const定义的内部绑定具有相同名称；而命名类表达式通过const定义名称，从而PersonClass2只能在类的内部使用。
 
 ##### 2.1 匿名类表达式
 
@@ -3386,9 +3414,11 @@ console.log(typeof PersonClass); //function
 console.log(typeof PersonClass.prototype.sayName); //function
 ```
 
+如上所述, 类表达式不需要标识符在类后。除了语法，类表达式在功能上等价于类声明。在匿名类表达式中，就像在之前的示例中，<u>PersonClass.name是一个空字符串</u>。当你使用一个类声明时，PersonClass.name将会是"PersonClass"字符串。
 
 
-##### 2.2 名命类表达式
+
+##### 2.2 命名类表达式
 
 声明时，在关键字class后添加一个标识符即可定义为命名类表达式
 
@@ -3445,11 +3475,15 @@ let PersonClass = (function() {
 
 
 
-### 一等公民-类
+### 类使用方式
 
-在程序中，一等公民是指一个可以传入函数，可以从函数返回，并且可以赋值给变量的值
+#### 0. 一等公民-类
 
-JavaScript函数,类都是一等公民（函数也被称作头等函数）
+一等公民-类
+
+<u>在程序中，一等公民是指一个可以传入函数，可以从函数返回，并且可以赋值给变量的值.</u> JavaScript函数,类都是一等公民（函数也被称作头等函数）
+
+#### 1. 将类作为参数传入函数中 
 
 ```javascript
 function createObject(classDef) {
@@ -3467,7 +3501,9 @@ obj.sayHi(); //Hi
 
 在这个示例中，调用createObject()函数时传入一个匿名类表达式作为参数，然后通过关键字new实例化这个类并返回实例，将其储存在变量obj中。
 
-类表达式还有另一种使用方式，通过立即调用类构造函数可以创建单例。用new调用类表达式，紧接着通过一对小括号调用这个表达式
+#### 2. 通过立即调用类构造函数可以创建单例 ????
+
+用new调用类表达式，紧接着通过一对小括号调用这个表达式
 
 ```javascript
 let person = new class {
@@ -3482,13 +3518,16 @@ let person = new class {
 person.sayName(); //Nicholas
 ```
 
-这里先创建一个匿名类表达式，然后立即执行。依照这种模式可以使用类语法创建单例，并且不会在作用域中暴露类的引用，其后的小括号表明正在调用一个函数，而且可以传参数给这个函数。
+这里先创建一个匿名类表达式，然后立即执行。<u>依照这种模式可以使用类语法创建单例，并且不会在作用域中暴露类的引用</u>，其后的小括号表明正在调用一个函数，而且可以传参数给这个函数。
 
 
 
-### 访问器属性
+### 访问器属性(getter/setter)
 
-尽管应该在类构造函数中创建自己的属性，但是类也支持直接在原型上定义访问器属性。创建getter时，需要在关键字get后紧跟一个空格和相应的标识符；创建setter时，只需把关键字get替换为set即可
+尽管应该在类构造函数中创建自己的属性，但是<span style="text-decoration:underline wavy blue">类也支持直接在原型上定义访问器属性</span>。
+
+* 创建getter时，需要在关键字get后紧跟一个空格和相应的标识符； `get 标识符() {}` 
+* 创建setter时，只需把关键字get替换为set即可  `set 标识符(value) {}`
 
 ```javascript
 class CustomeHTMLElement {
@@ -3557,12 +3596,58 @@ me.sayName(); //Nicholas
 在对象字面量中，可以通过在方法名前附加一个星号（*）的方式来定义生成器，在类中亦是如此，可以将任何方法定义成生成器。
 
 ```javascript
-//待
+class MyClass {
+  *createIterator() {
+    yield 1;
+    yield 2;
+    yield 3;
+  }
+}
+
+let instance = new MyClass();
+let iterator = instance.createIterator();
 ```
+
+如果用对象来表示集合，又希望通过简单的方法迭代集合中的值，那么生成器方法就派上用场了。数组、Set集合及Map集合为开发者们提供了多个生成器方法来与集合中的元素交互。
+
+
+
+尽管生成器方法很实用，但如果你的类是用来表示值的集合的，那么为它定义一个默认迭代器会更有用。通过Symbol.iterator定义生成器方法即可为类定义默认迭代器
+
+```javascript
+class Collection {
+  constructor() {
+    this.items = [];
+  }
+  
+  *[Symbol.iterator]() {
+    yield *this.items.values();
+  }
+}
+
+let collection = new Collection();
+collection.items.push(1);
+collection.items.push(2);
+collection.items.push(3);
+
+for let x of collection) {
+  console.log(x);
+}
+
+//1
+//2
+//3
+```
+
+这个示例用可计算名称创建了一个代理this.items数组values()迭代器的生成器方法。任何管理一系列值的类都应该引入默认迭代器，因为一些与特定集合有关的操作需要所操作的集合含有一个迭代器。
+
+如果不介意在对象的实例中出现添加的方法和访问器属性，则可以将它们添加到类的原型中；如果你希望它们只出现在类中，那么需要使用静态成员.
 
 
 
 ### 静态成员
+
+#### 0. ES5
 
 在ECMAScript 5及早期版本中，直接将方法添加到构造函数中来模拟静态成员是一种常见的模式
 
@@ -3582,246 +3667,183 @@ PersonType.prototype.sayName = function() {
 }
 ```
 
-由于工厂方法PersonType.create()使用的数据不依赖PersonType的实例，因而其会被认为是一个静态方法。ECMAScript 6的类语法简化了创建静态成员的过程，在方法或访问器属性名前使用正式的静态注释即可
+由于工厂方法PersonType.create()使用的数据<u>不依赖PersonType的实例，因而其会被认为是一个静态方法</u>。
+
+#### 1. ES6
+
+ECMAScript 6的类语法简化了创建静态成员的过程，在<u>方法或访问器属性名</u>前使用正式的**静态注释**即可
+
+**注意事项**
+
+* 类中的所有方法和访问器属性都可以用static关键字来定义，唯一的限制是不能将static用于定义构造函数方法。
+
+* 不可在实例中访问静态成员，必须要直接在类中访问静态成员。
 
 ```javascript
 class PersonClass {
+  
   //等价于PersonType构造函数
   constructor(name) {this.name = name; }
+  
   //等价于PersonType.prototype.sayName
   sayName() {console.log(this.name); }
+  
   //等价于PersonType.create
   static create(name) {return new PersonClass(name); }
 }
 
 let person = PersonClass.create('Nicholas');
-```
 
-类中的所有方法和访问器属性都可以用static关键字来定义，唯一的限制是不能将static用于定义构造函数方法。
+//
+class PersonClass2 {
+  
+  constructor(name) {
+    this.name = name;
+  }
+  
+  static get getValue() {
+    return this.name;
+  }
+  
+}
 
-不可在实例中访问静态成员，必须要直接在类中访问静态成员。
-
-
-
-
-
-
-
-
-
-### 对象的静态属性和方法
-
-> 静态成员是属于类(构造函数)的, 不属于实例对象(通过new创建的对象)
-
-```js
--ES5添加构造函数属性
-
-function Phone(){
-     //添加属性 静态成员
-     Phone.name='手机';
-     Phone.change=function(){console.log('改变了世界');}
- }
-
-console.dir(Phone);//属于构造函数对象的,静态成员
+let personclass2 = new PersonClass2('jack');
+console.log(PersonClass2.nameValue); //'jack'
 ```
 
 
 
+### 继承与派生类
 
+#### 0. ES5继承与ES6继承实现 ????
 
-```js
-- ES6 添加静态成员(也就是给类添加的)
-
-class Phone{
-    //构造方法不是必须的.
-    //关键字: static
-    static name='手机';
-	static change(){console.log('改变了世界')}
+```javascript
+//ES5
+function Rectangle(length, width) {
+  this.length = length;
+  this.width = width;
 }
 
-console.dir(Phone);
-console.log(Phone.name);//log结果: 手机
-Phone.change();//log结果: 改变了世界
+Rectangle.prototype.getArea = function() {
+  return this.length * this.width;
+}
 
-let oppo = new Phone();
-console.log(oppo);//Phone {} 可以看出没有静态成员.所以静态成员是属于类的,不属于实例.
+function Square(length) {
+  Rectangle.call(this,length,length);
+}
+
+Square.prototype = Object.create(Rectangle.prototype, {
+  constructor: {
+    value: Square,
+    enumerable: true,
+    writable: true,
+    configurable: true
+  }
+});
+
+let square = new Square(3);
+
+console.log(square.getArea()); //9
+console.log(square instanceof Square); //true
+console.log(square instanceof Rectangle); //true
+
+
+// Object.create()方法创建一个新对象，使用现有的对象来提供新创建的对象的__proto__
+// Square.prototype.__proto__ === Rectangle.prototype
+```
+
+Square继承自Rectangle，为了这样做，必须用一个创建自Rectangle.prototype的新对象重写Square.prototype并调用Rectangle.call()方法。
+
+使用熟悉的extends关键字可以指定类继承的函数。原型会自动调整，通过调用super()方法即可访问基类的构造函数
+
+```javascript
+//ES6
+class Rectangle {
+  constructor(length, width) {
+    this.length = length;
+    this.width = width;
+  }
+  
+  getArea() {
+    return this.length * this.width;
+  }
+}
+
+class Square extends Rectangle {
+  constructor(length) {
+    //等价于 Rectangle.call(this, length, length)
+    super(length, length);
+  }
+}
+
+let square = new Square(3);
+
+console.log(square.getArea()); //9
+console.log(square instanceof Sqaure); //true
+console.log(square instanceof Rectangle); //true
 ```
 
 
 
+#### 1. 派生类
 
+继承自其他类的类被称作派生类，如果在派生类中指定了构造函数则必须要调用super()，如果不这样做程序就会报错。如果选择不使用构造函数，则当创建新的类实例时会自动调用super()并传入所有参数。
 
-
-
-
-
-### 对象继承
-
-#### ES5 对象继承
-
-```js
-- 原型继承,继承父类的方法;
-- 借用构造函数继承: 在子类中去调用父类的构造函数,使用call方法劫持子类中的this指向.
-
-//手机类
-function Phone(brand, price){
-    this.brand = brand;
-    this.price = price;
-}
-Phone.prototype.call = function(someone){console.log('可以给'+someone+'打电话')}
-Phone.prototype.sendMessage = function(somebody){console.log('`我可以给${somebody}发送短信`')}
-
-//智能手机
-function SmartPhone(brand, price, screen, pixel ){
-    //如果要继承父类, 需要先调用父类的函数
-    Phone.call(this, brand, price);
-    //子类属性初始化
-    this.screen=screen;
-    this.pixel=pixel;
+```javascript
+class Square extends Rectangle {
+  //没有构造函数
 }
 
-//方法
-SmartPhone.prototype=new Phone();
-SmartPhone.prototype.constructor=SmartPhone;
-
-//添加子类独有的方法
-SmartPhone.prototype.playGame=function(){console.log('我可以玩游戏');}
-SmartPhone.prototype.surfInternet=function(){console.log('我可以上网');}
-
-const vivo = new SmartPhone('vivo', 3000, '5.6inch', '3000w');
-vivo.call('aa');
-vivo.sendMessage('bb');
+//等价于
+class Square extends Rectangle {
+  constructor(...args) {
+    super(...args);
+  }
+}
 ```
 
+示例中的第二个类是所有派生类的等效默认构造函数，所有参数按顺序被传递给基类的构造函数。这里展示的功能不太正确，因为Square的构造函数只需要一个参数，所以最好手动定义构造函数。
+
+#### 3. 使用super注意
+
+* 只可在派生类的构造函数中使用super()，如果尝试在非派生类（不是用extends声明的类）或函数中使用则会导致程序抛出错误。·
+* 在构造函数中访问this之前一定要调用super()，它负责初始化this，如果在调用super()之前尝试访问this会导致程序出错。
+* 如果不想调用super()，则唯一的方法是让类的构造函数返回一个对象。
 
 
-#### ES6 对象继承
 
-```js
-- 静态属性的继承
+### 类方法遮蔽
 
-class Phone{
-    constructor(brand, price){
-        this.brand = brand;
-        this.price = price;
-    }
-    call(){console.log('打电话')};
-    sendMessage(){console.log('发短信')};
-    
-    static namefm = 'mobile';
+派生类中的方法总会覆盖基类中的同名方法。举个例子，给Square添加getArea()方法来重新定义这个方法的功能：
+
+```javascript
+class Square extends Rectangle {
+  constructor(length) {
+    super(length, length);
+  }
+  
+  //覆盖并遮蔽Rectangle.prototype.getArea()方法
+  getArea() {
+    return this.length * this.length;
+  }
 }
-
-class SmartPhone extends Phone{
-    constructor(brand, price, screen, pixel){//初始化
-        super(brand, price);//父类构造方法的调用 super之前不能有this出现,否则报错
-        this.screen = screen;
-        this.pixel = pixel;
-    }
-    
-    playGame(){console.log('paly games')}
-    surfInternet(){console.log('surf Internet')}
-    
-}
-
-const onePlus = new SmartPhone('1+', 3999, '6.5inch', '4800w');
-console.log(onePlus)
-
-//使用子类获取父类的静态成员
-console.log(onePlus.namefm)
-
-
-
-========================================================
-//父类
-class Phone(brand, price){
-    constructor(brand, price){
-        this.brand = brand;
-        this.price = price;
-    }
-    
-    call(someone){
-        console.log('可以打电话');
-    }
-    sendMessage(someone){
-        console.log('可以发短信');
-    }
-}
-
-class smartPhone extends Phone{
-    //子类的构造方法
-    constructor(brand, price, screen, pixel){
-        //调用父类的构造方法,初始化
-        super(brand, price);
-        
-        this.screen = screen;
-        this.pixel = pixel;
-    }
-    
-    //方法声明
-    palyGame(){console.log('可以玩游戏');}
-    surfInternet(){console.log('可以上网');}
-}
-
-//实例化
-const onePlus = new smartPhone('1+', 3999, '5.5inch', '5000w');
-console.log(onePlus);
 ```
 
+由于为Square定义了getArea()方法，便不能在Square的实例中调用Rectangle.prototype.getArea()方法.
 
+如果你想调用基类中的该方法，则可以调用super.getArea()方法
 
-
-
-
-
-#### class的set-get
-
-```js
-- 静态成员是属于类的, 不属于实例对象
-
-class Phone{
-    get price(){return this.jiage;}
-    set price(v){this.jiage = v;}
-    
-    static get storage(){return this.cun;}
-    static set storage(v){this.cun = v;}
+```javascript
+class Square extends Rectangle {
+  constructor(length) {
+    super(length, length);
+  }
+  
+  //覆盖并遮蔽Rectangle.prototype.getArea()方法
+  getArea() {
+    return super.getArea();
+  }
 }
-
-Phone.storage = 128g;
-console.log(Phone.storage);//
-
-
-
-====================================
-class Computer{
-    //对实例对象的price属性进行动态控制
-    //什么时候触发? 当在获取实例属性的时候
-    get price(){
-        return this.jiage; //类对象内部, this指向实例对象.实例化对象调用
-    }
-    //price属性设置
-    set price(v){//形参获取设置的值.
-        this.jiage = v;
-    }
-    
-    //静态成员也可以通过get和set控制. 
-    //静态成员方法什么时候触发? 当在获取静态成员属性时,自动触发.(如果是方法也不需要添加调用括号.)
-    //静态属性如何获取? 通过类
-    static get storage(){
-        return this.cun;
-    }
-    
-    static set storage(v){
-        this.cun = v;
-    }
-}
-
-const weixing = new Computer();
-weixing.price = 200;//自动触发方法
-console.log(weixing.price);//200
-
-
-Computer.storage = '128g';
-console.log(Computer.storage);//128g   Computer.storage没有括号调用,自动触发
 ```
 
 

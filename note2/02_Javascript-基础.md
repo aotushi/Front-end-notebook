@@ -3319,11 +3319,13 @@ Object.defineProperty(person, 'name', {configurable: true});
 
 
 
-#### 2.访问器属性
+#### 2.访问器属性 getter/setter
 
 > 这个属性不包含数据值，包含的是一对get和set方法，在读写访问器属性时，就是通过这两个方法来进行操作处理的。
 >
 > 访问器属性不能直接定义，要通过Object.defineProperty()这个方法来定义。
+
+
 
 #### 2.1访问器属性包含的4个特性
 
@@ -3422,60 +3424,7 @@ console.log(person.name); //'Greg'
 
 ### 6.对象中的方法
 
-#### 1. super 和[[HomeObject]]
-
-**[[HomeObject]]**
-
-在ECMAScript 6以前从未正式定义“方法”的概念，方法仅仅是一个具有功能而非数据的对象属性。而<u>在ECMAScript 6中正式将方法定义为一个函数，它会有一个内部的**[[HomeObject]]属性**来容纳这个方法从属的对象。</u>
-
-```javascript
-let person = {
-  //方法
-  getGreeting() {
-    return 'Hello';
-  }
-};
-
-//不是方法
-function shareGreeting() {
-  return 'Hi';
-}
-```
-
-由于直接把函数赋值给了person对象，因而getGreeting()方法的[[HomeObject]]属性值为person。而创建shareGreeting()函数时，由于未将其赋值给一个对象，因而该方法没有明确定义[[HomeObject]]属性。在大多数情况下这点小差别无关紧要，但是当使用Super引用时就变得非常重要了。
-
-**Super**
-
-可以使用super关键字调用对象原型上的方法，此时的this绑定会被自动设置为当前作用域的this值。
-
-<span style="text-decoration:underline wavy blue">Super的所有引用都通过[[HomeObject]]属性来确定后续的运行过程。第一步是在[[HomeObject]]属性上调用Object.getPrototypeOf()方法来检索原型的引用；然后搜寻原型找到同名函数；最后，设置this绑定并且调用相应的方法。</span>
-
-```javascript
-let person = {
-  getGreeting() {
-    return 'Hello';
-  }
-};
-
-//以person对象为原型
-let friend = {
-  getGreeting() {
-    return super.getGreeting() + ', hi';
-  }
-};
-
-Object.setPropertyOf(frined, person);
-
-console.log(friend.getGreeting()); //'Hello, hi'
-```
-
-friend.getGreeting()方法的[[HomeObject]]属性值是friend，friend的原型是person，所以**super.getGreeting()等价于person.getGreeting.call(this)**。
-
-
-
-
-
-####  2. in/delete/hasOwnPorperty
+####  1. in/delete/hasOwnPorperty
 
 ```Markdown
 in 
@@ -3512,7 +3461,7 @@ obj.test.tt = Object();
 
 
 
-#### 3. 方法函数
+#### 2. 方法函数
 
 ```JavaScript
 * 对象的属性可以是一个函数
@@ -3896,7 +3845,7 @@ for(let i in newObj){
 
 
 
-### 9.遍历对象的方法.
+### 9.遍历对象的循环方式
 
 ```js
 for循环 for..in    for..of  object.keys()
@@ -4289,6 +4238,200 @@ console.log(person['last name']); //
 任何可用于对象实例括号记法的属性名，也可以作为字面量中的计算属性名。
 
 
+
+### 16. ES6对象原型新功能
+
+#### 0. 实例化后更改对象的原型
+
+**ES5**
+
+正常情况下，无论是通过**构造函数或Object.create()**方法创建对象，其原型是在对象被创建时指定的。对象原型在实例化之后保持不变，直到ECMAScript 5都是JavaScript编程最重要的设定之一，虽然在ECMAScript 5中添加了Object.getPrototypeOf()方法来返回任意指定对象的原型，但仍缺少对象在实例化后改变原型的标准方法。
+
+**ES6**
+
+ECMAScript 6的Object.setPrototypeOf()方法来改变这一现状，通过这个方法可以改变任意指定对象的原型，它接受两个参数：被改变原型的对象及替代第一个参数原型的对象
+
+```javascript
+let person = {
+  getGreeting() {
+    return 'hello';
+  }
+};
+
+let dog = {
+  getGreeting() {
+    return 'woof';
+  }
+}
+
+//以person对象为原型
+let friedn = Object.create(person);
+console.log(friend.getGreeting()); //'hello'
+console.log(Object.getPrototypeOf(friend) === person); //true
+
+//将原型设置为dog
+Object.setPrototypeOf(friend, dog);
+console.log(friend.getGreeting()); //'woof'
+console.log(Object.getPrototypeOf(friend) === dog); //true
+```
+
+
+
+**[[prototype]]**
+
+对象原型的真实值被储存在内部专用属性[[Prototype]]中，
+
+调用Object.getPrototypeOf()方法返回储存在其中的值，调用Object.setPrototypeOf()方法改变其中的值。
+
+
+
+#### 1. 简化原型访问的Super引用
+
+ECMAScript 6引入了Super引用的特性，使用它可以更便捷地访问对象原型
+
+如果你想重写对象实例的方法，又需要调用与它同名的原型方法，在ES5和ES6中的实现方法:
+
+```javascript
+//ES5
+let person = {
+  getGreeting() {
+    return 'hello';
+  }
+};
+
+let dog = {
+  getGreeting() {
+    return 'woof';
+  }
+}
+
+let friend = {
+  getGreeting() {
+    return Object.getPrototypeOf(this).getGreeting.call(this) + ', hi';
+  }
+};
+
+//将原型设置为person
+Object.setPrototypeOf(friend, person);
+console.log(friend.getGreeting()); //'hello, hi'
+console.log(Object.getPrototypeOf(friend) === person); //true
+
+
+//将原型设置为dog
+Object.setPrototypeOf(friend, dog);
+console.log(friend.getGreeting()); //'hello, woof'
+console.log(Object.getPrototypeOf(friend) === dog); //true
+
+//Object.getPrototypeOf()方法可以确保调用正确的原型，并向输出字符串叠加另一个字符串
+//后面的.call(this)可以确保正确设置原型方法中的this值
+```
+
+要准确记得如何使用Object.getPrototypeOf()方法和.call(this)方法来调用原型上的方法实在有些复杂，所以ECMAScript 6引入了super关键字. 简单来说，Super引用相当于指向对象原型的指针，实际上也就是**Object.getPrototypeOf(this)**的值。
+
+```javascript
+//ES6
+let friend = {
+  getGreeting() {
+    //与ES5中的Object.getPrototypeOf(this).getGreeting.call(this)相同
+    return super.getGreeting() + ', hi';
+  }
+};
+
+```
+
+调用super.getGreeting()方法相当于在当前上下文中调用Object.getPrototypeOf(this).getGreeting.call(this)。同样，可以通过Super引用调用对象原型上所有其他的方法。当然，<span style="text-decoration: underline wavy blue">必须要在使用简写方法的对象中使用Super引用，但如果在其他方法声明中使用会导致语法错误</span>
+
+```javascript
+let friend = {
+  getGreeting: function() {
+    //语法错误
+    return super.getGreeting() + ', hi';
+  }
+};
+```
+
+在这个示例中用匿名function定义一个属性，由于在当前上下文中Super引用是非法的，因此当调用super.getGreeting()方法时会抛出语法错误。????
+
+Super引用在多重继承的情况下非常有用，因为在这种情况下，使用Object.getPrototypeOf()方法将会出现问题。????!!!!
+
+```javascript
+let person = {
+  getGreeting() {
+    return 'hello';
+  }
+};
+
+//以person为原型对象
+let friend = {
+  getGreeting() {
+    return Object.getPrototypeOf(this).getGreeting.call(this) + '. hi';
+  }
+};
+
+Object.setPrototypeOf(friend, person);
+
+//原型是friend
+let relative = Object.create(friend);
+
+console.log(person.getGreeting()); // 'hello'
+console.log(friend.getGreeting()); // 'hello, hi'
+console.log(relative.getGreeting()); //error  ????!!!!
+```
+
+
+
+
+
+
+
+#### 1. super 和[[HomeObject]]
+
+**[[HomeObject]]**
+
+在ECMAScript 6以前从未正式定义“方法”的概念，方法仅仅是一个具有功能而非数据的对象属性。而<u>在ECMAScript 6中正式将方法定义为一个函数，它会有一个内部的**[[HomeObject]]属性**来容纳这个方法从属的对象。</u>
+
+```javascript
+let person = {
+  //方法
+  getGreeting() {
+    return 'Hello';
+  }
+};
+
+//不是方法
+function shareGreeting() {
+  return 'Hi';
+}
+```
+
+由于直接把函数赋值给了person对象，因而getGreeting()方法的[[HomeObject]]属性值为person。而创建shareGreeting()函数时，由于未将其赋值给一个对象，因而该方法没有明确定义[[HomeObject]]属性。在大多数情况下这点小差别无关紧要，但是当使用Super引用时就变得非常重要了。
+
+**Super**
+
+可以使用super关键字调用对象原型上的方法，此时的this绑定会被自动设置为当前作用域的this值。
+
+<span style="text-decoration:underline wavy blue">Super的所有引用都通过[[HomeObject]]属性来确定后续的运行过程。第一步是在[[HomeObject]]属性上调用Object.getPrototypeOf()方法来检索原型的引用；然后搜寻原型找到同名函数；最后，设置this绑定并且调用相应的方法。</span>
+
+```javascript
+let person = {
+  getGreeting() {
+    return 'Hello';
+  }
+};
+
+//以person对象为原型
+let friend = {
+  getGreeting() {
+    return super.getGreeting() + ', hi';
+  }
+};
+
+Object.setPropertyOf(frined, person);
+
+console.log(friend.getGreeting()); //'Hello, hi'
+```
+
+friend.getGreeting()方法的[[HomeObject]]属性值是friend，friend的原型是person，所以**super.getGreeting()等价于person.getGreeting.call(this)**。
 
 
 
