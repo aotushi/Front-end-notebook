@@ -3848,6 +3848,133 @@ class Square extends Rectangle {
 
 
 
+### 静态成员继承
+
+如果基类有静态成员，那么这些静态成员在派生类中也可用。JavaScript中的继承与其他语言中的继承一样，只是在这里继承还是一个新概念。
+
+```javascript
+class Rectangle {
+  constructor(length, width) {
+    this.length = length;
+    this.width = width;
+  }
+  
+  getArea() {
+    return this.length * this.width;
+  }
+  
+  static create(length ,width) {
+    return new Rectangle(length, width);
+  }
+}
+
+
+class Square extends Rectangle {
+  constructor(length) {
+    //等价于 Rectangle.call(this, length, length)
+    super(length, length);
+  }
+}
+
+let rect = Square.create(3, 4);
+
+console.log(rect.instanceof Rectangle); //true
+console.log(rect.getArea()); //12
+console.log(rect instanceof Square); //false
+```
+
+
+
+### 派生自表达式的类
+
+CMAScript 6最强大的一面或许是从表达式导出类的功能了。只要表达式可以被解析为一个函数并且具有[[Construct]]属性和原型，那么就可以用extends进行派生。
+
+```javascript
+function Rectangle(length, width) {
+  this.length = length;
+  this.width = width;
+}
+
+Rectangle.prototype.getArea = function() {
+  return this.length * this.width;
+};
+
+class Square extends Rectangle {
+  constructor(length) {
+    super(length, length);
+  }
+}
+
+let x = new Square(3);
+console.log(x.getArea()); //9
+console.log(x instanceof Rectangle); //true
+```
+
+Rectangle是一个ECMAScript 5风格的构造函数，Square是一个类，由于Rectangle具有[[Construct]]属性和原型，因此Square类可以直接继承它
+
+<u>extends强大的功能使得类可以继承自任意类型的表达式</u>，从而创造更多可能性，例如动态地确定类的继承目标。
+
+```javascript
+function Rectangle(length, width) {
+  this.length = length;
+  this.width = width;
+}
+
+Rectangle.prototype.getArea = function() {
+  return this.length * this.width;
+};
+
+function getBase() {
+  return Rectangle;
+}
+
+class Square extends getBase() {
+  constructor(length) {
+    super(length, length);
+  }
+}
+
+let x = new Square(x);
+console.log(x.getArea()); //9
+console.log(x instanceof Rectangle); //true
+```
+
+getBase()函数是类声明的一部分，直接调用后返回Rectangle，此示例实现的功能与之前的示例等价。
+
+由于可以动态确定使用哪个基类，因而可以创建不同的继承方法。例如，可以像这样创建mixin：
+
+```javascript
+let SerializableMixin = {
+  serialize() {
+    return JSON.stringify(this);
+  }
+};
+
+let AreaMixin = {
+  getArea() {
+    return this.length * this.width;
+  }
+};
+
+function mixin(...mixins) {
+  let base = function() {};
+  Object.assign(base.prototype, ...mixins);
+  return base;
+}
+
+class Square extends mixin(AreaMixin, SerializableMixin) {
+  constructor(length) {
+    super();
+    this.length = length;
+    this.width = width;
+  }
+}
+
+
+```
+
+
+
 
 
 

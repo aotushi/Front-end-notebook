@@ -888,12 +888,17 @@ typeof 运算符 可以用来检查一个变量的数据类型 返回的结果�
 
 
 
-类型之间的比较
+**类型之间的比较**
 
 ```js
-null == undefined  //正确
-undefined == false //错误 undefined换成布尔值是false,讲解说的是比较复杂没有转换类型
+null == undefined  //true
+undefined == false  //false
+undefined == 0 //false
+
+
 ```
+
+
 
 
 
@@ -1859,28 +1864,57 @@ a ??= b; // 等同于 a ?? (a = b);
 
 #### 相等运算符(==)
 
-* 如果两个值相等,返回true,否则返回false
+**规则**
 
-* 如果比较的两个值类型不同,它会将其转换为相同的类型,然后再比较
+相等运算符（`==`和`!=`）使用[抽象相等比较算法](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3)比较两个操作数。
 
-* 通常情况下，两个不同类型的值都会转换成 ==**数值number**==，然后比较
+* 如果两个操作数都是对象，则仅当两个操作数都引用同一个对象时才返回`true`。
+* 如果两个操作数是不同类型的，就会尝试在比较之前将它们转换为相同类型：
+  * 当数字与字符串进行比较时，会尝试将字符串转换为数字值
+  * 如果操作数之一是`Boolean`，则将布尔操作数转换为1或0. `true`转换为1, `false`转换为0.
+  * 如果操作数之一是对象，另一个是数字或字符串，会尝试使用对象的`valueOf()`和`toString()`方法将对象转换为原始值。
+* 如果操作数具有相同的类型
+  - `String`：`true`仅当两个操作数具有相同顺序的相同字符时才返回。
+  - `Number`：`true`仅当两个操作数具有相同的值时才返回。`+0`并被`-0`视为相同的值。如果任一操作数为`NaN`，则返回`false`。
+  - `Boolean`：`true`仅当操作数为两个`true`或两个`false`时才返回`true`
+* `null == undefined` 返回值是`true`
 
-* null == undefined 返回的是true
+```html
+字符串和数字的布尔类型转换规则是： Javascript会将undefined，false和0，NaN和空字符串'',空格字符串'  '视为false，其他值视为true
 
-* 推荐使用全等运算符(===)
 
-  ```html
-  字符串和数字的布尔类型转换规则是： Javascript会将undefined，false和0，NaN和空字符串'',空格字符串'  '视为false，其他值视为true
-  
-  let result = 10;
-  result 10 == '10'; //true
-  result true == '1'; //true
-  result = null == undefined; //true
-  ```
+'' == false //true
+0 == false //true
+0 == undefined //false
+'' == undefined //false
+undefined == undefined; //true
+null == null; //true
+NaN == NaN; //false
 
-  
-  
-  
+```
+
+
+
+**为什么undefined == false返回false**
+
+> [来源](https://stackoverflow.com/questions/19277458/why-does-undefined-equals-false-return-false/19277873)
+
+ECMA文档定义没有直接指出原因,但从下面这句话可以看出原因:
+`"the comparison x == y, where x and y are values, produces true or false."`
+
+同时,null的定义如下:
+
+`NUll or nil means 'no value' or 'not applicable'`
+
+在Javascript中, `undefined`也是同样的设置,它没有任何值.然而, `false`有一个值.  `Null`和`undefined`不应该提供任何值,同样的, 它也没有能转换成抽象相等比较的值, 所以这个结果总是`false`. 
+
+这也是`null == undefined` 返回`true`的原因(它们两个都没有任何值). 应该注意`null===undefined`返回`false`, 因为这是两种类型.
+
+
+
+
+
+
 
 #### 全等运算符(===)
 
@@ -4287,7 +4321,7 @@ console.log(Object.getPrototypeOf(friend) === dog); //true
 
 #### 1. 简化原型访问的Super引用
 
-ECMAScript 6引入了Super引用的特性，使用它可以更便捷地访问对象原型
+ECMAScript 6引入了Super引用的特性，<u>使用它可以更便捷地访问对象原型</u>
 
 如果你想重写对象实例的方法，又需要调用与它同名的原型方法，在ES5和ES6中的实现方法:
 
@@ -4378,7 +4412,35 @@ console.log(friend.getGreeting()); // 'hello, hi'
 console.log(relative.getGreeting()); //error  ????!!!!
 ```
 
+this是relative, relative的原型是friend对象，当执行relative的getGreeting方法时，会调用friend的getGreeting()方法，而此时的this值为relative，Object.getPrototypeOf(this)又会返回friend对象。所以就会进入递归调用直到触发栈溢出报错。
 
+在ECMAScript 5中很难解决这个问题，但在ECMAScript 6中，使用Super引用便可以迎刃而解：
+
+```javascript
+let person = {
+  getGreeting() {
+    return 'hello';
+  }
+};
+
+//以person为原型对象
+let friend = {
+  getGreeting() {
+    return super.getGreeting.call(this) + '. hi';
+  }
+};
+
+Object.setPrototypeOf(friend, person);
+
+//原型是friend
+let relative = Object.create(friend);
+
+console.log(person.getGreeting()); // 'hello'
+console.log(friend.getGreeting()); // 'hello, hi'
+console.log(relative.getGreeting()); // 'hello, hi'
+```
+
+Super引用不是动态变化的，它总是指向正确的对象，在这个示例中，无论有多少其他方法继承了getGreeting方法，super.getGreeting()始终指向person.getGreeting()方法。
 
 
 
@@ -4432,6 +4494,41 @@ console.log(friend.getGreeting()); //'Hello, hi'
 ```
 
 friend.getGreeting()方法的[[HomeObject]]属性值是friend，friend的原型是person，所以**super.getGreeting()等价于person.getGreeting.call(this)**。
+
+
+
+
+
+### 17. 实际使用
+
+#### 0. 对象转换为数组
+
+```javascript
+//es5
+//对象的key的集合或者value的集合 简单
+let arr = [];
+for (let i in object) {
+  arr.push(object[i]);
+}
+
+//key-value形式的数组
+let arr = [];
+for (let i in obj) {
+  let o = {};
+  o[i] = obj[i];
+  arr.push(o);
+}
+
+//es6 Object.keys()
+
+//es7
+//Object.values 和 Object.entries，作为遍历一个对象的补充手段，供 for...of 循环使用
+
+//Object.entries 方法的另一个用处是，将对象转为真正的 Map 结构
+const obj = { foo: 'bar', baz: 42 };  
+const map = new Map(Object.entries(obj));  
+map
+```
 
 
 
@@ -7796,6 +7893,7 @@ slice() concat()
 | -------------------------- | ------------------------------------------------------------ |
 | Array.prototype.toString() | 字符串                                                       |
 | Array.prototype.slice()    | 对数组进行截取,返回截取的数组                                |
+|                            |                                                              |
 | Array.prototype.concat()   | 连接2个或多个数组,并返回结果                                 |
 | Array.prototype.indexOf()  | 查询元素第一次出现在数组的位置并返回,没有返回-1              |
 | Array.prototype.join()     | 将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串 |
