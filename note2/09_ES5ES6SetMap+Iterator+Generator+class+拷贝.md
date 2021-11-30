@@ -3885,7 +3885,7 @@ console.log(rect instanceof Square); //false
 
 
 
-### 派生自表达式的类
+### 派生自表达式的类 ????!!!!
 
 CMAScript 6最强大的一面或许是从表达式导出类的功能了。只要表达式可以被解析为一个函数并且具有[[Construct]]属性和原型，那么就可以用extends进行派生。
 
@@ -3970,10 +3970,237 @@ class Square extends mixin(AreaMixin, SerializableMixin) {
   }
 }
 
-
+let x = new Square(3);
+console.log(x.getArea()); //9
+console.log(x.serialize()); //"{"length": 3, "width": 3}"
 ```
 
 
+
+
+
+在extends后可以使用任意表达式，但不是所有表达式最终都能生成合法的类。如果使用null或生成器函数（曾在第8章讲解）会导致错误发生，类在这些情况下没有[[Consturct]]属性，尝试为其创建新的实例会导致程序无法调用[[Construct]]而报错。
+
+
+
+### 内建对象的继承????
+
+自JavaScript数组诞生以来，开发者一直都希望通过继承的方式创建属于自己的特殊数组。在ECMAScript 5及早期版本中这几乎是不可能的，用传统的继承方式无法实现这样的功能
+
+```javascript
+//内建数组行为
+let colors = [];
+colors[0] = 'red';
+console.log(colors.length); //1
+
+colors.length = 0;
+console.log(colors[0]); //undefined
+
+
+//尝试通过ES5语法继承数组
+function MyArray() {
+  Array.apply(this, arguments);
+}
+
+MyArray.prototype = Object.create(Array.prototype, {
+  constructor: {
+    value: MyArray,
+    writable: true,
+    configurable: true,
+    enumerable: true
+  }
+});
+
+let colors = new MyArray();
+colors[0] = 'red';
+console.log(colors.length); //0
+```
+
+这段代码最后console.log()的输出结果与预期不符，MyArray实例的length和数值型属性的行为与内建数组中的不一致，这是因为通过传统JavaScript继承形式实现的数组继承没有从Array.apply()或原型赋值中继承相关功能。
+
+ECMAScript 6类语法的一个目标是支持内建对象继承，因而ES6中的类继承模型与ECMAScript 5及早期版本中的稍有不同，主要体现在两个方面:
+
+* 在ECMAScript 5的传统继承方式中，先由派生类型（例如，MyArray）创建this的值，然后调用基类型的构造函数（例如Array.apply()方法）。这也意味着，this的值开始指向的是MyArray的实例，但是随后会被来自Array的其他属性所修饰。
+* ECMAScript 6中的类继承则与之相反，先由基类（Array）创建this的值，然后派生类的构造函数（MyArray）再修改这个值。所以一开始可以通过this访问基类的所有内建功能，然后再正确地接收所有与之相关的功能。
+
+以下示例是一个基于类生成特殊数组的实践
+
+```javascript
+class MyArray extends Array {
+  //空
+}
+
+let colors = new MyArray();
+colors[0] = 'red';
+
+colors.length = 0;
+console.log(colors[0]); //undefined
+```
+
+MyArray直接继承自Array，其行为与Array也很相似，操作数值型属性会更新length属性，操作length属性也会更新数值型属性。于是，可以正确地继承Array对象来创建自己的派生数组类型，当然也可以继承其他的内建对象。添加所有的这些功能后，内建对象继承的最后一个特殊情况便被ECMAScript 6及派生类语法有效解决了，只是这个特殊情况仍值得我们探索一番。
+
+
+
+### Symbol.species属性 ????
+
+内建对象继承的一个实用之处是，原本在内建对象中返回实例自身的方法将自动返回派生类的实例。所以，如果你有一个继承自Array的派生类MyArray，那么像slice()这样的方法也会返回一个MyArray的实例。
+
+```javascript
+class MyArray extends Array {
+  //空
+}
+
+let items = new MyArray(1,2,3,4),
+    subitems = items.slice(1, 3);
+
+console.log(items instanceof MyArray); //true
+console.log(subitems instanceof MyArray); //true
+```
+
+正常情况下，继承自Array的slice()方法应该返回Array的实例，但是在这段代码中，slice()方法返回的是MyArray的实例。在浏览器引擎背后是通过Symbol.species属性实现这一行为。
+
+Symbol.species是诸多内部Symbol中的一个，它被用于定义返回函数的静态访问器属性。被返回的函数是一个构造函数，每当要在实例的方法中（不是在构造函数中）创建类的实例时必须使用这个构造函数。以下这些内建类型均已定义Symbol.species属性：
+
+* Array
+* ArrayBuffer
+* Map
+* Promise
+* RegExp
+* Set
+* Typed arrays
+
+列表中的每个类型都有一个默认的Symbol.species属性，该属性的返回值为this，这也意味着该属性总会返回构造函数。如果在自定义的类中实现这个功能，则代码看起来可能是这样的：
+
+```javascript
+//几个内建类型像这样使用species
+class MyClass {
+  static get [Symbol.species]() {
+    return this;
+  }
+  
+  constructor(value) {
+    this.value = value;
+  }
+  
+  clone() {
+    return new this.constructor[Symbol.species](this.value);
+  }
+}
+```
+
+在这个示例中，Symbol.species被用来给MyClass赋值静态访问器属性，请注意，这里只有一个getter方法却没有setter方法，这是因为在这里不可以改变类的种类。调用this.constructor[Symbol.species]会返回MyClass，clone()方法通过这个定义可以返回新的实例，从而允许派生类覆盖这个值。举个例子：
+
+```javascript
+class MyClass {
+  static get [Symbol.species]() {
+    return this;
+  }
+  
+  constructor(value) {
+    this.value = value;
+  }
+  
+  clone() {
+    return new this.constructor[Symbol.species](this.value);
+  }
+}
+
+
+class MyDerivedClass1 extends MyClass {
+  //空
+}
+
+class MyDerivedClass2 extends MyClass {
+  static get [Symbol.species]() {
+    return MyClass;
+  }
+}
+
+let instance1 = new MyDerivedClass1('foo'),
+    clone1 = instace1.clone(),
+    instance2 = new MyDerivedClass2('bar'),
+    clone2 = instance2.clone();
+
+
+console.log(clone1 instanceof MyClass); //true
+console.log(clone1 instanceof MyDerivedClass1); //true
+console.log(clone2 instanceof MyClass); //true
+console.log(clone2 instanceof MyDerivedClass1); //false
+```
+
+在这里，MyDerivedClass1继承MyClass时未改变Symbol.species属性，由于this.constructor[Symbol.species]的返回值是MyDerivedClass1，因此调用clone()返回的是MyDerivedClass1的实例；MyDerivedClass2继承MyClass时重写了Symbol.species让其返回MyClass，调用MyDerivedClass2实例的clone()方法时，返回值是一个MyClass的实例。通过Symbol.species可以定义当派生类的方法返回实例时，应该返回的值的类型。
+
+未完成...
+
+
+
+### 在类的构造函数中使用new.target
+
+new.target及它的值根据函数被调用的方式而改变。在类的构造函数中也可以通过new.target来确定类是如何被调用的。在简单情况下，new.target等于类的构造函数
+
+```javascript
+class Rectangle {
+  constructor(length, width) {
+    console.log(new.target === Rectangle);
+    this.length = length; 
+    this.width = width;
+  }
+}
+
+//new.target的值是Rectangle
+let obj = new Rectangle(3, 4); //输出true
+```
+
+这段代码展示了当调用new Rectangle(3, 4)时等价于Rectangle的new.target。类构造函数必须通过new关键字调用，所以总是在类的构造函数中定义new.target属性。但是其值有时会不同，请看这段代码：
+
+```javascript
+class Rectangle {
+  constructor(length, width) {
+    console.log(new.target === Rectangle);
+    this.length = length; 
+    this.width = width;
+  }
+}
+
+class Square extends Rectangle {
+  constructor(length) {
+    super(length, length);
+  }
+}
+
+//new.target的值是Square
+let obj = new Square(3); //输出false
+```
+
+Square调用Rectangle的构造函数，所以当调用发生时new.target等于Square。这一点非常重要，因为每个构造函数都可以根据自身被调用的方式改变自己的行为。例如，可以用new.target创建一个抽象基类（不能被直接实例化的类），就像这样：
+
+```javascript
+//抽象基类
+class Shape {
+  constructor() {
+    if (new.target === Shape) {
+      throw new Error('这个类不能被直接实例化');
+    }
+  }
+}
+
+class Rectangle extends Shape {
+  constructor(length, width) {
+    super();
+    this.length = length;
+    this.width = width;
+  }
+}
+
+let x = new Shape(); //抛出错误
+
+let y = new Rentangle(3, 4);
+console.log(y instanceof Shape); //true
+```
+
+这个示例中，每当new.target是Shape时构造函数总会抛出错误，这相当于调用new Shape()时总会出错。但是，仍可用Shape作为基类派生其他类，示例中的Rectangle便是这样。super()调用执行了Shape的构造函数，new.target与Rectangle等价，所以构造函数继续执行不会抛出错误。
+
+因为类必须通过new关键字才能调用，所以在类的构造函数中，new.target属性永远不会是undefined。
 
 
 

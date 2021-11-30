@@ -5837,6 +5837,10 @@ function callSum2(num1, num2) {
 }
 console.log(callSum1(10, 10)); // 20
 console.log(callSum2(10, 10)); // 20
+
+
+//传递类数组对象
+Array.apply(null, {length: 5})
 ```
 
 #### **call()和apply()总结**
@@ -7196,6 +7200,14 @@ function factorial(n, p = 1) {
 
 ## 数组
 
+> 数组是一种类列表对象，它的原型中提供了遍历和修改元素的相关操作。JavaScript 数组的长度和元素类型都是非固定的。因为数组的长度可随时改变，并且其数据在内存中也可以不连续，所以 JavaScript 数组不一定是密集型的，这取决于它的使用方式。
+>
+> 一般来说，数组的这些特性会给使用带来方便，但如果这些特性不适用于你的特定使用场景的话，可以考虑使用类型数组 [`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)。
+>
+> 只能用整数作为数组元素的索引，而不能用字符串。后者称为 [关联数组](https://en.wikipedia.org/wiki/Associative_array)。使用非整数并通过 [方括号](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Working_with_Objects#对象和属性) 或 [点号](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Property_Accessors) 来访问或设置数组元素时，所操作的并不是数组列表中的元素，而是数组对象的 [属性集合](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Data_structures#属性) 上的变量。数组对象的属性和数组元素列表是分开存储的，并且数组的遍历和修改操作也不能作用于这些命名属性。
+
+
+
 ### 数组简介
 
 ```js
@@ -7319,7 +7331,7 @@ let colors = new Array(3);   //创建一个包含3 个元素的数组
 let names = new Array('Greg'); //创建一个只包含一个元素，即字符串"Greg"的数组
 ```
 
-#### 1.1 Array构造函数的缺点
+##### 1.1 Array构造函数的缺点
 
 ```JavaScript
 //如果给Array构造函数传入一个数值型的值，那么数组的length属性会被设为该值；如果传入多个值，此时无论这些值是不是数值型的，都会变为数组的元素。这个特性令人感到困惑，你不可能总是注意传入数据的类型，所以存在一定的风险。
@@ -7560,8 +7572,19 @@ countSymbols('\uD842\uDFB7'); //1
 
 ```javascript
 //https://www.codenong.com/3746725/
+
+//循环方法  写法繁琐
+let arr = [];
+for (let i=0; i<=n; i++) {
+  arr.push(i);
+}
+
+//ES6
 Array.from(Array(num).keys())
-[...Array(10).keys()]
+
+[...Array(num).keys()]
+
+Array.from({length: num}, (v, k) => k + 1);
 
 [...Array(10).keys()].map(x => ++x) ???
 Array(N).fill().map(i => i+1)
