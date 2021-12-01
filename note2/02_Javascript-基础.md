@@ -6045,6 +6045,73 @@ const factorial = (function f(num) {
 
 
 
+#### 求任意数阶乘
+
+```JavaScript
+- 定义一个函数,用来求任意数的阶乘
+
+- 阶乘: 
+5! = 5* 4* 3 * 2 * 1; //5 * 4!
+4! = 4 * 3 * 2 *1;   // 4 * 3!
+3! = 3 * 2 * 1;	    //  3 * 2!
+2! = 2* 1;
+
+
+============使用函数+for循环====================    
+  
+        
+  function jiecheng(nums){
+          let sum = 1;  
+          for(i=1; i<=nums; i++){
+              sum *= i;
+          }
+      return sum;
+  }
+  
+  jiecheng();
+  
+=================使用阶乘=========================
+    
+function fn(i){
+    if(i === 1){  //基线条件 设置递归停止的条件
+        return 1;
+    }
+    
+    return i * fn(i-1); //递归条件,设置如何对问题进行拆分
+}
+
+fn(i);
+```
+
+
+
+####   斐波那契数列/兔子问题
+
+```JavaScript
+一对兔子从出生后的第3个月起，每月可生出一对小兔子。
+编写函数，求第n个月时，兔子的对数。
+
+斐波那契数列:1 1 2 3 5 8 13 21.....
+
+简化: 某一项数是前两项数之和
+```
+
+
+
+
+
+```JavaScript
+function rabbit(i){
+    if(i<=2){     //设置基准线
+        return 1;
+    }
+    return rabbit(i-2)+rabbit(i-1);  //设置递归条件
+}
+rabbit(i);
+```
+
+
+
 
 
 ### 立即调用的匿名函数(IIEF)
@@ -7231,45 +7298,45 @@ ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法�
 
 注意: 
 
-注意 由于行为不一致和存在性能隐患，因此实践中要避免使用数组空位。如果确实需要空位，则可以显式地用undefined 值代替。
+注意 由于行为不一致和存在性能隐患，因此实践中要避免使用数组空位。<u>如果确实需要空位，则可以显式地用undefined 值代替。</u>
 
 ```js
 
 
-    const options = [1,,,,5];
-    for (const option of options) {
-    console.log(option === undefined);
-    }
-    // false
-    // true
-    // true
-    // true
-    // false
-    
-    const a = Array.from([,,,]); // 使用ES6 的Array.from()创建的包含3 个空位的数组
-    for (const val of a) {
-    alert(val === undefined);
-    }
-    // true
-    // true
-    // true
-    alert(Array.of(...[,,,])); // [undefined, undefined, undefined]
-    for (const [index, value] of options.entries()) {
-    alert(value);
-    }
-    // 1
-    // undefined
-    // undefined
-    // undefined
-    // 5
+const options = [1,,,,5];
+for (const option of options) {
+  console.log(option === undefined);
+}
+// false
+// true
+// true
+// true
+// false
+
+const a = Array.from([,,,]); // 使用ES6 的Array.from()创建的包含3 个空位的数组
+for (const val of a) {
+  alert(val === undefined);
+}
+// true
+// true
+// true
+alert(Array.of(...[,,,])); // [undefined, undefined, undefined]
+for (const [index, value] of options.entries()) {
+  alert(value);
+}
+// 1
+// undefined
+// undefined
+// undefined
+// 5
 
 ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异：
 
-    const options = [1,,,,5];
-    // map()会跳过空位置
-    console.log(options.map(() => 6)); // [6, undefined, undefined, undefined, 6]
-    // join()视空位置为空字符串
-    console.log(options.join('-')); // "1----5"
+const options = [1,,,,5];
+// map()会跳过空位置
+console.log(options.map(() => 6)); // [6, undefined, undefined, undefined, 6]
+// join()视空位置为空字符串
+console.log(options.join('-')); // "1----5"
 ```
 
 
@@ -9506,7 +9573,13 @@ console.log(arr);
 
 
 
-### 对象Math
+### 定型数组
+
+> 略  <深入理解ES6>
+
+
+
+## 对象Math
 
 **`Math`** 是一个内置对象，它拥有一些数学常数属性和数学函数方法。`Math` 不是一个函数对象
 
@@ -9557,93 +9630,6 @@ x-y之间的随机数
 ```
 
 
-
-### 递归函数
-
-```JavaScript
-递归,就是函数自己调用自己
-- 递归的作用和循环十分类似,基本上是一样的
-
-递归能做的事,循环也可以做,反之亦然
-
-- for循环编写相对麻烦,但性能较好
-- 递归编写简单一些好理解,但性能较差
-
-递归流程:
-
-- 设置基线条件,就是递归停止的条件
-- 设置递归条件
-
-```
-
-
-
-
-
-#### 求任意数阶乘
-
-```JavaScript
-- 定义一个函数,用来求任意数的阶乘
-
-- 阶乘: 
-5! = 5* 4* 3 * 2 * 1; //5 * 4!
-4! = 4 * 3 * 2 *1;   // 4 * 3!
-3! = 3 * 2 * 1;	    //  3 * 2!
-2! = 2* 1;
-
-
-============使用函数+for循环====================    
-  
-        
-  function jiecheng(nums){
-          let sum = 1;  
-          for(i=1; i<=nums; i++){
-              sum *= i;
-          }
-      return sum;
-  }
-  
-  jiecheng();
-  
-=================使用阶乘=========================
-    
-function fn(i){
-    if(i === 1){  //基线条件 设置递归停止的条件
-        return 1;
-    }
-    
-    return i * fn(i-1); //递归条件,设置如何对问题进行拆分
-}
-
-fn(i);
-```
-
-
-
-####   斐波那契数列/兔子问题
-
-```JavaScript
-一对兔子从出生后的第3个月起，每月可生出一对小兔子。
-编写函数，求第n个月时，兔子的对数。
-
-斐波那契数列:1 1 2 3 5 8 13 21.....
-
-简化: 某一项数是前两项数之和
-```
-
-
-
-
-
-```JavaScript
-function rabbit(i){
-    if(i<=2){     //设置基准线
-        return 1;
-    }
-    return rabbit(i-2)+rabbit(i-1);  //设置递归条件
-}
-rabbit(i);
-```
 
 
 
@@ -9804,7 +9790,7 @@ console.timeEnd('冒泡');
 
 
 
-### Date
+## Date
 
 ```JavaScript
 在JS中所有的和时间相关的信息都通过Date对象来表示
@@ -9889,7 +9875,7 @@ alert(`$(d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`);
 
 
 
-### 包装类??
+## 包装类??
 
 ```JavaScript
 - JS中有3个包装类: String() Number() Boolean()
