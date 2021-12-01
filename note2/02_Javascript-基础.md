@@ -5700,6 +5700,8 @@ prototype 是保存引用类型所有实例方法的地方，这意味着toStrin
 
 #### **方法-call()**
 
+> https://www.cnblogs.com/gaoht/p/10978751.html
+
 以指定的this 值来调用函数,即会设置调用函数时函数体内this 对象的值。
 
 call()方法接收两个参数：函数内this 的值和逐个传递的参数.
@@ -7290,7 +7292,7 @@ function factorial(n, p = 1) {
 
 
 
-#### 1.数组空元素empty和undefined的区别
+#### 1. 空元素empty和undefined的区别
 
 使用数组字面量初始化数组时，可以使用一串逗号来创建空位（hole）。ECMAScript 会将逗号之间相应索引位置的值当成空位，ES6 规范重新定义了该如何处理这些空位。
 
@@ -7341,7 +7343,7 @@ console.log(options.join('-')); // "1----5"
 
 
 
-#### 2.数组字符串索引和数值索引比较
+#### 2. 字符串索引和数值索引比较
 
 ```markdown
 https://www.cnblogs.com/goloving/p/9180588.html
@@ -7351,7 +7353,6 @@ https://www.cnblogs.com/goloving/p/9180588.html
 
 1. **Javascript数组下标值的范围为0到2的32次方**
 2. **对于任意给定的数字下标值，如果不在此范围内，js会将它转换为一个字符串，并将该下标对应的值作为该数组对象的一个属性值而不是数组元素，例如array[-1] = "yes" 其实就相当于给array对象添加了一个名为-1的属性，属性值为yes。**
-3. **对于任意给定的数字下标值，如果不在此范围内，js会将它转换为一个字符串，并将该下标对应的值作为该数组对象的一个属性值而不是数组元素，例如array[-1] = "yes" 其实就相当于给array对象添加了一个名为-1的属性，属性值为yes。**
 
 ```js
 let arr = [];
@@ -7365,8 +7366,38 @@ console.log(arr.length); //0
 
 #### 3. 值为null或undefined
 
-```js
-如果数组值为null或undefined, 那么调用toLocaleString(),join(),toString(),valueOf()方法时, 返回的结果中以空字符串表示.
+如果数组值为null或undefined, 那么调用toLocaleString(),join(),toString(),<del>valueOf()</del>方法时, 返回的结果中以空字符串表示.
+
+```javascript
+let arr = [null, undefined, 1];
+
+//浏览器环境下
+console.log(arr.toLocaleString()); //',,1'
+console.log(arr.join('')); //'1'
+console.log(arr.join()); //',,1'
+console.log(arr.toString()); //',,1'
+console.log(arr.valueOf()); //[null, undefined, 1]
+```
+
+
+
+#### 4. 稀疏数组和密集数组
+
+> https://www.cnblogs.com/goloving/p/8686780.html
+
+1.定义
+稀疏数组:数组中的元素之间可以有空隙empty,
+密集数组:每个元素都有值,即使是undefiend.
+2.创建
+
+```javascript
+//2.1创建稀疏数组:数组元素实际只有2个，但是长度确实3.当你遍历这个数组的时候,不同的方法会有差异.
+let arr = new Array(3);
+arr[0]=0;
+arr[2]=2; //中间一项是empty,这个arr数组是稀疏数组.
+
+2.2创建密集数组:有真实元素了，虽然元素的值是undefined，但是你可以遍历到这些数组元素
+let arr = Array.apply(null,Array(3)); //等同于let arr = Array(undefined,undefined,undefined);
 ```
 
 
@@ -7375,7 +7406,7 @@ console.log(arr.length); //0
 
 
 
-### 创建数组的方式
+### 创建数组3种方式
 
 > 在ECMAScript 6以前,创建数组有两种方式: 调用Array构造函数;数组字面量语法. 
 >
@@ -7495,10 +7526,10 @@ let items = createArray(Array.of, value);
 
 ##### 3.2.1 ES5和ES6 在转换组数上的比较
 
-1.ES5 将类数组对象转换为数组
+1.ES5 将类数组对象转换为数组: 将函数中的arguments对象转换为数组
 
 ```JavaScript
-//第一种方法
+//第一种方法 for循环+push
 function makeArray(arrayLike) {
   let result = [];
   for (let i=0; i<arraryLike.length; i++) {
@@ -7514,8 +7545,10 @@ function doSomething() {
   //使用args
 }
 
-//第二种方法 调用数组原生的slice()方法可以将非数组对象转换为数组
-//slice()对象只需数值型索引和length属性就能够正确运行，所以任何类数组对象都能被转换为数组
+
+
+//第二种方法 slice()方法
+//slice()方法 只需数值型索引和length属性就能够正确运行，所以任何类数组对象都能被转换为数组
 function makeArray(arrayLike) {
   return Array.prototype.slice.call(arrayLike);
 }
@@ -7635,54 +7668,20 @@ countSymbols('\uD842\uDFB7'); //1
 
 
 
-### 4. 如何创建一个包含1 … N的数组
-
-```javascript
-//https://www.codenong.com/3746725/
-
-//循环方法  写法繁琐
-let arr = [];
-for (let i=0; i<=n; i++) {
-  arr.push(i);
-}
-
-//ES6
-Array.from(Array(num).keys())
-
-[...Array(num).keys()]
-
-Array.from({length: num}, (v, k) => k + 1);
-
-[...Array(10).keys()].map(x => ++x) ???
-Array(N).fill().map(i => i+1)
-```
-
-
-
 
 
 ### 创建数组方式的区别
 
-```js
+```javascript
 let a = Array();
 let b = new Array();
 let c = [];
-
-各自创建了一个length=0的JS数组.
-//new Array();
-new只是一个语法糖。new Array()创建了一个对象，新建的对象a.__proto__ == Array.prototype。这是标准的一个由Class到实例的创建步骤.
-//Array();
-Array()和new Array()完全一致
-//[]也被称为literal syntax，它同样会创建一个空数组。得到的结果和new Array()，以及Array全部一样。
-
-//使用区别:
-1.从性能上来讲，new Array() 在初始化大数组的时候，性能更加优异，在之前大数组创建的文章中已经提到了这个内容。当初始化一个空数组时候，两者性能几乎没有差异。因此优先使用Array()或者new Array()
-
-2.虽然使用new，会增加多一层的对象包裹，而使得内存冗余。但使用new后更加符合了对象化继承的概念
-
 ```
 
+#### new Array() 和 [] 的区别
 
+* 语法上唯一的区别是new Array()可以直接设置数组的长度
+* 用new 关键字去内存开辟一个存储地址比较耗资源,耗内存.但不同文章的测试结果也有差异.
 
 
 
@@ -7735,128 +7734,268 @@ arr[10] = 14;
 
 #### push()
 
-```JavaScript
-push()
- - 该方法用来向数组的末尾添加一个或多个元素,并返回数组新的长度
- - 破坏性方法,会改变原有数组的内容
+**定义**
+
+`**push()**` 方法将<u>一个或多个元素</u>添加到数组的末尾，并返回该数组的**新长度**
+
+**描述**
+
+`push` 方法具有通用性。该方法和 [`call()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 一起使用时，可应用在类似数组的对象上。`push` 方法根据 `length` 属性来决定从哪里开始插入给定的值。如果 `length` 不能被转成一个数值，则插入的元素索引为 0，包括 `length` 不存在时。当 `length` 不存在时，将会创建它。
+
+唯一的原生类数组（array-like）对象是 [`Strings`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)，尽管如此，它们并不适用该方法，因为字符串是不可改变的。
+
+**实例**
+
+向数组中添加元素
+
+```javascript
+let sports = ['soccer', 'baseball']
+let total = sports.push('football', 'swimming')
+
+console.log(sports)  // ['soccer', 'baseball', 'football', 'swimming']
+console.log(total)   // 4
 ```
 
+合并两个数组
 
+```javascript
+let vegetables = ['parsnip', 'potato']
+let moreVegs = ['celery', 'beetroot']
 
-```JavaScript
-let arr = ['孙悟空', '猪八戒', '沙和尚', '唐僧'];
-result = arr.splice(1,0);// result返回的是一个空数组
+// Merge the second array into the first one
+vegetables.push(...moreVegs);
 
-result = arr.push( arr.splice(1,0) ); // 5
-console.log(arr); //['孙悟空', '猪八戒', '沙和尚', '唐僧',Array()];
+console.log(vegetables)  // ['parsnip', 'potato', 'celery', 'beetroot']
+
+//也可以使用concat()方法
+let vegetables = ['parsnip', 'potato']
+let moreVegs = ['celery', 'beetroot']
+let result = vegetables.concat(moreVegs);
+console.log(result); // ['parsnip', 'potato', 'celery', 'beetroot']
 ```
 
+用类数组方式使用对象([Using an object in an array-like fashion](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/push#using_an_object_in_an_array-like_fashion))
 
+`push`是通用的,`Array.prototype.push`也能在对象上使用.
 
-#### unshift()
+我们无需创建一个数组来存储对象集合,反而,我们可以用对象集合存储它自己,在`Array.prototype.push`上使用`call`来调用, ,让方法认为在处理数组. ????
 
-```JavaScript
-unshift()
- - 该方法用来向数组的开头添加一个或多个元素,并返回数组新的长度
+```javascript
+let obj = {
+  length: 0,
+  addElem: function addElem(elem) {
+    // obj.length is automatically incremented
+    // every time an element is added.
+    [].push.call(this, elem);
+  }
+};
+
+obj.addElem({});
+obj.addElem({});
+
+console.log(obj.length); //2
 ```
 
 
 
 #### pop()
 
-```JavaScript
-pop()
- - 用来删除并返回数组的最后一个元素  调用一次删除一个
+**定义**
+
+`**pop()**`方法从数组中删除最后一个元素，并返回该元素的值。此方法更改数组的长度。
+
+**返回值**
+
+从数组中删除的元素(当数组为空时返回[`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined))。
+
+**描述**
+
+`pop` 方法有意具有通用性。该方法和 [`call()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 一起使用时，可应用在类似数组的对象上。`pop`方法根据 `length`属性来确定最后一个元素的位置。如果不包含`length`属性或`length`属性不能被转成一个数值，会将`length`置为0，并返回`undefined`。
+
+如果你在一个空数组上调用 pop()，它返回  [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)。
+
+
+
+#### unshift()
+
+**定义**
+
+**`unshift()`** 方法将一个或多个元素添加到数组的**开头**，并返回该数组的**新长度**(该方法修改原有数组**)**。
+
+**描述**
+
+`unshift` 方法会在调用它的类数组对象的开始位置插入给定的参数。
+
+`unshift` 特意被设计成具有通用性；这个方法能够通过 [`call`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [`apply`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 方法作用于类数组对象上。不过对于没有 length 属性的对象，调用该方法可能没有任何意义。
+
+注意, 如果传入多个参数，它们会被以块的形式插入到对象的开始位置，它们的顺序和被作为参数传入时的顺序一致。 于是，传入多个参数调用一次 `unshift` ，和传入一个参数调用多次 `unshift` (例如，循环调用)，它们将得到不同的结果.
+
+**实例**
+
+```javascript
+let arr = [4,5,6];
+arr.unshift(1,2,3);
+console.log(arr); // [1, 2, 3, 4, 5, 6]
+
+arr = [4,5,6]; // 重置数组
+arr.unshift(1);
+arr.unshift(2);
+arr.unshift(3);
+console.log(arr); // [3, 2, 1, 4, 5, 6]
 ```
+
+
 
 
 
 #### shift()
 
-```JavaScript
-shift()
- - 用来删除并返回数组的第一个元素  调用一次删除一个
+**定义**
+
+`shift()` 方法从数组中删除**第一个**元素，并返回该元素的值。此方法更改数组的长度。
+
+**返回值**
+
+从数组中删除的元素; 如果数组为空则返回[`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined) 。
+
+**描述**
+
+`shift` 方法移除索引为 0 的元素(即第一个元素)，并返回被移除的元素，其他元素的索引值随之减 1。如果 [`length`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/length) 属性的值为 0 (长度为 0)，则返回 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)。
+
+`shift` 方法并不局限于数组：这个方法能够通过 [`call`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [`apply`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 方法作用于类似数组的对象上。
+
+**实例**
+
+```javascript
+//shift() 方法经常用于while loop的环境中.。下例中每个循环将要从一个数组中移除下一项元素，直至它成为空数组。
+
+var names = ["Andrew", "Edward", "Paul", "Chris" ,"John"];
+
+while( (i = names.shift()) !== undefined ) {
+    console.log(i);
+}
+// Andrew, Edward, Paul, Chris, John
 ```
 
 
 
-### 遍历数组的5种方法
+### 遍历数组的多种方法
 
-```js
-//https://blog.fundebug.com/2019/03/11/4-ways-to-loop-array-inj-javascript/
-for/of是遍历数组最可靠的方式，它比for循环简洁，并且没有for/in和forEach()那么多奇怪的特例。for/of的缺点是我们取索引值不方便，而且不能这样链式调用forEach(). forEach()。
+#### 1. 遍历数组方法列举(8种,不全)
 
-使用for/of获取数组索引，可以这样写
-for(const[i,v] of arr.entries()) {
-  console.log(i,v);
+1. 普通for循环
+
+```javascript
+for (let i = 0; i < arr.length; i++) {
+  
 }
 ```
 
+简要说明: 最简单的一种，也是使用频率最高的一种，虽然性能不弱，但仍有优化空间
 
+2. 优化版for循环
 
-```js
-//https://www.cnblogs.com/goloving/p/8686780.html
-1.定义
-稀疏数组:数组中的元素之间可以有空隙empty,
-密集数组:每个元素都有值,即使是undefiend.
-2.创建
-2.1创建稀疏数组:数组元素实际只有2个，但是长度确实3.当你遍历这个数组的时候,不同的方法会有差异.
-let arr = new Array(3);
-arr[0]=0;
-arr[2]=2;  //中间一项是empty,这个arr数组是稀疏数组.
+```javascript
+for (let i = 0, len = arr.length; i < len; i++) {
+  
+}
+```
 
-2.2创建密集数组:有真实元素了，虽然元素的值是undefined，但是你可以遍历到这些数组元素
-let arr = Array.apply(null,Array(3)); //等同于let arr = Array(undefined,undefined,undefined);
+简要说明: 使用临时变量，将长度缓存起来，避免重复获取数组长度，当数组较大时优化效果才会比较明显。
 
+**这种方法基本上是所有循环遍历方法中性能最高的一种**
 
+3. 弱化版for循环
 
+```javascript
+for (let i = 0; arr[i] !== null; i++) {
+  
+}
+```
 
+这种方法其实严格上也属于for循环，只不过是没有使用length判断，而使用变量本身判断
 
-//https://juejin.cn/post/6930973929452339213
-for循环倒叙是最快的.
+**实际上，这种方法的性能要远远小于普通for循环**
 
-const million=1000000;
-const arr = Array(million);  //产生的是empty元素,值未undefined
+4. forEach循环
 
-//这是稀疏数组，应该为其指定内容，否则不同方式的循环对其的处理方式会不同
-//const arr = [...Array(million)]  打印arr值,数组元素均为undefined.
+```javascript
+arr.forEach((item,index,arr) => {});
+```
 
-console.time();
-for(let i=arr.length;i>0;i--){}  //-1.5ms
-for(let i=0;i<arr.length;i++){}  //-1.6ms
-arr.forEach(v=>v)                //-2.1ms
-for(const v of arr){}            //11.7ms
-console.timeEnd();
+数组自带的foreach循环，使用频率较高，实际上性能比普通for循环弱
+
+5. forEach变种
+
+```javascript
+Array.prototype.forEach.call(arr, (item,index,arr) => {})
+```
+
+由于foreach是Array型自带的，对于一些非这种类型的，无法直接使用(如NodeList)，所以才有了这个变种，使用这个变种可以让类似的数组拥有foreach功能。
+
+实际性能要比普通foreach弱
+
+6. for...in循环
+
+```javascript
+for(let i in arr) {
+  
+}
+```
+
+众多循环中效率最低
+
+7. for...of循环
+
+```javascript
+for(let value of arr) {
+  
+}
+```
+
+es6里的，性能要好于forin，但仍然比不上普通for循环
+
+8. map循环
+
+```javascript
+arr.map((item,index,arr) => {})
 ```
 
 
 
-#### for循环正序
+#### 2. 遍历数组方法性能比较图
+
+以下截图中的数据是，在chrome (支持es6)中运行了100次后得出的结论(每次运行10次,一共10个循环，得到的分析结果)
+
+![遍历数组](https://dailc.github.io/jsfoundation-perfanalysis/staticresource/performanceAnalysis/demo_js_performanceAnalysis_jsarrayGoThrough_1.png)
+
+#### 3. 各方法详解
+
+##### for循环顺序
 
 ```js
 for(let i=0; i<arr.length; i++){}
-```
 
-
-
-#### for循环倒叙
-
-```js
 for(let i=arr.length;i>0;i--){}
 ```
 
 
 
-#### forEach
+##### forEach
+
+**介绍**
 
 - forEach()是数组对象的方法,可以用来对数组进行遍历,它需要一个函数作为参数. //没有返回值
 - 传递给数组的函数会调用多次,数组中有几个元素就调用几次
 - 每次调用时,会将元素的信息以参数的形式传递进函数
+- forEach()不能遍历对象,可以使用for-in
+
+**返回值**
 
 forEach() 被调用时，不会改变原数组，也就是调用它的数组
 forEach返回值是undefined,没有返回值.
 
-forEach()不能遍历对象,可以使用for-in
+**实例**
 
 ```js
 forEach的回调函数有三个参数:
@@ -7866,30 +8005,12 @@ forEach的回调函数有三个参数:
     
 数组.forEach(function(item, index, array){ //顺序很重要
     console.log(item, index, array); 
-})    
-    
-arr = ['孙悟空', '沙和尚', '猪八戒'];     
-
-  arr.forEach(function(a, b, c){
-      console.log(a); //孙悟空 沙和尚 猪八戒
-  })
-
-  arr.forEach(function(a,b,c){
-      console.log(b); //0 1 2 3 
-  })
-
-  arr.forEach(function(a,b,c){
-      console.log(c); //当前遍历的数组  有几个就显示几 次数组
-  })
-
-  arr.forEach(function(item,index){
-      console.log(item, index); // 打印的是0'孙悟空' 1'沙和尚' 2'猪八戒'
-  })
+})
 ```
 
 
 
-#### for...of
+##### for...of
 
 `for…of` 是在 ES6（ECMAScript 6）中实现标准化的。它会对一个可迭代的对象（例如 `array`、`map`、`set`、`string` 等）创建一个循环
 
@@ -7903,13 +8024,23 @@ for (const i of str) {
    console.log(i); // 输出 'h', 'e', 'l', 'l', 'o'
 }
 
+
+
+使用for/of获取数组索引，可以这样写
+for(const[i,v] of arr.entries()) {
+  console.log(i,v);
+}
 ```
 
 
 
-#### for...in
+##### for...in
 
-`for…in` 会在对象的所有可枚举属性上迭代指定的变量.对于每个不同的属性，`for…in` 语句除返回数字索引外，还将返回用户定义的属性的名称。 因此，在遍历数组时最好使用带有数字索引的传统 `for` 循环。 因为 `for…in` 语句还会迭代除数组元素之外的用户定义属性，就算我们修改了数组对象（例如添加自定义属性或方法），依然如此
+**`for...in`语句**以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性，包括继承的可枚举属性.
+
+`for…in` 语句除返回数字索引外，还将返回用户定义的属性的名称。 
+
+因此，在遍历数组时最好使用带有数字索引的传统 `for` 循环, `for...of`。 
 
 ```js
 // for…in 循环遍历对象的属性，而 for…of 循环遍历可迭代对象的值。
@@ -7917,27 +8048,26 @@ let arr = [1,2,3];
 for(let i in arr){
   console.log(i); //'0','1','2'
 }
+
+//数组具有一个可枚举的方法，也会被for-in遍历到
+let arr = [1,2,3];
+arr.name = 'test';
+for (let i in arr) {
+  console.log(i + ":" + arr[i])
+}
+//0:1
+//1:2
+//2:3
+//name: 'test'
 ```
 
 
 
-#### for await ...of
+#### 4. 遍历数组的问题
 
-**`for await...of` 语句**创建一个循环，该循环遍历异步可迭代对象以及同步可迭代对象，包括: 内置的 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String), [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)，类似数组对象 (例如 [`arguments`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/arguments) 或 [`NodeList`](https://developer.mozilla.org/zh-CN/docs/Web/API/NodeList))，[`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray), [`Map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map), [`Set`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Set) 和用户定义的异步/同步迭代器。
+##### 1. forEach()中无法return/break,
 
-类似于 [`await`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await) 运算符一样，该语句只能在一个[async function](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function#异步函数) 内部使用
-
-```JavaScript
-//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for-await...of
-
-
-```
-
-
-
-### 遍历数组的问题
-
-#### 1. forEach()中无法return/break,
+for循环和for-in, for...of能正确响应break、continue和return语句，但forEach不行。 
 
 ```js
 //跳出for循环使用break, 但在数组中用forEach循环如果要退出使用break会报错,使用return也不能跳出.
@@ -7953,7 +8083,7 @@ for(let i in arr){
 
 
 
-#### 2. map循环如何跳出?
+##### 2. map循环如何跳出?
 
 ```js
 //前提: map无法跳出, 所以es6中才会添加for-of语法
@@ -7968,14 +8098,7 @@ for(let i in arr){
 
 
 
-### 数组方法1
-
-```js
-1.实现浅拷贝方法
-slice() concat()
-
-
-```
+### 数组方法
 
 
 
@@ -7983,7 +8106,6 @@ slice() concat()
 | -------------------------- | ------------------------------------------------------------ |
 | Array.prototype.toString() | 字符串                                                       |
 | Array.prototype.slice()    | 对数组进行截取,返回截取的数组                                |
-|                            |                                                              |
 | Array.prototype.concat()   | 连接2个或多个数组,并返回结果                                 |
 | Array.prototype.indexOf()  | 查询元素第一次出现在数组的位置并返回,没有返回-1              |
 | Array.prototype.join()     | 将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串 |
@@ -8023,42 +8145,80 @@ Array.prototype.toString()
 
 #### slice-截取
 
-Array.prototype.slice()
+**定义**
 
-slice()对象只需数值型索引和length属性就能够正确运行，所以任何类数组对象都能被转换为数组
+`**slice()**` 方法返回一个新的数组对象，这一对象是一个由 `begin` 和 `end` 决定的原数组的**浅拷贝**（包括 `begin`，不包括`end`）。原始数组不会被改变。
 
-`slice` 会提取原数组中索引从 `begin` 到 `end` 的所有元素（包含 `begin`，但不包含 `end`）
+**参数**
 
-`slice()` 方法,不会改变原始数组,返回一个新的数组对象. 这一对象是一个由 `begin` 和 `end` 决定的原数组的**浅拷贝**（包括 `begin`，不包括`end`）
+`begin` 可选
 
+* 提取起始处的索引（从 `0` 开始），从该索引开始提取原数组元素。
 
+* 如果该参数为负数，则表示从原数组中的倒数第几个元素开始提取
 
-```JavaScript
-//语法
-arr.slice([begin,[,end]])
--begin 可选参数: 提取起始处的索引（从 0 开始），从该索引开始提取原数组元素
-如果省略该参数,则slice从索引0开始.
-如果该参数为负数,则表示从原数组的倒数第几个元素开始提取.例如slice(-2),提取原数组中的倒数第2个到最后1个元素(包含最后一个)
-如果该参数超出数组索引范围,则返回空数组.
+* 如果省略 `begin`，则 `slice` 从索引 `0` 开始。
 
--end 可选参数:提取终止处的索引（从 0 开始），在该索引处结束提取原数组元素
-如果省略该参数,则 slice 会一直提取到原数组末尾
-如果该参数为负数, 则它表示在原数组中的倒数第几个元素结束抽取
-如果end大于数组长度,slice会提取到原数组末尾.
+* 如果 `begin` 超出原数组的索引范围，则会返回空数组。
 
-//描述
-slice 不会修改原数组，只会返回一个浅复制了原数组中的元素的一个新数组。原数组的元素会按照下述规则拷贝：
--如果该元素是个对象引用 （不是实际的对象），slice 会拷贝这个对象引用到新的数组里。两个对象引用都引用了同一个对象。如果被引用的对象发生改变，则新的和原来的数组中的这个元素也会发生改变。
--对于字符串、数字及布尔值来说（不是 String、Number 或者 Boolean 对象），slice 会拷贝这些值到新的数组里。在别的数组里修改这些字符串或数字或是布尔值，将不会影响另一个数组
-- 如果向两个数组任一中添加了新元素，则另一个不会受到影响.
+`end`  可选
 
-- 复制整个数组的方法
-	arr.slice()
-	arr.slice('')
-	arr.slice(0)
+* 提取终止处的索引（从 `0` 开始），在该索引处结束提取原数组元素
+* 如果该参数为负数， 则它表示在原数组中的倒数第几个元素结束抽取
+* 如果 `end` 被省略，则 `slice` 会一直提取到原数组末尾。包括最后一个
+* 如果 `end` 大于数组的长度，`slice` 也会一直提取到原数组末尾.
+
+**返回值**
+
+一个含有被提取元素的新数组
+
+**描述**
+
+`slice` 不会修改原数组，只会返回一个浅复制了原数组中的元素的一个新数组。原数组的元素会按照下述规则拷贝：
+
+* 如果该元素是个对象引用 （不是实际的对象），`slice` 会拷贝这个对象引用到新的数组里。两个对象引用都引用了同一个对象。如果被引用的对象发生改变，则新的和原来的数组中的这个元素也会发生改变。
+* 对于字符串、数字及布尔值来说（不是 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)、[`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 或者 [`Boolean`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean) 对象），`slice` 会拷贝这些值到新的数组里。在别的数组里修改这些字符串或数字或是布尔值，将不会影响另一个数组。
+
+<u>如果向两个数组任一中添加了新元素，则另一个不会受到影响。</u>
+
+```javascript
+let obj = {a: 'a', b: 'b'},
+    arr = [1, obj, {c: 'c'}];
+
+let result = arr.slice();
+
+obj['a'] = 'aa';
+console.log(result);  //[1, {a: 'aa', b: 'b'}, {c: 'c'}]
 ```
 
 
+
+**实例**
+
+1.复制数组
+
+```JavaScript
+//复制整个数组的方法
+	arr.slice()
+	arr.slice('')  //非数字类型参数下相当于没传递参数
+	arr.slice(0)
+```
+
+类数组转换为真数组
+
+```javascript
+//es5
+let arrLike = {0:0, 1:1, 2:2, length: 3};
+let arr = Array.prototype.slice.call(arrLike);
+let result = [].slice.call(arrLike);
+
+//es6
+Array.of(arguments)
+```
+
+
+
+**代码实现**
 
 ```js
 //代码实现
@@ -8071,21 +8231,6 @@ Array.prototype.slice = function(start,end){
   }
   return result;
 }
-
-//拓展
-slice()方法可将伪数组转换为真数组,用法如下:
-let arr = Array.prototype.slice.call(obj); //此处obj就是伪数组
-let arr = [].slice.call(obj);
-
-ES6中使用Array.of()来代替Array.prototype.slice.call(arguments),将arguments对象转换为数组.
-
-
-
-//Function.prototype.call.bind
-//https://www.cnblogs.com/gaoht/p/10978751.html
-在JavaScript中，有时候需要在一个不同的对象上重用一个函数，而不是在定义它的对象或者原型中。通过使用call()，applay（）和bind()，我们可以很方便地从不同的对象借用方法，而不需要继承它们 – 这是一个在专业JavaScript开发者的工具箱中很有用的工具
-
-
 ```
 
 
@@ -8094,37 +8239,60 @@ ES6中使用Array.of()来代替Array.prototype.slice.call(arguments),将argument
 
 #### splice-删除 替换 新增
 
+**定义**
+
 **`splice()`** 方法通过**删除或替换**现有元素或者**原地添加**新的元素来修改数组,并以数组形式返回被修改的内容。此方法会改变原数组。
 
-```JavaScript
-//语法
-arr.splice(start[,deleteCount[,item1[,item2[,...]]]])
+**参数**
 
-start
- 指定修改的开始位置（从0计数）
- 
-deleteCount 可选
-整数,表示要移除的数组元素的个数
- -如果deleteCount大于start之后的元素的总数,则从start后面的元素都将被删除(含start位).
- -如果deleteCount被省略了,或者它的值大于等于arr.length-start(如果它大于或者等于start之后的所有元素的数量),那么start之后的数组的所有元素都会被删除.
- -如果deleteCount是0或者负数,则不移除元素.这种情况下,应该至少添加一个新元素.
+```javascript
+array.splice(start[, deleteCount[, item1[, items[, ...]]]])
+```
 
-item1,item2... 可选
-要添加进数组的元素,从start的位置开始.如果不指定,则splice()将只删除数组.
+`start`
 
-//返回值
+* 指定修改的开始位置（从0计数）。
+* 如果超出了数组的长度，则从数组末尾开始添加内容；
+* 如果是负值，则表示从数组末位开始的第几位（从-1计数，这意味着-n是倒数第n个元素并且等价于`array.length-n`）；
+* 如果负数的绝对值大于数组的长度，则表示开始位置为第0位。
+
+`deleteCount` 可选
+
+* 整数，表示要移除的数组元素的个数。
+* 如果 `deleteCount` 大于 `start` 之后的元素的总数，则从 `start` 后面的元素都将被删除（含第 `start` 位）。
+* 如果 `deleteCount` 被省略了，或者它的值大于等于`array.length - start`(也就是说，如果它大于或者等于`start`之后的所有元素的数量)，那么`start`之后数组的所有元素都会被删除。
+* 如果 `deleteCount` 是 0 或者负数，则不移除元素。返回空数组.
+
+`item1, item2,...`
+
+* 要添加进数组的元素,从`start` 位置开始。如果不指定，则 `splice()` 将只删除数组元素
+
+**返回值**
+
 由被删除的元素组成的一个数组。如果只删除了一个元素，则返回只包含一个元素的数组。如果没有删除元素，则返回空数组。
 
-//描述
-如果添加进数组的元素个数不等于被删除的元素个数，数组的长度会发生相应的改变。
+**实例**
+
+```javascript
+1.从第2位开始删除1个元素,插入'drum'
+let myFish = ['angel',"clown", "mandarin", "sturgeon"]
+myFish.splice(2,1,'drum')
+
+2.从倒数第2位开始删除1个元素
+var myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
+var removed = myFish.splice(-2, 1);
+// 运算后的 myFish: ["angel", "clown", "sturgeon"]
+// 被删除的元素: ["mandarin"]
 
 ```
 
 
 
+**代码实现**
+
 ```js
 //代码实现  https://blog.csdn.net/weixin_43523913/article/details/106021147
-https://blog.csdn.net/lunahaijiao/article/details/112645946
+//https://blog.csdn.net/lunahaijiao/article/details/112645946
 
 
 Array.prototype.splice = function (start, deleteCount) {
@@ -8209,62 +8377,77 @@ function moveElements(startIndex, delCount, array, addCount) {
       array[i]=array[i+Math.abs(realAddCount)]
     }
   }
-}
-```
 
-
-
-
-
-
-
-```JavaScript
-//示例
-
-1.从第2位开始删除1个元素,插入'drum'
-let myFish = ['angel',"clown", "mandarin", "sturgeon"]
-myFish.splice(2,1,'drum')
-
-2.从倒数第2位开始删除1个元素
-var myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
-var removed = myFish.splice(-2, 1);
-// 运算后的 myFish: ["angel", "clown", "sturgeon"]
-// 被删除的元素: ["mandarin"]
-
-3.从第 2 位开始删除所有元素
-var myFish = ['angel', 'clown', 'mandarin', 'sturgeon'];
-var removed = myFish.splice(2);
-
-// 运算后的 myFish: ["angel", "clown"]
-// 被删除的元素: ["mandarin", "sturgeon"]
 ```
 
 
 
 #### concat()
 
+**定义**
+
 **`concat()`** 方法用于合并两个或多个数组。此方法不会更改现有数组，而是返回一个新数组
 
-```JavaScript
-//语法
+**参数**
+
+```javascript
 var new_array = old_array.concat(value1[, value2[, ...[, valueN]]])
+```
 
-//valueN可选
-数组和/或值，将被合并到一个新的数组中。如果省略了所有 valueN 参数，则 concat 会返回调用此方法的现存数组的一个浅拷贝
--concat()方法对需要拷贝的对象的每个元素进行拷贝时，若该元素为基础类型，则对该元素进行的是深拷贝（如array1[1]属性）；若该元素是引用类型，则对该元素进行的是浅拷贝（如array2[1].name属性）
+`valueN` 可选
 
+数组和/或值，将被合并到一个新的数组中。如果省略了所有 `valueN` 参数，则 `concat` 会返回调用此方法的现存数组的一个浅拷贝。
 
-//描述
-concat方法创建一个新的数组，它由被调用的对象中的元素组成，每个参数的顺序依次是该参数的元素（如果参数是数组）或参数本身（如果参数不是数组）。它不会递归到嵌套数组参数中。
+**返回值**
 
-concat方法不会改变this或任何作为参数提供的数组，而是返回一个浅拷贝，它包含与原始数组相结合的相同元素的副本。 原始数组的元素将复制到新数组中
- - 对象引用（而不是实际对象）：concat将对象引用复制到新数组中。 原始数组和新数组都引用相同的对象。 也就是说，如果引用的对象被修改，则更改对于新数组和原始数组都是可见的。 这包括也是数组的数组参数的元素。
- - 数据类型如字符串，数字和布尔（不是String，Number 和 Boolean 对象）：concat将字符串和数字的值复制到新数组中
- 
-注意：数组/值在连接时保持不变。此外，对于新数组的任何操作（仅当元素不是对象引用时）都不会对原始数组产生影响，反之亦然。
+新的 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array) 实例
+
+**描述**
+
+* `concat`方法创建一个新的数组，它由被调用的对象中的元素组成，每个参数的顺序依次是该参数的元素（如果参数是数组）或参数本身（如果参数不是数组）。它不会递归到嵌套数组参数中。
+* `concat`方法不会改变`this`或任何作为参数提供的数组，而是返回一个浅拷贝，它包含与原始数组相结合的相同元素的副本。 原始数组的元素将复制到新数组中:
+  * 对象引用（而不是实际对象）：`concat`将对象引用复制到新数组中。 原始数组和新数组都引用相同的对象。
+  * 数据类型如字符串，数字和布尔（不是[`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)，[`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 和 [`Boolean`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean) 对象）：`concat`将字符串和数字的值复制到新数组中
+  * 对于新数组的任何操作（仅当元素不是对象引用时）都不会对原始数组产生影响，反之亦然。
+
+**实例**
+
+连接3个数组
+
+```javascript
+var num1 = [1, 2, 3],
+    num2 = [4, 5, 6],
+    num3 = [7, 8, 9];
+
+var nums = num1.concat(num2, num3);
+
+console.log(nums);
+// results in [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+连接对象
+
+```javascript
+//合并对象
+let obj ={a:2}
+let arr=[1,2,3]
+let result = arr.concat(obj);
+console.log(result);//[1,2,3,{a:2}]
+```
+
+浅拷贝验证
+
+```javascript
+let arr=[1,2,3,{a:4}];
+let result=arr.concat();
+arr[3].a=5;
+console.log(arr, result);
+//[1, 2, 3,{a:5}] [1, 2, 3,{a:5}]
 ```
 
 
+
+**代码实现**
 
 ```js
 //代码实现
@@ -8291,85 +8474,95 @@ Array.prototype.concat=function(){
 
 
 
-```JavaScript
-//连接两个数组
-var alpha = ['a', 'b', 'c'];
-var numeric = [1, 2, 3];
-alpha.concat(numeric);
-// result in ['a', 'b', 'c', 1, 2, 3]
-
-//将值连接到数组
-var alpha = ['a', 'b', 'c'];
-var alphaNumeric = alpha.concat(1, [2, 3]);
-console.log(alphaNumeric);
-// results in ['a', 'b', 'c', 1, 2, 3]
-
-//合并嵌套数组
-var num1 = [[1]];
-var num2 = [2, [3]];
-var num3=[5,[6]];
-
-var nums = num1.concat(num2);
-
-console.log(nums);
-// results is [[1], 2, [3]]
-
-var nums2=num1.concat(4,num3);
-console.log(nums2)
-// results is [[1], 4, 5,[6]]
-
-// modify the first element of num1
-num1[0].push(4);
-
-console.log(nums);
-// results is [[1, 4], 2, [3]]
-
-
-//合并对象
-let obj ={a:2}
-let arr=[1,2,3]
-let result = arr.concat(obj);
-console.log(result);//[1,2,3,{a:2}]
-
-//浅拷贝 conat()实现的浅拷贝:基本类型是深拷贝,引用类型是浅拷贝(数组中的元素是对象才起作用)
-let arr=[1,2,3,{a:4}];
-let result=arr.concat();
-arr[3].a=5;
-console.log(arr, result);
-//[1, 2, 3,{a:5}] [1, 2, 3,{a:5}]
-```
-
-
-
   
 
 
 
 #### indexOf()
 
+**定义**
+
 `indexOf()`方法返回在数组中可以找到一个给定元素的第一个索引，如果不存在，则返回-1
 
-```JavaScript
-//语法
-arr.indexOf(searchElement[, fromIndex])
-searchElement: 要查询的元素
-fromIndex: 
-  查询的起始位置,默认为0,表示查询整个数组.
-  如果参数中提供的索引值是一个负值，则将视为从数组末尾的偏移.例如,如果是-1,从最后一位开始搜索
-  
-返回值:
-	如果找到了,返回其第一次出现的位置
-	如果没找到,返回-1
+**参数**
 
-//描述
-indexOf 使用strict equality (无论是 ===, 还是 triple-equals操作符都基于同样的方法)进行判断 searchElement与数组中包含的元素之间的关系
+```javascript
+arr.indexOf(searchElement[, fromIndex])
+```
+
+`searchElement`
+
+* 要查找的元素
+
+`fromIndex` 可选
+
+* 开始查找的位置。包括查找的位置
+* 如果该索引值大于或等于数组长度，意味着不会在数组里查找，返回-1
+* 如果参数中提供的索引值是一个负值，则将其作为数组末尾的一个抵消或者通过(length+负值)得出
+* 如果参数中提供的索引值是一个负值，并不改变其查找顺序，查找顺序仍然是从前向后查询数组
+
+**返回值**
+
+首个被找到的元素在数组中的索引位置; 若没有找到则返回 -1
+
+**描述**
+
+`indexOf` 使用[strict equality (en-US)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators#using_the_equality_operators) (无论是 ===, 还是 triple-equals操作符都基于同样的方法)进行判断 `searchElement与`数组中包含的元素之间的关系
+
+**实例**
+
+数组去重
+
+```javascript
+let arr = [1,2,3,1,1,4,3,2,5,6,7];
+let newArr = [];
+arr.forEach(item => {
+  if (newArr.indexOf(item) === -1) {
+    newArr.push(item);
+  }
+});
+```
+
+找出元素出现的所有位置
+
+```javascript
+let arr = [1,2,3,1,1,4,3,2,5,6,7];
+let indexArr = [];
+
+function searchIndex(ele, arr) {
+  for (let i=0; i<arr.length;) {
+    let index = arr.indexOf(ele, i);
+    if (index === -1) return;
+    indexArr.push(index);
+    i = index + 1;
+  }
+  return indexArr;
+}
+
+searchIndex(1, arr)
+
+//案例
+let indices = [],
+    array = ['a', 'b', 'c', 'd', 'a', 'd'],
+    ele = 'a';
+
+let idx = array.indexOf(ele);
+while(idx !== -1) {
+	indices.push(idx);
+  idx = array.indexOf(element, idx + 1);
+}
+```
+
+判断一个元素是否在数组中,不在则更新数组
+
+```javascript
 ```
 
 
 
-```js
-//手动实现
+**代码实现**
 
+```js
 Array.prototype.indexOf=function(item,index){
   let start;
   let flag=false;
@@ -8443,7 +8636,7 @@ console.log(newArr)
 
 > 字符串分隔符
 
-`**join()**` 方法将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该项目而不使用分隔符。
+`**join()**` 方法将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该元素字符串而不使用分隔符。
 
 ```JavaScript
 //语法
@@ -9229,6 +9422,32 @@ let e = Array.prototype.reverse.call(a);
 
 
 ### 数组操作
+
+
+
+#### 创建一个包含1 … N的数组
+
+```javascript
+//https://www.codenong.com/3746725/
+
+//循环方法  写法繁琐
+let arr = [];
+for (let i=0; i<=n; i++) {
+  arr.push(i);
+}
+
+//ES6
+Array.from(Array(num).keys())
+
+[...Array(num).keys()]
+
+Array.from({length: num}, (v, k) => k + 1);
+
+[...Array(10).keys()].map(x => ++x) ???
+Array(N).fill().map(i => i+1)
+```
+
+
 
 #### 获取元素
 
