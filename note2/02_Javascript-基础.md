@@ -8541,7 +8541,7 @@ function searchIndex(ele, arr) {
 
 searchIndex(1, arr)
 
-//案例
+//另一种方法
 let indices = [],
     array = ['a', 'b', 'c', 'd', 'a', 'd'],
     ele = 'a';
@@ -8551,11 +8551,6 @@ while(idx !== -1) {
 	indices.push(idx);
   idx = array.indexOf(element, idx + 1);
 }
-```
-
-判断一个元素是否在数组中,不在则更新数组
-
-```javascript
 ```
 
 
@@ -8589,70 +8584,106 @@ Array.prototype.indexOf=function(item,index){
 
 
 
-
-
-```JavaScript
-//示例
-1.找出指定元素所在的位置
-let indices=[];
-let array=['a', 'b', 'a', 'c', 'a', 'd'];
-let element='a';
-let idx = array.indexOf(element);
-while(idx!==-1){
-  indices.push(idx);
-  array.indexOf(element,idx+1)
-}
-console.log(indices)
-
-2.数组去重
-let arr = [1,2,3,1,1,4,3,2,5,6,7];
-let newArr = [];
-arr.forEach((item,index)=>{
-  if(newArr.indexOf(item)===-1){
-    newArr.push(arr[index])
-  }
-})
-console.log(newArr)
-```
-
-
-
 #### lastIndexOf()
 
-```JavaScript
-- 返回指定元素在数组中最后一次出现的索引位置, 如果没有则返回-1
-- 是从后向前找,包括寻找的开始位置.
-- 参数: 
-	第一个参数: 寻找的元素;
-	第二个元素: 开始寻找的位置
+**定义**
 
+`lastIndexOf()` 方法返回指定元素（也即有效的 JavaScript 值或变量）在数组中的最后一个的索引，如果不存在则返回 -1。从数组的后面向前查找，从 `fromIndex` 处开始。
+
+**参数**
+
+```javascript
+arr.lastIndexOf(searchElement[, fromIndex])
 ```
 
+`searchElement`
 
+* 被查找的元素
+
+`fromIndex` 可选
+
+* 从此位置开始逆向查找。
+* 默认为数组的长度减 1(`arr.length - 1`)，即整个数组都被查找。
+* 如果该值大于或等于数组的长度，则整个数组会被查找。
+* 如果为负值，将其视为从数组末尾向前的偏移。
+* 即使该值为负，数组仍然会被从后向前查找。
+* 如果该值为负时，其绝对值大于数组长度，则方法返回 -1，即数组不会被查找。
+
+**返回值**
+
+数组中该元素最后一次出现的索引，如未找到返回-1。
+
+**描述**
+
+`lastIndexOf` 使用[严格相等](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Comparison_Operators#Using_the_Equality_Operators)（strict equality，即 ===）比较 `searchElement` 和数组中的元素
+
+**实例**
+
+用 `lastIndexOf` 查找到一个元素在数组中所有的索引（下标），并使用 [`push`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/push) 将所有添加到另一个数组中。
+
+```javascript
+let arr = [1,2,3,4,5,1,2,1,3,1,5,2,4,4,1],
+    indexArr = [];
+
+function searchIndex(arr, ele) {
+  let idx = arr.lastIndexOf(ele);
+  while(idx !== -1) {
+    indexArr.push(idx);
+    if (idx === 0) return;
+    idx = arr.lastIndexOf(ele, idx - 1);
+  }
+}
+
+
+//另外的方法
+let idx = arr.lastIndexOf(ele);
+while(idx !== -1) {
+  indexArr.push(idx);
+  idx = (idx > 0 ? arr.lastIndexOf(ele, idx - 1) : -1);
+}
+
+```
 
 
 
 #### join()
 
-> 字符串分隔符
+**定义**
 
 `**join()**` 方法将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该元素字符串而不使用分隔符。
 
-```JavaScript
-//语法
+**参数**
+
+```javascript
 arr.join([separator])
-separator 可选
-指定一个字符串来分隔数组的每个元素。如果需要，将分隔符转换为字符串。如果缺省该值，数组元素用逗号（,）分隔。如果separator是空字符串("")，则所有元素之间都没有任何字符
-
-//返回值
-一个所有数组元素连接的字符串。如果 arr.length 为0，则返回空字符串。
-
-//描述
-- 有的数组元素被转换成字符串，再用一个分隔符将这些字符串连接起来
-- 如果一个元素为 undefined 或 null，它会被转换为空字符串   //不是用的String(null)吗? 'null'
 ```
 
+`separator` 可选
 
+* 指定一个字符串来分隔数组的每个元素。
+* 如果需要，将分隔符转换为字符串。
+* 如果缺省该值，数组元素用逗号（`,`）分隔。
+* 如果`separator`是空字符串(`""`)，则所有元素之间都没有任何字符。
+
+**返回值**
+
+一个所有数组元素连接的字符串。如果 `arr.length` 为0，则返回空字符串
+
+**描述**
+
+* 所有的数组元素被转换成字符串，再用一个分隔符将这些字符串连接起来。
+* 如果一个元素为 `undefined` 或 `null`，它会被转换为空字符串。
+
+**实例**
+
+连接类数组对象
+
+```javascript
+Array.prototype.join.call(arguments)
+[].join.call(arguments)
+```
+
+**代码实现**
 
 ```js
 //手写代码
@@ -8675,133 +8706,157 @@ let result = arr.join()
 
 
 
-
-
-```JavaScript
-//示例
-
-1.连接类数组对象
-function f(a,b,c){
-  let s = Array.prototype.join.call(arguments);
-  console.log(s); //'1,a,true'
-}
-f(1,'a',true)
-```
-
-
-
   
 
 #### reverse()
 
+**定义**
+
 `**reverse()**` 方法将数组中元素的位置颠倒，并返回该数组。数组的第一个元素会变成最后一个，数组的最后一个元素变成第一个。该方法会改变原数组。
 
-```JavaScript
-//语法
+**参数**
+
+```javascript
 arr.reverse()
-
-//描述
-reverse方法是特意类化的；此方法可被 called 或 applied于类似数组对象。对象如果不包含反映一系列连续的、基于零的数值属性中的最后一个长度的属性，则该对象可能不会以任何有意义的方式运行
 ```
 
+**返回值**
 
+颠倒后的数组。
 
-```JavaScript
-//示例
+**描述**
 
-1.颠倒数组中的元素
-const a = [1,2,3];
-a.reverse();
-console.log(a) //[3,2,1]
+* `reverse` 方法颠倒数组中元素的位置，改变了数组，并返回该数组的引用
+* reverse方法是特意类化的；此方法可被 [called](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [applied](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)于类似数组对象。
+* 对象如果不包含反映一系列连续的、基于零的数值属性中的最后一个长度的属性，则该对象可能不会以任何有意义的方式运行。
 
-2.颠倒类数组中的元素 必须有length属性
+**实例**
+
+颠倒类数组中的元素
+
+```javascript
 const a = {0: 1, 1: 2, 2: 3, length: 3};
+
+console.log(a); // {0: 1, 1: 2, 2: 3, length: 3}
+
 Array.prototype.reverse.call(a); //same syntax for using apply()
+[].reverse.call(a)
+
 console.log(a); // {0: 3, 1: 2, 2: 1, length: 3}
-
 ```
-
-
 
 
 
 ####   sort()
 
-用[原地算法](https://en.wikipedia.org/wiki/In-place_algorithm)对数组的元素进行排序，并返回数组。**默认排序顺序是在将元素转换为字符串，然后比较它们的UTF-16代码单元值序列时构建的.** 
+**定义**
+
+`sort()`方法用[原地算法](https://en.wikipedia.org/wiki/In-place_algorithm)对数组的元素进行排序，并返回数组。**默认排序顺序是在将元素转换为字符串，然后比较它们的UTF-16代码单元值序列时构建的.** 
 
 可以用来对一个数组进行排序,它是一个**破坏性的方法**..调用后,原数组的顺序就会被改变.
 
 可以通过传递一个 回调函数 来自定义排序规则
 
-```JavaScript
-//语法
-arr.sort([copareFunction]) //[]标识可选
-返回值:排序后的数组。请注意，数组已原地排序，并且不进行复制
+**参数**
 
+```javascript
+arr.sort([compareFunction])
+```
 
-当指明了compareFunction,那么数组会按照调用该函数的返回值排序.即a和b是两个将要被比较的元素:
-- 如果compareFunction(a,b)小于0,那么a会被排到b前面.
-- 如果compareFunction(a,b)等于0,那么a和b的位置不变.(备注:标准和浏览器都不保证,具体看mdn)
-- 如果compareFunction(a,b)大于0,那么a在b之后.
-比较函数格式:
-function compare(a,b){
-  if(a<b){
+`compareFunction` 可选
+
+* 用来指定按某种顺序进行排列的函数。如果省略，元素按照转换为的字符串的各个字符的Unicode位点进行排序。
+* `firstEl` 第一个用于比较的元素。
+* `secondEl` 第二个用于比较的元素
+
+**返回值**
+
+排序后的数组。请注意，数组已原地排序，并且不进行复制。
+
+**描述**
+
+* 如果没有指明 `compareFunction` ，那么元素会按照转换为的字符串的诸个字符的Unicode位点进行排序。
+* 如果指明了 `compareFunction` ，那么数组会按照调用该函数的返回值排序。即 a 和 b 是两个将要被比较的元素：
+  * 如果 `compareFunction(a, b)` 小于 0 ，那么 a 会被排列到 b 之前；
+  * 如果 `compareFunction(a, b)` 等于 0 ， a 和 b 的相对位置不变。备注： ECMAScript 标准并不保证这一行为，而且也不是所有浏览器都会遵守（例如 Mozilla 在 2003 年之前的版本）；
+  * 如果 `compareFunction(a, b)` 大于 0 ， b 会被排列到 a 之前。
+  * `compareFunction(a, b)` 必须总是对相同的输入返回相同的比较结果，否则排序的结果将是不确定的。
+
+```javascript
+//比较函数格式:
+function compare(a, b) {
+  if (a < b ) {           // 按某种排序标准进行比较, a 小于 b
     return -1;
   }
-  if(a>b){
+  if (a > b ) {
     return 1;
   }
+  // a must be equal to b
   return 0;
 }
+```
 
-要比较数字而非字符串，比较函数可以简单的以 a 减 b
+要比较数字而非字符串，比较函数可以简单的以 a 减 b，如下的函数将会将数组升序排列
+
+```javascript
 - 如果希望 升序 排列(从小到大),传:
-	function(a, b){
-        return a - b;
-    }
+function(a, b){
+  return a - b;
+}
 
 - 如果希望降序排列(从大到小),传:
-	function(a, b){
-        return b - a;
-    }
+function(a, b){
+  return b - a;
+}
 
 - 乱序排列
-	function(a, b){ //参数a与b写不写都一样了
-        return Math.random() - Math.random
-    }
+function(a, b){ //参数a与b写不写都一样了
+  return Math.random() - Math.random
+}
 ```
 
-示例:
+**为什么升序是a - b????**
 
-```JavaScript
-//arr = ['c', 'd', 'a', 'b', 'e']; 字符串排序方式
-arr = [3, 1, 2, 5, 6, 7, 9, 8, 10, 4];
-arr.sort(function (a, b) {
-     return a - b;
-}); 
-console.log(arr);
+```javascript
+//https://blog.csdn.net/weixin_42207975/article/details/107538527
 
-arr.sort((a,b)=>{
-  if(a>b){
-    return 1;
-  }else if(a<b){
-    return -1;
-  }else{
-    return 0;
-  }
-})
-
-
+let arr = [1, 22, 15, 32, 4, 5];
+arr.sort((a, b) => a - b); //升序排列 [1, 4, 5, 15, 22, 32]
+arr.sort((a, b) => b - a); //降序排列 [...]
 
 ```
 
-使用映射map改善排序
+回调函数的格式为（a,b）=> { return xxx }，ab为数组中任意两个数:
 
-基本思想是首先将数组中的每个元素比较的实际值取出来，排序后再将数组恢复.降低复杂数据的负载.
+* 当返回值大于0, a放在b的后面
+* 当返回值小于0, a放在b的前面
+* 当返回值等于0, 位置不变
+
+```javascript
+当a > b时:
+a - b > 0, 排序结果: b, a  (升序)
+b - a < 0, 排序结果: a, b  (降序)
+
+当b > a时候:
+a - b < 0, 排序结果是: a, b (升序)
+b - a > 0, 排序结果是: b, a (降序)
+
+当 a=b 时，
+
+a - b = b - a =0 , 排序结果 ===> 保持不变
+```
+
+结论: 无论a>b还是b>a，return a-b 总能得到升序的结果，而 return b-a 总能得到降序的结果. 另外，return a-b / return b - a 只是一种在理解的基础上简便的写法。复杂的写法就是使用上面的'比较函数的格式'.
+
+
+
+**实例**
+
+使用映射改善排序 !!!!
+
+> `compareFunction` 可能需要对元素做多次映射以实现排序，尤其当 `compareFunction` 较为复杂，且元素较多的时候，某些 `compareFunction` 可能会导致很高的负载。使用 map 辅助排序将会是一个好主意。基本思想是首先将数组中的每个元素比较的实际值取出来，排序后再将数组恢复。
 
 ```js
-//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-
 let arr = ['Delta', 'alpha', 'CHARLIE', 'bravo'];
 // 对需要排序的数字和位置的临时存储
 let mappedObj = arr.map((item,index)=>{
@@ -8809,12 +8864,37 @@ let mappedObj = arr.map((item,index)=>{
 })
 // 按照多个值排序数组
 mappedObj.sort((a,b)=>{
-  return +(a.value>b.value)||+(a.value===b.value)-1
+  return +(a.value>b.value)||+(a.value===b.value)-1;
 })
 // 根据索引得到排序的结果
 let result = mappedObj.map((item)=>{
   return list[item.index]
 })
+```
+
+排序稳定性
+
+> 自 ES10（EcmaScript 2019）起，[规范](https://tc39.es/ecma262/#sec-array.prototype.sort) 要求 `Array.prototype.sort` 为稳定排序。
+
+也就是说,当有相同排序条件时,按排序之前的位置来排序
+
+```javascript
+const students = [
+  { name: "Alex",   grade: 15 },
+  { name: "Devlin", grade: 15 },
+  { name: "Eagle",  grade: 13 },
+  { name: "Sam",    grade: 14 },
+];
+
+
+students.sort((firstItem, secondItem) => firstItem.grade - secondItem.grade);
+
+[
+  { name: "Eagle",  grade: 13 },
+  { name: "Sam",    grade: 14 },
+  { name: "Alex",   grade: 15 }, // grade 相同时维持原先的顺序 (稳定排序)
+  { name: "Devlin", grade: 15 }, // grade 相同时维持原先的顺序 (稳定排序)
+];
 ```
 
 
@@ -8823,245 +8903,284 @@ let result = mappedObj.map((item)=>{
 
 #### map()
 
-map()方法返回一个由原数组中每个元素调用一个指定方法后的返回值组成的新数组, 不修改原数组.
+**定义**
 
-```js
-//语法
-const new_array = arr.map(function callback(currentValue[,index[,array]]){
-  //return element for new_array
-},[,thisArg])
+map()方法返回一个由原数组中每个元素调用一个指定方法后的返回值组成的新数组, 可以改变原数组
 
-callback 生成新数组元素的函数，使用三个参数：
-currentValue
-callback 数组中正在处理的当前元素
-index可选
-callback 数组中正在处理的当前元素的索引
-array可选
-map 方法调用的数组。
-thisArg可选
-执行 callback 函数时值被用作this
+**参数**
 
-//描述
-map 方法会给原数组中的每个元素都按顺序调用一次  callback 函数。callback 每次执行后的返回值（包括 undefined）组合起来形成一个新数组。 callback 函数只会在有值的索引上被调用；那些从来没被赋过值或者使用 delete 删除的索引则不会被调用
-
-因为map生成一个新数组，当你不打算使用返回的新数组却使用map是违背设计初衷的，请用forEach或者for-of替代
-如果 thisArg 参数提供给map，则会被用作回调函数的this值。否则undefined会被用作回调函数的this值。
-
-map 方法处理数组元素的范围是在 callback 方法第一次调用之前就已经确定了。调用map方法之后追加的数组元素不会被callback访问。如果存在的数组元素改变了，那么传给callback的值是map访问该元素时的值。在map函数调用后但在访问该元素前，该元素被删除的话，则无法被访问到
-
-//注意问题:
-1.支持return返回值 但是不会中断map函数执行,和forEach一样.
-2.retrn的就是更改的项,返回到新数组中.
-
-//实例
-实现数组绑定&符,变成字符串形式
-arr.map(item=>'&a='+ item)
+```javascript
+let new_array = arr.map(function callback(currentValue[,index[, array]])) {
+  //
+}[, thisArg]
 ```
 
+`callback` 
 
+* 生成新数组元素的函数，使用三个参数：
+  * `currentValue` `callback` 数组中正在处理的当前元素。
+  * `index`**可选**  `callback` 数组中正在处理的当前元素的索引
+  * `array` **可选** `map` 方法调用的数组。
+* `thisArg` 可选
+  * 执行 `callback` 函数时值被用作`this`
 
-```js
-//示例
+**返回值**
 
-1.求数组中每个元素的平方根
-var numbers = [1, 4, 9];
-var roots = numbers.map(Math.sqrt);
-// roots的值为[1, 2, 3], numbers的值仍为[1, 4, 9]
+一个由原数组每个元素执行回调函数的结果组成的新数组。
 
-2.使用 map 重新格式化数组中的对象
+**描述**
+
+* `map` 方法会给原数组中的每个元素都按顺序调用一次  `callback` 函数。
+* `callback` 每次执行后的返回值（包括 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)）组合起来形成一个新数组。
+*  `callback` 函数只会在有值的索引上被调用；那些从来没被赋过值或者使用 `delete` 删除的索引则不会被调用。
+* 如果 `thisArg` 参数提供给`map`，则会被用作回调函数的`this`值。否则[`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)会被用作回调函数的`this`值。
+* `map `不修改调用它的原数组本身（当然可以在 `callback` 执行时改变原数组）!!!!
+* `map` 方法处理数组元素的范围是在 `callback` 方法第一次调用之前就已经确定了。调用`map`方法之后追加的数组元素不会被`callback`访问。
+* 如果存在的数组元素改变了，那么传给`callback`的值是`map`访问该元素时的值。在`map`函数调用后但在访问该元素前，该元素被删除的话，则无法被访问到。
+* 根据规范中定义的算法，如果被map调用的数组是离散的，新数组将也是离散的保持相同的索引为空。
+
+**实例**
+
+[使用 map 重新格式化数组中的对象](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map#使用_map_重新格式化数组中的对象)
+
+```javascript
 var kvArray = [{key: 1, value: 10},
                {key: 2, value: 20},
                {key: 3, value: 30}];
 
+var reformattedArray = kvArray.map(function(obj) {
+   var rObj = {};
+   rObj[obj.key] = obj.value;
+   return rObj;
+});
+
 // reformattedArray 数组为： [{1: 10}, {2: 20}, {3: 30}],
-
-let result = kvArray.map((item,index)=>{
-  return {[item.key],item.value}
-})
 ```
 
+使用技巧
+
+```javascript
+["1", "2", "3"].map(parseInt); //[1, NaN, NaN]
+
+["1", "2", "3"].map(parseInt('1', 0));  //十进制 1
+["1", "2", "3"].map(parseInt('2', 1));  //基数超范围 NaN
+["1", "2", "3"].map(parseInt('3', 2));  //NaN
 
 
-```js
-//注意
-1.map给回调函数传的不是一个值,可能是2/3个值
-let map = Array.prototype.map;
-let a = map.call('Hello World', function(e) { return e.charCodeAt(0)});
-//a的值是 [72,101,108,108,111,32,87,111,114,108,100]
+//解决方案
+function returnInt(element) {
+  return parseInt(element, 10);
+}
 
+['1', '2', '3'].map(returnInt); // [1, 2, 3]
+// Actual result is an array of numbers (as expected)
 
+// Same as above, but using the concise arrow function syntax
+['1', '2', '3'].map( str => parseInt(str) );
 
-3.[1,2,3,4,5].map(console.log); //等于 [1,2,3,4,5].map((val, index, array) => console.log(val, index, array) );
+// A simpler way to achieve the above, while avoiding the "gotcha":
+['1', '2', '3'].map(Number); // [1, 2, 3]
+
+// But unlike parseInt(), Number() will also return a float or (resolved) exponential notation:
+['1.1', '2.2e2', '3e300'].map(Number); // [1.1, 220, 3e+300]
+// For comparison, if we use parseInt() on the array above:
+['1.1', '2.2e2', '3e300'].map( str => parseInt(str) ); // [1, 2, 3]
 ```
 
+[Mapping 含 undefined的数组](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map#mapping_含_undefined的数组)
 
+```javascript
+let numbers = [1,2,3,4];
+let filterNumbers = numbers.map((num, index) => {
+  if (index < 3) return num;
+});
 
-```js
-//当一个函数传入map(),对每一个迭代器来说, 3个参数传入函数: currentValue, currentIndex, array.
-//parseInt传入两个参数: string和radix. 如果radix基数是falesy,那么将默认是10.  第三个参数将忽略
-
-2.求['1','2','3'].map(parseInt)的结果
-可等于, ['1','2','3'].map(parseInt(string, radix));
-可等于, ['1','2','3'].map(function(string,radix){return parseInt(string,radix)});   
-
-First iteration: val='1' index=0 array=['1','2','3']
-parseInt('1', 0, ['1','2','3']); => 1
-parseInt('2', 1, ['1','2','3']); => 1进制中不存在2 返回NaN
-parseInt('3', 2, ['1','2','3']); => 2进制中不存在3 返回NaN
-
+console.log(filterNumbers); //[1,2,3,undefined]
 ```
-
-
 
 
 
 #### filter()
 
-`**filter()**` 方法创建一个新数组, 其包含通过所提供函数实现的测试的所有元素.不会改变原数组，它返回过滤后的新数组
+**定义**
 
-```js
-//语法
-var newArray = arr.filter(callback(element[, index[, array]])[, thisArg])
+`filter()` 方法创建一个新数组, 其包含通过所提供函数实现的测试的所有元素.不会改变原数组，它返回过滤后的新数组.
 
-参数
-callback
-用来测试数组的每个元素的函数。返回 true 表示该元素通过测试，保留该元素，false 则不保留
+**参数**
 
-//描述
-filter 为数组中的每个元素调用一次 callback 函数，并利用所有使得 callback 返回 true 或等价于 true 的值的元素创建一个新数组
-
-
+```javascript
+let newArray = arr.filter(callback(element[, index[, array]])[, thisArg])
 ```
 
+`callback` 
+
+* 用来测试数组的每个元素的函数。返回 `true` 表示该元素通过测试，保留该元素，`false` 则不保留。它接受以下三个参数：
+  * `element`  数组中当前正在处理的元素。
+  * `index`  **可选** 正在处理的元素在数组中的索引
+  * `array` **可选** 调用了 `filter` 的数组本身
+
+`thisArg` 
+
+* 执行 `callback` 时，用于 `this` 的值。
+
+**返回值**
+
+一个新的、由通过测试的元素组成的数组，如果没有任何数组元素通过测试，则返回空数组。
+
+**描述**
+
+* `filter` 为数组中的每个元素调用一次 `callback` 函数，并利用所有使得 `callback` 返回 true 或[等价于 true 的值](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy)的元素创建一个新数组。
+* `callback` 只会在已经赋值的索引上被调用，对于那些已经被删除或者从未被赋值的索引不会被调用。那些没有通过 `callback` 测试的元素会被跳过，不会被包含在新数组中。
+* 如果为 `filter` 提供一个 `thisArg` 参数，则它会被作为 `callback` 被调用时的 `this` 值。否则，`callback` 的 `this` 值在非严格模式下将是全局对象，严格模式下为 `undefined`。
+* `filter` 遍历的元素范围在第一次调用 `callback` 之前就已经确定了。在调用 `filter` 之后被添加到数组中的元素不会被 `filter` 遍历到。
+* 如果已经存在的元素被改变了，则他们传入 `callback` 的值是 `filter` 遍历到它们那一刻的值。被删除或<u>从来未被赋值的元素</u>不会被遍历到。(null, undefined会被当做元素输出, 空位不会)
 
 
-```js
-//示例
-var fruits = ['apple', 'banana', 'grapes', 'mango', 'orange'];
 
-const filterItems = (query)=>{
-  return fruits.filter(item=>{
-    return item.toLowerCase().indexOf(query.toLowerCase()) > -1;
-  })
+**实例**
+
+[过滤 JSON 中的无效条目](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/filter#过滤_json_中的无效条目)
+
+```javascript
+//使用 filter() 创建具有非零 id 的元素的 json
+
+var arr = [
+  { id: 15 },
+  { id: -1 },
+  { id: 0 },
+  { id: 3 },
+  { id: 12.2 },
+  { },
+  { id: null },
+  { id: NaN },
+  { id: 'undefined' }
+];
+
+var invalidEntries = 0;
+
+function isNumber(obj) {
+  return obj !== undefined && typeof(obj) === 'number' && !isNaN(obj);
 }
 
-console.log(filterItems('ap')); //['apple','grapes']
-console.log(filterItems('an')); // ['banana', 'mango', 'orange']
+function filterById(item) {
+  if (isNumber(item.id) && item.id !== 0) {
+    return true;
+  }
+  invalidEntries++;
+  return false;
+}
+
+var arrByID = arr.filter(filterByID);
+
+console.log('Filtered Array\n', arrByID);
+// Filtered Array
+// [{ id: 15 }, { id: -1 }, { id: 3 }, { id: 12.2 }]
+
+console.log('Number of Invalid Entries = ', invalidEntries);
+// Number of Invalid Entries = 5
 ```
-
-
-
-
 
 
 
 #### reduce()
 
+**定义**
+
 `reduce()` 方法对数组中的每个元素执行一个由您提供的**reducer**函数(升序执行)，将其结果汇总为单个返回值。
 
-```js
--语法:
-arr.reduce((accumulator, currentValue,currentIndex,arr)=>{}, initialValue)
+**参数**
 
-arr:当前数组
-accumulator:第一次执行回调时为给定的初始值initialValue,或者是上一次执行回调时的返回值(若没有传入initialValue,则第一次的preValue值是数组中的第一个元素的值)
-currentValue: 表示当前正在处理的元素
-currentIndex 表示当前正在处理的数组元素的索引,若传入了initialValue,则为0,否则为1.
-array 当前操作的数组(就是arr)
-initialValue 表示初始值.一般是做数学运算时设置为0.若为筛选值可以不传.
+```javascript
+arr.reduce(callback(accumulator, currentValue[, index[, array]])[, initialValue])
 
-//描述
-回调函数第一次执行时，accumulator 和currentValue的取值有两种情况：
- 如果调用reduce()时提供了initialValue，accumulator取值为initialValue，currentValue取数组中的第一个值；
- 如果没有提供 initialValue，那么accumulator取数组中的第一个值，currentValue取数组中的第二个值。
+Accumulator(acc) 累计器
+Current Value(cur)当前值
+Current Index(idx)当前索引
+Source Array(src)源数组
 ```
 
-```js
-//实例解析initialValue参数
-// 如果没有提供initialValue，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供initialValue，从索引0开始。
-let arr = [1,2,3,4];
-let sum = arr.reduce((prev,current,index,arr)=>{
-    console.log(prev,current,index);
-    return prev+current;
-})
-//console.log(arr,sum)
+`callback` 
 
-打印结果:
-1 2 1
-3 3 2
-6 4 3
-[1,2,3,4] 10
+执行数组中每个值 (如果没有提供 `initialValue则第一个值除外`)的函数，包含四个参数：
 
-上面的例子index是从1开始的，第一次的prev的值是数组的第一个值。数组长度是4，但是reduce函数循环3次。
+* `accumulator` 累计器累计回调的返回值; 它是上一次调用回调时返回的累积值，或`initialValue`（见于下方）。
+* `currentValue` 数组中正在处理的元素
+* `index` **可选** 数组中正在处理的当前元素的索引。 如果提供了`initialValue`，则起始索引号为0，否则从索引1起始。
+* `array` **可选** 调用`reduce()`的数组
 
-var  arr = [1, 2, 3, 4];
-var sum = arr.reduce(function(prev, cur, index, arr) {
-    console.log(prev, cur, index);
-    return prev + cur;
-}，0) //注意这里设置了初始值
-//console.log(arr, sum);
+`initialValue`  **可选**
 
-打印结果:
-0 1 0
-1 2 1
-3 3 2
-6 4 3
-[1,2,3,4] 10
-这个例子index是从0开始的，第一次的prev的值是我们设置的初始值0，数组长度是4，reduce函数循环4次。
+* 作为第一次调用 `callback`函数时的第一个参数的值。 
+* 如果没有提供初始值，则将使用数组中的第一个元素。 
+* 在没有初始值的空数组上调用 reduce 将报错。
+
+**返回值**
+
+函数累计处理的结果
+
+**描述**
+
+* `reduce`为数组中的每一个元素依次执行`callback`函数，不包括数组中被删除或从未被赋值的元素，接受四个参数：
+* 回调函数第一次执行时，`accumulator` 和`currentValue`的取值有两种情况：
+  * 如果提供了`initialValue`，`accumulator`取值为`initialValue`，`currentValue`取数组中的第一个值；
+  * 如果没有提供 `initialValue`，那么`accumulator`取数组中的第一个值，`currentValue`取数组中的第二个值。
+  * 如果没有提供`initialValue`，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供`initialValue`，从索引0开始。
+* 如果数组为空且没有提供`initialValue`，会抛出[`TypeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError) 。
+* 如果数组仅有一个元素（无论位置如何）并且没有提供`initialValue`， 或者有提供`initialValue`但是数组为空，那么此唯一值将被返回并且`callback`不会被执行。
+
+提供初始值通常更安全，正如下面的例子，如果没有提供`initialValue`，则可能有四种输出： !!!!
+
+```javascript
+var maxCallback = ( acc, cur ) => Math.max( acc.x, cur.x );
+var maxCallback2 = ( max, cur ) => Math.max( max, cur );
+
+// reduce() 没有初始值
+[ { x: 2 }, { x: 22 }, { x: 42 } ].reduce( maxCallback ); // NaN
+[ { x: 2 }, { x: 22 }            ].reduce( maxCallback ); // 22
+[ { x: 2 }                       ].reduce( maxCallback ); // { x: 2 }
+[                                ].reduce( maxCallback ); // TypeError
+
+// map/reduce; 这是更好的方案，即使传入空数组或更大数组也可正常执行
+[ { x: 22 }, { x: 42 } ].map( el => el.x )
+                        .reduce( maxCallback2, -Infinity );
 ```
 
+**实例**
 
-
-##### reduce案例
-
-##### 1.计算数组中元素出现的次数
+1.计算数组中元素出现的次数
 
 ```js
 let names = ['Alice', 'Bob', 'Tiff', 'Bruce', 'Alice','Bruce', 'Alice'];
 let nameNum = names.reduce((prev,current,index)=>{
-    if(current in prev){
-        prev[current]++;  //pre[current] = pre[current] + 1;
-    }else{
-        prev[current]=1;
-    }
-    return prev;
-},{})
-console.log(nameNum); //{ Alice: 3, Bob: 1, Tiff: 1, Bruce: 2 }
-
-如果数组是数字类型或数字型字符串,reduce的初始值是数组的话会有一个empty item.需要使用对象解决.
-let arr = [1,2,3,4,1,2,3];
-let obj = arr.reduce((prev,current)=>{
-  if(prev.includes(current)){
-    prev[current]++;
+  if(current in prev){
+    prev[current]++;  //pre[current] = pre[current] + 1;
   }else{
     prev[current]=1;
   }
   return prev;
-},[]); //[ <1 empty item>, 2, 2, 1, 1 ]
-
+},{})
+console.log(nameNum); //{ Alice: 3, Bob: 1, Tiff: 1, Bruce: 2 }
 ```
 
 
 
-##### 2.数组去重
+2.数组去重
 
 ```js
 let arr = [1,2,3,4,4,1]
 let newArr = arr.reduce((prev,current)=>{
     if(!prev.includes(current)){
-        return prev.concat(current)
-    }else{
+        return prev.concat(current)  //push也可以
+    }else{ //else没有必要
         return prev;
     }
 },[])
 
-//其他方法
-手写代码md中
 ```
 
 
 
-##### 3. 二维数组转换成一维数组
+3. 二维数组转换成一维数组
 
 ```js
 let arr = [[0, 1], [2, 3], [4, 5]]
@@ -9074,7 +9193,7 @@ console.log(newArr)
 
 
 
-##### 4.多维数组转换成一维数组
+4.多维数组转换成一维数组
 
 ```js
 let arr = [[0, 1], [2, 3], [4,[5,6,7]]]
@@ -9083,13 +9202,11 @@ let newArr = function(arr){
         return prev.concat(Array.isArray(current)?newArr(current):current);
     },[])
 }
-
-console.log(newArr(arr))
 ```
 
 
 
-##### 5.对象里的属性求和
+5.对象里的属性求和
 
 ```js
 var result = [
@@ -9116,37 +9233,7 @@ console.log(sum)
 
 
 
-##### 6.其他
-
-```js
-let persons = [
-{id:'001',name:'tom',age:16},
-{id:'002',name:'老刘',age:17},
-{id:'003',name:'超哥',age:18},
-{id:'004',name:'强强',age:19},
-]
-
-let arr = [1,2,3,4,5,6,7,8,9,10]
-
-//进行累加
-const result=arr.reduce((preValue, current)=>{
-    return preValue+current;
-},0)
-
-//条件求和 所有偶数和
-const result=arr.reduce((preValue, current)=>{
-    preValue+(current%2===0?current:0)
-},0)
-
-//筛选最值
-cont result=arr.reduce((preValue, current)=>{
-    return Math.max(preValue, current);
-})
-```
-
-
-
-##### 7.数组转换成对象
+6.数组转换成对象
 
 ```js
 //数组1
@@ -9195,7 +9282,7 @@ let obj = userList.reduce((prev,current)=>{
 console.log(obj)
 ```
 
-##### 8.按属性对object分类
+8.按属性对object分类
 
 ```js
 var people = [
@@ -9223,27 +9310,6 @@ console.log(a)
   '21': [ { name: 'Alice', age: 21 } ]
 }
 ```
-
-
-
-##### reduce()使用中的注意点
-
-**1.打印值**
-
-```js
-let arr = ["equipFileId", "taskId", "appNo", "consId", "equipId", "fileId", "fileName", "filePath", "photoTime", "chgDesc", "renderer"]
-
-
-let result = arr.reduce((equip_pre, equip_key) => {
-  console.log('equip_pre', equip_pre);
-  if (equip_key === 'renderer') {
-    return equip_pre;
-  }
-  return equip_pre;
-}, {})
-```
-
-
 
 
 
