@@ -39,6 +39,36 @@ script标签同时只能有一个功能,要么引入要么输出
 
 ## JS基本语法
 
+### 语法综述
+
+语言中的标识符一般可以分为两类，<u>一类用于命名语法、符号等抽象概念，另一类用于命名数据（的存储位置）</u>。前者被称为“语法关键字”，后者则被称为“变量”和“常量”。并且由此引入了一个概念：绑定。
+
+从标识符的角度来说，绑定分为语法关键字与语义逻辑的绑定，以及变量与它所存储数据和位置性质的绑定。
+
+其中，语法关键字对语义逻辑的绑定结果，是对<u>作用域</u>的限定；变量对位置性质的绑定结果，则是对<u>变量生存周期</u>的限定。
+
+### 标识符所绑定的语义
+
+<u>所谓声明，即约定数据的生存周期和逻辑的作用域</u>。由于这里的“声明”已经涵盖了逻辑与数据（这相当于“程序”的全部），因此整个编程的过程，其实被解释成了“说明逻辑和数据”的过程：
+
+* 纯粹陈述“数据”的过程，被称为变量和类型声明
+* 纯粹陈述“逻辑”的过程，被称为语句（含流程控制子句）
+* 陈述“数据与（算法的）逻辑”的关系的过程，被称为表达式
+
+![标识符与其语义关系的基本分类](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/标识符与其语义关系的基本分类.4qzse7tlu4y0.png)
+
+除了“声明”在语义上对绑定内容的限制之外，当一个被声明的标识符（变量、常量或符号等）去绑定一个数据时，事实上还有其他两个方面的语义：数据（受作用域限制）的生存周期及可写性。这三者是JavaScript在：
+
+* 用于显式数据声明的语句let/var/const、函数声明与类声明
+* 数种for语句、try...catch语句、赋值语句
+* 在函数调用和new运算符等语法中通过形式参数传入值
+
+这些语义中都存在着隐式或显式数据声明的原因：它们有着各自在“作用域、值和可写性”三方面的不同性质。
+
+
+
+### 注意事项
+
 * script标签中注释:  单行注释(Ctrl+/) `//`    
 *  多行注释(Ctrl+Shift+/)       ` /* */`
 * JS中严格区分大小写
@@ -303,15 +333,14 @@ b = 12; //相当于window.b = 12;
 
 ### let和var的区别
 
-概要
+#### 4点区别
 
-```JavaScript
-var和let的区别:
-1.let声明的变量有块作用域,var声明的变量没有
-2.let不能在初始化前访问变量 var可以
-3.var声明的全局变量会添加到window对象中,let声明的不会
-4.let不能重复声明变量 var可以
-```
+* 1.let声明的变量有块作用域,var声明的变量没有
+* 2.let不能在初始化前访问变量 var可以
+* 3.var声明的全局变量会添加到window对象中,let声明的不会
+* 4.let不能重复声明变量 var可以
+
+常量声明const、类声明class在块级作用域上的特性与let声明是类似的
 
 
 
@@ -7738,6 +7767,10 @@ arr[10] = 14;
 
 `**push()**` 方法将<u>一个或多个元素</u>添加到数组的末尾，并返回该数组的**新长度**
 
+**返回值**
+
+新的`length`属性
+
 **描述**
 
 `push` 方法具有通用性。该方法和 [`call()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 一起使用时，可应用在类似数组的对象上。`push` 方法根据 `length` 属性来决定从哪里开始插入给定的值。如果 `length` 不能被转成一个数值，则插入的元素索引为 0，包括 `length` 不存在时。当 `length` 不存在时，将会创建它。
@@ -7765,6 +7798,9 @@ let moreVegs = ['celery', 'beetroot']
 // Merge the second array into the first one
 vegetables.push(...moreVegs);
 
+//另一种写法
+Array.prototype.push.apply(vegetables, moreVegs);
+[].push.apply(vegetables, moreVegs)
 console.log(vegetables)  // ['parsnip', 'potato', 'celery', 'beetroot']
 
 //也可以使用concat()方法
@@ -8098,9 +8134,9 @@ for循环和for-in, for...of能正确响应break、continue和return语句，但
 
 
 
-### 数组方法
+### 数组其他方法
 
-
+#### 破坏性方法和非破坏性方法
 
 | 非破坏性方法名称           | 返回值                                                       |
 | -------------------------- | ------------------------------------------------------------ |
@@ -8503,11 +8539,12 @@ arr.indexOf(searchElement[, fromIndex])
 
 **返回值**
 
-首个被找到的元素在数组中的索引位置; 若没有找到则返回 -1
+首个被找到的元素在数组中的索引位置; 若没有找到则返回 -1.
 
 **描述**
 
-`indexOf` 使用[strict equality (en-US)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators#using_the_equality_operators) (无论是 ===, 还是 triple-equals操作符都基于同样的方法)进行判断 `searchElement与`数组中包含的元素之间的关系
+* `indexOf` 使用[strict equality (en-US)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators#using_the_equality_operators) (无论是 ===, 还是 triple-equals操作符都基于同样的方法)进行判断 `searchElement与`数组中包含的元素之间的关系
+* 和`includes`类似, `+0`和`-0`是被认为是相等的, 但是`NaN`与`NaN`相反, `indexOf`认为不相等, `includes`认为相等
 
 **实例**
 
@@ -9282,7 +9319,7 @@ let obj = userList.reduce((prev,current)=>{
 console.log(obj)
 ```
 
-8.按属性对object分类
+7.按属性对object分类
 
 ```js
 var people = [
@@ -9309,31 +9346,267 @@ console.log(a)
   '20': [ { name: 'Max', age: 20 }, { name: 'Jane', age: 20 } ],
   '21': [ { name: 'Alice', age: 21 } ]
 }
+
+//20211203
+function classifyObj(arr, property) {
+  return arr.reduce((acc, cur) => {
+    if (cur[property] in acc) {
+      acc[property] = acc[property].concat(cur);
+    } else {
+      acc[property] = [].concat(cur[property]);
+    }
+    
+    returrn acc;
+  }, {})
+}
+```
+
+8.[使用扩展运算符和initialValue绑定包含在对象数组中的数组](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce#使用扩展运算符和initialvalue绑定包含在对象数组中的数组)
+
+```javascript
+var friends = [
+  {
+    name: 'Anna',
+    books: ['Bible', 'Harry Potter'],
+    age: 21
+  }, 
+  {
+    name: 'Bob',
+    books: ['War and peace', 'Romeo and Juliet'],
+    age: 26
+  }, 
+  {
+    name: 'Alice',
+    books: ['The Lord of the Rings', 'The Shining'],
+    age: 18
+  }
+];
+
+//输出结果
+// allbooks = [
+//   'Alphabet', 'Bible', 'Harry Potter', 'War and peace',
+//   'Romeo and Juliet', 'The Lord of the Rings',
+//   'The Shining'
+// ]
+
+let result1 = frineds.reduce((acc, cur) => {
+  return acc.concat(cur.books)
+}, ['Alphabet'])
+
+let result2 = friends.reduce((acc, cur) => {
+  //acc.push(...cur.books)
+  //return acc
+  return [...acc, ...cur.books]
+}, ['Alphabet'])
+```
+
+9.数组去重
+
+```javascript
+let myArray = ['a', 'b', 'a', 'b', 'c', 'e', 'e', 'c', 'd', 'd', 'd', 'd'];
+let myOrderedArray = myArray.reduce((acc, cur) => {
+  if (!acc.includes(cur)) {  //(acc.indexOf(cur) === -1)
+    acc.push(cur)
+  }
+  return acc;
+}, []);
+
+//其他方法
+let arr = [1,2,1,2,3,5,4,5,3,4,4,4,4];
+let result = arr.sort().reduce((init, current) => {
+    if(init.length === 0 || init[init.length-1] !== current) {
+        init.push(current);
+    }
+    return init;
+}, []);
+console.log(result); //[1,2,3,4,5]
+
+
+```
+
+9.按顺序运行Promise !!!!????
+
+```javascript
+function runPromiseInSequence(arr, input) {
+  return arr.reduce(
+    (promiseChain, currentFunction) => promiseChain.then(currentFunction),
+    Promise.resolve(input)
+  );
+}
+
+// promise function 1
+function p1(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 5);
+  });
+}
+
+// promise function 2
+function p2(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 2);
+  });
+}
+
+// function 3  - will be wrapped in a resolved promise by .then()
+function f3(a) {
+ return a * 3;
+}
+
+// promise function 4
+function p4(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 4);
+  });
+}
+
+const promiseArr = [p1, p2, f3, p4];
+runPromiseInSequence(promiseArr, 10)
+  .then(console.log);   // 1200
+```
+
+10.使用reduce实现map ????!!!!
+
+```javascript
+if (!Array.prototype.mapUsingReduce) {
+  Array.prototype.mapUsingReduce = function(callback, thisArg) {
+    return this.reduce((mapperdArray, currentValue, index, array) => {
+      mappedArray[index] = callback.call(thisArg, currentValue, index, array)
+      return mapeedArray;
+    }, [])
+  }
+}
+
+
+[1,2,,3].mapUsingReduce((cur, idx, arr) => cur + index + array.length)
+//[5,7,,10]
 ```
 
 
 
 #### some
 
-```js
-//功能:只要数组中有一个和条件一样,返回true,否则false
+**定义**
 
-//参数:  参考filter方法
-arr.some((item)=>{
-    return item===x;
-})
+`**some()**` 方法测试数组中是不是至少有1个元素通过了被提供的函数测试。它返回的是一个Boolean类型的值。
+
+如果用一个空数组进行测试，在任何情况下它返回的都是`false`。
+
+```javascript
+[].some(()=>{})  //false
 ```
+
+**参数**
+
+```javascript
+arr.some(callback(element[, index[, array]])[, thisArg])
+```
+
+`callback` 
+
+* 用来测试每个元素的函数，接受三个参数：
+  * `element` 数组中正在处理的元素
+  * `idx` **可选** 数组中正在处理的元素的索引值
+  * `array` **可选** 调用`some()`的当前数组
+
+`thisArg` **可选**
+
+* 执行 `callback` 时使用的 `this` 值
+
+**返回值**
+
+数组中有至少一个元素通过回调函数的测试就会返回**`true`**；所有元素都没有通过回调函数的测试返回值才会为false。
+
+**描述**
+
+* `some()` 为数组中的每一个元素执行一次 `callback` 函数，直到找到一个使得 callback 返回一个“真值”（即可转换为布尔值 true 的值）。如果找到了这样一个值，`some()` 将会立即返回 `true`。否则，`some()` 返回 `false`。
+* `callback` 只会在那些”有值“的索引上被调用，不会在那些被删除或从来未被赋值的索引上调用。
+* 如果一个`thisArg`参数提供给some()，它将被用作调用的 `callback`的 `this` 值。否则， 它的 `this` value将是 `undefined`。
+* `some()` 被调用时不会改变数组
+* `some()` 遍历的元素的范围在第一次调用 `callback`. 前就已经确定了。
+* 在调用 `some()` 后被添加到数组中的值不会被 `callback` 访问到。
+* 如果数组中存在且还未被访问到的元素被 `callback` 改变了，则其传递给 `callback` 的值是 `some()` 访问到它那一刻的值。已经被删除的元素不会被访问到
+
+**实例**
+
+1.判断数组中是否存在某个值
+
+```javascript
+var fruits = ['apple', 'banana', 'mango', 'guava'];
+
+function checkAvaliability(arr, val) {
+  return arr.some((item) => item === val)
+}
+```
+
+2.将任意值转换为布尔类型
+
+```javascript
+let TRUTHY_VALUES = [true, 'true', 1];
+
+function getBoolean(value) {
+ 	'use strict'
+  if (typeof value === 'string') {
+    value = value.toLowerCase().trim();
+  }
+  return TRUTHY_VALUES.some(item => t === value)
+}
+getBoolean(false);   // false
+getBoolean('false'); // false
+getBoolean(1);       // true
+getBoolean('true');  // true
+```
+
+
 
 
 
 #### every
 
-```js
-//用来检测数组所有元素是否都符合指定条件.如果全部满足,返回true,有一个不满足返回false
+**定义**
 
-arr.every((item)=>{
-     
-})
+`**every()**` 方法测试一个数组内的所有元素是否都能通过某个指定函数的测试。它返回一个布尔值。
+
+若收到一个空数组，此方法在一切情况下都会返回 `true`
+
+```javascript
+[].every(()=>{})  //true
+```
+
+**参数**
+
+```javascript
+arr.every(callback(element[, index[, array]])[, thisArg])
+```
+
+`callback` 用来测试每个元素的函数，它可以接收三个参数
+
+* `element` 用于测试的当前值
+* `index` **可选** 用于测试的当前值的索引
+* `array` **可选** 调用 `every` 的当前数组
+
+`thisArg` **可选**
+
+* 执行 `callback` 时使用的 `this` 值
+
+**返回值**
+
+如果回调函数的每一次返回都为 [truthy](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy) 值，返回 `**true**` ，否则返回 `**false**`
+
+**描述**
+
+* `every` 方法为数组中的每个元素执行一次 `callback` 函数，直到它找到一个会使 `callback` 返回 [falsy](https://developer.mozilla.org/zh-CN/docs/Glossary/Falsy) 的元素。如果发现了一个这样的元素，`every` 方法将会立即返回 `false`。否则，`callback` 为每一个元素返回 `true`，`every` 就会返回 `true`。`callback` 只会为那些已经被赋值的索引调用。不会为那些被删除或从未被赋值的索引调用。
+* 如果为 `every` 提供一个 `thisArg` 参数，则该参数为调用 `callback` 时的 `this` 值。如果省略该参数，则 `callback` 被调用时的 `this` 值，在非严格模式下为全局对象，在严格模式下传入 `undefined`。
+* `every` 遍历的元素范围在第一次调用 `callback` 之前就已确定了。在调用 `every` 之后添加到数组中的元素不会被 `callback` 访问到。如果数组中存在的元素被更改，则他们传入 `callback` 的值是 `every` 访问到他们那一刻的值。那些被删除的元素或从来未被赋值的元素将不会被访问到。
+* `every` 和数学中的"所有"类似，当所有的元素都符合条件才会返回`true`。正因如此，若传入一个空数组，无论如何都会返回 `true`。（这种情况属于[无条件正确](http://en.wikipedia.org/wiki/Vacuous_truth)：正因为一个[空集合](https://en.wikipedia.org/wiki/Empty_set#Properties)没有元素，所以它其中的所有元素都符合给定的条件。)!!!!????
+
+**实例**
+
+**Polyfill**
+
+```javascript
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/every
+
 ```
 
 
@@ -9384,14 +9657,59 @@ console.log(array1.findIndex(isLargeNumber));
 
 #### fill()
 
-fill()方法可以用指定的值填充一至多个数组元素。当传入一个值时，fill()方法会用这个值重写数组中的所有值, 同时也返回重写后的新数组.
+**定义**
+
+`**fill()**` 方法用一个固定值填充一个数组中从起始索引到终止索引内的全部元素。不包括终止索引。
+
+**参数**
 
 ```javascript
-//参数
-arr.fill(传入的值, [开始索引,[结束索引(不包括)]])
+arr.fill(value[, start[, end]])
+```
 
-//返回值 重写后的新数组
+`value` 用来填充数组元素的值
 
+`start` **可选**  起始索引，默认值为0。
+
+`end`   **可选**      终止索引，默认值为 `this.length`
+
+**返回值**
+
+修改后的数组
+
+**描述**
+
+* **`fill`** 方法接受三个参数 `value`, `start` 以及 `end`. `start` 和 `end` 参数是可选的, 其默认值分别为 `0` 和 `this` 对象的 `length `属性值。
+* 如果 `start` 是个负数, 则开始索引会被自动计算成为 `length+start`, 其中 `length` 是 `this` 对象的 `length `属性值。如果 `end` 是个负数, 则结束索引会被自动计算成为 `length+end`。
+* **`fill`** 方法故意被设计成通用方法, 该方法不要求 `this` 是数组对象
+* **`fill`** 方法是个可变方法, 它会改变调用它的 `this` 对象本身, 然后返回它, 而并不是返回一个副本
+* 当一个对象被传递给 **`fill`**方法的时候, 填充数组的是这个对象的引用
+
+**实例**
+
+```javascript
+[1, 2, 3].fill(4);               // [4, 4, 4]
+[1, 2, 3].fill(4, 1);            // [1, 4, 4]
+[1, 2, 3].fill(4, 1, 2);         // [1, 4, 3]
+[1, 2, 3].fill(4, 1, 1);         // [1, 2, 3]
+[1, 2, 3].fill(4, 3, 3);         // [1, 2, 3]
+[1, 2, 3].fill(4, -3, -2);       // [4, 2, 3]
+[1, 2, 3].fill(4, NaN, NaN);     // [1, 2, 3]
+[1, 2, 3].fill(4, 3, 5);         // [1, 2, 3]
+Array(3).fill(4);                // [4, 4, 4]
+[].fill.call({ length: 3 }, 4);  // {0: 4, 1: 4, 2: 4, length: 3}
+
+// Objects by reference.  !!!!
+var arr = Array(3).fill({}) // [{}, {}, {}];
+// 需要注意如果fill的参数为引用类型，会导致都执行都一个引用类型
+// 如 arr[0] === arr[1] 为true
+arr[0].hi = "hi"; // [{ hi: "hi" }, { hi: "hi" }, { hi: "hi" }]
+```
+
+**Polyfill**
+
+```javascript
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
 ```
 
 
@@ -9428,46 +9746,388 @@ console.log(numbers.toString()); //1,2,1,4
 
 
 
-
-
-
-
 #### includes()
 
-Array.prototype.includes()方法接收两个参数:要搜索的值及开始搜索的位置,第二个参数是可选的.提供第二个参数时,includes()将从该索引开始匹配(默认开始索引位置是0). 如果数组中找到要搜索的值,则返回true,否则返回false.
+**定义**
+
+`**includes()**` 方法用来判断一个数组是否包含一个指定的值，根据情况，如果包含则返回 `true`，否则返回 `false`。
+
+**参数**
 
 ```javascript
-let values = [1,2,3];
-
-console.log(values.includes(1)); //true
-
-console.log(values.includes(1, 2)); //false
+arr.includes(valuefToFind[, fromIndex])
 ```
 
-用includes()方法进行值比较时，
+`valueToFind` 需要查找的元素值
 
-* \=\=\=操作符的使用有一个例外：即使NaN\=\=\=NaN的计算结果为false，NaN也被认为是等于NaN，这与indexOf()方法的行为不同，后者严格使用===进行比较.
-* `+0 与 -0` 被认为是相等的. 但includes()与indexOf()表现行为相同
+* 使用 `includes()`比较字符串和字符时是区分大小写的
+
+`fromIndex` **可选**
+
+* 从`fromIndex` 索引处开始查找 `valueToFind`。如果为负值，则按升序从 `array.length + fromIndex` 的索引开始搜 （即使从末尾开始往前跳 `fromIndex` 的绝对值个索引，然后往后搜寻）。默认为 0。
+
+**返回值**
+
+* 返回一个布尔值 [`Boolean`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean) 。
+* 如果在数组中（或 `fromIndex` 指定的范围中）找到了 `valueToFind`，则返回 `true`，否则返回 `false`。
+* 0 的值将全部视为相等，与符号无关（即 -0 与 0 和 +0 相等），但 `false` 不被认为与 0 相等; `NaN`与自身返回的是true.
+* 技术上来讲，`includes()` 使用 <a href='https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness#%E9%9B%B6%E5%80%BC%E7%9B%B8%E7%AD%89'>`零值相等`</a> 算法来确定是否找到给定的元素
+
+> 零值相等: 和同值相等类似,不过会人为`+0`和`-0`相等
+>
+> 同值相等: 由`Object.is`方法提供
+
+
+
+**实例**
 
 ```javascript
-NaN === NaN; //false
+NaN == NaN; //false
 Object.is(NaN, NaN); //true
 
-let arr = [1,2,NaN];
+0 == -0 //true
+Object.is(0, -0); //false
 
-arr.includes(NaN); //true
-arr.indexOf(NaN); //-1
+0 == undefined //false
+0 == null //false
 
-let values2 = [1, +0, 2]; //换成0也一样
-console.log(values2.indexOf(-0)); //1
-console.log(values2.includes(-0)); //true
+
+[NaN].includes(NaN); //true
+[NaN].indexOf(NaN); //-1
+
+[-0].includes(0); //true
+[-0].indexOf(0); //0
 ```
 
 
 
-#### Array.prototype.xxx.call()
+#### flat()
+
+**定义**
+
+`flat()` 方法会按照一个可指定的深度递归遍历数组，并将所有元素与遍历到的子数组中的元素合并为一个新数组返回。
+
+**参数**
+
+```javascript
+var newArray = arr.flat([depth])
+```
+
+`depth` **可选**
+
+* 指定要提取嵌套数组的结构深度，默认值为 1
+* 使用 Infinity，可展开任意深度的嵌套数组
+
+**返回值**
+
+* 一个包含将数组与子数组中所有元素的新数组
+
+* `flat()` 方法会移除数组中的空项
+
+**实例**
+
+[扁平化嵌套数组](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat#扁平化嵌套数组)
+
+```javascript
+var arr1 = [1, 2, [3, 4]];
+arr1.flat();
+// [1, 2, 3, 4]
+
+var arr2 = [1, 2, [3, 4, [5, 6]]];
+arr2.flat();
+// [1, 2, 3, 4, [5, 6]]
+
+var arr3 = [1, 2, [3, 4, [5, 6]]];
+arr3.flat(2);
+// [1, 2, 3, 4, 5, 6]
+
+//使用 Infinity，可展开任意深度的嵌套数组
+var arr4 = [1, 2, [3, 4, [5, 6, [7, 8, [9, 10]]]]];
+arr4.flat(Infinity);
+// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+[扁平化与数组空项](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat#扁平化与数组空项)
+
+```javascript
+var arr4 = [1, 2, , 4, 5];
+arr4.flat();
+// [1, 2, 4, 5]
+```
+
+替代方案
+
+[使用 `reduce` 与 `concat`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat#使用_reduce_与_concat)
+
+```javascript
+var arr = [1, 2, [3, 4]]
+
+// 展开一层数组
+arr.flat();
+// 等效于
+arr.reduce((acc, val) => acc.concat(val), []);
+// [1, 2, 3, 4]
+
+// 使用扩展运算符 ...
+const flattened = arr => [].concat(...arr
+```
+
+[reduce + concat + isArray + recursivity](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat#reduce_concat_isarray_recursivity)
+
+```javascript
+// 使用 reduce、concat 和递归展开无限多层嵌套的数组
+var arr1 = [1,2,3,[1,2,3,4, [2,3,4]]];
+
+function flatDepth(arr) {
+  return arr.reduce((acc, cur) => {
+    if (Array.is(cur)) {
+      return acc.concat(flatDepth(cur))
+    } else {
+      return acc.concat(...cur)
+    }
+  }, [])
+}
+
+
+//MDN
+
+```
+
+
+
+
+
+
+
+#### keys()
+
+**定义**
+
+ `**keys()** `方法返回一个包含数组中每个索引键的`**Array Iterator**`对象
+
+**参数**
+
+```javascript
+arr.keys()
+```
+
+**返回值**
+
+一个新的 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array) 迭代器对象
+
+**实例**!!!!
+
+[索引迭代器会包含那些没有对应元素的索引](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/keys#索引迭代器会包含那些没有对应元素的索引)
+
+```javascript
+var arr = ["a", , "c"];
+var sparseKeys = Object.keys(arr);
+var denseKeys = [...arr.keys()];
+console.log(sparseKeys); // ['0', '2']
+console.log(denseKeys);  // [0, 1, 2]
+```
+
+
+
+#### values()
+
+**定义**
+
+**`values()`** 方法返回一个新的 **`Array Iterator`** 对象，该对象包含数组每个索引的值
+
+**参数**
+
+```javascript
+arr.values()
+```
+
+**返回值**
+
+一个新的 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array) 迭代对象
+
+**描述**
+
+* **Array.prototype.values** 是 **Array.prototype[Symbol.iterator]** 的默认实现。
+* 一次性：数组迭代器是一次性的，或者说临时对象
+
+**实例**
+
+[使用 `for...of` 循环进行迭代](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/values#使用_for...of_循环进行迭代)
+
+```javascript
+let arr = ['w', 'y', 'k', 'o', 'p'];
+let eArr = arr.values();
+
+for (let letter of eArr) {
+  console.log(letter);
+} //"w" "y "k" "o" "p"
+```
+
+[使用 `.next()` 迭代](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/values#使用_.next_迭代)
+
+```javascript
+var arr = ['a', 'b', 'c', 'd', 'e'];
+var iterator = arr.values();
+iterator.next();               // Object { value: "a", done: false }
+iterator.next().value;         // "b"
+iterator.next()["value"];      // "c"
+iterator.next();               // Object { value: "d", done: false }
+iterator.next();               // Object { value: "e", done: false }
+iterator.next();               // Object { value: undefined, done: true }
+iterator.next().value;         // undefined
+```
+
+一次性：数组迭代器是一次性的，或者说临时对象
+
+```javascript
+var arr = ['a', 'b', 'c', 'd', 'e'];
+ var iterator = arr.values();
+ for (let letter of iterator) {
+ console.log(letter);
+} //"a" "b" "c" "d"
+for (let letter of iterator) {
+console.log(letter);
+} // undefined
+```
+
+
+
+#### entries()
+
+**定义**
+
+`**entries()**` 方法返回一个新的**Array Iterator**对象，该对象包含数组中每个索引的键/值对
+
+**参数**
+
+```javascript
+arr.entries()
+```
+
+**返回值**
+
+一个新的 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array) 迭代器对象。[Array Iterator](https://www.ecma-international.org/ecma-262/6.0/#sec-createarrayiterator)是对象，它的原型（__proto__:Array Iterator）上有一个[next](https://www.ecma-international.org/ecma-262/6.0/#sec-%arrayiteratorprototype%.next)方法，可用用于遍历迭代器取得原数组的[key,value]。
+
+
+
+**实例**
+
+1.Array.iterator
+
+```javascript
+var arr = ["a", "b", "c"];
+var iterator = arr.entries();
+console.log(iterator);
+
+/*Array Iterator {}
+         __proto__:Array Iterator
+         next:ƒ next()
+         Symbol(Symbol.toStringTag):"Array Iterator"
+         __proto__:Object
+*/
+```
+
+2.iterator.next()
+
+```javascript
+var arr = ["a", "b", "c"];
+var iterator = arr.entries();
+console.log(iterator.next());
+
+/*{value: Array(2), done: false}
+          done:false
+          value:(2) [0, "a"]
+           __proto__: Object
+*/
+// iterator.next()返回一个对象，对于有元素的数组，
+// 是next{ value: Array(2), done: false }；
+// next.done 用于指示迭代器是否完成：在每次迭代时进行更新而且都是false，
+// 直到迭代器结束done才是true。
+// next.value是一个["key","value"]的数组，是返回的迭代器中的元素值。
+```
+
+3.iterator.next方法运行
+
+```javascript
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/entries
+```
+
+4.二维数组按行排序
+
+```javascript
+var arr = [[1, 34], [456, 2, 3, 44, 234], [4567, 1, 4, 5, 6], [34, 78, 23, 1]]
+
+
+//entries
+function sortArr(arr) {
+    var goNext = true;
+    var entries = arr.entries();
+    while (goNext) {
+        var result = entries.next();
+        if (result.done !== true) {
+            result.value[1].sort((a, b) => a - b);
+            goNext = true;
+        } else {
+            goNext = false;
+        }
+    }
+    return arr;
+}
+
+sortArr(arr);
+
+/*(4) [Array(2), Array(5), Array(5), Array(4)]
+    0:(2) [1, 34]
+    1:(5) [2, 3, 44, 234, 456]
+    2:(5) [1, 4, 5, 6, 4567]
+    3:(4) [1, 23, 34, 78]
+    length:4
+    __proto__:Array(0)
+*/
+
+
+
+//reduce
+let result = arr.reduce((acc, cur) => {
+  acc.push(cur.sort((a, b) => a - b))
+  return acc;
+ }, [])
+```
+
+5.使用for...of循环
+
+```javascript
+var arr = ["a", "b", "c"];
+var iterator = arr.entries();
+// undefined
+
+for (let e of iterator) {
+    console.log(e);
+}
+
+// [0, "a"]
+// [1, "b"]
+// [2, "c"]
+```
+
+
+
+
+
+
+
+### 数组方法在字符串上使用
+
+!!!!
 
 >  [来源](https://github.com/getify/You-Dont-Know-JS): 通过“借用”数组的方法可以很方便的处理字符串。可以“借用”数组的非变更方法，但不能“借用”数组的可变更方法.
+
+```javascript
+Array.prototype.非破坏性方法.call('string', parameter)
+[].非破坏性方法.call('string', parameter)
+```
+
+
 
 ```js
 //https://www.jianshu.com/p/0362b6cd90d6
@@ -9866,6 +10526,8 @@ console.log(arr);
 
 ## 对象Math
 
+### 简介
+
 **`Math`** 是一个内置对象，它拥有一些数学常数属性和数学函数方法。`Math` 不是一个函数对象
 
 #### 简介
@@ -9878,7 +10540,7 @@ Math
 
 
 
-#### 方法
+### 方法
 
 ```JavaScript
 Math.PI 圆周率
@@ -9897,7 +10559,9 @@ Math.random()生成一个0-1之间的随机数(小数) 不包括0也不包括1
 
 
 
-#### Math用法
+### Math用法
+
+#### 0. 1
 
 ```js
 //生成一个指定范围的随机数
@@ -9912,6 +10576,16 @@ x-y之间的随机数
 
 //Math.min()和Math.max()用于确定一组数组中最小和最大值
 
+```
+
+#### 1. 使用时间戳和随机数生成一个不重复的字符串
+
+```javascript
+//https://xpoet.cn/2018/11/%E5%88%A9%E7%94%A8%E6%97%B6%E9%97%B4%E6%88%B3%E5%92%8C%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E4%B8%80%E4%B8%AA%E4%B8%8D%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/
+
+export const getUUID = (randomLength) => {
+  return Number(Math.random().toString().substring(2, randomLength) + Date.now()).toString(36);
+}
 ```
 
 
