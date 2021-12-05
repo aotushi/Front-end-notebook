@@ -9996,7 +9996,7 @@ console.log(letter);
 
 **定义**
 
-`**entries()**` 方法返回一个新的**Array Iterator**对象，该对象包含数组中每个索引的键/值对
+`entries()` 方法返回一个新的**Array Iterator**对象，该对象包含数组中每个索引的键/值对
 
 **参数**
 
@@ -10280,7 +10280,7 @@ arr[arr.length-1] //可以理解最后一位是负1,倒数第二位是负2....
 
 
 //1.如果两个数组均为字符串或数字类型,元素顺序无需一致. 使用sort排序/every/遍历来判断
-a.length === b.length && a.sort().toString() === b.sort.toString()
+a.length === b.length && a.sort().toString() === b.sort().toString()
 a.length === b.length && a.every(item => b.includes(item));
 
 //1.简单方案 适用于大多数情况.除了null !== undefined,它们转换成JSON都代表null并被认为相等.
@@ -10367,6 +10367,7 @@ let realArr = Array.from(arr);
 #### 查询字符串中字母出现的次数
 
 ```js
+//方法1
 var str = 'aalskdjfslkdjsdkjfsldkjfzz';
 var arr = str.split('');
 arr.sort();
@@ -10378,7 +10379,7 @@ for(let i=0; i<arr.length; i++){
         console.log(arrNew);
 }
     
-========================方法2===============================    
+//方法2 
 关系数组: 就是将字符串作为数组索引的一种使用数组的方式
 var str = 'aalskdjfslkdjsdkjfsldkjfzz';    
 var arr = [];
@@ -10386,7 +10387,9 @@ for(var i=0; i<str.length; i++){
     arr[str[i]] = arr[str[i]] + 1 || 1;
 }
 console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
+
     
+//方法3: reduce 在reduce实例中
 ```
 
 
@@ -10716,14 +10719,14 @@ let arr = [1, 3, 4, 7, 9, 2, 0, 8, 5, 6];
 function bubble(arr){
     for(let j=0; j<arr.length-1; j++){
         for(let i=0; i<arr.length-1; i++){
-    		if(arr[i] > arr[i+1]){
-        	let temp;
-            temp = arr[i+1];
-        	arr[i+1] = arr[i];
-        	arr[i] = temp;
-        	//arr.splice(i,2,arr[i],arr[i+1]); 另一种写法
-    		}
-		}
+            if(arr[i] > arr[i+1]){
+                let temp;
+                temp = arr[i+1];
+                arr[i+1] = arr[i];
+                arr[i] = temp;
+                //arr.splice(i,2,arr[i],arr[i+1]); 另一种写法
+            }
+        }
     }
 console.log(arr);
 }
