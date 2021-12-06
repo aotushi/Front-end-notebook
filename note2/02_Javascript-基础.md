@@ -8902,7 +8902,7 @@ b - a > 0, 排序结果是: b, a (降序)
 a - b = b - a =0 , 排序结果 ===> 保持不变
 ```
 
-结论: 无论a>b还是b>a，return a-b 总能得到升序的结果，而 return b-a 总能得到降序的结果. 另外，return a-b / return b - a 只是一种在理解的基础上简便的写法。复杂的写法就是使用上面的'比较函数的格式'.
+`结论`: 无论a>b还是b>a，return a-b 总能得到升序的结果，而 return b-a 总能得到降序的结果. 另外，return a-b / return b - a 只是一种在理解的基础上简便的写法。复杂的写法就是使用上面的'比较函数的格式'.
 
 
 
@@ -9783,7 +9783,8 @@ arr.includes(valuefToFind[, fromIndex])
 
 `fromIndex` **可选**
 
-* 从`fromIndex` 索引处开始查找 `valueToFind`。如果为负值，则按升序从 `array.length + fromIndex` 的索引开始搜 （即使从末尾开始往前跳 `fromIndex` 的绝对值个索引，然后往后搜寻）。默认为 0。
+* 从`fromIndex` 索引处开始查找 `valueToFind`。
+* 如果为负值，则按升序从 `array.length + fromIndex` 的索引开始搜 （即使从末尾开始往前跳 `fromIndex` 的绝对值个索引，然后往后搜寻）。默认为 0。
 
 **返回值**
 
@@ -11472,6 +11473,38 @@ str.lastIndexOf(searchValue[, fromIndex])
 ```
 
 
+
+#### String.prototype.match()
+
+**定义**
+
+ **`match()`** 方法检索返回一个字符串匹配正则表达式的结果
+
+**参数**
+
+```javascript
+str.match(regexp)
+```
+
+`regexp` 一个[正则表达式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)对象。
+
+* 如果传入一个非正则表达式对象，则会隐式地使用 `new RegExp(obj)` 将其转换为一个 [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 。
+* 如果你没有给出任何参数并直接使用match() 方法 ，你将会得到一 个包含空字符串的 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array) ：[""] 。
+
+**返回值**
+
+* 如果使用g标志，则将返回与完整正则表达式匹配的所有结果，但不会返回捕获组。
+* 如果未使用g标志，则仅返回第一个完整匹配及其相关的捕获组（`Array`）。 在这种情况下，返回的项目将具有如下所述的其他属性。
+  * 附加属性：
+  * `groups`: 一个捕获组数组 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)（如果没有定义命名捕获组）
+  * `index`: 匹配的结果的开始位置
+  * `input`: 搜索的字符串
+
+一个[`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)，其内容取决于global（`g`）标志的存在与否，如果未找到匹配则为[`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)
+
+**描述**
+
+* 如果正则表达式不包含 `g `标志，`str.match()` 将返回与 [`RegExp.exec()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec)相同的结果
 
 
 
