@@ -2463,10 +2463,12 @@ javascript位运算符表格一览
 > https://juejin.cn/post/6844903717611782157
 >
 > * 二进制的负数就是取该二进制数的补码,然后+1  (补码就是按位取反后的数)
->
 > * 二进制数, 最高位为0表示正数,最高位为1表示负数.
->
 > * `~`按位非操作其实就是取补码的过程,也就是上述求该值负数的逆过程,所以可以简单的理解为该值取负值后减1。
+>
+> 什么是原码,反码,补码????
+>
+> https://www.cnblogs.com/lukelook/p/11274795.html
 
 
 
@@ -3607,6 +3609,23 @@ Object.is(-0, -0);           // true
 Object.is(NaN, 0/0);         // true
 Object.is(NaN,NaN);          //true
 ```
+
+Object.is与`===`比较
+
+```javascript
+//不同
+1.它适用于 NaN：Object.is(NaN，NaN) === true
+2.Object.is(0，-0) === false，从技术上讲这是对的，因为在内部，数字的符号位可能会不同，即使其他所有位均为零。
+
+//相同
+在所有其他情况下，Object.is(a，b) 与 a === b 相同
+```
+
+
+
+
+
+
 
 
 
@@ -10521,77 +10540,7 @@ console.log(arr);
 
 
 
-### 定型数组
-
-> 略  <深入理解ES6>
-
-
-
-## 对象Math
-
-### 简介
-
-**`Math`** 是一个内置对象，它拥有一些数学常数属性和数学函数方法。`Math` 不是一个函数对象
-
-#### 简介
-
-```JavaScript
-Math
-- 是一个工具类,无法用来创建对象
-- Math里边包含了一些数学运算相关的常量和方法
-```
-
-
-
-### 方法
-
-```JavaScript
-Math.PI 圆周率
-Math.abs() 求一个绝对值
-Math.ceil() 向上取整
-Math.floor() 向下取整
-Math.round() 四舍五入取整  //以上三个和parseInt等类似
-
-Math.max() 求最大值
-Math.min() 求最小值
-Math.pow(x,y) 求x的y次幂
-Math.sqrt() 求一个数的平方根
-Math.random()生成一个0-1之间的随机数(小数) 不包括0也不包括1
-
-```
-
-
-
-### Math用法
-
-#### 0. 1
-
-```js
-//生成一个指定范围的随机数
-0-x之间的随机数
-	Math.round(Math.random()*x)
-
-x-y之间的随机数
-	Math.round(Math.random()*(y-x) + x)
-	Math.round(Math.random()*(y-x)) + x
-
-    Math.ceil(Math.random()*(y-x))+x
-
-//Math.min()和Math.max()用于确定一组数组中最小和最大值
-
-```
-
-#### 1. 使用时间戳和随机数生成一个不重复的字符串
-
-```javascript
-//https://xpoet.cn/2018/11/%E5%88%A9%E7%94%A8%E6%97%B6%E9%97%B4%E6%88%B3%E5%92%8C%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E4%B8%80%E4%B8%AA%E4%B8%8D%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/
-
-export const getUUID = (randomLength) => {
-  return Number(Math.random().toString().substring(2, randomLength) + Date.now()).toString(36);
-}
-```
-
-
+### 数组排序
 
 
 
@@ -10752,74 +10701,198 @@ console.timeEnd('冒泡');
 
 
 
+### 定型数组
+
+> 略  <深入理解ES6>
+
+
+
+## 对象Math
+
+### 简介
+
+**`Math`** 是一个内置对象，它拥有一些数学常数属性和数学函数方法。`Math` 不是一个函数对象
+
+#### 简介
+
+```JavaScript
+Math
+- 是一个工具类,无法用来创建对象
+- Math里边包含了一些数学运算相关的常量和方法
+```
+
+
+
+### 方法
+
+```JavaScript
+Math.PI 圆周率
+Math.abs() 求一个绝对值
+Math.ceil() 向上取整
+Math.floor() 向下取整
+Math.round() 四舍五入取整  //以上三个和parseInt等类似
+
+Math.max() 求最大值
+Math.min() 求最小值
+Math.pow(x,y) 求x的y次幂
+Math.sqrt() 求一个数的平方根
+Math.random()生成一个0-1之间的随机数(小数) 不包括0也不包括1
+
+```
+
+
+
+### Math用法
+
+#### 0. 生成制定(x-y)之间的随机数
+
+```js
+//生成一个指定范围的随机数
+0-x之间的随机数
+	Math.round(Math.random()*x)
+
+x-y之间的随机数
+	Math.round(Math.random()*(y-x) + x)
+	Math.round(Math.random()*(y-x)) + x
+
+  Math.ceil(Math.random()*(y-x))+x
+
+//Math.min()和Math.max()用于确定一组数组中最小和最大值
+
+```
+
+#### 1. 使用时间戳和随机数生成一个不重复的字符串
+
+```javascript
+//https://xpoet.cn/2018/11/%E5%88%A9%E7%94%A8%E6%97%B6%E9%97%B4%E6%88%B3%E5%92%8C%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%94%9F%E6%88%90%E4%B8%80%E4%B8%AA%E4%B8%8D%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/
+
+export const getUUID = (randomLength) => {
+  return Number(Math.random().toString().substring(2, randomLength) + Date.now()).toString(36);
+}
+```
+
+
+
+
+
 ## Date
 
-```JavaScript
-在JS中所有的和时间相关的信息都通过Date对象来表示
+### 0. 定义
+
+创建一个 JavaScript `Date` 实例，该实例呈现时间中的某个时刻。`Date` 对象则基于 [Unix Time Stamp](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_16)，即自1970年1月1日（UTC）起经过的毫秒数。
+
+### 1. 参数
+
+#### 基本形式
+
+```javascript
+new Date()
+new Date(value)
+new Date(dateString);
+new Date(year, monthIndex[, day[, hours[, minutes[, seconds[, milliseconds]]]]]);
+```
+
+创建一个新`Date`对象的唯一方法是通过[`new`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new) 操作符，例如：`let now = new Date();`若将它作为常规函数调用（即不加 [`new`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new) 操作符），将返回一个字符串，而非 `Date` 对象
+
+`Date()` 构造函数有**四种基本形式**
+
+* 没有参数 新创建的Date对象表示实例化时刻的日期和时间
+* Unix时间戳
+  * `value` 一个 Unix 时间戳（[Unix Time Stamp](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_16)），它是一个整数值，表示自1970年1月1日00:00:00 UTC（the Unix epoch）以来的毫秒数，忽略了闰秒。请注意大多数 Unix 时间戳功能仅精确到最接近的秒。
+* 时间戳字符串
+  * `dateString` 表示日期的字符串值。该字符串应该能被 [`Date.parse()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/parse) 正确方法识别
+  * 由于浏览器之间的差异与不一致性，强烈不推荐使用`Date`构造函数来解析日期字符串 (或使用与其等价的`Date.parse`)
+* 分别提供日期与时间的每一个成员  当至少提供了年份与月份时，这一形式的 `Date() `返回的 `Date `对象中的每一个成员都来自下列参数。没有提供的成员将使用最小可能值（对日期为`1`，其他为`0`）。
+  * `year` 表示年份的整数值。 0到99会被映射至1900年至1999年，其它值代表实际年份。参见 [示例](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date#two_digit_years_map_to_1900_-_1999)。
+  * `monthIndex` 表示月份的整数值，从 0（1月）到 11（12月）
+  * `date` **可选** 表示一个月中的第几天的整数值，从1开始。默认值为1
+  * `hours` **可选** 表示一天中的小时数的整数值 (24小时制)。默认值为0（午夜）
+  * `minutes` **可选** 表示一个完整时间（如 01:10:00）中的分钟部分的整数值。默认值为0
+  * `seconds` **可选** 表示一个完整时间（如 01:10:00）中的秒部分的整数值。默认值为0
+  * `milliseconds` **可选** 表示一个完整时间的毫秒部分的整数值。默认值为0
+
+#### 注意事项
+
+* 当Date作为构造函数调用并传入多个参数时，如果数值大于合理范围时（如月份为 13 或者分钟数为 70），相邻的数值会被调整。比如 new Date(2013, 13, 1)等于new Date(2014, 1, 1)
+* 当Date作为构造函数调用并传入多个参数时，所定义参数代表的是当地时间。如果需要使用世界协调时 UTC，使用 `new Date(Date.UTC(...))` 和相同参数
+
+### 2.属性
+
+**Date.length**
+
+`Date.length` 的值是 7。这是该构造函数可接受的参数个数
+
+
+
+### 3.方法
+
+**Date.now()**
+
+返回自 1970-1-1 00:00:00  UTC（世界标准时间）至今所经过的毫秒数
+
+**Date.parse()**
+
+解析一个表示日期的字符串，并返回从 1970-1-1 00:00:00 所经过的毫秒数
+
+**Date.UTC()**
+
+接受和构造函数最长形式的参数相同的参数（从2到7），并返回从 1970-01-01 00:00:00 UTC 开始所经过的毫秒数。
+
+**Date.prototype.getFullYear()**
+
+**`getFullYear()`** 方法根据本地时间返回指定日期的年份
+
+
+
+**Date.prototype.getMonth**()
+
+根据本地时间，返回一个指定的日期对象的月份，为基于0的值（0表示一年中的第一月）
+
+
+
+**Date.prototype.getDate()**
+
+根据本地时间，返回一个指定的日期对象为一个月中的哪一日（从1--31）
+
+```javascript
+new Date().getDate();
 ```
 
 
 
-```JavaScript
-//创建一个Date对象
-//如果直接使用new Date()则会表示当前时间的对象
+**Date.prototype.getDay()**
 
-let dt = new Date();
+**`getDay()`** 方法根据本地时间，返回一个具体日期中一周的第几天，0 表示星期天
 
-//可以通过传递时间字符串来指定要创建的时间
-//格式: 月/日/四位年 时:分:秒
-
-dt = new Date('12/20/2020 14:33:22');
-
-
+```javascript
+new Date().getDay(); //
 ```
 
 
 
-#### Date的方法
-
-```JavaScript
-let dt = new Date();
-
-- 获取当前日期是周几
-getDay() 获取当前日期是周几
-返回值 0-6
-0 表示周日
-1 表示周一 ...
-
-- 如何打印今天是周几?
-let dd = dt.getDay();
-let dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-console.log(dayArr(dd));
 
 
-- 获取当前对象是几月
-getMonth()
-返回值 0-11
-0 表示1月
-1 表示2月
-依次类推
+### 4.实例
+
+#### 计算经过的时间
+
+```javascript
+// 使用 Date 对象
+var start = Date.now();
+
+// 调用一个消耗一定时间的方法：
+doSomethingForALongTime();
+var end = Date.now();
+var elapsed = end - start; // 以毫秒计的运行时长
 
 
-- 获取今天的日期是几号 
-getDate()
+// 使用内建的创建方法
+var start = new Date();
 
-- 获取当前日期对象的年份
-getFullYear()
-
-- getTime()
- 获取当前日期的时间戳
- 时间戳指自1970年1月1日0时0分0秒,到当前时间所经历的毫秒数
- 时间在计算机底层都是以时间戳形式存储
- 
- - 使用时间戳来计算程序的执行时间
-let begin = new Date().getTime();
-函数
-let end = new Date().getTime();
-console.log(end - begin) ;
- 
- - Date.now()  //类方法,静态方法
- 获取当前的时间戳
+// 调用一个消耗一定时间的方法：
+doSomethingForALongTime();
+var end = new Date();
+var elapsed = end.getTime() - start.getTime(); // 运行时间的毫秒值
 ```
 
 
@@ -10834,6 +10907,12 @@ alert(`$(d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`);
 ```
 
 
+
+### 5. 库
+
+#### moment.js
+
+> https://momentjs.com/
 
 
 
@@ -10872,21 +10951,22 @@ alert(str.name);
 
 ## 字符串
 
+```lskjdf
+?? 未解决
+
+let num = '  ';
+num.length = 1;
+console.log(num); //'   '   基本类型的值不能改变
+```
+
+
+
 ### 语法
 
-#### 声明
+#### 声明方式
 
 * 字符串字面量
 * String函数  使用 `String` 函数将其他值生成或转换成字符串
-
-```javascript
-'string text'
-"string text"
-"中文/汉语"
-
-String(str)  //任何可以被转换成字符串的值
-new String(str)
-```
 
 
 
@@ -10986,27 +11066,7 @@ otherwise my code is unreadable.";
 
 ### 描述
 
-#### 从字符串中获取单个字符
 
-* charAt()
-* 中括号语法
-
-#### 字符串比较
-
-在 JavaScript 中，你只需要使用[比较操作符(>/</>=/<=)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators)
-
-```javascript
-let a = 'a',
-    b = 'b';
-
-if (a < b) {
-  //
-} else {
-  //
-}
-```
-
-使用从字符串实例继承而来的 [`localeCompare`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare) 方法也能达到同样的效果
 
 #### 基本字符串和字符串对象的区别
 
@@ -11042,6 +11102,36 @@ console.log(eval(s2)); //'2+2'
 console.log()
 ```
 
+#### [字符串是不可变的](https://zh.javascript.info/string#zi-fu-chuan-shi-bu-ke-bian-de)
+
+在 JavaScript 中，字符串不可更改
+
+ ```javascript
+ let str = 'hello';
+ 
+ str.length = 0;
+ console.log(str); //'hello'
+ 
+ str[0] = 'a';
+ console.log(str); //'hello'
+ ```
+
+通常的解决方法是创建一个新的字符串，并将其分配给 `str` 而不是以前的字符串
+
+```javascript
+let str = 'Hi';
+
+str = 'h' + str[1];  // 替换字符串
+
+alert( str ); // hi
+```
+
+
+
+
+
+
+
 
 
 ### 编码格式
@@ -11075,6 +11165,10 @@ let str = 'Hello'; --> ['H', 'e', 'l', 'l', 'o'];
 
 
 
+### 属性
+
+
+
 
 
 ### 方法
@@ -11083,7 +11177,7 @@ let str = 'Hello'; --> ['H', 'e', 'l', 'l', 'o'];
 
 ##### codePointAt()
 
-ECMAScript 6新增加了完全支持UTF-16的codePointAt()方法，这个方法接受编码<u>单元的位置而非字符位置作为参数</u>，返回与字符串中给定位置对应的码位，即一个整数值。
+ECMAScript 6新增加了<u>完全支持UTF-16</u>的codePointAt()方法，这个方法接受编码<u>单元的位置而非字符位置作为参数</u>，返回与字符串中给定位置对应的码位，即一个整数值。
 
 ```javascript
 let text = '𠮷a';
@@ -11224,16 +11318,157 @@ values.sort(function(first, second) {
 
 
 
-#### 字符串中获取单个字符
 
-获取字符串的某个字符有两种方法。 第一种是使用 [`charAt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/charAt) 方法;另一种是把字符串当作一个类似数组的对象，其中的每个字符对应一个数值索引。
 
-使用括号访问字符串不可以对其进行删除或添加，因为字符串对应未知的属性并不是可读或配置的。 (更多的信息请参阅 [`Object.defineProperty`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)。 )
+#### String.prototype.concat()
+
+**定义**
+
+**`concat()`** 方法将一个或多个字符串与原字符串连接合并，形成一个新的字符串并返回
+
+**参数**
 
 ```javascript
-'string'.charAt(0); //'s'
+str.concat(str2,[, ...strN])
+```
 
-'string'[0]; //'s'
+`str2 [, ...strN]`  需要连接到str的字符串
+
+**返回值**
+
+一个新的字符串，包含参数所提供的连接字符串
+
+**描述**
+
+* `concat` 方法将一个或多个字符串与原字符串连接合并，形成一个新的字符串并返回。 `concat` 方法并不影响原字符串。
+
+* 如果参数不是字符串类型，它们在连接之前将会被转换成字符串
+* 强烈建议使用[赋值操作符](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Assignment_Operators)（`+`, `+=`）代替 `concat` 方法. `concat`存在性能问题.
+
+```HTML
+"".concat({})    // [object Object]
+"".concat([])    // ""
+"".concat(null)  // "null"
+"".concat(true)  // "true"
+"".concat(4, 5)  // "45"
+```
+
+#### String.prototype.indexOf()
+
+**定义**
+
+`indexOf()` 方法返回调用它的 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) 对象中第一次出现的指定值的索引，从 `fromIndex` 处进行搜索。如果未找到该值，则返回 -1。
+
+**参数**
+
+```javascript
+str.indexOf(searchValue[, fromIndex]);
+```
+
+`searchValue` 要被查找的字符串值
+
+* 如果没有提供确切地提供字符串，[searchValue 会被强制设置为 `"undefined"`](https://tc39.github.io/ecma262/#sec-tostring)， 然后在当前字符串中查找这个值。
+* 举个例子：`'undefined'.indexOf()` 将会返回0，因为 `undefined` 在位置0处被找到，但是 `'undefine'.indexOf()` 将会返回 -1 ，因为字符串 `'undefined'` 未被找到。
+
+`fromIndex` **可选** 
+
+* 数字表示开始查找的位置。可以是任意整数，默认值为 `0`
+* 如果 `fromIndex` 的值小于 `0`，或者大于 `str.length` ，那么查找分别从 `0` 和`str.length` 开始。（译者注： `fromIndex` 的值小于 `0`，等同于为空情况； `fromIndex` 的值大于或等于 `str.length` ，那么结果会直接返回 `-1` 。）
+
+**返回值**
+
+* 查找的字符串 `searchValue` 的第一次出现的索引，如果没有找到，则返回 `-1`
+
+* 若被查找的字符串 `searchValue` 是一个<u>空字符串</u>，将会产生“奇怪”的结果。如果 `fromIndex` 值为空，或者 `fromIndex` 值小于被查找的字符串的长度，返回值和以下的 `fromIndex` 值一样
+* 如果 `fromIndex` 值大于等于字符串的长度，将会直接返回字符串的长度（`str.length`）
+
+```javascript
+'hello world'.indexOf('') // 返回 0
+'hello world'.indexOf('', 0) // 返回 0
+'hello world'.indexOf('', 3) // 返回 3
+'hello world'.indexOf('', 8) // 返回 8
+"Blue Whale".indexOf("", -1)       // 返回 0
+
+'hello world'.indexOf('', 11) // 返回 11
+'hello world'.indexOf('', 13) // 返回 11
+'hello world'.indexOf('', 22) // 返回 11
+```
+
+**描述**
+
+* `indexOf` 方法是区分大小写的
+
+```javascript
+"Blue Whale".indexOf("blue")      // 返回 -1
+```
+
+**实例**
+
+[使用 `indexOf` 统计一个字符串中某个字母出现的次数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf#使用_indexof_统计一个字符串中某个字母出现的次数)
+
+```javascript
+var str = 'To be, or not to be, that is the question.';
+var count = 0;
+var pos = str.indexOf('e');
+
+while(pos !== -1) {
+  count++;
+  pos = str.indexOf('e', pos+1)
+}
+```
+
+
+
+
+
+
+
+#### String.prototype.lastIndexOf()
+
+**定义**
+
+ **`lastIndexOf()`** 方法返回调用[`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) 对象的指定值最后一次出现的索引，在一个字符串中的指定位置 `fromIndex`处从后向前搜索。如果没找到这个特定值则返回-1 。
+
+**参数**
+
+```javascript
+str.lastIndexOf(searchValue[, fromIndex])
+```
+
+`searchValue` 一个字符串，表示被查找的值。
+
+* 如果`searchValue`是空字符串，则返回`fromIndex`
+
+`fromIndex` **可选**
+
+* 待匹配字符串searchValue的开头一位字符从 str的第fromIndex位开始向左回向查找。
+* `fromIndex`默认值是 `+Infinity`。
+* 如果 `fromIndex >= str.length` ，则会搜索整个字符串。
+* 如果 `fromIndex < 0` ，则等同于 `fromIndex == 0`。
+
+**返回值**
+
+返回指定值最后一次出现的索引(该索引仍是以从左至右0开始记数的)，如果没找到则返回-1。
+
+**描述**
+
+* `'abab'.lastIndexOf('ab', 2)` 将返回 2 而不是 0, 因为fromIndex只限制待匹配字符串的开头
+* `lastIndexOf` 方法区分大小写
+
+```javascript
+'canal'.lastIndexOf('a');     // returns 3 （没有指明fromIndex则从末尾l处开始反向检索到的第一个a出现在l的后面，即index为3的位置）
+'canal'.lastIndexOf('a', 2);  // returns 1（指明fromIndex为2则从n处反向向回检索到其后面就是a，即index为1的位置）
+'canal'.lastIndexOf('a', 0);  // returns -1(指明fromIndex为0则从c处向左回向检索a发现没有，故返回-1)
+'canal'.lastIndexOf('x');     // returns -1
+'canal'.lastIndexOf('c', -5); // returns 0（指明fromIndex为-5则视同0，从c处向左回向查找发现自己就是，故返回0）
+'canal'.lastIndexOf('c', 0);  // returns 0（指明fromIndex为0则从c处向左回向查找c发现自己就是，故返回自己的索引0）
+'canal'.lastIndexOf('');      // returns 5
+'canal'.lastIndexOf('', 2);   // returns 2
+
+
+"blue Whale, Killer Whale".lastIndexOf("blue"); // returns 0
+
+"Blue Whale, Killer Whale".lastIndexOf("blue"); // returns -1
 ```
 
 
@@ -11263,117 +11498,7 @@ let newIndent = indent.repeat(++indentLevel);
 
 
 
-#### str.concat()
 
-> 连接字符串, 返回新字符串, 不改变原字符串
->
-> 多个字符串以逗号分隔(相当于使用连接符'+',但更繁琐)
->
-> 该方法可以接受多个参数
->
-> 如果参数不是字符串,会将其先转换为字符串,然后再拼接
-
-```HTML
-let str = 'Hello'; 
-str.concat('world');//'hello world'
-
-'a'.concat('b');//'ab'
-
-''.concat(1, 2, '3');//'123'
-
-''.concat(); //''
-''.concat(''); //''
-
-''.concat({});// '[object Object]'
-首先,''.concat({})就相当于''+{},是字符串拼接,其他类型会转换成字符串,会调用toString()方法,将其他类型转换为字符串,再和原始字符串进行拼接.
-
-String({});//'[object Object]'
-
-''.concat([]); //'' 输出空值 
-
-```
-
-
-
-#### indexOf()
-
-> 查询一个字符在字符串中第一次出现的位置, 如果未找到该值,返回-1
->
-> 字符串中的字符被从左向右索引.第一个字符的索引是0,最后一个字符的索引是str.length-1
->
-> indexOf区分大小写
-
-
-
-```html 
-# 语法: str.indexOf(searchValue, fromIndex)
-
-searchValue: 要被查找的字符值.
-fromIndex: 可选.规定字符串中开始检索的位置.它的合法取值范围是0到str.length-1.如果省略该参数,将从字符串首字符开始检索.默认值是0.
-
-
-如果没有提供确切的提供查找字符, searchValue会被强制设置为'undefined',然后在当前字符串中查找这个值.
-例子: 'undefined'.indexOf(),返回值是0,因为undefined在位置0处被找到.
-但是, 'undefine'.indexOf()将会返回-1, 因为字符串'undefined'未被找到.
-
-如果fromIndex的值小于0,或者大于str.length,那么查找分别从0和str.length开始.fromIndex的值小于0, 等同于为空的情况. fromIndex的值大于或等于str.length,那么结果会直接返回-1.
-
-
-
-- 返回值
- 查找的字符串searchValue第一次出现的索引,如果没有找到,则返回-1.
- 若被查找的字符串searchValue是一个空字符串,fromIndex值为空或小于被查找字符串长度,返回值如下:
-'hello world'.indexOf('');// 返回0
-'hello world'.indexOf('', 0);//返回0
-'hello world'.indexOf('', 3);//返回3
-'hello world'.indexOf('', 8);//返回8
-
- 若fromIndex的值等于或大于被查找字符串的长度,返回值就是字符串的长度.
-'hello world'.indexOf('', 11) // returns 11
-'hello world'.indexOf('', 13) // returns 11
-'hello world'.indexOf('', 22) // returns 11
-```
-
-#### indexOf实例
-
-```HTML
-- 检测目标字符(串)是否存在被检查的字符串中
-
-'blue whale'.indexOf('blue') !== -1; //true
-'bule whale'.indexOf('blue') !== -1; //false
-
-- 使用IndexOf统计一个字符串中某个字母出现的次数
-var str = 'To be, or not to be, that is the question.';
-var count = 0;
-var pos =str.indexOf('e');
-
-while(pos !== -1){
-	count++;
-	pos = str.indexOf('e', pos+1);
-}
-console.log(count); //4
-```
-
-
-
-#### lastIndexOf()
-
-> 查询一个字符在字符串中最后一次出现的位置. 如果没有找到则返回-1.
->
-> 区分大小写.
->
-> 语法: str.lastIndexOf(searchValue, fromIndex)
-
-```
-语法: str.lastIndexOf(searchValue, fromIndex)
-
-searchValue 一个字符串,表示被查找的值. 如果searchValue是空字符串,则返回fromIndex.//????? 字符串的长度.
-
-fromIndex 可选. 待匹配字符串searchValue的开头一位字符从str的第fromIndex位开始向左回向查找.
-fromIndex默认值是+Infinity.
-如果fromIndex>=str.length,则会搜索整个字符串.
-如果fromIndex<0, 则等同于fromIndex==0.
-```
 
 
 
@@ -11804,6 +11929,472 @@ let msg = raw`Multiline\nstring`;
 console.log(msg); //'Multiline\\nstring'
 console.log(msg.length); //27
 ```
+
+
+
+### 实例
+
+
+
+#### 从字符串中<u>通过位置</u>获取单个字符
+
+要获取在 具体 位置的一个字符，可以使用方括号 `[position]` 或者调用 [str.charAt(pos)](https://developer.mozilla.org/zh/docs/Web/JavaScript/Reference/Global_Objects/String/charAt) 方法
+
+```javascript
+let str = `Hello`;
+
+// 第一个字符
+alert( str[0] ); // H
+alert( str.charAt(0) ); // H
+
+// 最后一个字符
+alert( str[str.length - 1] ); // o
+```
+
+方括号是获取字符的一种现代化方法，而 `charAt` 是历史原因才存在的。
+
+它们之间的唯一区别是，如果没有找到字符，`[]` 返回 `undefined`，而 `charAt` 返回一个空字符串
+
+```javascript
+let str = `Hello`;
+
+alert( str[1000] ); // undefined
+alert( str.charAt(1000) ); // ''（空字符串）
+```
+
+
+
+#### 字符串比较
+
+在 JavaScript 中，你只需要使用[比较操作符(>/</>=/<=)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators)
+
+```javascript
+let a = 'a',
+    b = 'b';
+
+if (a < b) {
+  //
+} else {
+  //
+}
+```
+
+使用从字符串实例继承而来的 [`localeCompare`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare) 方法也能达到同样的效果
+
+
+
+## 数字Number
+
+### 0. 介绍
+
+JavaScript 的 **`Number`** 对象是经过封装的能让你处理数字值的对象。`Number` 对象由 `Number()` 构造器创建。
+
+### 1. 分类
+
+* JavaScript 中的常规数字以 64 位的格式 [IEEE-754](https://en.wikipedia.org/wiki/IEEE_754-2008_revision) 存储，也被称为“双精度浮点数”。
+* BigInt 数字，用于表示任意长度的整数。有时会需要它们，因为常规数字不能超过 `253` 或小于 `-253`
+
+### 2. 语法
+
+**包装类实现**
+
+```javascript
+new Number(value);
+let a = new Number('123'); //a === 123 is false  a打印结果: Number {123}
+let b= Number('123'); //b === 123 is true
+a instanceof Number //true
+b instanceof Number //false
+```
+
+**科学计数法**
+
+在 JavaScript 中，我们通过在数字后附加字母 “e”，并指定零的数量来缩短数字
+
+`"e"` 把数字乘以 `1` 后面跟着给定数量的 0 的数字
+
+`e` 后面的负数表示除以 1 后面跟着给定数量的 0 的数字
+
+```javascript
+let billion = 1e9; //10亿,数字1后面跟9个0
+
+1e3 = 1* 1000
+1e-3 = 1 / 1000(= 0.001)  //-3 除以 1 后面跟着 3 个 0 的数字
+```
+
+
+
+**不同进制表示法**
+
+二进制和八进制数字支持使用 `0b` 和 `0o` 前缀
+
+[十六进制](https://en.wikipedia.org/wiki/Hexadecimal) 数字在 JavaScript 中被广泛用于表示颜色，编码字符以及其他许多东西。所以自然地，有一种较短的写方法：`0x`，然后是数字。
+
+
+
+### 3. 描述
+
+* 如果参数无法被转换为数字，则返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)
+* 在非构造器上下文中 (如：没有 [`new`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new) 操作符)，`Number` 能被用来执行类型转换
+
+### 4. 方法
+
+#### toString(base)
+
+方法 `num.toString(base)` 返回在给定 `base` 进制数字系统中 `num` 的字符串表示形式
+
+`base` 的范围可以从 `2` 到 `36`。默认情况下是 `10`
+
+常见的用例如下：
+
+- **base=16** 用于十六进制颜色，字符编码等，数字可以是 `0..9` 或 `A..F`。
+- **base=2** 主要用于调试按位操作，数字可以是 `0` 或 `1`。
+- **base=36** 是最大进制，数字可以是 `0..9` 或 `A..Z`。所有拉丁字母都被用于了表示数字。对于 `36` 进制来说，一个有趣且有用的例子是，当我们需要将一个较长的数字标识符转换成较短的时候，例如做一个短的 URL。可以简单地使用基数为 `36` 的数字系统表示：
+
+```javascript
+123456..toString(36); // 2n9c
+(123456).toString(36)
+```
+
+注意: 如果我们放置一个点：`123456.toString(36)`，那么就会出现一个 error，因为 JavaScript 语法隐含了第一个点之后的部分为小数部分。如果我们再放一个点，那么 JavaScript 就知道小数部分为空，现在使用该方法。
+
+也可以写成 `(123456).toString(36)`。
+
+**其他方法**
+
+* Number.isNaN()
+* Number.isFinite()
+* Number.isInteger()
+* Number.parseFloat()
+* Number.parseInt()
+
+#### isFinite() 
+
+**定义**
+
+该全局 **`isFinite()`** 函数用来判断被传入的参数值是否为一个有限数值（finite number）。在必要情况下，参数会首先转为一个数值
+
+**参数**
+
+```javascript
+isFinite(testValue)
+```
+
+**描述**
+
+* isFinite 是全局的方法，不与任何对象有关系
+* 你可以用这个方法来判定一个数字是否是有限数字。`isFinite` 方法检测它参数的数值。如果参数是 `NaN`，正无穷大或者负无穷大，会返回`false`，其他返回 `true`
+
+* 和全局的 [`isFinite()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/isFinite) 函数不同，`Number.isFinite()`方法不会强制将一个非数值的参数转换成数值，这就意味着，只有数值类型的值，且是有穷的（finite），才返回 `true`   !!!!
+* isFinite(value)` 将其参数转换为数字，如果是常规数字，则返回 `true`，而不是 `NaN/Infinity/-Infinity
+* 有时 `isFinite` 被用于验证字符串值是否为常规数字.
+* 
+
+```javascript
+isFinite(Infinity);  // false
+isFinite(NaN);       // false
+isFinite(-Infinity); // false
+
+isFinite(0);         // true
+isFinite(2e64);      // true, 在更强壮的Number.isFinite(null)中将会得到false
+
+
+isFinite("0");       // true, 在更强壮的Number.isFinite('0')中将会得到false
+
+
+Number.isFinite('1') ;//false
+isFinite('1'); //true
+
+alert( isFinite("str") ); // false，因为是一个特殊的值：NaN
+alert( isFinite(Infinity) ); // false，因为是一个特殊的值：Infinity
+
+Number.isFinite(''); //false
+isFinite(''); //true
+
+Number.isFinite(' '); //false
+isFinite(' '); //true
+```
+
+
+
+#### parseInt()
+
+**定义**
+
+**parseInt(string, radix)**  解析一个字符串并返回指定基数的**十进制整数**， `radix` 是2-36之间的整数，表示被解析字符串的基数。
+
+**参数**
+
+```javascript
+parseInt(string, radix);
+```
+
+`string`   要被解析的值。
+
+* 如果参数不是一个字符串，则将其转换为字符串(使用  `ToString `抽象操作)。字符串开头的空白符将会被忽略。
+
+`radix` **可选**
+
+* 从 `2` 到 `36`，表示字符串的基数。例如指定 16 表示被解析值是十六进制数。请注意，10不是默认值.
+
+**返回值**
+
+* 从给定的字符串中解析出的一个整数
+
+* `NaN`  (当基数小于2或者大于36,或第一个非空格字符串不能转换为数字)
+
+**描述**
+
+* `parseInt`函数将其第一个参数转换为一个字符串，对该字符串进行解析，然后返回一个整数或`NaN`
+* 如果 `parseInt `遇到的字符不是指定 `radix `参数中的数字，它将忽略该字符以及所有后续字符，并返回到该点为止已解析的整数值。 `parseInt` 将数字截断为整数值。 允许前导和尾随空格
+* 由于某些数字在其字符串表示形式中使用e字符（例如 `6.022×23` 表示` 6.022e23` ），因此当对非常大或非常小的数字使用数字时，使用 `parseInt` 截断数字将产生意外结果
+* `parseInt` 可以理解两个符号。`+` 表示正数，`-` 表示负数（从ECMAScript 1开始）。它是在去掉空格后作为解析的初始步骤进行的。如果没有找到符号，算法将进入下一步；否则，它将删除符号，并对字符串的其余部分进行数字解析。
+* 如果 `radix` 是 `undefined`、`0`或未指定的，JavaScript会假定以下情况：
+  * 如果输入的 `string`以 "`0x`"或 "`0x`"（一个0，后面是小写或大写的X）开头，那么radix被假定为16，字符串的其余部分被当做十六进制数去解析
+  * 如果输入的 `string`以 "`0`"（0）开头， `radix`被假定为`8`（八进制）或`10`（十进制）。具体选择哪一个radix取决于实现。ECMAScript 5 澄清了应该使用 10 (十进制)，但不是所有的浏览器都支持。**因此，在使用 `parseInt` 时，一定要指定一个 radix**。
+  * 如果输入的 `string` 以任何其他值开头， `radix` 是 `10` (十进制)
+* 如果第一个字符不能转换为数字，`parseInt`会返回 `NaN`
+* 要将一个数字转换为特定的 `radix` 中的字符串字段，请使用 `thatNumber.toString(radix)`函数
+* 警告: `parseInt`将 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt)转换为[`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)，并在这个过程中失去了精度。这是因为拖尾的非数字值，包括 "n"，会被丢弃。
+
+**实例**
+
+
+
+
+
+#### parseFloat()
+
+**定义**
+
+**`parseFloat()`** 函数解析一个参数（必要时先转换为字符串）并返回一个浮点数
+
+**参数**
+
+```javascript
+parseFloat(string)
+```
+
+`string`  需要被解析成为浮点数的值
+
+**返回值**
+
+给定值被解析成**浮点数**。如果给定值不能被转换成数值，则会返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)。
+
+**描述**
+
+* `parseFloat`是个全局函数,不属于任何对象
+* 如果 `parseFloat` 在解析过程中遇到了正号（`+`）、负号（`-` U+002D HYPHEN-MINUS）、数字（`0`-`9`）、小数点（`.`）、或者科学记数法中的指数（e 或 E）以外的字符，则它会忽略该字符以及之后的所有字符，返回当前已经解析到的浮点数
+* 第二个小数点的出现也会使解析停止（在这之前的字符都会被解析）
+* 参数首位和末位的空白符会被忽略。
+* 如果参数字符串的第一个字符不能被解析成为数字,`则` `parseFloat` 返回 `NaN`。
+* `parseFloat` 也可以解析并返回 [`Infinity`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Infinity)。
+* `parseFloat`解析 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt) 为 [`Numbers`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number), 丢失精度。因为末位 `n` 字符被丢弃。
+
+考虑使用 [`Number(*value*)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 进行更严谨的解析，只要参数带有无效字符就会被转换为 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN) 
+
+`parseFloat` 也可以转换一个已经定义了 `toString` 或者 `valueOf` 方法的对象，它返回的值和在调用该方法的结果上调用 `parseFloat` 值相同
+
+
+
+**实例**
+
+下面的例子都返回**3.14**
+
+```javascript
+parseFloat('3.0'); //3 结果是数字
+
+parseFloat(3.14);
+parseFloat('3.14');
+parseFloat('  3.14  ');
+parseFloat('314e-2');
+parseFloat('0.0314E+2');
+parseFloat('3.14some non-digit characters');
+parseFloat({ toString: function() { return "3.14" } });
+```
+
+大整数的返回值
+
+均返回 `900719925474099300`，当整数太大以至于不能被转换时将失去精度
+
+```javascript
+parseFloat(900719925474099267n);
+parseFloat('900719925474099267n');
+```
+
+
+
+### 5. 舍入
+
+* Math.floor 向下舍入：`3.1` 变成 `3`，`-1.1` 变成 `-2`
+* Math.ceil 向上舍入：`3.1` 变成 `4`，`-1.1` 变成 `-1`
+* Math.round 向最近的整数舍入：`3.1` 变成 `3`，`3.6` 变成 `4`，`-1.1` 变成 `-1`
+* 舍入到具体的小数点多少位?
+  * 乘除法
+  * toFixed()  函数 [toFixed(n)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed) 将数字舍入到小数点后 `n` 位，并以字符串形式返回结果. 会向上或向下舍入到最接近的值，类似于 `Math.round`; 如果小数部分比所需要的短，则在结尾添加零
+
+```javascript
+//要将数字舍入到小数点后两位
+
+//1.乘除法
+let num = 1.23456;
+Math.floor(num * 100) / 100; // 1.23456 -> 123.456 -> 123 -> 1.23
+
+//2.toFixed(n)
+let num = 12.34;
+num.toFixed(1); //'12.3'
+
+let num = 12.36;
+num.toFixed(1); //'12.4'
+
+let num = 12.34;
+num.toFixed(5); //'12.34000'
+```
+
+### 6. 不精确的计算
+
+#### 0. 问题
+
+在内部，数字是以 64 位格式 [IEEE-754](http://en.wikipedia.org/wiki/IEEE_754-1985) 表示的，所以正好有 64 位可以存储一个数字：其中 52 位被用于存储这些数字，其中 11 位用于存储小数点的位置（对于整数，它们为零），而 1 位用于符号.
+
+1.如果一个数字太大，则会溢出 64 位存储，并可能会导致无穷大
+
+```javascript
+console.log(1e500); //Infinity
+```
+
+2.使用二进制数字系统无法 **精确** 存储 *0.1* 或 *0.2*，就像没有办法将三分之一存储为十进制小数一样
+
+```javascript
+alert( 0.1 + 0.2 ); // 0.30000000000000004
+```
+
+<u>IEEE-754 数字格式通过将数字舍入到最接近的可能数字来解决此问题</u>。这些舍入规则通常不允许我们看到“极小的精度损失”，但是它确实存在
+
+```javascript
+alert( 0.1.toFixed(20) ); // 0.10000000000000000555
+```
+
+<u>当我们对两个数字进行求和时，它们的“精度损失”会叠加起来。</u>这就是为什么 `0.1 + 0.2` 不等于 `0.3`. 许多其他编程语言也存在同样的问题。
+
+#### 1. 解决
+
+最可靠的方法是借助方法 [toFixed(n)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed) 对结果进行舍入.如果需要显示 `¥ 0.30`，这实际上很方便。对于其他情况，我们可以使用一元加号将其强制转换为一个数字：
+
+```javascript
+let sum = 0.1 + 0.2;
+alert( sum.toFixed(2) ); // 0.30
+
+let sum = 0.1 + 0.2;
+alert( +sum.toFixed(2) ); // 0.3
+```
+
+乘/除法可以减少误差，但不能完全消除误差
+
+```javascript
+alert( (0.1 * 10 + 0.2 * 10) / 10 ); // 0.3
+alert( (0.28 * 100 + 0.14 * 100) / 100); // 0.4200000000000001
+```
+
+#### 2. 实例
+
+**数字**
+
+```javascript
+// Hello！我是一个会自我增加的数字！
+alert( 9999999999999999 ); // 显示 10000000000000000
+
+
+9999999999999999..toString(2).length //54
+```
+
+出现了同样的问题：精度损失。有 64 位来表示该数字，其中 52 位可用于存储数字，但这还不够。所以最不重要的数字就消失了。JavaScript 不会在此类事件中触发 error。它会尽最大努力使数字符合所需的格式，但不幸的是，这种格式不够大到满足需求。
+
+```javascript
+Object.is(0, -0); //false
+
+0 === -0; //true
+```
+
+数字内部表示的另一个有趣结果是存在两个零：`0` 和 `-0`。
+
+这是因为在存储时，使用一位来存储符号，因此对于包括零在内的任何数字，可以设置这一位或者不设置。在大多数情况下，这种区别并不明显，因为运算符将它们视为相同的值。
+
+
+
+**6.35.toFixed(1) == 6.3**
+
+为什么 `6.35` 被舍入为 `6.3` 而不是 `6.4`?
+
+在内部，`6.35` 的小数部分是一个无限的二进制。在这种情况下，它的存储会造成精度损失。
+
+```javascript
+6.35.toFixed(20); // 6.34999999999999964473
+```
+
+精度损失可能会导致数字的增加和减小。在这种特殊的情况下，数字变小了一点，这就是它向下舍入的原因
+
+那么 `1.35` 会怎样呢？
+
+```javascript
+1.35.toFixed(20); // 1.35000000000000008882
+```
+
+在这里，精度损失使得这个数字稍微大了一些，因此其向上舍入.
+
+**如何以正确的方式进行舍入,解决`6.35`的问题?**
+
+`63.5` 完全没有精度损失。这是因为小数部分 `0.5` 实际上是 `1/2`。以 2 的整数次幂为分母的小数在二进制数字系统中可以被精确地表示，现在我们可以对它进行舍入
+
+```javascript
+(6.35 * 10).toFixed(20); //63.50000000000000000000
+
+
+Math.round(6.35 * 10) / 10; // 6.35 -> 63.5 -> 64(rounded) -> 6.4
+```
+
+ 
+
+### 7. 实例
+
+[重复，直到输入的是一个数字](https://zh.javascript.info/number#zhong-fu-zhi-dao-shu-ru-de-shi-yi-ge-shu-zi)
+
+> 创建一个函数 `readNumber`，它提示输入一个数字，直到访问者输入一个有效的数字为止。
+>
+> 结果值必须以数字形式返回。
+>
+> 访问者也可以通过输入空行或点击“取消”来停止该过程。在这种情况下，函数应该返回 `null`。
+
+```javascript
+function readNumber() {
+  let num;
+  do {
+    num = prompt('enter a number', 0);
+  } while(!isFinite(num))
+  if (num === null || num === '' || num === ' ') return null;
+  
+  return +num;
+}
+
+alert(`Read: ${readNumber()}`);
+
+
+function readNumber() {
+  let num = prompt('输入数字');
+  
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
