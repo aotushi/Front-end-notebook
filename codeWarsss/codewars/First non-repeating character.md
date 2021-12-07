@@ -15,13 +15,15 @@
 ```javascript
 //my
 //数组中只有一个且第一次出现
+
+
+//'aa' 'abba' should return ''
 function firstNonRepeatingLetter(s) {
   // Add your code here
-  //return s.split('').filter((item, index) => s.plit('').indexOf(item, index + 1) === -1).join('')
-    for (let [key,value] of s.split('').entries()) {
-        //if (s.split('').indexOf(value, key + 1) === -1) return value;
-        if (!s.split('').includes(value, index + 1)) return value;
-    }
+  let arr = s.toLowerCase().split('');
+  for (let value of arr) {
+    if (arr.indexOf(value) === arr.lastIndexOf(value)) return s[arr.indexOf(value)]
+  }
 }
 
 ```

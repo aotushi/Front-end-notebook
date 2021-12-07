@@ -7568,6 +7568,81 @@ let items = createArray(Array.of, value);
 >
 > 注意: Array.from()方法也是通过this来确定返回数组的类型的。(?)
 
+**参数**
+
+```javascript
+Array.from(arrayLike[, mapFn[, thisArg]]
+```
+
+`arrayLike` 想要转换成数组的伪数组对象或可迭代对象
+
+`mapFn` **可选**
+
+* 如果指定了该参数，新数组中的每个元素会执行该回调函数
+
+`thisArg` **可选**
+
+* 执行回调函数 `mapFn` 时 `this` 对象
+
+**返回值**
+
+一个新的[`数组`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)实例
+
+**描述**
+
+`Array.from()` 可以通过以下方式来创建数组对象
+
+* 伪数组对象（拥有一个 `length` 属性和若干索引属性的任意对象）
+* [可迭代对象](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)（可以获取对象中的元素,如 Map和 Set 等）
+* `Array.from()` 方法有一个可选参数 `mapFn`，让你可以在最后生成的数组上再执行一次 [`map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map) 方法后再返回。也就是说` Array.from(obj, mapFn, thisArg) `就相当于` Array.from(obj).map(mapFn, thisArg),` 除非创建的不是可用的中间数组。 这对一些数组的子类`,`如 [typed arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays) 来说很重要, 因为中间数组的值在调用 map() 时需要是适当的类型。
+* `from()` 的 `length` 属性为 1 ，即 `Array.from.length === 1`。
+
+**实例**
+
+string生成数组
+
+```javascript
+Array.from('string');
+//['s', 't', 'r', 'i', 'n', 'g']
+```
+
+从Set生成数组
+
+```javascript
+const set = new Set(['foo', 'bar', 'baz', 'foo']);
+Array.from(set);
+// [ "foo", "bar", "baz" ]
+```
+
+从Map生成数组
+
+```javascript
+const map = new Map([[1, 2], [2, 4], [4, 8]]);
+Array.from(map);
+// [[1, 2], [2, 4], [4, 8]]
+
+const mapper = new Map([['1', 'a'], ['2', 'b']]);
+Array.from(mapper.values());
+// ['a', 'b'];
+
+Array.from(mapper.keys());
+// ['1', '2'];
+```
+
+数组去重合并
+
+```javascript
+function combine(){
+    let arr = [].concat.apply([], arguments);  //没有去重复的新数组
+    return Array.from(new Set(arr));
+}
+
+var m = [1, 2, 2], n = [2,3,3];
+console.log(combine(m,n));                     // [1, 2, 3]
+```
+
+
+
 
 
 
@@ -8700,6 +8775,28 @@ while(idx !== -1) {
 
 ```
 
+数组中有且只有一个且只取第一个此类元素
+
+```javascript
+function getNoRepeatParament(s) {
+  let arr = s.toLowerCase().split('');
+  for (let value of arr) {
+    if (arr.indexOf(value) === arr.lastIndexOf(value)) return s[arr.indexOf(value)]
+  }
+}
+```
+
+获取数组中的只出现一次的元素
+
+```javascript
+
+let arr = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 1, 2, 3, 4];
+
+let filterArr = arr.filter((item, index) => arr.indexOf(item) === arr.lastIndexOf(value));
+
+
+```
+
 
 
 #### join()
@@ -9584,7 +9681,7 @@ getBoolean('true');  // true
 
 **定义**
 
-`**every()**` 方法测试一个数组内的所有元素是否都能通过某个指定函数的测试。它返回一个布尔值。
+`every()` 方法测试一个数组内的所有元素是否都能通过某个指定函数的测试。它返回一个布尔值。
 
 若收到一个空数组，此方法在一切情况下都会返回 `true`
 
@@ -11321,7 +11418,7 @@ values.sort(function(first, second) {
 
 
 
-#### String.prototype.concat()
+#### concat()
 
 **定义**
 
@@ -11354,7 +11451,7 @@ str.concat(str2,[, ...strN])
 "".concat(4, 5)  // "45"
 ```
 
-#### String.prototype.indexOf()
+#### indexOf()
 
 **定义**
 
@@ -11424,7 +11521,7 @@ while(pos !== -1) {
 
 
 
-#### String.prototype.lastIndexOf()
+#### lastIndexOf()
 
 **定义**
 
@@ -11474,7 +11571,7 @@ str.lastIndexOf(searchValue[, fromIndex])
 
 
 
-#### String.prototype.match()
+#### match()
 
 **定义**
 
@@ -11495,27 +11592,231 @@ str.match(regexp)
 
 * 如果使用g标志，则将返回与完整正则表达式匹配的所有结果，但不会返回捕获组。
 * 如果未使用g标志，则仅返回第一个完整匹配及其相关的捕获组（`Array`）。 在这种情况下，返回的项目将具有如下所述的其他属性。
-  * 附加属性：
   * `groups`: 一个捕获组数组 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)（如果没有定义命名捕获组）
   * `index`: 匹配的结果的开始位置
   * `input`: 搜索的字符串
 
 一个[`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)，其内容取决于global（`g`）标志的存在与否，如果未找到匹配则为[`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)
 
+```javascript
+const paragraph = 'The quick brown fox jumps over the lazy dog. It barked.';
+const regex = /[A-Z]/g;
+const found = paragraph.match(regex);
+
+console.log(found); //['T', 'I']
+
+
+const regex = /[A-Z]/;
+const found = paragraph.match(regex);
+console.log(found); 
+
+//['T', index: 0, input: 'The quick brown fox jumps over the lazy dog. It barked.', groups: undefined]
+```
+
+
+
 **描述**
 
 * 如果正则表达式不包含 `g `标志，`str.match()` 将返回与 [`RegExp.exec()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec)相同的结果
+
+**实例**
+
+使用 `match` 查找 "`Chapter`" 紧跟着 1 个或多个数值字符，再紧跟着一个小数点和数值字符 0 次或多次。正则表达式包含 `i` 标志，因此大小写会被忽略 ????
+
+```javascript
+let str = 'For more information, see Chapter 3.4.5.1',
+    re = /see (Chapter \d+(\.\d)*)/i,
+    found = str.match(re);
+
+console.log(found)
+            
+            
+// logs [ 'see Chapter 3.4.5.1',
+//        'Chapter 3.4.5.1',
+//        '.1',
+//        index: 22,
+//        input: 'For more information, see Chapter 3.4.5.1' ]
+
+// 'see Chapter 3.4.5.1' 是整个匹配。
+// 'Chapter 3.4.5.1' 被'(chapter \d+(\.\d)*)'捕获。
+// '.1' 是被'(\.\d)'捕获的最后一个值。
+// 'index' 属性(22) 是整个匹配从零开始的索引。
+// 'input' 属性是被解析的原始字符串。
+```
+
+[`match` 使用全局（global）和忽略大小写（ignore case）标志](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match#example_using_global_and_ignore_case_flags_with_match)
+
+```javascript
+var str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+var regexp = /[A-E]/gi;
+var matches_array = str.match(regexp);
+
+console.log(matches_array);
+// ['A', 'B', 'C', 'D', 'E', 'a', 'b', 'c', 'd', 'e']
+```
+
+[`使用match()，不传参数`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match#使用match，不传参数)
+
+```javascript
+var str = "Nothing will come of nothing.";
+
+str.match();   // returns [""]
+```
+
+[一个非正则表达式对象作为参数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match#一个非正则表达式对象作为参数)
+
+当参数是一个字符串或一个数字，它会使用new RegExp(obj)来隐式转换成一个 [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)。如果它是一个有正号的正数，RegExp() 方法将忽略正号。
+
+```javascript
+var str1 = "NaN means not a number. Infinity contains -Infinity and +Infinity in JavaScript.",
+    str2 = "My grandfather is 65 years old and My grandmother is 63 years old.",
+    str3 = "The contract was declared null and void.";
+
+
+str1.match("number");   // "number" 是字符串。返回["number"]
+str1.match(NaN);        // NaN的类型是number。返回["NaN"]
+str1.match(Infinity);   // Infinity的类型是number。返回["Infinity"]
+str1.match(+Infinity);  // 返回["Infinity"]
+str1.match(-Infinity);  // 返回["-Infinity"]
+str2.match(65);         // 返回["65"]
+str2.match(+65);        // 有正号的number。返回["65"]
+str3.match(null);       // 返回["null"]
+```
+
+
+
+#### matchAll()
+
+**定义**
+
+**`matchAll()`** 方法返回一个包含所有匹配正则表达式的结果及分组捕获组的迭代器
+
+```javascript
+const regexp = /t(e)(st(\d?))/g;
+const str = 'test1test2';
+
+const array = [...str.matchAll(regexp)];
+console.log(array)
+
+// Array [Array ["test1", "e", "st1", "1"], Array ["test2", "e", "st2", "2"]]
+```
+
+**参数**
+
+`regexp`  正则表达式对象
+
+* 如果所传参数不是一个正则表达式对象，则会隐式地使用 `new RegExp(obj)` 将其转换为一个 [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/RegExp) 。
+
+* `RegExp`必须是设置了全局模式`g`的形式，否则会抛出异常`TypeError`。
+
+**返回值**
+
+一个迭代器（不可重用，结果耗尽需要再次调用方法，获取一个新的迭代器）
+
+**实例**
+
+在 `matchAll` 出现之前，通过在循环中调用 `regexp.exec()` 来获取所有匹配项信息（regexp 需使用 `/g` 标志）
+
+```javascript
+const regexp = RegExp('foo[a-z]*','g');
+const str = 'table football, foosball';
+let match;
+
+while ((match = regexp.exec(str)) !== null) {
+  console.log(`Found ${match[0]} start=${match.index} end=${regexp.lastIndex}.`);
+  // expected output: "Found football start=6 end=14."
+  // expected output: "Found foosball start=16 end=24."
+}
+```
+
+如果使用 `matchAll` ，就可以不必使用 while 循环加 exec 方式（且正则表达式需使用 `/g` 标志）。使用 `matchAll` 会得到一个迭代器的返回值，配合 `for...of`, [array spread](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax), 或者 [`Array.from()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from) 可以更方便实现功能：
+
+```javascript
+const regexp = RegExp('foo[a-z]*','g');
+const str = 'table football, foosball';
+const matches = str.matchAll(regexp);
+
+for (const match of matches) {
+  console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
+}
+// expected output: "Found football start=6 end=14."
+// expected output: "Found foosball start=16 end=24."
+
+// matches iterator is exhausted after the for..of iteration
+// Call matchAll again to create a new iterator
+Array.from(str.matchAll(regexp), m => m[0]);
+// Array [ "football", "foosball" ]
+```
+
+如果没有 `/g` 标志，`matchAll` 会抛出异常。
+
+```javascript
+const regexp = RegExp('[a-c]','');
+const str = 'abc';
+Array.from(str.matchAll(regexp), m => m[0]);
+// TypeError: String.prototype.matchAll called with a non-global RegExp argument
+```
+
+`matchAll` 内部做了一个 regexp 的复制，所以不像 [regexp.exec](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec), `lastIndex` 在字符串扫描时不会改变。????
+
+```javascript
+const regexp = RegExp('[a-c]','g');
+regexp.lastIndex = 1;
+const str = 'abc';
+Array.from(str.matchAll(regexp), m => `${regexp.lastIndex} ${m[0]}`);
+// Array [ "1 b", "1 c" ]
+```
+
+`matchAll` 的另外一个亮点是更好地获取捕获组。因为当使用 `match()` 和 `/g` 标志方式获取匹配信息时，捕获组会被忽略：
+
+```javascript
+let array = [...str.matchAll(regexp)];
+
+array[0];
+// ['test1', 'e', 'st1', '1', index: 0, input: 'test1test2', length: 4]
+array[1];
+// ['test2', 'e', 'st2', '2', index: 5, input: 'test1test2', length: 4]
+```
+
+
 
 
 
 #### repeat()
 
+**定义**
+
 ECMAScript 6还为字符串增添了一个repeat()方法，其接受一个number类型的参数，表示该字符串的重复次数，返回值是当前字符串重复一定次数后的新字符串
 
+**参数**
+
 ```javascript
-console.log('x'.repeat(3)); //'xxx'
-console.log('hello'.repeat(2)); //hellohello
-console.log('abc'.repeat(4)); //abcabcabcabc
+str.repeat(count)
+```
+
+`count`  介于 `0` 和 [`+Infinity`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number/POSITIVE_INFINITY) 之间的整数。表示在新构造的字符串中重复了多少遍原字符串
+
+**返回值**
+
+包含指定字符串的指定数量副本的新字符串
+
+**描述**
+
+* [`RangeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Errors/Negative_repetition_count): 重复次数不能为负数。
+* [`RangeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Errors/Resulting_string_too_large): 重复次数必须小于 infinity，且长度不会大于最长的字符串。
+
+**实例**
+
+```javascript
+"abc".repeat(-1)     // RangeError: repeat count must be positive and less than inifinity
+"abc".repeat(0)      // ""
+"abc".repeat(1)      // "abc"
+"abc".repeat(2)      // "abcabc"
+"abc".repeat(3.5)    // "abcabcabc" 参数count将会被自动转换成整数.
+"abc".repeat(1/0)    // RangeError: repeat count must be positive and less than inifinity
+
+({toString : () => "abc", repeat : String.prototype.repeat}).repeat(2)
+//"abcabc",repeat是一个通用方法,也就是它的调用者可以不是一个字符串对象.
 ```
 
 使用场景.例如其在操作文本时非常有用，比如在代码格式化工具中创建缩进级别，
@@ -11531,38 +11832,271 @@ let newIndent = indent.repeat(++indentLevel);
 
 
 
+#### replace()
 
+**定义**
 
+**`replace()`** 方法返回一个由替换值（`replacement`）替换部分或所有的模式（`pattern`）匹配项后的新字符串。模式可以是一个字符串或者一个[正则表达式](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)，替换值可以是一个字符串或者一个每次匹配都要调用的回调函数。**如果`pattern`是字符串，则仅替换第一个匹配项。**
 
+原字符串不会改变
 
-#### str.slice()
+**参数**
 
-> 截取字符串的一部分,并返回一个新的字符串, 不改动原字符串.
+```javascript
+str.replace(regexp|substr, newSubStr|function)
+```
 
-```HTML
-- 语法
-str.slice(beginIndex, endIndex);
-str.slice(截取开始位置, 截取结束位置)//提取的新字符串包括beginIndex,不包括endIndex
+`regexp(pattern)` 
 
-beginIndex 从该索引(以0为基数)处提取字符串中的字符.如果值为负数,会被当做strLength+beginIndex.
-endIndex 可选.在该索引处结束提取字符串.如果省略该参数,slice()会一直提取到字符串末尾.如果该字符串为负数,则被看做是strLength+endIndex.
-如果endIndex不是一个数字,返回空字符串.
-如果startIndex是负的,endIndex也应是负值.否则会返回空字符串.
-如果endIndex是明确的,startIndex和endIndex应都是正值或负值,且endIndex应比startIndex大,否则返回空字符串.
+* 一个[`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象或者其字面量。该正则所匹配的内容会被第二个参数的返回值替换掉
 
-'string'.slice(-3, -2);//i
-'string'.slice(-4, -4);//'' empty string
+`substr(pattern)`
 
+* 一个将被 `newSubStr` 替换的 [`字符串`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)。其被视为一整个字符串，而不是一个正则表达式。仅第一个匹配项会被替换。
+
+`newSubStr(replacement)`
+
+* 用于替换掉第一个参数在原字符串中的匹配部分的[`字符串`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)。该字符串中可以内插一些特殊的变量名。参考下面的[使用字符串作为参数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#使用字符串作为参数)。
+
+`function(replacement)`
+
+* 一个用来创建新子字符串的函数，该函数的返回值将替换掉第一个参数匹配到的结果。参考下面的[指定一个函数作为参数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#指定一个函数作为参数)。
+
+**描述**
+
+* 该方法并不改变调用它的字符串本身，而只是返回一个新的替换后的字符串。
+
+* 在进行全局的搜索替换时，正则表达式需包含 `g` 标志
+
+**使用字符串作为参数**
+
+| 变量名    | 代表的值                                                     |
+| --------- | ------------------------------------------------------------ |
+| $$        | 插入一个'$'                                                  |
+| $&        | 插入整个匹配项                                               |
+| $`        | 插入当前匹配的字串左边的内容                                 |
+| $'        | 插入当前匹配的子串右边的内容                                 |
+| $n        | 假如第一个参数是 [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)对象，并且 n 是个小于100的非负整数，那么插入第 n 个括号匹配的字符串。提示：索引是从1开始。如果不存在第 n个分组，那么将会把匹配到到内容替换为字面量。比如不存在第3个分组，就会用“$3”替换匹配到的内容 |
+| $\<Name\> | 这里*`Name`* 是一个分组名称。如果在正则表达式中并不存在分组（或者没有匹配），这个变量将被处理为空字符串。只有在支持命名分组捕获的浏览器中才能使用 |
+
+```javascript
+let str = 'hello world';
+
+str.replace('o', '$$'); //'hell$ world'
+str.replace('o', '$&'); //'hello world' ????
+str.replace('o', '$`'); //'hellhell world'
+str.replace('o', "$'"); //'hell world world'
+```
+
+**指定一个函数作为参数**
+
+你可以指定一个函数作为第二个参数。在这种情况下，当匹配执行后，该函数就会执行。 函数的返回值作为替换字符串。 (注意：上面提到的特殊替换参数在这里不能被使用。) 另外要注意的是，如果第一个参数是正则表达式，并且其为全局匹配模式，那么这个方法将被多次调用，每次匹配都会被调用
+
+函数参数:
+
+| 变量名            | 代表的值                                                     |
+| ----------------- | ------------------------------------------------------------ |
+| `match`           | 匹配的子串。（对应于上述的$&。）                             |
+| `p1,p2, ...`      | 假如replace()方法的第一个参数是一个[`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象，则代表第n个括号匹配的字符串。（对应于上述的$1，$2等。）例如，如果是用 `/(\a+)(\b+)/` 这个来匹配，`p1` 就是匹配的 `\a+`，`p2` 就是匹配的 `\b+`。 |
+| `offset`          | 匹配到的子字符串在原字符串中的偏移量。（比如，如果原字符串是 `'abcd'`，匹配到的子字符串是 `'bc'`，那么这个参数将会是 1） |
+| `string`          | 被匹配的原字符串。                                           |
+| NamedCaptureGroup | 命名捕获组匹配的对象                                         |
+
+精确的参数个数依赖于 `replace()` 的第一个参数是否是一个正则表达式（[`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)）对象，以及这个正则表达式中指定了多少个括号子串，如果这个正则表达式里使用了命名捕获， 还会添加一个命名捕获的对象)
+
+**实例**  ????
+
+[交换字符串中的两个单词](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#交换字符串中的两个单词)
+
+```javascript
+var re = /(\w+)\s(\w+)/;
+var str = "John Smith";
+var newstr = str.replace(re, "$2, $1");
+// Smith, John
+console.log(newstr);
 ```
 
 
 
-##### str.slice()实例
+#### replaceAll()
+
+
+
+#### search()
+
+**定义**
+
+**`search()`** 方法执行正则表达式和 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) 对象之间的一个搜索匹配
+
+**参数**
+
+```javascript
+str.search(regexp)
+```
+
+`regexp`  一个[`正则表达式（regular expression）`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)对象
+
+* 如果传入一个非正则表达式对象 `regexp`，则会使用 `new RegExp(regexp)` 隐式地将其转换为正则表达式对象。
+
+**返回值**
+
+如果匹配成功，则 `search()` 返回正则表达式在字符串中首次匹配项的<u>索引</u>;否则，返回 `-1`
+
+**描述**
+
+* 当你想要知道字符串中是否存在某个模式（pattern）时可使用 `search()`，类似于正则表达式的 [`test()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) 方法。
+* 当要了解更多匹配信息时，可使用 [`match()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match)（但会更慢一些），该方法类似于正则表达式的 [`exec()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) 方法。
+
+**实例**
+
+```javascript
+let str = 'hello world';
+
+str.search('o'); //4
+str.search(/o/); //4
+```
+
+
+
+
+
+
+
+
+
+
+
+#### slice()
+
+**定义**
+
+**`slice()`** 方法提取某个字符串的一部分，并返回一个新的字符串，且不会改动原字符串
+
+**参数**
+
+```javascript
+str.slice(beginIndex[, endIndex])
+```
+
+`beginIndex` 从该索引（以 0 为基数）处开始提取原字符串中的字符
+
+* 如果值为负数，会被当做 `strLength + beginIndex` 看待，这里的`strLength` 是字符串的长度
+
+`endIndex`  **可选**
+
+* 在该索引（以 0 为基数）处结束提取字符串。
+* 如果省略该参数，`slice()` 会一直提取到字符串末尾。
+* 如果该参数为负数，则被看作是 strLength + endIndex
+* 新字符串包括`beginIndex`但不包括 `endIndex`
+
+**返回值**
+
+返回一个从原字符串中提取出来的新字符串
+
+**描述**
+
+* `slice` 不会修改原字符串（只会返回一个包含了原字符串中部分字符的新字符串
+
+**实例**
+
+slice()传入负值索引
+
+```javascript
+var str = 'The morning is upon us.';
+str.slice(-3);     // 返回 'us.'
+str.slice(-3, -1); // 返回 'us'
+str.slice(0, -1);  // 返回 'The morning is upon us'
+```
+
+复制字符串
 
 ```HTML
 - 复制字符串
 str.slice();
 str.slice(0);
+```
+
+
+
+#### split()
+
+**定义**
+
+`**split()** `方法使用指定的分隔符字符串将一个[`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)对象分割成子字符串数组，以一个指定的分割字串来决定每个拆分的位置。 
+
+**描述**
+
+如果使用<u>空字符串(“)作为分隔符</u>，则字符串不是在每个用户感知的字符(图形素集群)之间，也不是在每个Unicode字符(代码点)之间，而是在每个UTF-16代码单元之间。这会摧毁代理对。还请参见[how do you get a string to a character array in javascript](https://stackoverflow.com/questions/4547609/how-do-you-get-a-string-to-a-character-array-in-javascript/34717402#34717402)
+
+**参数**
+
+```javascript
+str.split([separator[, limit]])
+```
+
+`separator`  **可选**  描述拆分应发生位置的模式,可以是简单的字符或者正则表达式
+
+* 最简单的情况是分隔符是<u>单个字符</u>,被用来分割限定的字符串.例如,包含制表符分隔值 （TSV） 的字符串可以通过将制表符作为分隔符传递来解析
+* 如果分隔符<u>包含多个字符</u>,则必须找到整个字符序列才能拆分
+* 如果分隔符<u>被省略或者字符串中没有</u>,则返回数组包含一个由整个字符串构成的元素
+* 如果分隔符出现在字符串的<u>开始(或结尾)</u>,则返回的数组的相应位置是空字符串
+* 如果分隔符是一个<u>空字符串</u>, 字符串将转换为其每个 UTF-16"字符"的数组
+
+> 如果使用空字符串(“)作为分隔符，则字符串不是在每个用户感知的字符(图形素集群)之间，也不是在每个Unicode字符(代码点)之间，而是在每个UTF-16代码单元之间。这会摧毁代理对
+
+`limit`  **可选** 一个非负整数，指定对要包含在数组中的子字符串数的限制。
+
+* 如果提供,在分隔符出现的位置分割字符串,但在限制条目已放入数组时停止.
+* 如果在达到指定限制之前先到达字符串的末尾，它可能包含少于限制的条目。
+* 新数组中不返回剩下的文本
+* 如果限制是0, 则返回一个空数组
+
+
+
+**返回值**
+
+返回源字符串以分隔符出现位置分隔而成的一个 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array) 
+
+**描述**
+
+* 找到分隔符后，将其从字符串中删除，并将子字符串作为数组返回.
+* 如果分隔符是包含捕获括号的正则表达式，则每次分隔符匹配时，捕获括号的结果（包括任何未定义的结果）将被拼接到输出数组中。但是，并不是所有浏览器都支持此功能。
+* 如果分隔符是一个数组,那么这个数组会被强制转换成字符串且用作分隔符
+
+**实例**
+
+实例1
+
+```javascript
+let str = 'hello world';
+
+console.log(str.split(' ')); ['hello', 'world']
+console.log(str.split()); ['hello world']
+console.log(str.split('h')); //['', 'ello world', '']
+
+let str = 'hello world';
+console.log(str.split('o', 0)); //[]
+console.log(str.split('o', 2)); //['hell', 'w']
+console.log(str.split('o', 5)); //['hell', 'w', 'rld']
+
+```
+
+没有分隔符+空字符串
+
+```javascript
+let str = '';
+console.log(str.split()); //['']
+```
+
+移除字符串中的空格
+
+```javascript
+const names = 'Harry Trump ;Fred Barney; Helen Rigby ; Bill Abel ;Chris Hand '
+
+const re = /\s*(?:;|$)\s*/
+const nameList = names.split(re)
+
+console.log(nameList); //
 ```
 
 
