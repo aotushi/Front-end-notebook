@@ -11451,6 +11451,32 @@ str.concat(str2,[, ...strN])
 "".concat(4, 5)  // "45"
 ```
 
+
+
+#### includes()
+
+**定义**
+
+**`includes()`** 方法用于判断一个字符串是否包含在另一个字符串中，根据情况返回 true 或 false。
+
+**参数**
+
+```javascript
+str.includes(searchString[, fromIndex])
+```
+
+`searchString` 要搜索的字符串
+
+`fromIndex` **可选** 
+
+* 从当前字符串的哪个索引位置开始搜寻子字符串，默认值为 `0`
+
+**描述**
+
+* 区分大小写
+
+
+
 #### indexOf()
 
 **定义**
@@ -12101,100 +12127,149 @@ console.log(nameList); //
 
 
 
-#### str.substr()
+#### startsWith()
 
-> 返回一个字符串从指定位置开始到指定数量的字符.
->
-> 未被严格废弃,使用substring()代替.
+**定义**
 
-```HTML
-- 语法
-str.substr(start, length);
-start: 开始提取字符的位置.如果为负值,则被看做strLength+start.
-start为正值,且大于或等于字符串长度,则substr()返回一个空字符串.
-start为负值且abs(start)大于字符串长度,则substr使用0作为开始提取的索引.负的start参数不被Microsoft JScript所支持.
-length: 可选.提取的字符数. 如果length为0或负值,则返回一个空字符串.如果忽略length,则substr提取字符,直到字符串末尾.
+`startsWith()` 方法用来判断当前字符串是否以另外一个给定的子字符串开头，并根据判断结果返回 `true` 或 `false`
+
+**参数**
+
+```javascript
+str.startsWith(searchString[, position])
 ```
 
-##### str.substr()实例
+`searchString` 要搜索的字符串
 
-```HTML
-'string'.substr();//'string'
-'string'.substr('');//'string'
-'string'.substr(0);//'string'
-'string'.substr(-2);//'ng'
-'string'.substr(-13);//'string'
-'string'.substr();//
+`position` **可选** 
+
+* 在 `str` 中搜索 `searchString` 的开始位置，默认值为 0
+
+**返回值**
+
+如果在字符串的开头找到了给定的字符则返回**`true`**；否则返回**`false`**
+
+**描述**
+
+这个方法能够让你确定一个字符串是否以另一个字符串开头。这个方法区分大小写
+
+**实例**
+
+```javascript
+var str = "To be, or not to be, that is the question.";
+
+alert(str.startsWith("To be"));         // true
+alert(str.startsWith("not to be"));     // false
+alert(str.startsWith("not to be", 10)); // true
+```
+
+#### endsWith()
+
+**定义**
+
+`endsWith()`方法用来判断当前字符串是否是以另外一个给定的子字符串“结尾”的，根据判断结果返回 `true` 或 `false`。
+
+**参数**
+
+```javascript
+str.endsWith(searchString[, length])
+```
+
+`searchString`  要搜索的字符串
+
+`length` **可选** 
+
+* 作为 `str` 的长度。默认值为 `str.length`
+
+**返回值**
+
+如果传入的子字符串在搜索字符串的末尾则返回**`true`**；否则将返回 **`false`**
+
+**描述**
+
+* 大小写敏感
+
+**实例**
+
+```javascript
+var str = "To be, or not to be, that is the question.";
+
+alert( str.endsWith("question.") );  // true
+alert( str.endsWith("to be") );      // false
+alert( str.endsWith("to be", 19) );  // true
+alert(str.endsWith('to be', 18)); //false
 ```
 
 
 
-#### str.substring()
+#### substring()
 
-> 返回一个字符串在开始索引到结束索引之间的一个子集,或从开始索引直到字符串末尾的一个子集.
+**定义**
 
-```HTML
-str.substring(indexStart, indexEnd)
-indexStart 开始索引
-indexEnd 可选.结束索引,一个0到字符串长度之间的整数,不包括结束索引.
+返回一个字符串在开始索引到结束索引之间的一个子集,或从开始索引直到字符串末尾的一个子集.
 
-如果indexStart等于indexEnd, 返回一个空字符串
-如果省略indexEnd, substring提取字符移植到字符串末尾.
-如果任一参数小于0或者NaN, 则被当做0.
-如果任一参数大于stringName.length, 则被当做stringName.length
-如果indexStart大于indexEnd, 则substring的执行效果像两个参数调换了一样.
+**参数**
+
+```javascript
+str.substring(indexStart[, indexEnd])
 ```
 
+`indexStart` 
 
+* 需要截取的第一个字符的索引，该索引位置的字符作为返回的字符串的首字母
 
-##### str.substring()实例
+`indexEnd` **可选**
 
-```HTML
-var str = 'Mozilla';
-//输出'Moz'
-str.substring(0, 3);
-str.substring(3, 0);
-str.substring(3, -3);
-str.substring(3, NaN);
-str.substring(-2, 3);
-str.substring(NaN, 3);
+* 一个 0 到字符串长度之间的整数，以该数字为索引的字符<span style="text-decoration: underline wavy blue">不包含在截取的字符串内</span>
+
+**描述**
+
+* 提取从`indexStart`到`indexEnd`(不包括)之间的字符.
+* 如果省略`indexEnd`, 则提取到字符串末尾
+* 如果任一参数小于0或者为NaN, 则被当做0
+* 如果任一参数大于字符串长度, 则被当做字符串的长度
+* 如果`indexStart`大于`indexEnd`, 则提取结果就像是两个参数调换了一样
+
+**实例**
+
+```javascript
+let str = 'mozilla';
+
+//输出'moz'
+console.log(str.substring(0,3));
+console.log(str.substring(3,0));
+console.log(str.substring(3,-3));
+console.log(str.substring(3,NaN));
+console.log(str.substring(-2, 3));
+console.log(str.substring(NaN, 3));
 
 //输出'lla'
-str.substring(4, 7);
-str.substring(7, 4);
+console.log(str.substring(4));
+console.log(str.substring(4, str.length))
+console.log(str.substring(4, 7));
+console.log(str.substring(7, 4));
 
 //输出''
-str.substring(4, 4);
+console.log(str.substring(4,4)); //''
 
-//输出Mozilla
-str.substring(0, 6);
-
-//输出Mozilla
-str.substring(0, 7);
-str.substring(0, 10);
+//输出'mozilla'
+console.log(str.substring(0));
+console.log(str.substring(0, 7));
 ```
 
 
 
-##### str.substring()实例2  !!
+#### toString()
 
-```js
-- 使用length打印字符串
-var str = 'Mozilla';
-str.substring(0, str.length);//'Mozilla'
+**定义**
 
-- 替换一个字符串的子字符串
-function replaceString(oldS, newS, fullS){
-	for(var i=0; i<fullS.length; i++){
-        if(fullS.substring(i, i+oldS.length) == oldS){
-            fullS = fulls.substring(0, i) + newS + fullS.substring(i+oldS.length, fullS.length);
-        }
-    }
-    return fullS.split(oldS).join(newS);
-}
+`**toString()**` 方法返回指定对象的字符串形式
+
+**参数**
+
+```javascript
+str.toString()
 ```
-
-
 
 
 
