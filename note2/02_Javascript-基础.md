@@ -12044,7 +12044,7 @@ str.slice(0);
 
 
 
-#### split()
+#### split()????
 
 **定义**
 
@@ -12123,6 +12123,24 @@ const re = /\s*(?:;|$)\s*/
 const nameList = names.split(re)
 
 console.log(nameList); //
+```
+
+[靠正则来分割使结果中包含分隔块](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/split#example_capturing_parentheses)
+
+如果 `separator` 包含捕获括号（capturing parentheses），则其匹配结果将会包含在返回的数组中
+
+```javascript
+var myString = "Hello 1 word. Sentence number 2.";
+var splits = myString.split(/(\d)/);
+
+console.log(splits);
+
+//[ "Hello ", "1", " word. Sentence number ", "2", "." ]
+```
+
+[使用一个数组来作为分隔符](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/split#使用一个数组来作为分隔符)
+
+```javascript
 ```
 
 
