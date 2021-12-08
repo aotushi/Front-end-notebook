@@ -12289,88 +12289,70 @@ console.log(str.substring(0, 7));
 str.toString()
 ```
 
+**返回值**
 
+一个表示调用对象的字符串
 
-#### str.split()
+**描述**
 
-> split()方法将一个字符串拆分成多个有序的子字符串列表,将这些子字符串放进一个数组并返回.
+* `String` 对象覆盖了[`Object`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object) 对象的 `toString` 方法；并没有继承 [`Object.toString()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/toString)。
+* 对于 `String` 对象，`toString` 方法返回该对象的字符串形式，和 [`String.prototype.valueOf()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/valueOf) 方法返回值一样。
 
-```HTML
-- 语法
-split()
-split(separator)
-split(separator, limit)
+**实例**
 
-separator(可选,可以是字符串或正则表达式)
-limit(一个整数,限定返回的分割片段数量)
+输出一个字符串对象（String object）的字符串值
 
-split(); //省略或不出现分隔符,返回的数组包含一个由整个字符串组成的元素;
-split(''); //分隔符为空字符串,原字符中每个字符都会变成数组中的一个元素(包括逗号)
-'string'.split(','); //如果分隔符不存在原字符串中,那么就按照省略分隔符来操作
-```
+```javascript
+var x = new String("Hello world");
 
-```js
-分隔符注意事项:
-如果使用空字符串(“)作为分隔符，则字符串不是在每个用户感知的字符(图形素集群)之间，也不是在每个Unicode字符(代码点)之间，而是在每个UTF-16代码单元之间。
-https://stackoverflow.com/questions/4547609/how-to-get-character-array-from-a-string/34717402#34717402
+console.log(x); //  String {'Hello world'}
+alert(x.toString())      // 输出 "Hello world"
 ```
 
 
 
+#### trim()
 
+**定义**
 
-##### str.split()实例
+**`trim()`** 方法会从一个字符串的两端删除空白字符。在这个上下文中的空白字符是所有的空白字符 (space, tab, no-break space 等) 以及所有行终止符字符（如 LF，CR等）
 
-```js
-//移出字符串中的空格
-var names = "Harry Trump ;Fred Barney; Helen Rigby ; Bill Abel ;Chris Hand ";
-let re = /\s*(?:;|$)\s*/;    //非捕获括号 (?:;|$) 匹配分号或最后一项
-let nameList = names.split(re);
-console.log(namelist); 
-//[ "Harry Trump", "Fred Barney", "Helen Rigby", "Bill Abel", "Chris Hand", "" ]
+**描述**
 
+* `trim()` 方法返回一个从两头去掉空白字符的字符串，并不影响原字符串本身
 
-[1,2,[' ',3],4].toString().split('')
-//["1", ",", "2", ",", " ", ",", "3", ",", "4"]
+**Polyfill**
 
-[1,2,[' ',3],4].toString().split()
-//["1,2, ,3,4"]
+如果 `trim()` 不存在，可以在所有代码前执行下面代码
 
-[1,2,[' ',3],4].toString().split(',')
-//["1", "2", " ", "3", "4"]
+```javascript
+if (!String.prototype.trim) {
+  String.prototype.trim = function() {
+    return this.replace(/^[\s\uFEFF\xA0]+|[\sFEFF\xA0]+$/g, '');
+  }
+}
 ```
 
+#### trimEnd()/trimRight()
 
+#### trimStart()/trimLeft()
 
-#### str.toUpperCase()
+#### valueOf()
 
-> 将一个字符/字符串转换为大写
+**定义**
 
+**`valueOf()`** 方法返回 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String) 对象的原始值
 
+**描述**
 
-#### str.toLowerCase()
+* 此方法通常由JavaScript在内部调用，而不是在代码中显式调用
 
-> 将一个字符/字符串转换为小写
+**实例**
 
-
-
-
-
-#### str.trim()
-
-> 去除字符串前后的空格
-
-
-
-#### str.trimEnd()
-
-> 新方法 不兼容. 去除后边的空格
-
-
-
-#### str.trimStart()
-
-> 去除前边的字符串 新方法不兼容
+```javascript
+var x = new String('Hello world');
+console.log(x.valueOf()); // Displays 'Hello world'
+```
 
 
 
