@@ -695,6 +695,8 @@ Note: 如果希望在全局对象下定义变量，仍然可以使用var。这�
 
 > 默认使用const，只有确实需要改变变量的值时使用let
 
+
+
 ### 数据类型(字面量的类型)++
 
 > 数据类型就是字面量的类型
@@ -5958,6 +5960,149 @@ console.log(fn.valueOf());
 
 
 
+
+
+### 闭包
+
+你可以在一个函数里面嵌套另外一个函数。嵌套（内部）函数对其容器（外部）函数是私有的。它自身也形成了一个闭包。一个闭包是一个可以自己拥有独立的环境与变量的表达式（通常是函数). 嵌套函数可以”继承“容器函数的参数和变量。换句话说，内部函数包含外部函数的作用域。
+
+由于内部函数可以访问外部函数的作用域，因此当内部函数生存周期大于外部函数时，外部函数中定义的变量和函数的生存周期将比内部函数执行时间长。当内部函数以某一种方式被任何一个外部函数作用域访问时，一个闭包就产生了
+
+可以总结如下:
+
+* 允许函数嵌套
+
+- 内部函数只可以在外部函数中访问
+- 内部函数形成了一个闭包：它可以访问外部函数的所有参数和变量及外部函数能访问的所有变量和函数，但是外部函数却不能使用它的参数和变量。
+
+
+
+#### 概要
+
+```JavaScript
+- 闭包就是能访问到外部函数变量的内部函数
+- 闭包可以用来将一些不愿意被别人访问的变量隐藏起来 //闭包的作用就是藏东西,暴露的东西使用返回值返回,缺点就是内存占用,可忽略
+- 闭包构成要素:
+ 1. 必须有函数的嵌套
+ 2. 内部函数要引用外部函数的变量
+ 3. 必须将内部函数作为返回值返回  //不正确
+ 
+ 
+- 闭包的生命周期
+ 闭包在外部函数调用时创建,调用一次产生一个
+ 相同对象调用,形成闭包.
+ 闭包在内部函数被垃圾回收时销毁.
+```
+
+
+
+```js
+//https://www.zhihu.com/question/460940032
+
+function createIncrement() {
+  let count = 0;
+  function increment() { 
+    count++;
+  }
+
+  let message = `Count is ${count}`;
+  function log() {
+    console.log(message);
+  }
+ 
+  return [increment, log];
+}
+
+const [increment, log] = createIncrement();
+increment(); 
+increment(); 
+increment(); 
+log(); // 0
+
+
+在①处调用 createIncrement 时，②处的 message 实际上已经创建出来了，那就相当于是字符串不变量了
+把函数log写成:
+function log(){
+  console.log(`Count is ${count}`)
+}
+```
+
+![](https://pic1.zhimg.com/80/v2-c518a99960e698edba1c3dca36e11804_720w.jpg?source=1940ef5c)
+
+
+
+
+
+
+
+#### 保存变量
+
+一个闭包必须保存它可见作用域中所有参数和变量。因为每一次调用传入的参数都可能不同，每一次对外部函数的调用实际上重新创建了一遍这个闭包。只有当返回的嵌套函数没有再被引用时，内存才会被释放.
+
+
+
+#### 多层嵌套函数
+
+函数可以被多层嵌套。例如，函数A可以包含函数B，函数B可以再包含函数C。B和C都形成了闭包，所以B可以访问A，C可以访问B和A。因此，闭包可以包含多个作用域；他们递归式的包含了所有包含它的函数作用域。这个称之为**作用域链**
+
+```js
+function A(x){
+  function B(y){
+    function C(z){
+      console.log(x+y+z)
+    }
+    C(3);
+  }
+  B(2);
+}
+A(1)
+```
+
+#### 命名冲突🔸
+
+如果一个闭包的函数定义了一个和外部函数的某个变量名称相同的变量，那么这个闭包将无法引用外部函数的这个变量.
+
+当同一个闭包作用域下两个参数或者变量同名时，就会产生命名冲突。更近的作用域有更高的优先权，所以最近的优先级最高，最远的优先级最低。这就是作用域链。链的第一个元素就是最里面的作用域，最后一个元素便是最外层的作用域。
+
+```js
+function outside(){
+  var x = 5;
+  return function inside(x){
+    return x*2;
+  }
+}
+outside()(10); //20
+
+//解析:
+命名冲突发生在return x上，inside的参数x和outside变量x发生了冲突。这里的作用链域是{inside, outside, 全局对象}。因此inside的x具有最高优先权，返回了20（inside的x）而不是10（outside的x）
+```
+
+
+
+
+
+#### 案例
+
+```JavaScript
+创建一个函数,函数每次调用时,都显示它执行的叠加次数
+
+function outer(){
+    let times = 0;
+    function inner(){
+        times++;
+        alert(times);
+    }
+    return inner;  //返回值是内部函数,而不是调用内部函数
+}
+
+let result = outer()
+result();//outer()(); outer()()执行的是内部函数,故每次均为1;result()执行的是闭包函数,叠加
+
+result = null; //内部函数会被垃圾回收
+```
+
+
+
 ### 函数返回值
 
 ```javascript
@@ -10926,7 +11071,7 @@ new Date(year, monthIndex[, day[, hours[, minutes[, seconds[, milliseconds]]]]])
 
 **Date.now()**
 
-返回自 1970-1-1 00:00:00  UTC（世界标准时间）至今所经过的毫秒数
+返回自 1970-1-1 00:00:00  UTC（世界标准时间）至今所经过的毫秒数 <span style="color:blue;">数值格式</span>
 
 **Date.parse()**
 
@@ -14046,15 +14191,15 @@ let result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
 
 ### 1.介绍
 
-> **`JSON`**对象包含两个方法: 用于解析 [JavaScript Object Notation](http://json.org/) ([JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)) 的 `parse()` 方法，以及将对象/值转换为 JSON字符串的 `stringify()` 方法。除了这两个方法, JSON这个对象本身并没有其他作用，也不能被调用或者作为构造函数调用。
->
-> **JSON** 是一种语法，用来序列化对象、数组、数值、字符串、布尔值和 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 。它基于 JavaScript 语法，但与之不同：**JavaScript不是JSON，JSON也不是JavaScript**。
+**`JSON`**对象包含两个方法: 用于解析 [JavaScript Object Notation](http://json.org/) ([JSON](https://developer.mozilla.org/zh-CN/docs/Glossary/JSON)) 的 `parse()` 方法，以及将对象/值转换为 JSON字符串的 `stringify()` 方法。除了这两个方法, JSON这个对象本身并没有其他作用，也不能被调用或者作为构造函数调用。
+
+**JSON** 是一种语法，用来序列化对象、数组、数值、字符串、布尔值和 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 。它基于 JavaScript 语法，但与之不同：**JavaScript不是JSON，JSON也不是JavaScript**。
 
 
 
 ### 2. JSON VS Javascript
 
-| JS类型     | JSON不同点                                                   |
+| JS类型     | JSON的不同点                                                 |
 | ---------- | ------------------------------------------------------------ |
 | 对象  数组 | 属性名称必须是双引号括起来的字符串; 最后一个属性后不能有逗号 |
 | 数值       | 禁止出现前导零 （ JSON.stringify 方法自动忽略前导零，而在 JSON.parse 方法中将会抛出 SyntaxError）；如果有小数点, 则后面至少跟着一位数字。 |
@@ -14062,9 +14207,9 @@ let result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
 
 
 
-### 3.方法
+### 3. 方法
 
-#### 3.1 JSON.parse()
+#### 1 JSON.parse()
 
 > 解析JSON字符串并返回对应的值，可以额外传入一个转换函数，用来将生成的值和其属性, 在返回之前进行某些修改。
 
@@ -14136,25 +14281,32 @@ JSON.parse('{"1": 1, "2": 2,"3": {"4": 4, "5": {"6": 6}}}', function (k, v) {
 
 
 
-#### 3.2 JSON.stringify()
+#### 2 JSON.stringify()
 
-> `**JSON.stringify()**` 方法将一个 JavaScript 对象或值转换为 JSON 字符串，如果指定了一个 replacer 函数，则可以选择性地替换值，或者指定的 replacer 是数组，则可选择性地仅包含数组指定的属性。
+**定义**
+
+`JSON.stringify()` 方法将一个 JavaScript <u>对象或值</u>转换为 JSON 字符串，如果指定了一个 replacer 函数，则可以选择性地替换值，或者指定的 replacer 是数组，则可选择性地仅包含数组指定的属性。
 
 **语法**
 
 ```js
-JSON.stringify(value[,replacer[,space]])
-
-//
-value  将要序列化成 一个 JSON 字符串的值。
-replacer 可选
-	如果该参数是一个函数，则在序列化过程中，被序列化的值的每个属性都会经过该函数的转换和处理；如果该参数是一个数组，则只有包含在这个数组中的属性名才会被序列化到最终的 JSON 字符串中；如果该参数为 null 或者未提供，则对象所有的属性都会被序列化。
-  
-space 可选
-指定缩进用的空白字符串，用于美化输出（pretty-print）；如果参数是个数字，它代表有多少的空格；上限为10。该值若小于1，则意味着没有空格；如果该参数为字符串（当字符串长度超过10个字母，取其前10个字母），该字符串将被作为空格；如果该参数没有提供（或者为 null），将没有空格。
+JSON.stringify(value[, replacer[, space]])
 ```
 
+`value` 将要序列化成 一个 JSON 字符串的值
 
+`replacer` **可选**
+
+* 如果该参数是一个函数，则在序列化过程中，被序列化的值的每个属性都会经过该函数的转换和处理；
+* 如果该参数是一个数组，则只有包含在这个数组中的属性名才会被序列化到最终的 JSON 字符串中；
+* 如果该参数为 <u>null 或者未提供</u>，则对象所有的属性都会被序列化。
+
+`space` **可选**
+
+* 指定缩进用的空白字符串，用于美化输出（pretty-print）；
+* 如果参数是个数字，它代表有多少的空格；上限为10。该值若小于1，则意味着没有空格；
+* 如果该参数为字符串（当字符串长度超过10个字母，取其前10个字母），该字符串将被作为空格；
+* 如果该参数没有提供（或者为 null），将没有空格。
 
 **描述**
 
@@ -14163,10 +14315,14 @@ space 可选
 - 转换值如果有 toJSON() 方法，该方法定义什么值将被序列化。
 - 非数组对象的属性不能保证以特定的顺序出现在序列化后的字符串中。
 - 布尔值、数字、字符串的包装对象在序列化过程中会自动转换成对应的原始值。
-- `undefined`、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 `null`（出现在数组中时）。函数、undefined 被单独转换时，会返回 undefined，如`JSON.stringify(function(){})` or `JSON.stringify(undefined)`.
+- <u>`undefined`</u>、<u>任意的函数</u>以及 <u>symbol 值</u>，
+  - 出现在非数组对象的属性值中时, 在序列化过程中会被忽略(属性和属性值都会被忽略)
+  - 出现在数组中时,被转换成 `null`
+  - 函数、undefined 被单独转换时，会返回 undefined.(Symbol()也返回undeinfed,但一般都是放在对象中用作属性键)
+
 - 对包含循环引用的对象（对象之间相互引用，形成无限循环）执行此方法，会抛出错误。
 - 所有以 symbol 为属性键的属性都会被完全忽略掉，即便 `replacer` 参数中强制指定包含了它们。
-- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同Date.toISOString()），因此会被当做字符串处理。
+- Date 日期调用了 toJSON() 将其转换为了 string 字符串（同Date.toISOString()），因此会被当做字符串处理。(Date.now()数值格式)
 - NaN 和 Infinity 格式的数值及 null 都会被当做 null。
 - 其他类型的对象，包括 Map/Set/WeakMap/WeakSet，仅会序列化可枚举的属性。
 
@@ -14180,7 +14336,124 @@ JSON.stringify(true);                      // 'true'
 JSON.stringify("foo");                     // '"foo"'
 JSON.stringify([1, "false", false]);       // '[1,"false",false]'
 JSON.stringify({ x: 5 });                  // '{"x":5}'
+
+JSON.stringify({x: undefined, y: Object, z: Symbol("")});
+// '{}'
+
+JSON.stringify([undefined, Object, Symbol("")]);
+// '[null,null,null]'
+
+JSON.stringify({[Symbol("foo")]: "foo"});
+// '{}'
+
+JSON.stringify({[Symbol.for("foo")]: "foo"}, [Symbol.for("foo")]);
+// '{}'
+
+JSON.stringify(
+  {[Symbol.for("foo")]: "foo"},
+  function (k, v) {
+    if (typeof k === "symbol"){
+      return "a symbol";
+    }
+  }
+);
+
+
+// undefined
+
+// 不可枚举的属性默认会被忽略：
+JSON.stringify(
+  Object.create(
+    null,
+    {
+      x: { value: 'x', enumerable: false },
+      y: { value: 'y', enumerable: true }
+    }
+  )
+);
+
+// "{"y":"y"}"
 ```
+
+**replace函数**
+
+replacer 参数可以是<u>一个函数或者一个数组</u>。作为函数，它有两个参数，键（key）和值（value），它们都会被序列化。
+
+在开始时, `replacer` 函数会被传入一个空字符串作为 `key` 值，代表着要被 `stringify` 的这个对象。随后每个对象或数组上的属性会被依次传入。 
+
+函数应当返回JSON字符串中的value, 如下所示:
+
+- 如果返回一个 [`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number), 转换成相应的字符串作为属性值被添加入 JSON 字符串。
+- 如果返回一个 [`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String), 该字符串作为属性值被添加入 JSON 字符串。
+- 如果返回一个 [`Boolean`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Boolean), "true" 或者 "false" 作为属性值被添加入 JSON 字符串。
+- 如果返回任何其他对象，该对象递归地序列化成 JSON 字符串，对每个属性调用 replacer 方法。除非该对象是一个函数，这种情况将不会被序列化成 JSON 字符串。
+- 如果返回 undefined，该属性值不会在 JSON 字符串中输出。
+
+**注意:** 不能用 replacer 方法，从数组中移除值（values），如若返回 undefined 或者一个函数，将会被 null 取代。
+
+replacer是一个函数
+
+```javascript
+function replacer(key, value) {
+  if (typeof value === 'string') {
+    return undefined;
+  }
+  return value;
+}
+
+let foo = {foundation: 'Mozilla', model: 'box', week: 45, transprot: 'cart', month: 7};
+
+let jsonString = JSON.stringify(foo, replacer);
+
+//'{"week": 45, "month": 7}'
+```
+
+如果 `replacer` 是一个数组，数组的值代表将被序列化成 JSON 字符串的属性名
+
+```javascript
+JSON.stringify(foo, ['week', 'month']);
+//'{"week":45,"month":7}', 只保留 “week” 和 “month” 属性值。
+```
+
+
+
+**space参数**
+
+* `space `参数用来控制结果字符串里面的间距。
+* 如果是一个数字, 则在字符串化时每一级别会比上一级别缩进多这个数字值的空格（最多10个空格）；
+* 如果是一个字符串，则<u>每一级别</u>会比上一级别多缩进该字符串（或该字符串的前10个字符）。
+
+```javascript
+JSON.stringify({a:2}, null, ' '); //'{\n "a": 2\n}'
+```
+
+使用制表符(\t)来缩进
+
+```javascript
+JSON.stringify({ uno: 1, dos : 2 }, null, '\t')
+// '{            \
+//     "uno": 1, \
+//     "dos": 2  \
+// }'
+```
+
+**toJSON()方法**
+
+如果一个被序列化的对象拥有 `toJSON` 方法，那么该 `toJSON` 方法就会覆盖该对象默认的序列化行为：不是该对象被序列化，而是<u>调用 `toJSON` 方法后的返回值会被序列化</u>
+
+```javascript
+let obj = {
+  foo: 'foo',
+  toJSON: function() {
+    return 'bar';
+  }
+};
+
+JSON.stringify(obj); //'{"bar"}'
+JSON.stringify({x: obj}); //'{"x":"bar"}'
+```
+
+
 
 
 
@@ -14218,13 +14491,175 @@ let c = JSON.parse(
 
 
 
+### 4. JSON.stringify()实例
+
+#### 1. 调试对象
+
+使用 JSON.stringify()先将对象转换为字符串
+
+```javascript
+
+//Initialize a User object
+const user = {
+"name" : "蔡生",
+"age" : 26
+}
+console.log(user);
+// [object Object]
+
+
+console.log(JSON.stringify(user));
+//"{"name": "蔡生", "age": 26}"
+```
+
+#### 2. 存储localStorage对象
+
+存储用户创建的一个对象，并且，即使在浏览器被关闭后仍能恢复该对象。
+
+```javascript
+// 创建一个示例数据
+var session = {
+    'screens' : [],
+    'state' : true
+};
+session.screens.push({"name":"screenA", "width":450, "height":250});
+session.screens.push({"name":"screenB", "width":650, "height":350});
+session.screens.push({"name":"screenC", "width":750, "height":120});
+session.screens.push({"name":"screenD", "width":250, "height":60});
+session.screens.push({"name":"screenE", "width":390, "height":120});
+session.screens.push({"name":"screenF", "width":1240, "height":650});
+
+// 使用 JSON.stringify 转换为 JSON 字符串
+// 然后使用 localStorage 保存在 session 名称里
+localStorage.setItem('session', JSON.stringify(session));
+
+// 然后是如何转换通过 JSON.stringify 生成的字符串，该字符串以 JSON 格式保存在 localStorage 里
+var restoredSession = JSON.parse(localStorage.getItem('session'));
+
+// 现在 restoredSession 包含了保存在 localStorage 里的对象
+console.log(restoredSession);
+```
+
+#### 3. 数组去重
+
+对数组中的对象进行去重
+
+```javascript
+function unique(arr) {
+  let unique = {};
+  arr.forEach(item => unique[JSON.stringify(item)]) = item;
+  arr = Object.keys(unique).map(u => JSON.parse(u));
+  
+  return arr;
+}
+```
+
+以上这种方案存在问题, {x:1,y:2}与{y:2,x:1}通过 JSON.stringify 字符串化值不同，但显然他们是重复的对象。
+
+```javascript
+function unique2(arr) {
+  let unique = {};
+  arr.forEach(item => {
+    let newData = {};
+    Object.keys(item).sort().forEach(key => newData[key] = item[key]);
+    unique[JSON.stringify(newData)] = item;
+  })
+  return arr = Object.keys(unique).map(item => JSON.prase(item));
+}
+```
+
+#### 3.1 数组中对象属性排序 !!!!????
+
+```javascript
+//https://mp.weixin.qq.com/s?__biz=MzAxODE4MTEzMA==&mid=2650078414&idx=1&sn=f8564c1bfea10a3aa9c19ed08eeed830&chksm=83da61abb4ade8bd3aecc2e501d6eb7a27c078af3255ea57aae6ed413534e5844d8544077046&scene=21#wechat_redirect
+
+
+JSON.stringify(obj, Object.keys(obj).sort())
+JSON.stringify(obj, ['a', 'b', 'c'])
+JSON.stringify(Object.keys(obj).sort().reduce((acc, cur) => acc[cur] = obj[k], {}) )
+```
+
+#### 3.2 完整的数组中对象去重(未完成!!!!)
+
+```javascript
+//第一种
+function unique(arr) {
+	let unique = {};
+  arr.forEach(item => unique[JSON.stringify(item, Object.keys(item).sort())] = item)
+  return arr = Object.keys(unique).map(item => JSON.parse(item))
+}
+
+
+//第二种
+function unique(arr) {
+  let unique = {};
+  arr.forEach(item => unique[orderedJsonStringify(item)] = item);
+  return arr = Object.keys(unique).map(item => JSON.parse(item))
+}
+
+function orderedJsonStringify(item) {
+  return JSON.stringify(Object.keys(item).sort().reduce((acc, cur) => acc[cur] = item[cur]))
+}
+
+
+```
 
 
 
 
-### 4 使用场景
 
-#### 4.1.删除json中的转义字符右斜杠 ??
+#### 4. replacer函数的使用 ????
+
+还是上面这道题，我们可以在第二个参数上解决对象属性的顺序问题，给它加上一个数组['name','author']
+
+```javascript
+
+function unique(arr) {
+  let unique = {};
+  arr.forEach(item => unique[JSON.stringify(item, ['name', 'author'])] = item )
+  return arr = Object.keys(unique).map(item => JSON.parse(item));
+}
+```
+
+
+
+#### 5. 实现深拷贝 ????
+
+```javascript
+function deeppClone(data) {
+  return JSON.parse(JSON.stringify(data))
+}
+```
+
+
+
+#### 6. 判断数组是否包含某对象,或者判断对象是否相等
+
+```javascript
+//判断数组中是否包含某对象
+let data = [
+    {name:'echo'},
+    {name:'前端开发博客'},
+    {name:'蔡生'},
+    ],
+    val = {name:'蔡生'};
+JSON.stringify(data).indexOf(JSON.stringify(val)) !== -1;//true
+
+//判断两数组/对象是否相等
+let a = [1,2,3],
+    b = [1,2,3];
+JSON.stringify(a) === JSON.stringify(b);//true
+```
+
+
+
+
+
+
+
+### 5. 实例
+
+#### 1.删除json中的转义字符右斜杠 ??
 
 ```js
 JSON.stringify(data).toString.replace(new RegExp("\\\\\"","gm"),"\""))
@@ -14232,7 +14667,7 @@ JSON.stringify(data).toString.replace(new RegExp("\\\\\"","gm"),"\""))
 data.replaceAll('\\','');
 ```
 
-#### 4.2 判断对象/数组是否相等
+#### 2 判断对象/数组是否相等
 
 ```js
 let a = [1,2,3],
@@ -14245,7 +14680,7 @@ JSON.stringify(a) === JSON.stringify(b);// true
 
 
 
-#### 4.3 localStorage/sessionStorage存储对象
+#### 3 localStorage/sessionStorage存储对象
 
 >  localStorage/sessionStorage 只可以存储字符串，当我们想存储对象的时候，需要使用 JSON.stringify 转换成字符串，获取的时候再 JSON.parse
 
@@ -14263,7 +14698,7 @@ function getLocalStorage(key) {
 
 
 
-#### 4.4 实现对象深拷贝
+#### 4 实现对象深拷贝
 
 ```js
 无法实现对含有方法的对象的拷贝
@@ -14271,152 +14706,15 @@ function getLocalStorage(key) {
 
 
 
-#### 4.5 路由(浏览器地址)传参
+#### 5 路由(浏览器地址)传参
 
 因为浏览器传参只能通过字符串进行，所以也是需要用到 JSON.stringify
 
 
 
-### 闭包
+#### 6. 存储函数
 
-你可以在一个函数里面嵌套另外一个函数。嵌套（内部）函数对其容器（外部）函数是私有的。它自身也形成了一个闭包。一个闭包是一个可以自己拥有独立的环境与变量的表达式（通常是函数). 嵌套函数可以”继承“容器函数的参数和变量。换句话说，内部函数包含外部函数的作用域。
-
-由于内部函数可以访问外部函数的作用域，因此当内部函数生存周期大于外部函数时，外部函数中定义的变量和函数的生存周期将比内部函数执行时间长。当内部函数以某一种方式被任何一个外部函数作用域访问时，一个闭包就产生了
-
-可以总结如下:
-
-* 允许函数嵌套
-
-- 内部函数只可以在外部函数中访问
-- 内部函数形成了一个闭包：它可以访问外部函数的所有参数和变量及外部函数能访问的所有变量和函数，但是外部函数却不能使用它的参数和变量。
-
-
-
-#### 概要
-
-```JavaScript
-- 闭包就是能访问到外部函数变量的内部函数
-- 闭包可以用来将一些不愿意被别人访问的变量隐藏起来 //闭包的作用就是藏东西,暴露的东西使用返回值返回,缺点就是内存占用,可忽略
-- 闭包构成要素:
- 1. 必须有函数的嵌套
- 2. 内部函数要引用外部函数的变量
- 3. 必须将内部函数作为返回值返回  //不正确
- 
- 
-- 闭包的生命周期
- 闭包在外部函数调用时创建,调用一次产生一个
- 相同对象调用,形成闭包.
- 闭包在内部函数被垃圾回收时销毁.
-```
-
-
-
-```js
-//https://www.zhihu.com/question/460940032
-
-function createIncrement() {
-  let count = 0;
-  function increment() { 
-    count++;
-  }
-
-  let message = `Count is ${count}`;
-  function log() {
-    console.log(message);
-  }
- 
-  return [increment, log];
-}
-
-const [increment, log] = createIncrement();
-increment(); 
-increment(); 
-increment(); 
-log(); // 0
-
-
-在①处调用 createIncrement 时，②处的 message 实际上已经创建出来了，那就相当于是字符串不变量了
-把函数log写成:
-function log(){
-  console.log(`Count is ${count}`)
-}
-```
-
-![](https://pic1.zhimg.com/80/v2-c518a99960e698edba1c3dca36e11804_720w.jpg?source=1940ef5c)
-
-
-
-
-
-
-
-#### 保存变量
-
-一个闭包必须保存它可见作用域中所有参数和变量。因为每一次调用传入的参数都可能不同，每一次对外部函数的调用实际上重新创建了一遍这个闭包。只有当返回的嵌套函数没有再被引用时，内存才会被释放.
-
-
-
-#### 多层嵌套函数
-
-函数可以被多层嵌套。例如，函数A可以包含函数B，函数B可以再包含函数C。B和C都形成了闭包，所以B可以访问A，C可以访问B和A。因此，闭包可以包含多个作用域；他们递归式的包含了所有包含它的函数作用域。这个称之为**作用域链**
-
-```js
-function A(x){
-  function B(y){
-    function C(z){
-      console.log(x+y+z)
-    }
-    C(3);
-  }
-  B(2);
-}
-A(1)
-```
-
-#### 命名冲突🔸
-
-如果一个闭包的函数定义了一个和外部函数的某个变量名称相同的变量，那么这个闭包将无法引用外部函数的这个变量.
-
-当同一个闭包作用域下两个参数或者变量同名时，就会产生命名冲突。更近的作用域有更高的优先权，所以最近的优先级最高，最远的优先级最低。这就是作用域链。链的第一个元素就是最里面的作用域，最后一个元素便是最外层的作用域。
-
-```js
-function outside(){
-  var x = 5;
-  return function inside(x){
-    return x*2;
-  }
-}
-outside()(10); //20
-
-//解析:
-命名冲突发生在return x上，inside的参数x和outside变量x发生了冲突。这里的作用链域是{inside, outside, 全局对象}。因此inside的x具有最高优先权，返回了20（inside的x）而不是10（outside的x）
-```
-
-
-
-
-
-#### 案例
-
-```JavaScript
-创建一个函数,函数每次调用时,都显示它执行的叠加次数
-
-function outer(){
-    let times = 0;
-    function inner(){
-        times++;
-        alert(times);
-    }
-    return inner;  //返回值是内部函数,而不是调用内部函数
-}
-
-let result = outer()
-result();//outer()(); outer()()执行的是内部函数,故每次均为1;result()执行的是闭包函数,叠加
-
-result = null; //内部函数会被垃圾回收
-```
-
-
+> https://mp.weixin.qq.com/s/1Sbr_GGm5k-L0oq4_cfQ3w
 
 
 
@@ -14446,9 +14744,8 @@ console.log(person.name); //Kevin
 
 构造函数与原型
 
-* 每个函数都有一个 prototype 属性，函数的 prototype 属性指向了一个对象，这个对象正是调用该构造函数而创建的**实例**的原型。
- * 这个属性指向的是一个对象,这个对象就是 原型对象
- * 如果函数作为普通函数调用,则原型对象没有用
+* 每个函数都有一个 prototype 属性，函数的 prototype 属性指向了一个对象，这个对象正是调用该构造函数而创建的**实例**的原型对象
+ * 如果函数作为普通函数调用,则原型对象没有用;
  * 如果函数作为构造函数调用, 那么它所创建的对象都会由一个隐含的属性(__proto__)也指向该原型对象
  * 原型对象就相当于是一个公共区域,可以被类及该类的所有实例访问 //类-构造函数 实例-函数创建的对象
 
@@ -14502,7 +14799,7 @@ console.log(obj.name); //Kevin
 
 原型对象就是通过 Object 构造函数生成的，结合之前所讲，实例的 __proto__ 指向构造函数的 prototype ，所以我们再更新下关系图：
 
-![原型链](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype4.png)
+![prototyype](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/prototype4.3l1xwglbz600.png)
 
 ### 原型链
 
@@ -14522,7 +14819,7 @@ null代表什么？
 
 图中由相互关联的原型组成的链状结构就是原型链，也就是蓝色的这条线。
 
-#### 概述
+#### 原型链概述
 
 - 当我们要获取一个对象的属性时,浏览器会先在对象自身中寻找
 - 如果有则直接使用,如果没有则去对象的原型中寻找
@@ -14606,7 +14903,7 @@ console.log(friend.__proto__ === dog); //true
 console.log(Object.getPrototypeOf(friend) === dog); //true
 ```
 
-此示例没有通过调用Object.create()方法来创建friend对象，而是创建一个标准对象字面量，并将一个值赋给\_\_proto\_\_属性。换句话说，当使用Object.create()方法创建对象时，必须为所有其他对象属性指定完整的属性描述符。
+此示例没有通过调用Object.create()方法来创建friend对象，而是创建一个标准对象字面量，并将一个值赋给\_\_proto\_\_属性。<u>换句话说，当使用Object.create()方法创建对象时，必须为所有其他对象属性指定完整的属性描述符。 ????</u>
 
 
 
@@ -14670,29 +14967,4 @@ console.log(p.sayHello === p2.sayHello); //现在只有一个函数,故相等
 2.函数定义在外面,每一次都要赋值; //最好的方法是函数只创建一次,值只赋值一次
 
 ```
-
-
-
-#### 显式原型|隐式原型
-
-```JavaScript
-function Myclass(){}
-
-let mc = new Myclass();
-
-//Myclass.prototype  //显式原型
-//mc.__proto__	  // 隐式原型 隐藏属性尽量别用
-
-显示原型一定是通过类去访问的.显式原型是给类的实例去使用的
-Object.prototype
-Myclass.prototype
-
-隐式原型是通过实例对象来访问的,隐式原型是给实例自己用的
-
-实例的隐式原型指向类的显式原型
-
-实际工作中不要使用更改隐式原型
-```
-
-
 

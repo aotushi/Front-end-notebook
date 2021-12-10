@@ -1849,13 +1849,15 @@ if (map.count) {
 
 ECMAScript 6中新增的Set类型是一种**有序列表**，其中含有一些**相互独立的非重复值**，通过Set集合可以快速访问其中的数据，更有效地追踪各种离散值。
 
-ES6 新的数据结构 Set（集合）,它类似于数组，但**成员的值都是唯一的**，集合实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历，   无法使用普通for循环, 因为set是无序的.  集合是键值对形式,但是键值是一样的.?????
+ES6 新的数据结构 Set（集合）,它类似于数组，但**成员的值都是唯一的**，集合实现了iterator接口，所以可以使用『扩展运算符』和『for…of…』进行遍历，  集合是键值对形式,但是键值是一样的.
 
 
 
 #### 1. 创建Set集合
 
-**new Set()**
+初始化的2种方式:
+
+**1.new Set()**
 
 调用**new Set()**创建Set集合,调用**add()方法**向集合中添加元素，访问集合的**size属性**可以获取集合中目前的元素数量。
 
@@ -1865,7 +1867,21 @@ set.add(5);
 set.add('5');
 
 console.log(set.size); //2
+
+//Set(2) {5, '5'}
 ```
+
+
+
+##### 2. 使用数组
+
+```javascript
+new Set([1,2,3,4])
+```
+
+
+
+
 
 #### 2. 参数
 
@@ -1959,8 +1975,6 @@ console.log(set.size); //0
 ```javascript
 mySet.forEach((value, value, set) => {}, thisArg)
 ```
-
-
 
 forEach()方法的回调函数接收以下3个参数:
 
@@ -2127,6 +2141,8 @@ let arr = [1,2,3,4,1,2],
 		arr2 = [3,4,5,6,4,3];
 
 let result = [...new Set(arr)].filter(item => [...new Set(arr2)].some(item2 => item2 === item));
+
+let result = arr.filter(item => arr2.includes(item));
 ```
 
 

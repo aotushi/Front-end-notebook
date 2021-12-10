@@ -94,7 +94,7 @@ vscode chrome
 | 序号 | 名称                         | 来源                | 完成情况 |
 | ---- | ---------------------------- | ------------------- | -------- |
 | 1    | JS高级程序设计               | PDF/微信熟读/github | 进行中   |
-| 2    | 深入理解ES6                  | weread              | 进行中   |
+| 2    | 深入理解ES6                  | weread              | 基本完成 |
 | 3    | JavaScript DOM编程艺术       | weread              | 未开始   |
 | 4    | JavaScript设计模式           | weread              | 未开始   |
 | 5    | JavaScript框架设计           | weread              | 未开始   |
@@ -199,13 +199,16 @@ test
 
 
 
-| 序号 | 名称                              | 来源                                                         | 完成情况     |
-| ---- | --------------------------------- | ------------------------------------------------------------ | ------------ |
-| 1    | 前端使用书签                      | https://juejin.cn/post/6850037268963721230#heading-8         |              |
-| 2    | 飞书-笔记 🔺🔺                      | https://bytedance.feishu.cn/base/app8Ok6k9qafpMkgyRbfgxeEnet?table=tblEnSV2PNAajtWE&view=vewJHSwJVd | 知识点很全面 |
-| 3    | github                            | https://github.com/wangfupeng1988                            |              |
-| 4    | JS秘密花园                        | https://bonsaiden.github.io/JavaScript-Garden/zh/            |              |
-| 5    | clean-code-javascript(JS风格指南) | https://github.com/ryanmcdermott/clean-code-javascript       |              |
+| 序号 | 作者             | 名称                              | 来源                                                         | 完成情况   |
+| ---- | ---------------- | --------------------------------- | ------------------------------------------------------------ | ---------- |
+| 1    |                  | 前端使用书签                      | https://juejin.cn/post/6850037268963721230#heading-8         |            |
+| 2    | 未知             | 飞书-笔记 🔺🔺                      | https://bytedance.feishu.cn/base/app8Ok6k9qafpMkgyRbfgxeEnet?table=tblEnSV2PNAajtWE&view=vewJHSwJVd | 知识点总结 |
+| 3    | wangfupeng1988   | github                            | https://github.com/wangfupeng1988<br />https://juejin.cn/user/1714893868765373 | 知识点总结 |
+| 4    |                  | JS秘密花园                        | https://bonsaiden.github.io/JavaScript-Garden/zh/            | 博客       |
+| 5    |                  | clean-code-javascript(JS风格指南) | https://github.com/ryanmcdermott/clean-code-javascript       | 知识点     |
+| 6    | ssh_晨曦时梦见兮 | 写给女朋友的中级前端面试秘籍      | https://juejin.cn/post/6844904115428917255                   | 学习路径   |
+| 7    | ssh_晨曦时梦见兮 | 写给初中级前端的高级进阶指南      | https://juejin.cn/post/6844904103504527374<br />https://mp.weixin.qq.com/s/0jtVxlh-toEmNbwJpIfAuA | 学习路径   |
+|      |                  |                                   |                                                              |            |
 
 
 
