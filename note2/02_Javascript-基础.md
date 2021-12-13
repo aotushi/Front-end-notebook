@@ -329,6 +329,25 @@ b = 12; //相当于window.b = 12;
 
 ```
 
+变量赋值的实例
+
+```javascript
+var a = {n: 1}  
+var b = a;  
+a.x = a = {n: 2} 
+console.log(a.x);   
+console.log(b.x);
+
+简化:
+var a = {n:1}; //将变量a的值(地址)链接向对象的地址
+var b = a;	   //变量a赋值给变量b, 将变量b的值(地址)链接向对象的地址
+a.x = {n:2}; a = {n:2}; //第一句的意思是向a代表的对象{n:1}中添加新的属性,那么现在的对象就是{n:1,x:{n:2}}. 第二句的意思是将一个新的对象地址赋值给变量a,此时原变量a覆盖.
+
+console.log(a.x); //此时变量a指向的新对象中没有名为x的属性,所以返回undefined
+console.log(b.x); //{n:2}
+
+```
+
 
 
 ### let和var的区别
@@ -5294,80 +5313,63 @@ console.log(factorial(5)); //0
 
 #### this
 
+**定义**
+
+this是在执行上下文创建时确定的一个在执行过程中不可更改的变量.
+
+> 所谓**执行上下文**，就是JavaScript引擎在执行一段代码之前将代码内部会用到的一些**变量**、**函数**、**this**提前声明然后保存在变量对象中的过程。这个'代码片段'包括：**全局代码**(script标签内部的代码)、**函数内部代码**、**eval内部代码**。而我们所熟知的作用域链也会在保存在这里，以一个类数组的形式存储在对应函数的[[Scopes]]属性中。
+>
+> this只在函数调用阶段确定，也就是执行上下文创建的阶段进行赋值，保存在变量对象中。这个特性也导致了this的多变性:🙂即当函数在不同的调用方式下都可能会导致this的值不同
+>
+> 来源: https://juejin.cn/post/6844903488304971789
+
+**this的不同指向**
+
+* 以`函数`形式调用,非严格模式下指向`window`,严格模式为`undefined`
+* 以`方法`形式调用,this指向调用方法的`对象`
+* 以`构造函数`形式调用,this指向`实例`
+* 以`call/apply`形式调用, this是它们的`第一个参数`
+* 以`箭头函数`形式调用,this由`外层作用域`决定
+* 在`DOM事件`中,this指向当前触发事件的`事件源`
+
+
+
+**改变this指向的几种方式**
+
+* 箭头函数
+* 函数内部赋值`_this=this`
+* 使用`apply call bind`
+* 构造函数
+
+
+
+**箭头函数中的this详解**
+
+
+
+**实例**
+
+以函数形式调用
+
 ```javascript
-我们希望根据调用对象的不同，fn()函数打印的结果也不同
+let a = 1000,
+    obj = {
+      a: 1,
+      b: this.a + 1
+    };
 
-this是JS中的关键字，函数运行时自动生成的一个内部对象，只能在函数内部使用。
-在 函数 执行时，浏览器每次都会传递进一个隐含的参数,这个参数叫 this
-
-this永远指向最后调用它的那个对象。
-
-
-
-
-=======================1102日更新==============================
-# this到底是谁?
- 0.函数体中,简单调用该函数(非显示/隐式绑定下),严格模式下this绑定undefined,否则绑定到全局对象window/global
- 1.以函数形式调用,this是window
- 2.以方法形式调用,this就是调用方法的对象
- 3.以构造函数形式调用,this是新建的实例化对象(对象)
- 4.以call和apply调用,this是他们的第一个参数
- 5.箭头函数的this, 由外层作用域决定
- 6.this在dom事件(回调函数)中,指向当前触发事件的事件源
-
-//如何改变this指向
-1.ES6箭头函数
-2.函数内部的_this=this
-3.使用apply call bind
-4.构造函数
-```
-
-案例
-
-```javascript
-var name = '我是全局中的name';
-
-function fn(){
-    console.log(this.name);
-    //console.log(this); 看看这个隐含参数this的值是什么 谁调用打印的就是谁.例如fn()调用打印的是window
+function fun() {
+  let obj = {
+    a: 1,
+    c: this.a + 2
+  }
+  return obj.c;
 }
 
-let obj = {
-    name: 'swk',
-    sayHello: fn   //sayHello === fn  使用全等判断返回true
-};
-let obj2 = {
-    name: 'zbj',
-    sayHello: fn
-};
-
-console.log(fn === obj.sayHello); //true
-
-fn(); //以函数形式调用 this.name是'我是全局中的name'
-obj.sayHello(); //以方法形式调用, 'swk'
-obj2.sayHello();//以方法形式调用, 'zbj'
-```
-
-案例2
-
-```JavaScript
-var a = {n: 1}  
-var b = a;  
-a.x = a = {n: 2} 
-console.log(a.x);   
-console.log(b.x);
-
-简化:
-var a = {n:1}; //将变量a的值(地址)链接向对象的地址
-var b = a;	   //变量a赋值给变量b, 将变量b的值(地址)链接向对象的地址
-a.x = {n:2}; a = {n:2}; //第一句的意思是向a代表的对象{n:1}中添加新的属性,那么现在的对象就是{n:1,x:{n:2}}. 第二句的意思是将一个新的对象地址赋值给变量a,此时原变量a覆盖.
-
-console.log(a.x); //此时变量a指向的新对象中没有名为x的属性,所以返回undefined
-console.log(b.x); //{n:2}
+console.log(func()); //
+console.log(obj.b); //
 
 ```
-
-案例3
 
 ```JavaScript
 var x= 0;
@@ -5394,7 +5396,25 @@ baz : f
 
 ```
 
- **this指向实例**
+ 
+
+以对象方法形式调用
+
+```javascript
+var a = 1;
+var obj = {
+  a: 2,
+  b: function() {
+    return this.a;
+  }
+}
+var t = obj.b;
+console.log(t());//
+```
+
+
+
+以构造函数形式调用
 
 ```js
 来源: https://segmentfault.com/a/1190000002640298
@@ -5408,8 +5428,8 @@ function Thing(){
 Thing.prototype.foo = 'bar';
 
 var thing = new Thing();
-console.log(thing.foo); //bar
-
+console.log(thing.foo);
+//'bar'
 =======================================================
 构造函数创建多个实例,实例会共享prototype值. 实例
 function Thing(){}
@@ -6493,29 +6513,6 @@ let MyType = () => {},
 ```
 
 
-
-```JavaScript
-this:
-根据函数的调用方式不同,this的值也不同:
-1.以函数方式调用时,this是window
-2.以方法形式调用时,this就是调用方法的对象
-3.以构造函数形式调用时,this就是新创建的对象
-4.以call和apply形式调用,this是它们的第一个参数
-5.箭头函数this, 由外层作用域决定
-
-function fn(){
-    alert(this); //window
-}
-fn();
-
-let obj = {
-    name:'孙悟空',
-    sayHello:function(){
-        alert(this); //obj
-    }
-};
-obj.say.Hello();
-```
 
 
 
