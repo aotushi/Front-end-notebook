@@ -350,7 +350,7 @@ console.log(b.x); //{n:2}
 
 
 
-### let和var的区别
+### let,const和var的区别
 
 #### 4点区别
 
@@ -717,6 +717,8 @@ Note: 如果希望在全局对象下定义变量，仍然可以使用var。这�
 
 
 ### 数据类型(字面量的类型)++
+
+> https://juejin.cn/post/6844903854882947080
 
 > 数据类型就是字面量的类型
 >
@@ -7484,27 +7486,27 @@ function factorial(n, p = 1) {
 
 #### 1. 空元素empty和undefined的区别
 
+**介绍**
+
 使用数组字面量初始化数组时，可以使用一串逗号来创建空位（hole）。ECMAScript 会将逗号之间相应索引位置的值当成空位，ES6 规范重新定义了该如何处理这些空位。
 
-ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异
+**ES5和ES6的不同表现**
 
-注意: 
+ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异.
 
-注意 由于行为不一致和存在性能隐患，因此实践中要避免使用数组空位。<u>如果确实需要空位，则可以显式地用undefined 值代替。</u>
+ES6 则是明确将空位转为`undefined`，包括`Array.from`、`Array.of`,  扩展运算符、`copyWithin()`、`fill()`、`entries()`、`keys()`、`values()`、`find()`和`findIndex()`
 
-```js
-
+```javascript
+//ES5 的方法则会忽略这个空位，但具体的行为也会因方法而异：
 
 const options = [1,,,,5];
-for (const option of options) {
-  console.log(option === undefined);
-}
-// false
-// true
-// true
-// true
-// false
+// map()会跳过空位置
+console.log(options.map(() => 6)); // [6, undefined, undefined, undefined, 6]
+// join()视空位置为空字符串
+console.log(options.join('-')); // "1----5"
 
+
+//ES6
 const a = Array.from([,,,]); // 使用ES6 的Array.from()创建的包含3 个空位的数组
 for (const val of a) {
   alert(val === undefined);
@@ -7522,14 +7524,22 @@ for (const [index, value] of options.entries()) {
 // undefined
 // 5
 
-ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异：
 
+//其他
 const options = [1,,,,5];
-// map()会跳过空位置
-console.log(options.map(() => 6)); // [6, undefined, undefined, undefined, 6]
-// join()视空位置为空字符串
-console.log(options.join('-')); // "1----5"
+for (const option of options) {
+  console.log(option === undefined);
+}
+// false
+// true
+// true
+// true
+// false
 ```
+
+**实践使用**
+
+注意 由于行为不一致和存在性能隐患，因此实践中要避免使用数组空位。<u>如果确实需要空位，则可以显式地用undefined 值代替。</u>
 
 
 
@@ -7644,7 +7654,7 @@ let values = [1,2,]; // 创建一个包含2 个元素的数组
 
 
 
-#### 3.ES6Array的静态方法
+#### 3.ES6Array构造函数方法
 
 Array 构造函数还有两个ES6 新增的用于创建数组的静态方法：from()和of()。from()用于将类数组结构转换为数组实例，而of()用于将一组参数转换为数组实例。
 
@@ -7706,7 +7716,7 @@ let items = createArray(Array.of, value);
 
 > JavaScript不支持直接将非数组对象转换为真实数组，arguments就是一种类数组对象，如果要把它当作数组使用则必须先转换该对象的类型
 >
-> Array.from()方法可以接受**可迭代对象或类数组对象**作为第一个参数，最终返回一个新的数组
+> Array.from()方法可以接受**可迭代对象或类数组对象**作为第一个参数，最终返回一个新的数组.可迭代对象包括ES6新增的Set,Map类型
 >
 > 注意: Array.from()方法也是通过this来确定返回数组的类型的。(?)
 
@@ -9869,7 +9879,7 @@ arr.every(callback(element[, index[, array]])[, thisArg])
 
 
 
-#### find()/findIndex()
+#### ES6-find()/findIndex()
 
 ##### 概况
 
@@ -9913,7 +9923,7 @@ console.log(array1.findIndex(isLargeNumber));
 
 
 
-#### fill()
+#### ES6-fill()
 
 **定义**
 
@@ -9972,7 +9982,7 @@ arr[0].hi = "hi"; // [{ hi: "hi" }, { hi: "hi" }, { hi: "hi" }]
 
 
 
-#### copyWith()
+#### ES6-copyWith()
 
 copyWithin()方法与fill()方法相似，其也可以同时改变数组中的多个元素。fill()方法是将数组元素赋值为一个指定的值，而copyWithin()方法则是从数组中复制元素的值。调用copyWithin()方法时需要传入两个参数：一个是该方法开始填充值的索引位置，另一个是开始复制值的索引位置。
 
@@ -10004,7 +10014,7 @@ console.log(numbers.toString()); //1,2,1,4
 
 
 
-#### includes()
+#### ES6-includes()
 
 **定义**
 
@@ -10060,7 +10070,7 @@ Object.is(0, -0); //false
 
 
 
-#### flat()
+#### ES6-flat()
 
 **定义**
 
@@ -10158,7 +10168,7 @@ function flatDepth(arr) {
 
 
 
-#### keys()
+#### ES6-keys()
 
 **定义**
 
@@ -10188,7 +10198,7 @@ console.log(denseKeys);  // [0, 1, 2]
 
 
 
-#### values()
+#### ES6-values()
 
 **定义**
 
@@ -10251,7 +10261,7 @@ console.log(letter);
 
 
 
-#### entries()
+#### ES6-entries()
 
 **定义**
 
@@ -13698,10 +13708,11 @@ function setCookie(name, value, {
 
 ### 0.教程
 
-| 序号 | 名称                     | 来源                                                         |
-| ---- | ------------------------ | ------------------------------------------------------------ |
-| 1    | LEARN REGEX THE EASY WAY | [github](https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md) |
-| 2    | MDN                      | MDN                                                          |
+| 序号 | 名称                                  | 来源                                                         |
+| ---- | ------------------------------------- | ------------------------------------------------------------ |
+| 1    | LEARN REGEX THE EASY WAY              | [github](https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md) |
+| 2    | MDN                                   | MDN                                                          |
+|      | https://github.com/cdoco/common-regex |                                                              |
 
 
 
@@ -14825,9 +14836,7 @@ null代表什么？
 
 #### 使用
 
-- 可以将对象中公有的属性(方法)统一存储在原型对象中
-- 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
-
+- 可以将对象中公有的属性(方法)统一存储在原型对象中. 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
 - 以后在创建构造函数时,
  对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
   对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx

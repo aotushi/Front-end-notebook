@@ -4470,92 +4470,109 @@ https://segmentfault.com/a/1190000039310119#:~:text=%E6%B5%85%E6%8B%B7%E8%B4%9D%
 
 
 
-### 深拷贝浅拷贝比较
+### 赋值,深拷贝浅,拷贝比较
 
-| -      | 和原数据是否指向同一对象 | 内存共享               | 修改1个的影响          |
-| ------ | ------------------------ | ---------------------- | ---------------------- |
-| 赋值   | 是                       | 改变会使原数据一同改变 | 改变会使原数据一同改变 |
-| 浅拷贝 | 否                       | 新旧对象共享内存       | 会影响另一个           |
-| 深拷贝 | 否                       | 新旧对象不共享内存     | 不会影响另一个         |
+这三者的区别如下，不过比较的前提都是**针对引用类型**：
 
+- 当我们把一个对象赋值给一个新的变量时，**赋的其实是该对象的在栈中的地址，而不是堆中的数据**。也就是两个对象指向的是同一个存储空间，无论哪个对象发生改变，其实都是改变的存储空间的内容，因此，两个对象是联动的。
+- 浅拷贝：重新在堆中创建内存，拷贝前后对象的基本数据类型互不影响，但拷贝前后对象的引用类型因共享同一块内存，会相互影响。
+- 深拷贝：从堆内存中开辟一个新的区域存放新对象，对对象中的子对象进行递归拷贝,拷贝前后的两个对象互不影响。
 
-
-![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/3/1/170965259fb768fd~tplv-t2oaga2asx-watermark.awebp)
-
-![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2020/3/1/1709652a7948d1b8~tplv-t2oaga2asx-watermark.awebp)
 
 
 
 ### 浅拷贝
 
-> 拷贝一般是拷贝==数组和对象==,很少涉及基本数据类型.  浅拷贝和深拷贝的区别, 新对象和旧对象是否还有联系.如果更改新对象, 旧对象也发生了变化.这就是浅拷贝.
->
-> 深拷贝与浅拷贝的概念只存在与引用数据类型.
+#### 定义
 
-```js
-ECMAScript变量包含两种不同数据类型的值:[基本数据类型]和[引用数据类型].
-基本数据类型:名值存储于栈内存中;
-引用数据类型:名存储于栈内存中,值存储与堆内存中.但是栈内存会提供一个引用地址指向堆内存中的值.
-基本数据类型有:Boolean,Number,String,Symbol,Null,Undefined.
-引用数据类型有:Object,Array,Function,RegExp,Date.
-=============================================================================
-- 拷贝就是复制, 对象和数组
-- 浅拷贝: 更改拷贝对象后, 被拷贝对象也会发生变化;
-- 深拷贝: 更改拷贝对象后, 被拷贝对象不会发生变化;
+#### 实现方式
 
-1.直接赋值
-let arr = [1,2,3,4]
-let result = arr;
-result[0]='000'; //更改拷贝对象, 被拷贝对象arr也会发生变化
+* Object.assign
+* Array.prototype.slice()
+* Array.prototype.concat()
+* 扩展运算符实现的复制
+* 函数库lodash的_.clone方法
 
-2.数组复制(concat,slice, ...扩展运算符) 只能实现一维数组的深拷贝
-const arr = [1,2,3,{name: 'atguigu'}];
+#### 实现方式案例
 
-2.1 concat
-const arr2 = [].concat(arr);
-let result = arr;
-result[3].name='美国硅谷';
+`Object.assign()`
 
-console.log(arr);//arr改变
-
-2.2 slice
-const result = arr.slice(0);
-result[3].name = '美国硅谷';
-
-console.log(arr);//arr改变
-
-2.3 扩展运算符 //扩展运算符拷贝数组的时候,如果数组里有对象.更改拷贝后的数组,原数组也会发生变化.如果数组都是基本数据类型, 数字是基本数据类型,不可变.对象是引用类型,引用的地址.
-const arr = [1,2,3,{name: 'guigu'}];
-const result =[...arr];
-result[3].name = '美国硅谷1';
-console.log(arr);//美国硅谷1
-
-//扩展运算符 搭配
-const arrOld = ['a', 'b', 'c'];
-const arrNew = [...arrOld];
-console.log(arrOld === arrNew);//false
-arrNew[0]='d';
-console.log(arrOld);//['a', 'b', 'c']; 原数组不会发生变化
-    
-
-
-
-
-===================================================================
-3. 对象复制 Object.assign方法 //只能实现一维对象的深拷贝
-const school={
-    name: '美国硅谷',
-    pos: ['北京','上海','深圳'],
-    founder: {
-        name:'刚哥',
-        age: 45
-    }
+```javascript
+let obj = {
+  age: 18,
+  natrue: ['smart', 'good'],
+  names: {
+    name1: 'fx',
+    name2: 'xka'
+  },
+  love: function() {
+    console.log('fx is a great girl')
+  }
 };
-const result = Object.assign({}, school);
-result.pos[0]='beijing';
-console.log(school);//scholl.pos[0]发生变化
 
+let newObj = Object.assign({}, obj)
+newObj.names.name1 = 'fx2';
+
+console.log(obj.names.name1); //'fx2'
 ```
+
+`Array.prototype.slice()`
+
+```javascript
+let arr = [
+  {item1: 'a', item2: 'b'},
+  {item2: 'c', item2: 'd'}
+];
+
+let newArr = arr.slice();
+newArr[0].item1 = 'aa';
+
+console.log(arr[0].item1); //'aa'
+```
+
+`Array.prototype.concat()`
+
+```javascript
+let arr = [1, 3, {
+    username: 'kobe'
+    }];
+let arr2 = arr.concat();    
+arr2[2].username = 'wade';
+console.log(arr); //[ 1, 3, { username: 'wade' } ]
+```
+
+`扩展运算符`
+
+```javascript
+//obj
+let obj1 = { name: 'Kobe', address:{x:100,y:100}}
+let obj2= {... obj1}
+obj1.address.x = 200;
+obj1.name = 'wade'
+console.log('obj2',obj2) // obj2 { name: 'Kobe', address: { x: 200, y: 100 } }
+
+//array
+let arr1 = [1,2,{a: {b: 3}}];
+let arr2 = [...arr1];
+arr1[2].a.b = 4;
+console.log(arr2[2].a.b); //4
+```
+
+`_.clone`
+
+```javascript
+let _ = require('lodash');
+let obj1 = {
+  a: 1,
+  b: {f: {g: 1}},
+  c: [1,2,3]
+};
+
+let obj2 = _.clone(obj1);
+console.log(obj1.b.f === obj2.b.f); //true
+```
+
+
 
 
 
@@ -4563,9 +4580,83 @@ console.log(school);//scholl.pos[0]发生变化
 
 ### 深拷贝-JSON
 
-> 使用JSON实现深拷贝.   
->
-> JSON深拷贝缺点: 无法拷贝对象里的方法
+#### 定义
+
+#### 实现方式
+
+* _.cloneDeep()
+
+* Jquery.extend()
+
+* 递归手写
+
+* JSON.parse(JSON.stringify())
+
+  
+
+#### 实现方式案例
+
+`_.cloneDeep()`
+
+```javascript
+let _ = require(lodash);
+let obj1 = {
+  a: 1,
+  b: {f: {g: 1}},
+  c: [1,2,3]
+};
+let obj2 = _.cloneDeep(obj1);
+console.log(obj1.b.f === obj2.b.f); //false
+```
+
+`Jquery.extend()`
+
+```javascript
+$.extend(deepCopy, target, object1, [bojectN]); 
+
+let $ = require('jquery');
+let obj1 = {
+  a: 1,
+  b: {f: {g: 1}},
+  c: [1,2,3]
+};
+let obj2 = $.extend(true, {}, obj1);
+console.log(obj1.b.f === obj2.b.f); //false
+```
+
+`手写递归`
+
+递归方法实现深度克隆原理：**遍历对象、数组直到里边都是基本数据类型，然后再去复制，就是深度拷贝**。
+
+> 来源: https://segmentfault.com/a/1190000020255831  
+
+```javascript
+//对象和数组的深拷贝
+
+function cloneDeep(target, map = new WeakMap()) {
+  if (typeof target === 'object') {
+    let cloneTarget = Array.isArray(target) ? [] : {};
+    
+    if (map.get(target)) {
+      return map.get(target);
+    }
+    map.set(target, cloneTarget);
+    
+    for (const key in target) {
+      cloneTarget[key] = cloneDeep(target[key]);
+    }
+    
+    return cloneTarget;
+    
+  } else {
+    return target;
+  }
+}
+
+//
+```
+
+
 
 #### 1. JSON方式
 

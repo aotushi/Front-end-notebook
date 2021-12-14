@@ -199,16 +199,40 @@ test
 
 
 
-| 序号 | 作者             | 名称                              | 来源                                                         | 完成情况   |
-| ---- | ---------------- | --------------------------------- | ------------------------------------------------------------ | ---------- |
-| 1    |                  | 前端使用书签                      | https://juejin.cn/post/6850037268963721230#heading-8         |            |
-| 2    | 未知             | 飞书-笔记 🔺🔺                      | https://bytedance.feishu.cn/base/app8Ok6k9qafpMkgyRbfgxeEnet?table=tblEnSV2PNAajtWE&view=vewJHSwJVd | 知识点总结 |
-| 3    | wangfupeng1988   | github                            | https://github.com/wangfupeng1988<br />https://juejin.cn/user/1714893868765373 | 知识点总结 |
-| 4    |                  | JS秘密花园                        | https://bonsaiden.github.io/JavaScript-Garden/zh/            | 博客       |
-| 5    |                  | clean-code-javascript(JS风格指南) | https://github.com/ryanmcdermott/clean-code-javascript       | 知识点     |
-| 6    | ssh_晨曦时梦见兮 | 写给女朋友的中级前端面试秘籍      | https://juejin.cn/post/6844904115428917255                   | 学习路径   |
-| 7    | ssh_晨曦时梦见兮 | 写给初中级前端的高级进阶指南      | https://juejin.cn/post/6844904103504527374<br />https://mp.weixin.qq.com/s/0jtVxlh-toEmNbwJpIfAuA | 学习路径   |
-|      |                  |                                   |                                                              |            |
+| 序号 | 作者                                     | 名称                                                         | 来源                                                         | 完成情况   |
+| ---- | ---------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------- |
+| 1    |                                          | 前端使用书签                                                 | https://juejin.cn/post/6850037268963721230#heading-8         |            |
+| 2    | 未知                                     | 飞书-笔记 🔺🔺                                                 | https://bytedance.feishu.cn/base/app8Ok6k9qafpMkgyRbfgxeEnet?table=tblEnSV2PNAajtWE&view=vewJHSwJVd | 知识点总结 |
+| 3    | wangfupeng1988                           | github                                                       | https://github.com/wangfupeng1988<br />https://juejin.cn/user/1714893868765373 | 知识点总结 |
+| 4    |                                          | JS秘密花园                                                   | https://bonsaiden.github.io/JavaScript-Garden/zh/            | 博客       |
+| 5    |                                          | clean-code-javascript(JS风格指南)                            | https://github.com/ryanmcdermott/clean-code-javascript       | 知识点     |
+| 6    | ssh_晨曦时梦见兮                         | 写给女朋友的中级前端面试秘籍                                 | https://juejin.cn/post/6844904115428917255                   | 学习路径   |
+| 7    | ssh_晨曦时梦见兮                         | 写给初中级前端的高级进阶指南                                 | https://juejin.cn/post/6844904103504527374<br />https://mp.weixin.qq.com/s/0jtVxlh-toEmNbwJpIfAuA | 学习路径   |
+| 8    | ljianshu                                 | Blog                                                         | https://github.com/ljianshu/Blog                             | 知识点总结 |
+| 9    |                                          | 现代 JavaScript 教程                                         | https://zh.javascript.info/                                  | 教程       |
+|      |                                          | blog                                                         | https://github.com/forthealllight/blog                       | 博客       |
+|      |                                          | 前端精度                                                     | https://github.com/ascoders/weekly                           | 博客       |
+|      |                                          | js-paradise                                                  | https://github.com/abc-club/js-paradise                      | 博客       |
+|      |                                          | JavaScript-Algorithms                                        | https://github.com/sisterAn/JavaScript-Algorithms            |            |
+|      |                                          | 移动端问题                                                   | https://github.com/RubyLouvre/mobileHack                     |            |
+|      |                                          | [awesome-javascript](https://github.com/sorrycc/awesome-javascript) | https://github.com/sorrycc/awesome-javascript                |            |
+|      |                                          | **[blog](https://github.com/fouber/blog)**                   | https://github.com/fouber/blog                               |            |
+|      |                                          | 冴羽博客                                                     | https://github.com/mqyqingfeng/Blog                          |            |
+|      |                                          | 前端书签                                                     | https://github.com/PanJiaChen/awesome-bookmarks              |            |
+|      |                                          | 学习nodejs                                                   | https://github.com/i5ting/How-to-learn-node-correctly        |            |
+|      |                                          | todo案例                                                     | https://github.com/liangxiaojuan/vue-todos                   |            |
+|      |                                          | css案例                                                      | https://github.com/chokcoco/magicCss                         |            |
+|      |                                          | css效果                                                      | https://github.com/chokcoco/iCSS                             |            |
+|      |                                          | css案例                                                      | https://github.com/chokcoco/CSS-Inspiration                  |            |
+|      |                                          | blog                                                         | https://github.com/brickspert/blog                           |            |
+|      |                                          | [react-native-guide](https://github.com/reactnativecn/react-native-guide) | https://github.com/reactnativecn/react-native-guide          |            |
+|      |                                          | [mysql-tutorial](https://github.com/jaywcjlove/mysql-tutorial) | https://github.com/jaywcjlove/mysql-tutorial                 |            |
+|      |                                          | **[Developer-Zero-To-Mastery](https://github.com/wx-chevalier/Developer-Zero-To-Mastery)** | https://github.com/wx-chevalier/Developer-Zero-To-Mastery    |            |
+|      |                                          | blog                                                         | https://github.com/jawil/blog                                |            |
+|      |                                          | **[the-front-end-knowledge-you-may-not-know](https://github.com/justjavac/the-front-end-knowledge-you-may-not-know)** | https://github.com/justjavac/the-front-end-knowledge-you-may-not-know |            |
+|      | haizlin                                  | **[fe-interview](https://github.com/haizlin/fe-interview)**  | https://github.com/haizlin/fe-interview<br />[www.h-camel.com](http://www.h-camel.com/) |            |
+|      | [shanyue](https://github.com/shfshanyue) | [Daily-Question](https://github.com/shfshanyue/Daily-Question) | https://github.com/shfshanyue/Daily-Question                 |            |
+|      |                                          | 干爆前端                                                     | https://jsgodroad.com/questions/                             |            |
 
 
 
@@ -216,11 +240,11 @@ test
 
 正在学习的有:
 
-| 序号    | 名称                              | 频率          |
-| ------- | --------------------------------- | ------------- |
-| 1       | JS高级程序设计                    | 日常          |
-| 2       | 深入理解ES6                       |               |
-| 3       | codeWars   lodash                 | 日常          |
-| 4       | Vue文档 Vue课程  下一步是项目     | 重要紧急+日常 |
-| 5(辅助) | 现代JavaScript教程 + mdn+飞书笔记 |               |
+| 序号    | 名称                              | 频率     |
+| ------- | --------------------------------- | -------- |
+| 1       | JS高级程序设计                    | 日常     |
+| 2       | 深入理解ES6                       | 基本完成 |
+| 3       | codeWars   lodash                 | 日常     |
+| 4       | Vue文档 Vue课程  下一步是项目     | 日常     |
+| 5(辅助) | 现代JavaScript教程 + mdn+飞书笔记 |          |
 
