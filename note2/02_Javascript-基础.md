@@ -356,7 +356,7 @@ console.log(b.x); //{n:2}
 
 * 1.let声明的变量有块作用域,var声明的变量没有
 * 2.let不能在初始化前访问变量 var可以
-* 3.var声明的全局变量会添加到window对象中,let声明的不会
+* 3.var声明的全局变量会添加到window对象中; let或const不能覆盖全局变量只能遮蔽它
 * 4.let不能重复声明变量 var可以
 
 常量声明const、类声明class在块级作用域上的特性与let声明是类似的
@@ -367,7 +367,7 @@ console.log(b.x); //{n:2}
 
 #### 1. var声明及变量提升（Hoisting）机制
 
-> 在函数作用域或全局作用域中通过关键字var声明的变量，无论实际上是在哪里声明的，都会被当成在当前作用域顶部声明的变量，这就是我们常说的提升（Hoisting）机制。
+在函数作用域或全局作用域中通过关键字var声明的变量，无论实际上是在哪里声明的，都会被当成<u>在当前作用域顶部</u>声明的变量，这就是我们常说的提升（Hoisting）机制。
 
 ```javascript
 function getValue(condition) {
@@ -398,7 +398,7 @@ function getValue(condition) {
 }
 ```
 
-变量value的声明被提升至函数顶部，而初始化操作依旧留在原处执行，这就意味着在else子句中也可以访问到该变量，且由于此时变量尚未初始化，所以其值为undefined. ECMAScript 6引入块级作用域来强化对变量生命周期的控制。
+<u>变量value的声明被提升至函数顶部，而初始化操作依旧留在原处执行，这就意味着在else子句中也可以访问到该变量，且由于此时变量尚未初始化，所以其值为undefined.</u>   ECMAScript 6引入块级作用域来强化对变量生命周期的控制。
 
 #### 2. 块级声明
 
@@ -483,13 +483,11 @@ person = {
 
 ##### 2.3 const & let
 
-```js
 1.都是块级标识符，只在当前代码块内有效，一旦执行到块外汇立即被销毁；
-2.在同一作用域声明已经存在的标识符会导致语法错误，无论标识符是使用var(全局或函数),还是let(块级作用域)声明的。
+2.在同一作用域声明已经存在的标识符会导致语法错误，<u>无论标识符是使用var(全局或函数),还是let(块级作用域)声明的</u>。3.无论是否是严格模式，都不能为const定义的常量再赋值
+4.JS中的常量如果是对象，则对象的值可以修改;const声明不允许修改绑定,但允许修改绑定的值
 
-3.无论是否是严格模式，都不能为const定义的常量再赋值
-4.JS中的常量如果是对象，则对象的值可以修改
-```
+
 
 
 
@@ -2766,13 +2764,63 @@ switch (num) {
 
 
 
-### 循环语句
-
-> 循环语句可以让指定的代码反复执行多次
 
 
+### break和continue
 
-#### while循环
+概要
+
+```JavaScript
+- break
+* break可以用来结束 switch和循环语句,不能用在if语句中
+* break一旦执行,循环会立即结束
+* break会离它最近的循环起作用
+
+- continue
+* continue用来跳过当次循环
+```
+
+
+
+
+
+continue案例
+
+```JavaScript
+for(let i=0; i<5; i++){
+    console.log('外层循环: ',i)
+    for(let j=0; j<5; j++){
+        if(j==2){
+            continue;
+        }
+        console.log('\t内层循环: ',j)
+    }
+}
+```
+
+break案例
+
+```JavaScript
+for(i=0; i<5; i++){
+    console.log('外层循环: ',i);
+    for(j=0; j<5; j++){
+        if(j==2){
+            break;            //break不能用在if语句中,但是可以用在for循环里.
+        }
+        console.log('\t内层循环: ',j);
+    }
+}
+```
+
+
+
+
+
+## 迭代器
+
+
+
+### while循环
 
 语法:
 
@@ -2814,9 +2862,7 @@ while(i < 5){
 
 
 
-### 循环语句
-
-#### do-while循环
+### do-while循环
 
 语法:
 
@@ -3172,51 +3218,49 @@ for(i=2; i<100; i++){   //获取100以内所有的数
 
 
 
-### break和continue
+### for...in
 
-概要
+#### define
 
-```JavaScript
-- break
-* break可以用来结束 switch和循环语句,不能用在if语句中
-* break一旦执行,循环会立即结束
-* break会离它最近的循环起作用
+无序遍历对象的可枚举属性。语句针对每个唯一的属性
 
-- continue
-* continue用来跳过当次循环
-```
+#### parameter
 
-
-
-
-
-continue案例
-
-```JavaScript
-for(let i=0; i<5; i++){
-    console.log('外层循环: ',i)
-    for(let j=0; j<5; j++){
-        if(j==2){
-            continue;
-        }
-        console.log('\t内层循环: ',j)
-    }
+```javascript
+for (variable in object) {
+  //statement
 }
 ```
 
-break案例
+`variable` 每个迭代中对象里声明的不同属性名
 
-```JavaScript
-for(i=0; i<5; i++){
-    console.log('外层循环: ',i);
-    for(j=0; j<5; j++){
-        if(j==2){
-            break;            //break不能用在if语句中,但是可以用在for循环里.
-        }
-        console.log('\t内层循环: ',j);
-    }
+`object`  不含有Symbol属性且迭代可枚举属性的对象
+
+#### description
+
+* `for...in`循环只能迭代可枚举非Symbol属性
+* 被内建构造函数创建的对象,例如`Array`, `Object`会从`Object.prototype`和`String.prototype`继承非枚举的属性,例如字符串的`Indexof`方法或者对象的`toString()`方法.
+* 循环将会迭代对象自己和从原型链继承的所有的可枚举属性
+* 此循环以无序的方式迭代对象的属性
+  * 如果在一次迭代中更改一个属性并随后会访问它,那么它在循环中的值
+
+
+
+```javascript
+//如果Object.create(null)  字面量形式是构造函数的语法糖
+Object.prototype.pro = 'val';
+let obj = Object.create(null);
+obj.a = 'a';
+for (let i in obj) {
+  console.log(i); //'a'
 }
 ```
+
+
+
+
+
+### for...of
 
 
 
@@ -3257,22 +3301,44 @@ console.timeEnd();
 
 
 
-#### JS中如何跳出循环/结束遍历
+### JS中如何跳出循环/结束遍历
 
 > https://segmentfault.com/a/1190000020176190
 >
 > https://juejin.cn/post/6844904032071319565
 
-| 序号 | 方法          | break  | continue     | return       | return true  | return false |
-| ---- | ------------- | ------ | ------------ | ------------ | ------------ | ------------ |
-| 1    | for循环       | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |
-| 2    | for...in      | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |
-| 3    | Array.forEach | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
-| 4.   | Array.map     | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
-| 5    | Array.some    | 不合法 | 不合法       | 跳出本次循环 | 成功         | 跳出本次循环 |
-| 6    | Array.every   | 不合法 | 不合法       | 成功         | 跳出本次循环 | 成功         |
-| 7    | Array.filter  | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |
-| 8    | for...of      |        |              | 跳出循环     |              |              |
+| 序号 | 方法          | break  | continue     | return       | return true  | return false | throw |
+| ---- | ------------- | ------ | ------------ | ------------ | ------------ | ------------ | ----- |
+| 1    | for循环       | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |       |
+| 2    | for...in      | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |       |
+| 3    | Array.forEach | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |       |
+| 4.   | Array.map     | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |       |
+| 5    | Array.some    | 不合法 | 不合法       | 跳出本次循环 | 成功         | 跳出本次循环 |       |
+| 6    | Array.every   | 不合法 | 不合法       | 成功         | 跳出本次循环 | 成功         |       |
+| 7    | Array.filter  | 不合法 | 不合法       | 跳出本次循环 | 跳出本次循环 | 跳出本次循环 |       |
+| 8    | for...of      | √      | √            | √            |              |              | √     |
+
+
+
+**其他问题**
+
+* `for...of`循环单独使用return会报错: `Uncaught SyntaxError: Illegal return statement`
+  * 测试环境: Chrome浏览器
+
+​	
+
+```javascript
+for (let [key, value] of Object.entries({a: 1, b: 2})) {
+  if (key === 'a') return 'a'; //报错
+}
+
+//解决: 添加到函数中
+(() => {
+  for (let [key, value] of Object.entries({a: 1, b: 2})) {
+    if (key === 'a') return 'a'; //打印'a'
+  }
+})()
+```
 
 
 
@@ -4599,6 +4665,50 @@ for (let i in obj) {
 const obj = { foo: 'bar', baz: 42 };  
 const map = new Map(Object.entries(obj));  
 map
+```
+
+
+
+#### 1. 比较两个对象相同属性的值是否不同
+
+```javascript
+let obj1 = {a: 1, b: 2, c: 3},
+    obj2 = {b: 1, a: 1, c: 3};
+
+for (const [key, value] of Object.entries(obj1)) {
+  if (obj2[key] !== value) return false  
+}
+
+//报错信息: Uncaught SyntaxError: Illegal return statement
+//return只能在函数中使用
+```
+
+
+
+#### 2. 去重数组中的对象
+
+```javascript
+let arr = [{a: 1, b: 2}, {a: 1, b: 2}, {b:1, a: 2}, {c: 3, d: 4}];
+
+//条件: keys长度是否相同, a[key]等于b的value
+//先判断属性值为基本类型
+
+let result = arr.reduce((acc, cur) => {
+  
+ let selectVal = acc.some(item => {
+   
+   let lenIsSame = Object.keys({...item, ...cur}).length === Object.keys(cur).length,
+       valIsSame = Object.entries(item).every(([key, value]) => cur[key] === value);
+   
+   return lenIsSame && valIsSame;
+ });
+  
+ if (!selectVal) {
+   acc.push(cur);
+ }
+  
+ return acc;
+}, [arr[0]])
 ```
 
 
