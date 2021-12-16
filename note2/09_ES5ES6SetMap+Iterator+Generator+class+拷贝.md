@@ -4624,14 +4624,16 @@ let obj2 = $.extend(true, {}, obj1);
 console.log(obj1.b.f === obj2.b.f); //false
 ```
 
-`手写递归`
+`手写递归-A1`
 
 递归方法实现深度克隆原理：**遍历对象、数组直到里边都是基本数据类型，然后再去复制，就是深度拷贝**。
 
 > 来源: https://segmentfault.com/a/1190000020255831  
 
+解决循环引用问题，我们可以额外开辟一个存储空间，来存储当前对象和拷贝对象的对应关系，当需要拷贝当前对象时，先去存储空间中找，有没有拷贝过这个对象，如果有的话直接返回，如果没有的话继续拷贝，这样就巧妙化解的循环引用的问题。
+
 ```javascript
-//对象和数组的深拷贝
+//对象和数组的深拷贝  简单版 理解WeakMap的作用
 
 function cloneDeep(target, map = new WeakMap()) {
   if (typeof target === 'object') {
@@ -4652,10 +4654,52 @@ function cloneDeep(target, map = new WeakMap()) {
     return target;
   }
 }
-
-//多种引用类型的深拷贝
-
 ```
+
+
+
+`手写递归-A2`
+
+```javascript
+```
+
+
+
+`手写递归-B`
+
+```javascript
+//工具函数 判断数据类型
+function targetType(target) {
+  return Object.prototype.toString.call(target).slice(8, -1);
+}
+
+//深拷贝函数
+function clone(target) {
+  let container,
+      targetType = targetType(target);
+  if (targetType === "Object") {
+    container = {};
+  }
+  if (targetType === 'Array') {
+    container = [];
+  }
+  
+  for (const key in target) {
+    let type = targetType(target[key]);
+    if (type === "Object" || "Array")  {
+      container[key] = clone(target[key]);
+    } else if (type === 'Function') {
+      container[key] = target[key].bind();
+    } else {
+      container[key] = target[key];
+    }
+  }
+  
+  return container;
+}
+```
+
+
 
 
 

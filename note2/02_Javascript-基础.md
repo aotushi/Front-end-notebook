@@ -2589,7 +2589,9 @@ JS中使用{}创建代码块 代码块用来为代码进行 分组 统一代码�
 
 
 
-## 流程控制语句
+## 语句
+
+### Control flow
 
 > JS代码默认是从上到下执行的,可以通过 流程控制语句 来改变程序的执行顺序
 >
@@ -2699,17 +2701,7 @@ if(条件表达式){
 
 
 
-
-
-
-
-
-
-
-
-### 条件分支语句
-
-#### switch语句
+#### switch语句(条件分支语句)
 
 语法:
 
@@ -2766,7 +2758,7 @@ switch (num) {
 
 
 
-### break和continue
+#### break和continue
 
 概要
 
@@ -2816,11 +2808,11 @@ for(i=0; i<5; i++){
 
 
 
-## 迭代器
+### Iterators
 
 
 
-### while循环
+#### while循环
 
 语法:
 
@@ -2862,7 +2854,7 @@ while(i < 5){
 
 
 
-### do-while循环
+#### do-while循环
 
 语法:
 
@@ -2911,7 +2903,7 @@ alert(count);
 
 
 
-### for循环
+#### for循环
 
 #### 语法:
 
@@ -3218,13 +3210,13 @@ for(i=2; i<100; i++){   //获取100以内所有的数
 
 
 
-### for...in
+#### for...in
 
-#### define
+##### Define
 
 无序遍历对象的可枚举属性。语句针对每个唯一的属性
 
-#### parameter
+##### Syntax
 
 ```javascript
 for (variable in object) {
@@ -3236,7 +3228,7 @@ for (variable in object) {
 
 `object`  不含有Symbol属性且迭代可枚举属性的对象
 
-#### description
+##### Description
 
 * `for...in`循环只能迭代可枚举非Symbol属性
 * 被内建构造函数创建的对象,例如`Array`, `Object`会从`Object.prototype`和`String.prototype`继承非枚举的属性,例如字符串的`Indexof`方法或者对象的`toString()`方法.
@@ -3252,9 +3244,57 @@ for (variable in object) {
   * 数组索引只是具有整数名称的可枚举属性，在一般方面与对象属性相同
   * 不能保证`for...in`以特定方式返回索引
   * `for...in`循环语句将返回所有可枚举属性，包括非整数名属性和继承的属性
-  * 因为迭代顺序是应用依赖，迭代一个数组可能不按照构成顺序访问数组。所以最好用有数字索引的 for循环（或`Array.prototype.forEach()`, `for...of`循环）。
+  * 因为迭代顺序是与实现有关，迭代一个数组可能不按照构成顺序访问数组。所以当迭代访问顺序重要的数组时最好用有数字索引的 for循环（或`Array.prototype.forEach()`, `for...of`循环）。
+* **只迭代自身的属性**
+  * 如果你只考虑对象自身的属性,不包括原型上的,使用`getOwnPropertyNames()` 或执行`hasOwnProperty()`检查 (`propertyIsEnumerable()`也能使用)
+  * 可选的,如果你了解没有任何外部代码干扰, 可以使用检查方法来扩展内建的属性
 
 
+
+
+##### Why use
+
+考虑到`for...in`是用来迭代对象属性,不推荐用在数组上.那么其作用是什么?
+
+* 它最长用作来debug, 是一种检查对象属性的简单方式( 用在控制台或其他地方输出  )
+* 尽管存储数据数组经常更实用, 但处理数据首选键值对的情况下,可能存在这种情况,你想检查这些键中是否有某个特定的值.
+
+
+
+##### Examples
+
+迭代对象所有可枚举非symbol属性
+
+```javascript
+let obj = {a: 1, b: 2, c: 3};
+for (const prop in obj) {
+  console.log(`obj.${prop} = ${obj[prop]}`)
+}
+```
+
+迭代自身的属性(搭配`hasOwnProperty()`)
+
+```javascript
+let triangle = {a: 1, b: 2, c: 3};
+
+function ColoredTriange() {
+  this.color = 'red';
+}
+
+ColoredTriangle.prototype = triangle;
+
+let obj = new ColoredTriangel();
+
+for (const prop in obj) {
+  if (obj.hasOwnProperty(prop)) {
+    console.log(`obj.${prop} = ${obj[prop]}`)
+  }
+}
+```
+
+
+
+使用构造函数返回的对象实例,迭代时会迭代原型上的属性,非构造函数生成的对象不会迭代
 
 ```javascript
 //如果Object.create(null)  字面量形式是构造函数的语法糖
@@ -3268,9 +3308,235 @@ for (let i in obj) {
 
 
 
+#### for...of
+
+##### Define
+
+`for...of`语句创建一个循环来迭代可迭代对象,包括内建`String`, `Array`, 类数组对象(例如, `arguments` 或 `NodeList`), `TypedArray`, `Map`, `Set` 和用户定义的迭代. 它调用了一个自定义迭代钩子来为对象每个不同的属性的值执行语句.
+
+##### Syntax
+
+```javascript
+for (variable of iterable) {
+  statement
+}
+```
+
+`varibale` 每一次迭代中被声明成变量的每个不同属性的值. 变量可以被`const`, `let`, 或 `var`声明.
+
+`iterable`  被迭代的对象(有迭代的属性)
+
+##### Example
+
+迭代数组
+
+```javascript
+const iterable = [10, 20, 30];
+
+for (const value of iterable) {
+  console.log(value);
+}
+```
+
+如果在块内重新声明了变量, 则使用`let`代替`const`
+
+```javascript
+const iterable = [10, 20, 30];
+
+for (let value of iterable) {
+  value += 1;
+  console.log(value);
+}
+```
+
+迭代字符串
+
+```javascript
+const iterable = 'boo';
+
+for (const value of iterable) {
+  console.log(value);
+}
+```
+
+迭代类型数组
+
+```javascript
+const iterable = new Unit8Array([0x00, 0xff]);
+
+for (const value of iterable) {
+  console.log(value);
+}
+```
+
+迭代Map集合
+
+```javascript
+const iterable = new Map([['a', 1], ['b', 2], ['c', 3]]);
+
+for (const entry of iterable) {
+  console.log(entry);
+}
+
+//"['a', 1]"
+//"['b', 2]"
+//"['c', 3]"
+
+for (const [key, value] of iterable) {
+  console.log(value);
+}
+```
+
+迭代Set集合
+
+```javascript
+const iterable = new Set([1,1,2,2,3,3]);
+
+for (const value of iterable) {
+  console.log(value);
+}
+```
+
+迭代arguments对象
+
+可以迭代arguments对象来检查所有传入JS函数中的参数
+
+```javascript
+(function() {
+  for (const arguments of arguments) {
+    console.log(arguments);
+  }
+})(1,2,3)
+```
+
+迭代DOM集合
+
+迭代DOM集合例如NodeList: 以下的案例为一个段落直接的后代段落添加一个red类
+
+```javascript
+const articleParagraphs = document.querySelectorAll('article > p');
+
+for (const paragraph of articleParagraphs) {
+  paragraph.classList.add('red');
+}
+```
+
+**关闭迭代器**
+
+在`for...of`循环中, 突然的迭代中止可以由`break`, `throw` 或 `return`引起. 在这些情况下,迭代器被关闭.
+
+```javascript
+function* foo() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+for (const o of foo()) {
+  console.log(o);
+  break; //close iterator, execution continues outside of the loop
+}
+console.log('done');
+
+// 1
+//'done'
+```
+
+迭代生成器
+
+```javascript
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while(true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+for (const n of fibonacci()) {
+  console.log(n);
+  if (n >= 1000) {
+    break;
+  }
+}
+```
+
+不能复用生成器
+
+生成器不能重复使用,即使`for...of`循环提前中止, 例如使用`break`关键字. 在上面一个循环中,生成器关闭, 试图再次迭代,也不能产生任何进一步的任何结果
+
+```javascript
+const gen = (function* () {
+  yield 1;
+  yield 2;
+  yield 3;
+})();
+
+for (const o of gen) {
+  console.log(o);
+  break;//closes iterator
+}
+
+for (const o of gen) {
+  console.log(o); //Never called
+}
+```
+
+迭代其他可迭代对象
+
+你也可以迭代一个明确实现了迭代协议的对象
+
+```javascript
+const iterable = {
+  [Symbol.iterator]() {
+    return {
+      i: 0,
+      next() {
+        if (this.i < 3) {
+          return {value: this.i++, done: false};
+        }
+        return {value: undefined, done: true};
+      }
+    }
+  }
+};
 
 
-### for...of
+for (const value of iterable) {
+  console.log(value);
+}
+
+```
+
+##### Difference between `for...of` and `for...in`
+
+* `for...in`语句迭代一个对象的可枚举属性
+* `for...of`语句迭代可迭代对象定义的要迭代的值上迭代 (The `for...of` statement iterates over values that the [iterable object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators#iterables) defines to be iterated over.)
+
+以下的案例展示了两者在数组上的不同
+
+```javascript
+Object.prototype.objCustom = function() {};
+Array.prototype.arrCustom = function() {};
+
+const iterable = [3,5,7];
+iterable.foo = 'hello';
+
+for (const i in iterable) {
+  console.log(i); //logs: '0', '1', '2', 'foo', 'arrCustom', 'objCustom'
+}
+
+for (const i in iterable) {
+  if (iterable.hasOwnProperty(i)) {
+    console.log(i); //logs: '0', '1', '2', 'foo'
+  }
+}
+
+for (const i of iterable) {
+  console.log(i); //logs 3, 5, 7
+}
+```
+
+
 
 
 
