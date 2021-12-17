@@ -6150,7 +6150,7 @@ console.log((() => {}).name); //''
 
 #### **属性-prototype**
 
-prototype 是保存引用类型所有实例方法的地方，这意味着toString()、valueOf()等方法实际上都保存在prototype 上，进而由所有实例共享。在ECMAScript 5中，prototype 属性是不可枚举的，因此使用for-in 循环不会返回这个属性。
+prototype 是保存引用类型所有实例方法的地方，这意味着toString()、valueOf()等方法实际上都保存在prototype 上，进而由所有实例共享。<u>在ECMAScript 5中，prototype 属性是不可枚举的，因此使用for-in 循环不会返回这个属性</u>。
 
 
 

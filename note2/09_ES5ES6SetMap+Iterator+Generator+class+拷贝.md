@@ -4578,7 +4578,7 @@ console.log(obj1.b.f === obj2.b.f); //true
 
 
 
-### 深拷贝-JSON
+### 深拷贝
 
 #### 定义
 
@@ -4594,9 +4594,7 @@ console.log(obj1.b.f === obj2.b.f); //true
 
   
 
-#### 实现方式案例
-
-`_.cloneDeep()`
+#### 1. _.cloneDeep()
 
 ```javascript
 let _ = require(lodash);
@@ -4609,7 +4607,7 @@ let obj2 = _.cloneDeep(obj1);
 console.log(obj1.b.f === obj2.b.f); //false
 ```
 
-`Jquery.extend()`
+#### 2.Jquery.extend()
 
 ```javascript
 $.extend(deepCopy, target, object1, [bojectN]); 
@@ -4624,7 +4622,7 @@ let obj2 = $.extend(true, {}, obj1);
 console.log(obj1.b.f === obj2.b.f); //false
 ```
 
-`手写递归-A1`
+#### 3-A1.手写递归
 
 递归方法实现深度克隆原理：**遍历对象、数组直到里边都是基本数据类型，然后再去复制，就是深度拷贝**。
 
@@ -4633,7 +4631,8 @@ console.log(obj1.b.f === obj2.b.f); //false
 解决循环引用问题，我们可以额外开辟一个存储空间，来存储当前对象和拷贝对象的对应关系，当需要拷贝当前对象时，先去存储空间中找，有没有拷贝过这个对象，如果有的话直接返回，如果没有的话继续拷贝，这样就巧妙化解的循环引用的问题。
 
 ```javascript
-//对象和数组的深拷贝  简单版 理解WeakMap的作用
+//对象和数组的深拷贝
+//对自身引用的处理+WeakMap; for...in低效
 
 function cloneDeep(target, map = new WeakMap()) {
   if (typeof target === 'object') {
@@ -4658,14 +4657,81 @@ function cloneDeep(target, map = new WeakMap()) {
 
 
 
-`手写递归-A2`
+#### 3-A2.手写递归
 
 ```javascript
+//性能优化
+
+//工具 循环函数 
+//使用for或者while循环解决低效的for...in(不同测试环境或工具下 for循环和while 时间有差异)
+function forEach(array, callback) {
+  let index = -1;
+  const len = array.length;
+  while(++index < len) {
+    callback(array[index], index);
+  }
+  return array;
+}
+
+function clone(target, map = new WeakMap()) {
+  if (typeof target === 'object') {
+    const isArray = Array.isArray(target);
+    let container = isArray ? [] : {};
+    
+    // solve circular reference
+    if (map.get(target)) {
+      return map.get(target);
+    }
+    map.set(target);
+    
+    // recursion assignment
+    let keys = isArray ? undefined : Object.keys(target);
+    forEach( keys || target, (value, idx) => {
+      if (keys) {
+        idx = value;
+      }
+      cloneTarget[idx] = clone(target[idx]);
+    })
+    return cloneTarget[idx];
+  } else {
+    return target;
+  }
+}
 ```
 
 
 
-`手写递归-B`
+#### 3-B1 直接赋值
+
+简略版,赋值操作,可复用性很低
+
+```javascript
+const target = {
+    name: 'aaa',
+    pos: ['a','b','c'],
+    founder: {
+        name:'man'
+    },
+    fn() {}
+};
+
+let container = [];
+
+container.name = target.name;
+container.pos = []; //不能直接引用target.pos, 否则两个属性公用一个内存地址,一个改动另一个也会跟着变
+container.pos[0] = target.pos[0];
+container.pos[1] = target.pos[1];
+container.pos[2] = target.pos[2];
+container.founder = {};
+container.founder['name'] = target.founder.name;
+container.fn = target.fn.bind(container);
+```
+
+
+
+#### 3-B2.手写递归
+
+上面简略版提高复用性,函数
 
 ```javascript
 //工具函数 判断数据类型
@@ -4686,7 +4752,7 @@ function clone(target) {
   
   for (const key in target) {
     let type = targetType(target[key]);
-    if (type === "Object" || "Array")  {
+    if (type === "Object" || type === "Array")  {
       container[key] = clone(target[key]);
     } else if (type === 'Function') {
       container[key] = target[key].bind();
@@ -4697,6 +4763,9 @@ function clone(target) {
   
   return container;
 }
+
+//问题
+开始写成了 type === "Object" || "Array" Node环境中没有报错,浏览器环境中会报错
 ```
 
 
@@ -4849,112 +4918,4 @@ console.log(test, result);
 序列化JS对象,所有函数和原型成员对象会被忽略.能被深拷贝的数据类型有**字符串,数值,布尔值,扁平对象.**
 
 
-
-
-
-
-
-### 深拷贝-普通方法
-
-
-
-```js
-- 普通方法
-
-const school = {
-    name: 'aaa',
-    pos: ['北京','上海','深圳'],
-    founder: {
-        name:'创始人',
-        age: 45
-    },
-    improve: function(){
-        console.log('提升');
-    }
-};
-
-//创建一个容器
-let container ={};
-//添加属性 name
-result.name = school.name;
-//添加属性pos
-//result.pos= school.pos; 错误写法,都指向了属性值的地址.更改新对象会影响到旧对象.解决方法,赋值为空.
-result.pos=[];
-result.pos[0]=school.pos[0];
-result.pos[1]=school.pos[1];
-result.pos[2]=school.pos[2];
-
-//添加属性founder
-result.founder={};
-result.founder.name=school.founder.name;
-result.founder.age=school.founder.age;
-
-//添加方法
-result.improve=school.improve.bind(result);
-```
-
-
-
-### 深拷贝-递归
-
-```js
-- 递归方法
-
-const school = {
-            name: 'aaa',
-            pos: ['北京','上海','深圳'],
-            founder: {
-                name:'创始人',
-                age: 45
-            },
-            improve: function(){
-                console.log('提升');
-            }
-        };
-
-
-//封装函数 深度拷贝对象
-function deepClone(data){
-    let container;
-    let type = getDataType(data);
-    if(type === 'Object'){
-        container = {};
-    }
-    if(type === 'Array'){
-        container === [];
-    }
-    
-    for(let i in data){
-        let type = getDataType(data[i]);
-        if(type === 'Array' || type === 'Object'){
-            container[i]=deepClone(data[i]);
-        }else if(type === 'Function'){
-            container[i]=data[i].bind();
-        }else{
-            container[i]=data[i];
-        }
-    }
-}
-
-//封装函数判断对象的数据类型
-function getDataType(data){
-    return Object.prototype.toString.call(data).slice(8, -1);
-}
-//typeof的弊端: 对象和数组返回的都是object,无法细分
-//数据类型获取的方法 Object.prototype.toString
-//改变this指向,固定写法: Object.prototype.toString.call(目标数据) 返回值样式[object Object]
-
-//使用封装函数,实现对象的深拷贝
-console.log(deepClone(school);
-```
-
-
-
-
-
-```js
-https://github.com/coffe1891/frontend-hard-mode-interview/blob/master/1/1.3.1.md
-
-
-```
 
