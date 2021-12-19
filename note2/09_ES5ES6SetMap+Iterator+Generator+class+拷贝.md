@@ -20,7 +20,7 @@ ES5
 ```js
 - 函数大括号之后开始的位置
 function main(){
-    'use strict'
+	'use strict'
 }
 ```
 
@@ -111,23 +111,23 @@ var car = {
 }
 
 var passat = Object.create(car, {
-    brand:{
-        //属性值
-        value: '帕萨特',
-        writable: true, //该属性是否可以修改
-        configurable: true, //该属性是否可以删除
-        enumerable: true  //该属性是否可以枚举
-    },
-    color:{},
-        
-    price:{//获取price的时候,方法会自动执行,返回值会作为属性值.
-        get: function(){return this.jiage;},
-        set: function(value){//参数value就是修改的时候赋的值.
-            this.jiage = value; //给对象新添加了一个属性,方便get方法使用.
-            //能否使用this.price,不可以,会出现无限递归
-        }
-    }    
-    
+  brand:{
+    //属性值
+    value: '帕萨特',
+    writable: true, //该属性是否可以修改
+    configurable: true, //该属性是否可以删除
+    enumerable: true  //该属性是否可以枚举
+  },
+  color:{},
+
+  price:{//获取price的时候,方法会自动执行,返回值会作为属性值.
+    get: function(){return this.jiage;},
+    set: function(value){//参数value就是修改的时候赋的值.
+      this.jiage = value; //给对象新添加了一个属性,方便get方法使用.
+      //能否使用this.price,不可以,会出现无限递归
+    }
+  }    
+
 });
 
 passat.price = 20000;
@@ -188,48 +188,48 @@ function main(){
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        .item {
-            width: 100px;
-            height: 50px;
-            border: solid 1px rgb(42, 156, 156);
-            float: left;
-            margin-right: 10px;
-        }
+      .item {
+        width: 100px;
+        height: 50px;
+        border: solid 1px rgb(42, 156, 156);
+        float: left;
+        margin-right: 10px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <h2 class="page-header">点击切换颜色</h2>
-        <div class="item"></div>
-        <div class="item"></div>
-        <div class="item"></div>
+      <h2 class="page-header">点击切换颜色</h2>
+      <div class="item"></div>
+      <div class="item"></div>
+      <div class="item"></div>
     </div>
 
     <script>
-        var items = document.querySelectorAll('.item');
-        //第一种方法: var+this
-        //第二种方法: es5 立即执行函数模拟块级作用域
-        //第三种方法: let取代var let+this/let+items[i]
-        // for(var i=0; i<items.length; i++){
-        //     items[i].onclick = function(){
-        //         this.style.background = 'yellowgreen';
-        //     }   //this是指向事件源. 如果使用items[i]代替,var是全局声明,没有块级作用域
-        // }
-<!--        
-        for(var i=0; i<items.length; i++){
-            items[i].onclick=function(){
-                console.log(i);//3
-                items[i].style.background='yellowgroud';
-            }
+      var items = document.querySelectorAll('.item');
+      //第一种方法: var+this
+      //第二种方法: es5 立即执行函数模拟块级作用域
+      //第三种方法: let取代var let+this/let+items[i]
+      // for(var i=0; i<items.length; i++){
+      //     items[i].onclick = function(){
+      //         this.style.background = 'yellowgreen';
+      //     }   //this是指向事件源. 如果使用items[i]代替,var是全局声明,没有块级作用域
+      // }
+      <!--        
+      for(var i=0; i<items.length; i++){
+        items[i].onclick=function(){
+          console.log(i);//3
+          items[i].style.background='yellowgroud';
         }
-        console.log(i);//3
--->
+      }
+      console.log(i);//3
+      -->
 
         // for (var i = 0; i < items.length; i++) {
         //     (function (index) {
@@ -240,15 +240,15 @@ function main(){
         // }
 
         for(let i=0; i<items.length; i++){
-            items[i].onclick = function(){
-                items[i].style.background = 'yellowgreen';
-            }
+          items[i].onclick = function(){
+            items[i].style.background = 'yellowgreen';
+          }
         }
 
 
 
     </script>
-</body>
+  </body>
 
 </html>
 ```
@@ -1218,7 +1218,6 @@ Symbol('aa') === Symbol('aa') //false
 > Symbol唯一且合理的使用方式, 是为对象添加[属性].
 >
 > 调用Symbol()函数时,也可以传入一个字符串参数作为对符号的描述,将来可以通过这个字符串来调试代码.但这个字符串参数与符号定义或标识符无关.
->
 
 
 
@@ -4682,7 +4681,7 @@ function clone(target, map = new WeakMap()) {
     if (map.get(target)) {
       return map.get(target);
     }
-    map.set(target);
+    map.set(target, cloneTarget);
     
     // recursion assignment
     let keys = isArray ? undefined : Object.keys(target);
@@ -4698,6 +4697,29 @@ function clone(target, map = new WeakMap()) {
   }
 }
 ```
+
+#### 3-A3.手写递归
+
+```javascript
+//进阶完整版
+
+//Tool Function
+//1 judge Object
+function isObject(target) {
+  const type = typeof target;
+  return target !== null && (type === 'object' || type === 'function');
+}
+//2 get Data Type
+function getType(target) {
+  return Object.prototype.toString.call(target);
+  //return Object.prototype.toString.call(target);
+}
+//
+```
+
+
+
+
 
 
 
