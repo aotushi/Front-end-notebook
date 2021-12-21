@@ -14100,7 +14100,9 @@ function setCookie(name, value, {
 | 2    | MDN                                   | MDN                                                          |
 |      | https://github.com/cdoco/common-regex |                                                              |
 
-
+> [Regular expressions - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+>
+> [Deprecated and obsolete features - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Deprecated_and_obsolete_features#regexp_properties)
 
 ### 0.概要
 
@@ -14124,13 +14126,20 @@ let re = /ab+c/;
 
 ```javascript
 let re = new RegExp('ab+c');
+let re2  = new RegExp(/ab+c/)
 ```
 
+### 2.构造函数中的标志参数(flags)
+
+从 ECMAScript 6 开始，当第一个参数为正则表达式而第二个标志参数存在时，`new RegExp(/ab+c/, 'i')` 不再抛出 [`TypeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError) （`"从另一个RegExp构造一个RegExp时无法提供标志"`）的异常，取而代之，将使用这些参数创建一个新的正则表达式。
+
+当使用构造函数创造正则对象时，需要常规的字符转义规则（在前面加反斜杠 `\`）
 
 
-### 2. 编写正则表达式模式
 
-#### 2.1 使用简单模式
+### 3. 编写正则表达式模式
+
+#### 3.1 使用简单模式
 
 简单模式是由你想直接找到的字符构成。比如，`/abc/` 这个模式就能且仅能匹配 "abc" 字符按照顺序同时出现的情况。
 
@@ -14149,7 +14158,7 @@ console.log(result2);
 //null
 ```
 
-#### 2.2 使用特殊字符
+#### 3.2 使用特殊字符
 
 当你需要匹配一个不确定的字符串时，比如寻找一个或多个 "b"，或者寻找空格，可以在模式中使用特殊字符。
 
@@ -14330,6 +14339,74 @@ console.log(re.exec('fafa')); // ['fafa', 'f', 'a', index: 0, input: 'fafa', gro
 
 ```javascript
 ```
+
+
+
+| 字符 后行断言                                                | 含义                                       |
+| ------------------------------------------------------------ | ------------------------------------------ |
+| [`(?< = y)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-lookahead)x | 匹配'x'仅当'x'前面是'y'.这种叫做后行断言。 |
+
+```javascript
+//例如，/(?<=Jack)Sprat/会匹配到' Sprat '仅仅当它前面是' Jack '。/(?<=Jack|Tom)Sprat/匹配‘ Sprat ’仅仅当它前面是'Jack'或者是‘Tom’。但是‘Jack’和‘Tom’都不是匹配结果的一部分。
+```
+
+
+
+| 字符 正向否定查找                                            | 含义                                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------- |
+| [`x(?!y)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-negated-look-ahead) | 仅仅当'x'后面不跟着'y'时匹配'x'，这被称为正向否定查找。 |
+
+```javascript
+let re = /\d+(?!\.)/;
+
+re.exec('3.141'); //['141', index: 2, input: '3.141', groups: undefined]
+```
+
+
+
+| 字符  反向否定查找 | 含义                                                  |
+| ------------------ | ----------------------------------------------------- |
+| (?<!y)x            | 仅仅当'x'前面不是'y'时匹配'x'，这被称为反向否定查找。 |
+
+```javascript
+/(?<!-)\d+/.exec('3'); //['3', index: 0, input: '3', groups: undefined]
+/(?<!-)\d+/.exec('-3');  //null
+```
+
+
+
+| 字符                                                         | 含义             |
+| ------------------------------------------------------------ | ---------------- |
+| [`x|y`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-or) | 匹配‘x’或者‘y’。 |
+
+```javascript
+/green|red/.exec('green apple'); 
+//['green', index: 0, input: 'green apple', groups: undefined]
+```
+
+
+
+| 字符                                                         | 含义                                              |
+| ------------------------------------------------------------ | ------------------------------------------------- |
+| [`{n}`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-quantifier) | n 是一个正整数，匹配了前面一个字符刚好出现了 n 次 |
+
+```javascript
+```
+
+
+
+| character                                                    | meanings                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`{n,m}`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-quantifier-range) | n 和 m 都是整数。匹配前面的字符至少n次，最多m次。如果 n 或者 m 的值是0， 这个值被忽略 |
+
+```javascript
+```
+
+
+
+| character                                                    | meanings                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`[xyz\]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-character-set) | 一个字符集合。匹配方括号中的任意字符，包括[转义序列](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Grammar_and_types)。 |
 
 
 
@@ -14674,7 +14751,11 @@ console.log(re.flags); //g
 
 
 
+### 4.静态属性
 
+### 5.实例属性
+
+### 6.实例方法
 
 ### 字符串与正则相关方法
 
