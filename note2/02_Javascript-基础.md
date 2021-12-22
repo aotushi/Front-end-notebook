@@ -14094,11 +14094,12 @@ function setCookie(name, value, {
 
 ### 0.教程
 
-| 序号 | 名称                                  | 来源                                                         |
-| ---- | ------------------------------------- | ------------------------------------------------------------ |
-| 1    | LEARN REGEX THE EASY WAY              | [github](https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md) |
-| 2    | MDN                                   | MDN                                                          |
-|      | https://github.com/cdoco/common-regex |                                                              |
+| 序号 | 名称                                                         | 来源                                                         |
+| ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 1    | LEARN REGEX THE EASY WAY                                     | [github](https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md) |
+| 2    | MDN                                                          | MDN                                                          |
+| 3    | https://github.com/cdoco/common-regex                        |                                                              |
+| 4    | https://docs.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-language-quick-reference?redirectedfrom=MSDN#Anchor_0 |                                                              |
 
 > [Regular expressions - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
 >
@@ -14183,6 +14184,10 @@ console.log(result2);
 [Unicode 属性转义（Unicode Property Escapes）](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions/Unicode_Property_Escapes)
 
 基于 unicode 字符属性区分字符。例如大写和小写字母、数学符号和标点。
+
+
+
+
 
 
 
@@ -14406,9 +14411,143 @@ re.exec('3.141'); //['141', index: 2, input: '3.141', groups: undefined]
 
 | character                                                    | meanings                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`[xyz\]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-character-set) | 一个字符集合。匹配方括号中的任意字符，包括[转义序列](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Grammar_and_types)。 |
+| [`[xyz]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-character-set) | 1. 一个字符集合。匹配方括号中的任意字符，包括[转义序列](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Grammar_and_types)。<br />2. 可以使用破折号（-）来指定一个字符范围。<br />3. 对于点（.）和星号（*）这样的特殊符号在一个字符集中没有特殊的意义。他们不必进行转义，不过转义也是起作用的。 |
+
+```javascript
+/[a-z.]+/  /[\w+.]/
+```
+
+| 字符                                                         | 含义                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`[^xyz]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-negated-character-set) | 1. 一个反向字符集, 它匹配任何没有包含在方括号中的字符。<br />2. 可以使用破折号（-）来指定一个字符范围。<br />3. 任何普通字符在这里都是起作用的。 |
+
+```javascript
+//[^abc] 与 [^a-c]是相同的.
+
+let re = /[^abc]/;
+
+console.log(re.exec('brisket')); //['r', index: 1, input: 'brisket', groups: undefined]
+```
+
+| 字符                                                         | 含义                                 |
+| ------------------------------------------------------------ | ------------------------------------ |
+| [`[\b]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-backspace) | 匹配一个退格(U+0008). 不要和\b混淆了 |
+
+```javascript
+let re = /[\b]/;
+console.log(re.exec(\'\b\b\b')); //['\b', index: 0, input: '\b\b\b', groups: undefined]
+```
 
 
+
+| 字符                                                         | 含义                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`\b`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-word-boundary) | 1. 匹配一个词的边界。<br />2. 一个词的边界就是一个词不被另外一个“字”字符跟随的位置或者前面跟其他“字”字符的位置，例如在字母和空格之间。<br />3. 匹配中不包括匹配的字边界。换句话说，一个匹配的词的边界的内容的长度是0。 |
+
+```javascript
+```
+
+
+
+| 字符                                                         | 含义  ????                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`\B`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-word-boundary) | 匹配一个非单词边界。匹配如下几种情况：<br />1. 字符串第一个字符为非“字”字符<br />2. 字符串最后一个字符为非“字”字符<br />3. 两个单词字符之间<br />4. 两个非单词字符之间<br />5. 空字符串 |
+
+```javascript
+//JavaScript的正则表达式引擎将特定的字符集定义为“字”字符: 大写和小写的罗马字母，十进制数字和下划线字符
+
+
+```
+
+
+
+| 字符                                                         | 含义                                                      |
+| ------------------------------------------------------------ | --------------------------------------------------------- |
+| [`\cX`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-control) | 当X是处于A到Z之间的字符的时候，匹配字符串中的一个控制符。 |
+
+```javascript
+```
+
+
+
+| 字符                                                         | 含义                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`\d`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-digit) | 匹配一个数字`。``等价于[0-9]`<br />`/\d/` 或者 `/[0-9]/` 匹配"B2 is the suite number."中的'2'。 |
+
+
+
+| 字符                                                         | 含义                                   |
+| ------------------------------------------------------------ | -------------------------------------- |
+| [`\D`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-digit) | 匹配一个非数字字符`。``等价于[^0-9]`。 |
+
+```javascript
+/\D/ 或者 /[^0-9]/ 匹配"B2 is the suite number."中的'B' 。
+```
+
+
+
+| 字符                                                         | 含义                      |
+| ------------------------------------------------------------ | ------------------------- |
+| [`\f`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-form-feed) | 匹配一个换页符 (U+000C)。 |
+
+
+
+
+
+| 字符                                                         | 含义                    |
+| ------------------------------------------------------------ | ----------------------- |
+| [`\n`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-line-feed) | 匹配一个换行符 (U+000A) |
+
+
+
+
+
+| 字符                                                         | 含义           |
+| ------------------------------------------------------------ | -------------- |
+| [`\r`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-carriage-return) | 匹配一个回车符 |
+
+
+
+| 字符                                                         | 含义                                                 |
+| ------------------------------------------------------------ | ---------------------------------------------------- |
+| [`\s`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-white-space) | 匹配一个空白字符，包括空格、制表符、换页符和换行符。 |
+
+
+
+| 字符                                                         | 含义                 |
+| ------------------------------------------------------------ | -------------------- |
+| [`\S`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-white-space) | 匹配一个非空白字符。 |
+
+
+
+| 字符                                                         | 含义                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`\w`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-word) | 匹配一个单字字符（字母、数字或者下划线）。等价于 `[A-Za-z0-9_]` |
+
+
+
+| 字符                                                         | 含义                                       |
+| ------------------------------------------------------------ | ------------------------------------------ |
+| [`\W`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-word) | 匹配一个非单字字符。等价于 `[^A-Za-z0-9_]` |
+
+
+
+| 字符 | 含义 |
+| ---- | ---- |
+|      |      |
+
+
+
+#### 3.3 高级搜索符
+
+| 标志 | 描述                                                      |
+| :--- | :-------------------------------------------------------- |
+| `g`  | 全局搜索。                                                |
+| `i`  | 不区分大小写搜索。                                        |
+| `m`  | 多行搜索。                                                |
+| `s`  | 允许 `.` 匹配换行符。                                     |
+| `u`  | 使用unicode码的模式进行匹配。                             |
+| `y`  | 执行“粘性(`sticky`)”搜索,匹配从目标字符串的当前位置开始。 |
 
 
 
@@ -14757,6 +14896,185 @@ console.log(re.flags); //g
 
 ### 6.实例方法
 
+
+
+| Method                                                       | Description                                                  |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [`exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) | 在字符串中为了匹配结果执行一个搜索,它返回一个数组或者匹配失败返回`null` |
+| [`test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) | 在字符串中测试匹配. 返回`true`或`false`                      |
+| [`match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match) | 返回一个包含所有匹配的数组, 里面含有捕获组.匹配失败返回`null` |
+| [`matchAll()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll) | 返回一个包含所有匹配的迭代对象,含有捕获组.                   |
+| [`search()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/search) | 在字符串中测试匹配.返回匹配结果的索引,搜索失败返回`-1`       |
+| [`replace()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace) | 在一个字符串中执行一个匹配的搜索,用一个子字符串来代替匹配到的子字符串. |
+| [`replaceAll()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll) | 在一个字符串中执行一个匹配的搜索,用一个子字符串来替换匹配到的子字符串 |
+| [`split()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split) | 用一个正则表达式或固定字符串来将字符串拆分成一个子字符串的数组 |
+
+* 在一个字符串中的一个匹配是否被找到，你可以使用 test 或 search 方法；
+* 想得到更多的信息（但是比较慢）则可以使用 exec 或 match 方法。
+* 如果你使用exec 或 match 方法并且匹配成功了，那么这些方法将返回一个数组并且更新相关的正则表达式对象的属性和预定义的正则表达式对象（详见下）。如果匹配失败，那么 exec 方法返回 null（也就是false）。
+
+
+
+
+
+
+
+
+
+#### [RegExp.prototype.exec()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec)
+
+**Define**
+
+`exec() `方法在一个指定字符串中执行一个搜索匹配。返回一个结果数组或 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)。
+
+在设置了 [`global`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/global) 或 [`sticky`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) 标志位的情况下（如 `/foo/g` or `/foo/y`），JavaScript [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象是**有状态**的。他们会将上次成功匹配后的位置记录在 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性中。使用此特性，`exec()` 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），而相比之下， [`String.prototype.match()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match) 只会返回匹配到的结果。
+
+如果你只是为了判断是否匹配（true或 false），可以使用 [`RegExp.test()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) 方法，或者 [`String.search()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/search) 方法。
+
+```javascript
+const regex1 = RegExp('foo*', 'g');
+const str1 = 'table football, foosball';
+let array1;
+
+while((array1 = regex1.exec(str1)) !== null) {
+  console.log(`Found ${array1[0]}. Next Found at ${regexp1.lastIndex}.`)
+}
+
+// "Found foo. Next starts at 9."
+// "Found foo. Next starts at 19."
+```
+
+
+
+**Syntax**
+
+```javascript
+regexObj.exec(str)
+```
+
+
+
+**Return values**
+
+* 如果匹配成功，`exec()` 方法返回一个数组，并更新正则表达式对象的 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性。
+* 完全匹配成功的文本将作为返回数组的第一项，从第二项起，后续每项都对应正则表达式内捕获括号里匹配成功的文本。
+* 如果匹配失败，`exec()` 方法返回 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)，并将 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 重置为 0 。
+
+```javascript
+let re = /quick\s(brown).+?(jumps)/ig;
+let result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
+
+console.log(result);
+//['Quick Brown Fox Jumps', 'Brown', 'Jumps', index: 4, input: 'The Quick Brown Fox Jumps Over The Lazy Dog', groups: undefined]
+```
+
+| 对象   | 属性/索引  | 描述                                                         | 例子                                        |
+| ------ | ---------- | ------------------------------------------------------------ | ------------------------------------------- |
+| result | [0]        | 匹配的全部字符串                                             | Quick Brown Fox Jumps                       |
+|        | [1],...[n] | 括号中的分组捕获                                             | [1] = Brown [2] = Jumps                     |
+|        | index      | 匹配到字符位于原始字符串的基于0的索引值                      | 4                                           |
+|        | input      | 原始字符串                                                   | The Quick Brown Fox Jumps Over The Lazy Dog |
+| re     | lastIndex  | 下一次匹配开始的位置                                         | 25                                          |
+|        | ignoreCase | 是否使用了'i'标记使正则忽略大小写                            | true                                        |
+|        | global     | 是否使用了'g'标记来进行全局的匹配                            | true                                        |
+|        | multiline  | 是否使用了 "`m`" 标记使正则工作在多行模式（也就是，^ 和 $ 可以匹配字符串中每一行的开始和结束（行是由 \n 或 \r 分割的），而不只是整个输入字符串的最开始和最末尾处。） | false                                       |
+|        | source     | 正则匹配的字符串                                             | quick\s(brown).+?(jumps)                    |
+
+
+
+**Example**
+
+1.查找所有的匹配
+
+* 当正则表达式使用 "`g`" 标志时，可以多次执行 `exec` 方法来查找同一个字符串中的成功匹配。
+* 当你这样做时，查找将从正则表达式的 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性指定的位置开始。（[`test()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) 也会更新 `lastIndex` 属性）。
+* 即使再次查找的字符串不是原查找字符串时，[`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 也不会被重置，它依旧会从记录的 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 开始。
+* 不要把正则表达式字面量（或者[`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)构造器）放在 `while` 条件表达式里。由于每次迭代时 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 的属性都被重置，如果匹配，将会造成一个死循环。并且要确保使用了'g'标记来进行全局的匹配，否则同样会造成死循环????。
+
+```javascript
+let myRe = /ab*/g,
+    str = 'abbcdefabh',
+    myArray;
+
+while((myArray = myRe.exec(str)) !== null) {
+  let msg = 'Found ' + myArray[0] + '. ';
+  msg += 'Next match starts at ' + myRe.lastIndex;
+  console.log(msg)
+}
+
+while(/ab*/g.exec(str) !== null) {
+  console.log()
+}
+```
+
+
+
+
+
+#### RegExp.prototype.test()
+
+**Define**
+
+`**test()**` 方法执行一个检索，用来查看正则表达式与指定的字符串是否匹配。返回 `true` 或 `false`。
+
+**Syntax**
+
+```javascript
+regexObj.test(str);
+```
+
+**Desc**
+
+* 当你想要知道一个正则表达式是否与指定的字符串匹配时，就可以使用 `test()`（类似于[`String.prototype.search()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/search) 方法），差别在于test返回一个布尔值，而 search 返回索引（如果找到）或者-1（如果没找到）；
+* 若想知道更多信息（然而执行比较慢），可使用[`exec()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) 方法（类似于 [`String.prototype.match()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match) 方法）。 
+* 和 [`exec()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) (或者组合使用),一样，在相同的全局正则表达式实例上多次调用`test`将会越过之前的匹配。
+
+
+
+**Example**
+
+* 如果正则表达式设置了全局标志，`test() `的执行会改变正则表达式  [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex)属性。
+* 连续的执行`test()`方法，后续的执行将会从 lastIndex 处开始匹配字符串，([`exec()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) 同样改变正则本身的 `lastIndex属性值`).
+
+```javascript
+var regex = /foo/g;
+
+// regex.lastIndex is at 0
+regex.test('foo'); // true
+
+// regex.lastIndex is now at 3
+regex.test('foo'); // false
+```
+
+#### RegExp.prototype.toString()
+
+**Define**
+
+`**toString()**` 返回一个表示该正则表达式的字符串
+
+**Syntax**
+
+```javascript
+regexObj.toString();
+```
+
+**Desc**
+
+* [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象覆盖了 [`Object`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object) 对象的 `toString()` 方法，并没有继承 [`Object.prototype.toString()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/toString)。
+* 对于 `RegExp` 对象，`toString` 方法返回一个该正则表达式的字符串形式。
+
+**Example**
+
+```javascript
+myExp = new RegExp("a+b+c");
+alert(myExp.toString());       // 显示 "/a+b+c/"
+
+foo = new RegExp("bar", "g");
+alert(foo.toString());         // 显示 "/bar/g"
+```
+
+
+
 ### 字符串与正则相关方法
 
 #### str.search()
@@ -14832,56 +15150,6 @@ result = str.match(/1[3-9][0-9]{9}/g);
 
 
 
-
-### 正则的方法
-
-#### exec()
-
-`exec() `方法在一个指定字符串中执行一个搜索匹配。返回一个结果数组或 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)。
-
-在设置了 [`global`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/global) 或 [`sticky`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) 标志位的情况下（如 `/foo/g` or `/foo/y`），JavaScript [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp) 对象是**有状态**的。他们会将上次成功匹配后的位置记录在 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性中。使用此特性，`exec()` 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），而相比之下， [`String.prototype.match()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/match) 只会返回匹配到的结果。
-
-如果你只是为了判断是否匹配（true或 false），可以使用 [`RegExp.test()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) 方法，或者 [`String.search()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/search) 方法。
-
-```javascript
-const regex1 = RegExp('foo*', 'g');
-const str1 = 'table football, foosball';
-let array1;
-
-while((array1 = regex1.exec(str1)) !== null) {
-  console.log(`Found ${array1[0]}. Next Found at ${regexp1.lastIndex}.`)
-}
-
-// "Found foo. Next starts at 9."
-// "Found foo. Next starts at 19."
-```
-
-
-
-**返回值**
-
-如果匹配成功，`exec()` 方法返回一个数组（包含额外的属性 `index` 和 `input` ，参见下方表格），并更新正则表达式对象的 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 属性。完全匹配成功的文本将作为返回数组的第一项，从第二项起，后续每项都对应正则表达式内捕获括号里匹配成功的文本。
-
-如果匹配失败，`exec()` 方法返回 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null)，并将 [`lastIndex`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) 重置为 0 。
-
-**实例**
-
-```javascript
-let re = /quick\s(brown).+?(jumps)ig;
-let result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
-```
-
-| 对象   | 属性/索引  | 描述                                                         | 例子                                        |
-| ------ | ---------- | ------------------------------------------------------------ | ------------------------------------------- |
-| result | [0]        | 匹配的全部字符串                                             | Quick Brown Fox Jumps                       |
-|        | [1],...[n] | 括号中的分组捕获                                             | [1] = Brown [2] = Jumps                     |
-|        | index      | 匹配到字符位于原始字符串的基于0的索引值                      | 4                                           |
-|        | input      | 原始字符串                                                   | The Quick Brown Fox Jumps Over The Lazy Dog |
-| re     | lastIndex  | 下一次匹配开始的位置                                         | 25                                          |
-|        | ignoreCase | 是否使用了'i'标记使正则忽略大小写                            | true                                        |
-|        | global     | 是否使用了'g'标记来进行全局的匹配                            | true                                        |
-|        | multiline  | 是否使用了 "`m`" 标记使正则工作在多行模式（也就是，^ 和 $ 可以匹配字符串中每一行的开始和结束（行是由 \n 或 \r 分割的），而不只是整个输入字符串的最开始和最末尾处。） | false                                       |
-|        | source     | 正则匹配的字符串                                             | quick\s(brown).+?(jumps)                    |
 
 
 
