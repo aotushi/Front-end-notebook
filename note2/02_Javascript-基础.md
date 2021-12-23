@@ -14138,6 +14138,17 @@ let re2  = new RegExp(/ab+c/)
 
 
 
+| 标志 | 描述                                                      |
+| :--- | :-------------------------------------------------------- |
+| `g`  | 全局搜索。                                                |
+| `i`  | 不区分大小写搜索。                                        |
+| `m`  | 多行搜索。                                                |
+| `s`  | 允许 `.` 匹配换行符。                                     |
+| `u`  | 使用unicode码的模式进行匹配。                             |
+| `y`  | 执行“粘性(`sticky`)”搜索,匹配从目标字符串的当前位置开始。 |
+
+
+
 ### 3. 编写正则表达式模式
 
 #### 3.1 使用简单模式
@@ -14163,391 +14174,227 @@ console.log(result2);
 
 当你需要匹配一个不确定的字符串时，比如寻找一个或多个 "b"，或者寻找空格，可以在模式中使用特殊字符。
 
-
-
-[断言（Assertions）](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions/Assertions)
-
-表示一个匹配在某些条件下发生。断言包含先行断言、后行断言和条件表达式。
-
-[字符类（Character Classes）](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes)
-
-区分不同类型的字符，例如区分字母和数字。
-
-[组和范围（Groups and Ranges）](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions/Groups_and_Ranges)
-
-表示表达式字符的分组和范围。
-
-[量词（Quantifiers）](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions/Quantifiers)
-
-表示匹配的字符或表达式的数量。
-
-[Unicode 属性转义（Unicode Property Escapes）](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions/Unicode_Property_Escapes)
-
-基于 unicode 字符属性区分字符。例如大写和小写字母、数学符号和标点。
+| Characters / constructs                                      | Corresponding article                                        | Desc                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | ------------------------------------------------------------ |
+| `\`, `.`, `\cX`, `\d`, `\D`, `\f`, `\n`, `\r`, `\s`, `\S`, `\t`, `\v`, `\w`, `\W`, `\0`, `\xhh`, `\uhhhh`, `\uhhhhh`, `[\b]` | 字符集<br />[Character classes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes) | 区分不同类型的字符，例如区分字母和数字。                     |
+| `^`, `$`, `x(?=y)`, `x(?!y)`, `(?<=y)x`, `(?<!y)x`, `\b`, `\B` | 断言   [Assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Assertions) | 表示一个匹配在某些条件下发生。断言包含先行断言、后行断言和条件表达式 |
+| `(x)`, `(?:x)`, `(?<Name>x)`, `x|y`, `[xyz]`, `[^xyz]`, `\*Number*` | 组合范围   [Groups and ranges](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Groups_and_Ranges) | 表示表达式字符的分组和范围。                                 |
+| `*`, `+`, `?`, `x{*n*}`, `x{*n*,}`, `x{*n*,*m*}`             | 量词   [Quantifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Quantifiers) | 表示匹配的字符或表达式的数量。                               |
+| `\p{*UnicodeProperty*}`, `\P{*UnicodeProperty*}`             | Unicode转义  [Unicode property escapes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Unicode_Property_Escapes) | 基于 unicode 字符属性区分字符。例如大写和小写字母、数学符号和标点。 |
 
 
 
+##### 3.2.1 字符集
 
-
-
+1.语法
 
 | 字符 | 含义                                                         |
 | ---- | ------------------------------------------------------------ |
 | `\`  | 1. 在非特殊字符之前的反斜杠表示下一个字符是特殊字符，不能按照字面理解<br />2. 在特殊字符之前的反斜杠表示下一个字符不是特殊字符，应该按照字面理解.请参阅 "转义（Escaping）" 部分<br />3. 如果你想将字符串传递给 RegExp 构造函数，不要忘记在字符串字面量中反斜杠是转义字符。所以为了在模式中添加一个反斜杠，你需要在字符串字面量中转义它。<br />`/[a-z]\s/i` 和 `new RegExp("[a-z]\\s", "i")` 创建了相同的正则表达式：一个用于搜索后面紧跟着空白字符（`\s` 可看后文）并且在 a-z 范围内的任意字符的表达式。<br />为了通过字符串字面量给 RegExp 构造函数创建包含反斜杠的表达式，你需要在字符串级别和正则表达式级别都对它进行转义。例如 `/[a-z]:\\/i` 和 `new RegExp("[a-z]:\\\\","i")` 会创建相同的表达式，即匹配类似 "C:\" 字符串。 |
 
+
+
+| 字符串类                                               | 含义                                                         |
+| ------------------------------------------------------ | ------------------------------------------------------------ |
+| `.`                                                    | 1.匹配出终止符(line terminators)之外的任意单字符<br />2. 在字符集中, 点号匹配一个字符点而不是原先的特殊意义.<br />3. 注意,'m' multiline标志不会改变点符号的行为,所以可以在多行中匹配一个模式, 可以使用 `[^]`字符集,匹配任何字符包括新行<br />4. ES2018添加`s` 'dotAll'标志, 允许点号也能匹配终止符. |
+| `\d`                                                   | 1. 匹配任何阿拉伯数字<br />2. 相当于[0-9]. 例如, `/\d/`or /[0-9]/在套件数字'B2 is the suite number'中匹配'2' |
+| `\D`                                                   | 1. 匹配任何非阿拉伯数字字符.<br />2. 相当于\[^0-9].  例如: `/\D/` 或 /\[^0-9]/ 在'B2 is the suite number' 匹配 'B' |
+| `\w`                                                   | 1. 匹配基本拉丁字母表中任何字母数字字符,包括下划线.<br />2. 相当于`[A-Za-z0-9_]`  例如: `/\w/`匹配'apple'中的'a', '$5.28'中的'5', '3D'中的'3', "Émanuel"中的'm' |
+| `\W`                                                   | 1. 匹配基本拉丁字母表中任何非字母的字符<br />2. 相当于`[^A-Za-z0-9_]` 例如, `/\W/`或者`/[^A-Za-z0-9_]/` 匹配"50%"中的'%', "Émanuel"中的"É" |
+| `\s`                                                   | 1. 匹配一个空格字符,包括空格, 缩进, 换页(form feed), 换行(line feed), 和其他Unicode 空格.<br />2. 相当于`[ \f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]`<br />3. 例如, `/\s\w*/`匹配"foo bar"中的'bar' |
+| `\S`                                                   | 1. 匹配一个字符而非空格<br />2. 相当于 `[^ \f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]`<br />3. 例如, `/\S\w*/`匹配"foo bar"中的'foo' |
+| `\t`                                                   | 匹配一个水平制表符(a horizontal tab)                         |
+| `\r`                                                   | 匹配一个回车符(a carriage return)                            |
+| `\n`                                                   | 匹配一个换行符(a linefeed)                                   |
+| `\v`                                                   | 匹配一个垂直制表符(a vertical tab)                           |
+| `\f`                                                   | 匹配一个换页符(a form-feed)                                  |
+| `[\b]`                                                 | 匹配一个退格(a backspace).                                   |
+| `\0`                                                   | 匹配一个NULL字符. 不要在之后添加其他数字, 因为`\0`是一个八进制转义序列 |
+| `\cX`    ????                                          | 1. 当X是处于A到Z之间的字符的时候，匹配字符串中的一个控制符<br />2. 例如, `/\cM\cJ/`匹配'\r\n' |
+| `\xhh`  ????                                           | 1. 用代码 `hh`(两个16进制数字)匹配字符                       |
+| `\uhhhh`  ????                                         | 匹配值为hhh（四个十六进制数字）的UTF-16编码单元。            |
+| \`u{hhhh}` or `\u{hhhhh}  ????                         | (只有当u标志被设置时。)匹配Unicode值为U+hhhh或U+hhhhh（十六进制数字）的字符。 |
+| `\p{*UnicodeProperty}`, `\P{*UnicodeProperty*}`   ???? | 根据Unicode字符的属性来匹配一个字符（例如，只匹配emoji字符，或日语片假名字符，或中文/日文汉字/汉字字符，等等）。 |
+| `\`                                                    | 表示以下字符应被特别处理，或被 "转义"。<br />1. 对于通常按字面意思处理的字符，表示下一个字符是特殊的，不能按字面意思解释。<br />2. 对于通常被特殊处理的字符，表示下一个字符不特殊，应按字面意思解释<br />3. 从字面上匹配这个字符, 可以用它本身来转义. 换句话说, 用`/\\/`来搜索`\` |
+
+
+
+2.实例
+
+寻找一系列数字
+
 ```javascript
-let re = /[a-z]\s/i,
-    reCon = new RegExp('[a-z]\\s', 'i');
+let randomData = '015 354 8787 687351 3512 8735';
+let regexpFourDigits = /\b\d{4}\b/g;
 
-let result = re.exec('a bc'),
-    resultCon = re.exec('a bc');
+console.table(randomData.match(regexpFourDigits));
 
-console.log(result); // ['a ', index: 0, input: 'a bc', groups: undefined]
-console.log(resultCon); //['a ', index: 0, input: 'a bc', groups: undefined]
+//['8787', '3512', '8735']
+```
 
-const reg = /[a-z]:\\/i,
-      regCon = new RegExp('/[a-z]:\\\\/', 'i');
+循环以'A'开头的单词
 
-let result2 = reg.exec('c:\\c:abc'),
-    result3 = reg.exec('c:\\c:abc');
+```javascript
+var aliceExcerpt = "I’m sure I’m not Ada,’ she said, ‘for her hair goes in such long ringlets, and mine doesn’t go in ringlets at all.";
 
-console.log(result2); //['c:\\', index: 0, input: 'c:\\c:abc', groups: undefined]
-console.log(result3); //
+var regexpWordStartingWithA = /\b[aA]\w+/g;
+
+console.table(aliceExcerpt.match(regexpWordStartingWithA));
+// ['Ada', 'and', 'at', 'all']
 ```
 
 
 
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [^](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-caret) | 1. 匹配输入的开始。<br />2. 如果多行标志被设置为 true，那么也匹配换行符后紧跟的位置<br />3. 当 '`^`' 作为第一个字符出现在一个字符集合模式时，它将会有不同的含义。[反向字符集合](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-negated-character-set) 一节有详细介绍和示例。 |
+3从Unicode字符中找单词
 
 ```javascript
-let re = /^A/i,
-    rec = new RegExp('/^A/', 'i');
+var nonEnglishText = "Приключения Алисы в Стране чудес";
+var regexpBMPWord = /([\u0000-\u0019\u0021-\uFFFF])+/gu;
+// BMP goes through U+0000 to U+FFFF but space is U+0020
 
-let result = re.exec('dcbA'),
-    result2 = re.exec('Abcd');
-
-console.log(result); //null
-console.log(result2); //['A', index: 0, input: 'Abcd', groups: undefined]
-
-
-//匹配换行符
-let re = /abc[^]def/;
-console.log(re.test('abc\ndef')); //true
-
-
-
-console.log(/^A/.exec('Abc\nAcd\nAde'));  捕获多行????
-//????
+console.table(nonEnglishText.match(regexpBMPWord));
+[ 'Приключения', 'Алисы', 'в', 'Стране', 'чудес' ]
 ```
 
 
 
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`$`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-dollar) | 匹配输入的结束。如果多行标志被设置为 true，那么也匹配换行符前的位置 |
+##### 3.2.2 断言
+
+断言包括边界，它表示行和词的开头和结尾，以及以某种方式表示可能存在匹配的其他模式（包括前看、后看和条件表达式）。
+
+边界类型断言
+
+| Characters | Meaning                                                      |
+| ---------- | ------------------------------------------------------------ |
+| `^`        | 1. 匹配输入的开头。<br />2. 如果多行标志被设置为 "true"，也会在换行符之后立即匹配。例如，/^A/不匹配 "an A "中的 "A"，但匹配 "An A "的第一个 "A"。<br />3. 当 '`^`' 作为第一个字符出现在一个字符集合模式`[^]`时，它将会有不同的含义 |
+| `$`        | 匹配输入的结束。如果多行标志被设置为 true，那么也匹配换行符前的位置 |
+| `\b`       | 1. 匹配一个词的边界。这是指一个单词字符后面或前面没有另一个单词字符的位置，如一个字母和一个空格之间。<br />2. 请注意，一个匹配的词的边界不包括在匹配中。换句话说，一个匹配的单词边界的长度为零。 |
+
+
+
+其他断言
+
+| Characters | Meaning                                      |
+| ---------- | -------------------------------------------- |
+| `x(?=y)`   | 先行断言: 只有当'x'后跟'y'才匹配'x'          |
+| `x(?!y)`   | 非先行断言: 只有当'x'后面不跟着'y'才匹配'x'  |
+| `(?<=y)x`  | 后行断言: 只有'x'前面是'y'时,匹配'x'         |
+| `(?<!y)x`  | 非后行断言: 只有'x'前面不是'y'时候,才匹配'x' |
+
+
+
+案例
+
+使用`^`操作符匹配输入的开始
 
 ```javascript
-let re = /^A.+\?$/i;
+let fruits = ["Apple", "Watermelon", "Orange", "Avocado", "Strawberry"];
 
-console.log(re.exec('Acbc?'));
+// Select fruits started with 'A' by /^A/ Regex.
+// Here '^' control symbol used only in one role: Matching beginning of an input.
 
-//['Acbc?', index: 0, input: 'Acbc?', groups: undefined]
+let fruitsStartsWithA = fruits.filter(fruit => /^A/.test(fruit));
+console.log(fruitsStartsWithA); //[ 'Apple', 'Avocado' ]
+
+let fruitsStartsWithNotA = fruits.filter(furit => /^[^A]/.test(fruit));
+console.log(fruitsStartsWithNotA); //[ 'Watermelon', 'Orange', 'Strawberry' ]
 ```
 
-| 字符 *                                                       | 含义                                         |
-| ------------------------------------------------------------ | -------------------------------------------- |
-| [`*`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-asterisk) | 匹配前一个表达式 0 次或多次。等价于 `{0,}`。 |
+匹配一个单词边界
 
 ```javascript
-let re = /^a\&*$/;
+let fruitsWithDescription = ["Red apple", "Orange orange", "Green Avocado"];
 
-console.log(re.exec('abc&')); //null
-console.log(re.exec('a&')); //['a&', index: 0, input: 'a&', groups: undefined]
+// Select descriptions that contains 'en' or 'ed' words endings:
+let enEdSelection = fruitsWithDescription.filter(descr => /(en|ed)\b/.test(descr));
 
-
-console.log(/^a\&{0,}$/.exec('a&')); //['a&', index: 0, input: 'a&', groups: undefined]
+console.log(enEdSelection); // [ 'Red apple', 'Green Avocado' ]
 ```
 
-| 字符 +                                                       | 含义                                             |
-| ------------------------------------------------------------ | ------------------------------------------------ |
-| [`+`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-plus) | 匹配前面一个表达式 1 次或者多次。等价于 `{1,}`。 |
+前行断言
 
 ```javascript
-let re = /^a\w+d$/;
-
-console.log(re.exec('abd')); //['abd', index: 0, input: 'abd', groups: undefined]
-console.log(re.exec('abcd')); //['abcd', index: 0, input: 'abcd', groups: undefined]
-
-console.log(/^a\w{1}d$/.exec('abccd')); //null
-console.log(/^a\w{1,}d$/.exec('abccd')); //['abccd', index: 0, input: 'abccd', groups: undefined]
+console.log('First test'.match(regex)); // [ 'First' ]
+console.log('First peach'.match(regex)); // null
+console.log('This is a First test in a year.'.match(regex)); // [ 'First' ]
+console.log('This is a First peach in a month.'.match(regex)); // null
 ```
 
-| 字符 ?                                                       | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`?`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-questionmark) | 1. 匹配前面一个表达式 0 次或者 1 次。等价于 `{0,1}`。<br />2. 如果**紧跟在任何量词 \*、 +、? 或 {} 的后面**，将会使量词变为**非贪婪**（匹配尽量少的字符），和缺省使用的**贪婪模式**（匹配尽可能多的字符）正好相反。例如，对 "123abc" 使用 `/\d+/` 将会匹配 "123"，而使用 `/\d+?/` 则只会匹配到 "1"。<br />3. 用于先行断言中，如本表的 `x(?=y)` 和 `x(?!y)` 条目所述。 |
+非前行断言
 
 ```javascript
-let re = /^ab\w?5$/;
-
-console.log(re.exec('ab5')); //['ab5', index: 0, input: 'ab5', groups: undefined]
+console.log(/\d+(?!\.))/g.exec('3.141'); //['141', index: 2, input: '3.141']
 ```
 
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`.`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-dot) | 1.（小数点）默认匹配除换行符之外的任何单个字符。<br />2. 引入`/s`修饰符，使得`.`可以匹配任意单个字符 |
+断言和范围中'?!'组合使用的不同含义 ????
 
 ```javascript
-let re = /abc.def/;
-console.log(re.test('abc\ndef')); //false
+let orangeNotLemon = "Do you want to have an orange? Yes, I do not want to have a lemon!";
 
-//匹配换行符
-let re = /abc.def/s;  //new RegExp('/abc.def/', 's')
-console.log(re.test('abc\ndef')); //true
+// Different meaning of '?!' combination usage in Assertions /x(?!y)/ and  Ranges /[^?!]/
+let selectNotLemonRegex = /[^?!]+have(?! a lemon)[^?!]+[?!]/gi
+console.log(orangeNotLemon.match(selectNotLemonRegex)); // [ 'Do you want to have an orange?' ]
+
+let selectNotOrangeRegex = /[^?!]+have(?! an orange)[^?!]+[?!]/gi
+console.log(orangeNotLemon.match(selectNotOrangeRegex)); // [ ' Yes, I do not want to have a lemon!' ]
 ```
 
-| 字符 捕获括号()                                              | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`(x)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-capturing-parentheses) | 1. 它会匹配 'x' 并且记住匹配项。其中括号被称为*捕获括号*<br />2. 模式 `/(foo) (bar) \1 \2/` 中的 '`(foo)`' 和 '`(bar)`' 匹配并记住字符串 "foo bar foo bar" 中前两个单词。<br />3. `\n` 是用在正则表达式的匹配，详情可以参阅后文的 [\n](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions$edit#special-backreference) 条目。<br />4. `$n`是用在正则表达式的替换<br />5. `$&` 表示整个用于匹配的原字符串 |
+后行断言
 
 ```javascript
-let re = /(f)(a)\1\2/;
+let oranges = ['ripe orange A ', 'green orange B', 'ripe orange C',];
 
-console.log(re.exec('facdfa')); //null
-console.log(re.exec('fafa')); // ['fafa', 'f', 'a', index: 0, input: 'fafa', groups: undefined]
-
-
-
-'abcdef'.replace(/(a)(b)/, '$2$1'); //'bacdef'
-'abcdef'.replace(/(a)(f)/, '$2$1'); //'abcdef'
-'abcdef'.replace(/(a)\w{4}(f)/, '$2$1'); //'fa'
-```
-
-
-
-| 字符   非捕获括号(?:x)                                       | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`(?:x)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-capturing-parentheses) | 1. 匹配 'x' 但是不记住匹配项。这种括号叫作*非捕获括号*，使得你能够定义与正则表达式运算符一起使用的子表达式。<br />2. 更多信息，可以参阅下文的 [Using parentheses](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Using_parentheses) 条目. |
-
-```javascript
-//看看这个例子 `/(?:foo){1,2}/`。如果表达式是 `/foo{1,2}/`，`{1,2}` 将只应用于 'foo' 的最后一个字符 'o'。如果使用非捕获括号，则 `{1,2}` 会应用于整个 'foo' 单词。
-
-
-```
-
-
-
-| 字符  先行断言                                               | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`x(?=y)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-lookahead) | 1. 匹配'x'仅仅当'x'后面跟着'y'.这种叫做先行断言<br />2. y不是匹配结果的一部分 |
-
-```javascript
+let ripe_oranges = oranges.filter( fruit => fruit.match(/(?<=ripe )orange/));
+console.log(ripe_oranges); // [ 'ripe orange A ', 'ripe orange C' ]
 ```
 
 
 
-| 字符 后行断言                                                | 含义                                       |
-| ------------------------------------------------------------ | ------------------------------------------ |
-| [`(?< = y)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-lookahead)x | 匹配'x'仅当'x'前面是'y'.这种叫做后行断言。 |
+##### 3.2.3 组合范围(Groups and ranges)
+
+组和范围表示表达式字符的组和范围。
+
+| Characters          | Meaning                                                      |
+| ------------------- | ------------------------------------------------------------ |
+| `x|y`               | 匹配'x'或'y'                                                 |
+| `[xyz]`   `[a-c]`   | 一个字符集。匹配任何一个括号中的字符。你可以通过使用连字符来指定一个字符范围，但是如果连字符作为第一个或最后一个字符出现在方括号中，它将被视为一个字面的连字符，作为一个普通字符包含在字符类中。 |
+| `[^a-c]` `[^xyz]`   | 一个被否定或补充的字符类。也就是说，它匹配任何不在方括号内的东西。你可以通过使用连字符来指定一个字符范围，但如果连字符作为第一个或最后一个字符出现在方括号中，它将被视为一个字面的连字符，作为一个正常字符包含在字符类中。 |
+| `(x)`               | 捕获组。匹配x并记住匹配的内容。例如，/(foo)/匹配并记住 "foo bar "中的 "foo"。<br/><br/>一个正则表达式可以有多个捕获组。在结果中，与捕获组的匹配通常在一个数组中，其成员的顺序与捕获组中的左括号相同。这通常只是捕获组本身的顺序。当捕获组被嵌套时，这就变得很重要。使用结果元素的索引（[1], ..., [n]）或从预定义的正则表达式对象的属性（$1, ..., $9）访问匹配。<br/><br/>捕获组有一个性能损失。如果你不需要调用匹配的子串，最好选择非捕获式的括号（见下文） |
+| `\n`     ????       | 其中 "n "是一个正整数。对正则表达式中与第n个括号相匹配的最后一个子串的反向引用（算上左括号）。<br />(Where "n" is a positive integer. A back reference to the last substring matching the n parenthetical in the regular expression (counting left parentheses). |
+| `\k<Name>`   ????   | `A back reference to the last substring matching the **Named capture group** specified by `<Name>`.`<br /> 1. self version: 最后一个子字符串匹配的被`<Name>`规定的命名捕获组的反向引用<br />2. deepL version: 对与<Name>所指定的Named capture group相匹配的最后一个子串的反向引用。<br />3. 例如, |
+| `(?<Name>x)`   ???? | 匹配 "x"，并将其存储在返回的匹配物的组属性中，其名称由<Name>指定。<br />( Matches "x" and stores it on the groups property of the returned matches under the name specified by` <Name>`) |
+| `(?:x)`             | 匹配'x'但是不记住这个匹配.  匹配的子串不能从结果数组的元素（[1], ..., [n]）或预定义的RegExp对象的属性（$1, ..., $9）中再次调用。 |
+
+实例
+
+计算元音字母
 
 ```javascript
-//例如，/(?<=Jack)Sprat/会匹配到' Sprat '仅仅当它前面是' Jack '。/(?<=Jack|Tom)Sprat/匹配‘ Sprat ’仅仅当它前面是'Jack'或者是‘Tom’。但是‘Jack’和‘Tom’都不是匹配结果的一部分。
+var aliceExcerpt = "There was a long silence after this, and Alice could only hear whispers now and then.";
+var regexpVowels = /[aeiouy]/g;
+
+console.log("Number of vowels:", aliceExcerpt.match(regexpVowels).length);
+// Number of vowels: 25
 ```
 
-
-
-| 字符 正向否定查找                                            | 含义                                                    |
-| ------------------------------------------------------------ | ------------------------------------------------------- |
-| [`x(?!y)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-negated-look-ahead) | 仅仅当'x'后面不跟着'y'时匹配'x'，这被称为正向否定查找。 |
+使用组
 
 ```javascript
-let re = /\d+(?!\.)/;
-
-re.exec('3.141'); //['141', index: 2, input: '3.141', groups: undefined]
+???
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Groups_and_Ranges
 ```
 
-
-
-| 字符  反向否定查找 | 含义                                                  |
-| ------------------ | ----------------------------------------------------- |
-| (?<!y)x            | 仅仅当'x'前面不是'y'时匹配'x'，这被称为反向否定查找。 |
+使用命名组
 
 ```javascript
-/(?<!-)\d+/.exec('3'); //['3', index: 0, input: '3', groups: undefined]
-/(?<!-)\d+/.exec('-3');  //null
+???
 ```
 
+##### 3.2.4 量词
 
+> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Quantifiers
 
-| 字符                                                         | 含义             |
-| ------------------------------------------------------------ | ---------------- |
-| [`x|y`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-or) | 匹配‘x’或者‘y’。 |
 
-```javascript
-/green|red/.exec('green apple'); 
-//['green', index: 0, input: 'green apple', groups: undefined]
-```
-
-
-
-| 字符                                                         | 含义                                              |
-| ------------------------------------------------------------ | ------------------------------------------------- |
-| [`{n}`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-quantifier) | n 是一个正整数，匹配了前面一个字符刚好出现了 n 次 |
-
-```javascript
-```
-
-
-
-| character                                                    | meanings                                                     |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`{n,m}`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-quantifier-range) | n 和 m 都是整数。匹配前面的字符至少n次，最多m次。如果 n 或者 m 的值是0， 这个值被忽略 |
-
-```javascript
-```
-
-
-
-| character                                                    | meanings                                                     |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`[xyz]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-character-set) | 1. 一个字符集合。匹配方括号中的任意字符，包括[转义序列](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Grammar_and_types)。<br />2. 可以使用破折号（-）来指定一个字符范围。<br />3. 对于点（.）和星号（*）这样的特殊符号在一个字符集中没有特殊的意义。他们不必进行转义，不过转义也是起作用的。 |
-
-```javascript
-/[a-z.]+/  /[\w+.]/
-```
-
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`[^xyz]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-negated-character-set) | 1. 一个反向字符集, 它匹配任何没有包含在方括号中的字符。<br />2. 可以使用破折号（-）来指定一个字符范围。<br />3. 任何普通字符在这里都是起作用的。 |
-
-```javascript
-//[^abc] 与 [^a-c]是相同的.
-
-let re = /[^abc]/;
-
-console.log(re.exec('brisket')); //['r', index: 1, input: 'brisket', groups: undefined]
-```
-
-| 字符                                                         | 含义                                 |
-| ------------------------------------------------------------ | ------------------------------------ |
-| [`[\b]`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-backspace) | 匹配一个退格(U+0008). 不要和\b混淆了 |
-
-```javascript
-let re = /[\b]/;
-console.log(re.exec(\'\b\b\b')); //['\b', index: 0, input: '\b\b\b', groups: undefined]
-```
-
-
-
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`\b`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-word-boundary) | 1. 匹配一个词的边界。<br />2. 一个词的边界就是一个词不被另外一个“字”字符跟随的位置或者前面跟其他“字”字符的位置，例如在字母和空格之间。<br />3. 匹配中不包括匹配的字边界。换句话说，一个匹配的词的边界的内容的长度是0。 |
-
-```javascript
-```
-
-
-
-| 字符                                                         | 含义  ????                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`\B`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-word-boundary) | 匹配一个非单词边界。匹配如下几种情况：<br />1. 字符串第一个字符为非“字”字符<br />2. 字符串最后一个字符为非“字”字符<br />3. 两个单词字符之间<br />4. 两个非单词字符之间<br />5. 空字符串 |
-
-```javascript
-//JavaScript的正则表达式引擎将特定的字符集定义为“字”字符: 大写和小写的罗马字母，十进制数字和下划线字符
-
-
-```
-
-
-
-| 字符                                                         | 含义                                                      |
-| ------------------------------------------------------------ | --------------------------------------------------------- |
-| [`\cX`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-control) | 当X是处于A到Z之间的字符的时候，匹配字符串中的一个控制符。 |
-
-```javascript
-```
-
-
-
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`\d`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-digit) | 匹配一个数字`。``等价于[0-9]`<br />`/\d/` 或者 `/[0-9]/` 匹配"B2 is the suite number."中的'2'。 |
-
-
-
-| 字符                                                         | 含义                                   |
-| ------------------------------------------------------------ | -------------------------------------- |
-| [`\D`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-digit) | 匹配一个非数字字符`。``等价于[^0-9]`。 |
-
-```javascript
-/\D/ 或者 /[^0-9]/ 匹配"B2 is the suite number."中的'B' 。
-```
-
-
-
-| 字符                                                         | 含义                      |
-| ------------------------------------------------------------ | ------------------------- |
-| [`\f`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-form-feed) | 匹配一个换页符 (U+000C)。 |
-
-
-
-
-
-| 字符                                                         | 含义                    |
-| ------------------------------------------------------------ | ----------------------- |
-| [`\n`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-line-feed) | 匹配一个换行符 (U+000A) |
-
-
-
-
-
-| 字符                                                         | 含义           |
-| ------------------------------------------------------------ | -------------- |
-| [`\r`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-carriage-return) | 匹配一个回车符 |
-
-
-
-| 字符                                                         | 含义                                                 |
-| ------------------------------------------------------------ | ---------------------------------------------------- |
-| [`\s`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-white-space) | 匹配一个空白字符，包括空格、制表符、换页符和换行符。 |
-
-
-
-| 字符                                                         | 含义                 |
-| ------------------------------------------------------------ | -------------------- |
-| [`\S`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-white-space) | 匹配一个非空白字符。 |
-
-
-
-| 字符                                                         | 含义                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`\w`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-word) | 匹配一个单字字符（字母、数字或者下划线）。等价于 `[A-Za-z0-9_]` |
-
-
-
-| 字符                                                         | 含义                                       |
-| ------------------------------------------------------------ | ------------------------------------------ |
-| [`\W`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions#special-non-word) | 匹配一个非单字字符。等价于 `[^A-Za-z0-9_]` |
-
-
-
-| 字符 | 含义 |
-| ---- | ---- |
-|      |      |
-
-
-
-#### 3.3 高级搜索符
-
-| 标志 | 描述                                                      |
-| :--- | :-------------------------------------------------------- |
-| `g`  | 全局搜索。                                                |
-| `i`  | 不区分大小写搜索。                                        |
-| `m`  | 多行搜索。                                                |
-| `s`  | 允许 `.` 匹配换行符。                                     |
-| `u`  | 使用unicode码的模式进行匹配。                             |
-| `y`  | 执行“粘性(`sticky`)”搜索,匹配从目标字符串的当前位置开始。 |
 
 
 
