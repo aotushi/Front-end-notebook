@@ -1242,7 +1242,7 @@ console.log(person[firstName]); //'Nicholas'
 
 #### 1. Symbol函数
 
-**Symbol函数接受一个可选参数**，其可以让你添加一段文本描述即将创建的Symbol，这段描述不可用于属性访问，但是建议你在每次创建Symbol时都添加这样一段描述，以便于阅读代码和调试Symbol程序
+**Symbol函数接受<span style="color:blue;">一个可选参数</span>**，其可以让你添加一段文本描述即将创建的Symbol，这段描述不可用于属性访问，但是建议你在每次创建Symbol时都添加这样一段描述，以便于阅读代码和调试Symbol程序
 
 ```javascript
 let firstName = Symbol('first name'),
@@ -1270,7 +1270,7 @@ console.log(result); //'Symbol(first name)'
 
 **Symbole的辨识方法**
 
-Symbol是原始值，且ECMAScript 6同时扩展了typeof操作符，支持返回"Symbol"，所以可以用typeof来检测变量是否为Symbol类型。
+Symbol是原始值，且ECMAScript 6同时扩展了typeof操作符，支持返回"symbol"，所以可以用typeof来检测变量是否为Symbol类型。
 
 通过其他间接方式也可以检测变量是否为Symbol类型，但是typeof操作符是最准确也是你最应首选的检测方式。
 
@@ -4661,8 +4661,6 @@ console.log(obj1.b.f === obj2.b.f); //false
 递归方法实现深度克隆原理：**遍历对象、数组直到里边都是基本数据类型，然后再去复制，就是深度拷贝**。
 
 > 来源: https://segmentfault.com/a/1190000020255831  
->
-> https://javascript.plainenglish.io/write-a-better-deep-clone-function-in-javascript-d0e798e5f550
 
 解决循环引用问题，我们可以额外开辟一个存储空间，来存储当前对象和拷贝对象的对应关系，当需要拷贝当前对象时，先去存储空间中找，有没有拷贝过这个对象，如果有的话直接返回，如果没有的话继续拷贝，这样就巧妙化解的循环引用的问题。
 
