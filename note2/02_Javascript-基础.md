@@ -11049,30 +11049,13 @@ console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
 
 
 
-#### 数组去重方法
+#### 数组去重的8种方法
 
-嵌套循环+indexOf
+双for循环+splice
 
 ```JavaScript
 # 去除数组中重复的数字
 
-
-==========================第1版=========================
-let arr = [1,2,3,1,1,4,3,2,5,6,7];
-
-for(let i=0; i<arr.length; i++){
-    for(let j=i+1; j<arr.length; j++){
-        if(arr[i] === arr[j]){
-            arr.splice(j,1);   //这个地方写成了arr.splice(arr[j]);
-        }
-    }
-}
-
-console.log(arr);
-
-存在的问题: 由于splice删除j位后,j+1位自动上移变成j位,所以会少检查一位.
-
-==========================第1-2版==========================
 let arr = [1,2,3,1,1,4,3,2,5,6,7];
 
 for(let i=0; i<arr.length; i++){
@@ -11085,20 +11068,42 @@ for(let i=0; i<arr.length; i++){
     }
 }
 console.log(arr);
+```
 
 
-========================第2版====indexOf()=====================
-let arr = [1,2,3,1,1,4,3,2,5,6,7];
-let arr2 = [];
 
-for(let i=0; i<arr.length; i++){
-    if(arr2.indexOf(arr[i]) === -1){
-        arr2.push(arr[i]);
+for+indexOf / for+includes
+
+```javascript
+function unique(arr) {
+  let uniqueArr = [];
+  for (let i=0; i<arr.length; i++) {
+    if (uniqueArr.indexOf(arr[i]) !== -1) {
+      uniqueArr.push(arr[i]);
     }
+  }
+  return uniqueArr;
 }
-console.log(arr2);
 
 
+function unique(arr) {
+  let uniqueArr = [];
+  for (let i=0; i<arr.length; i++) {
+    if (!uniqueArr.includes(arr[i])) {
+      uniqueArr.push(arr[i])
+    }
+  }
+  return uniqueArr;
+}
+```
+
+
+
+
+
+reduce+includes+push / reduce+includes+concat
+
+```javascript
 //reduce方法
 let arr = [1,2,3,4,4,1]
 let newArr = arr.reduce((prev,current)=>{
@@ -11112,16 +11117,72 @@ let newArr = arr.reduce((prev,current)=>{
 let arr=[1,2,2,4,null,null].reduce(prev,current)=>{
   return prev.includes(current)?prev:prev.concat(current)
 ,[]}
+```
 
 
+
+filter+indexOf方法
+
+```javascript
 //filter方法
 let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index)
 
-//set方法
-let arr=[...new Set([1,2,2,4,null,null])]
 ```
 
-Array.from()之数组去重合并
+
+
+sort()排序+快慢指针
+
+```javascript
+function unique(arr) {
+  arr.sort((a, b) => a - b);
+  let slow = 1,
+      falst = 1;
+  while(fast < arr.length) {
+    if (arr[fast] !== arr[fast - 1]) {
+      arr[slow++] = arr[fast];
+    }
+    ++fast;
+  }
+  arr.length = slow;
+  return arr;
+}
+
+//https://juejin.cn/post/6844904202162929671
+
+function unique(arr) {
+  arr.sort((a, b) => a - b);
+  let left = 0,
+      right = 1;
+  
+  while(right < arr.length) {
+    if (arr[left] === arr[right]) {
+      right++;
+    } else {
+      arr[left + 1] = arr[right];
+      left++;
+      right++;
+    }
+  }
+  
+  return arr.slice(0, left + 1);
+}
+```
+
+
+
+Set去重
+
+```javascript
+function unique(arr) {
+  const result = new Set(arr);
+  return [...result]; //使用扩展运算符将Set结构转换为数组
+}
+```
+
+
+
+Array.from() + Set
 
 ```javascript
 //mdn https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from
@@ -11133,6 +11194,36 @@ funtion combine() {
 let m = [1,2,2], n = [2,3,3];
 console.log(combine(m, n)); //[1,2,3]
 ```
+
+
+
+Map方法
+
+```javascript
+function unique(arr) {
+  let map = new Map(),
+      uniqueArr = new Array();
+  for (let i=0; i<arr.length; i++) {
+    if (map.has(arr[i])) {
+      map.set(arr[i], true)
+    } else {
+      map.set(arr[i], false);
+      uniqueArr.push(arr[i])
+    }
+  }
+  return uniqueArr;
+}
+```
+
+
+
+
+
+
+
+
+
+
 
 
 

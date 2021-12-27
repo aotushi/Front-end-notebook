@@ -4710,7 +4710,7 @@ function forEach(array, callback) {
 function clone(target, map = new WeakMap()) {
   if (typeof target === 'object') {
     const isArray = Array.isArray(target);
-    let container = isArray ? [] : {};
+    let cloneTarget = isArray ? [] : {};
     
     // solve circular reference
     if (map.get(target)) {
@@ -4726,7 +4726,7 @@ function clone(target, map = new WeakMap()) {
       }
       cloneTarget[idx] = clone(target[idx]);
     })
-    return cloneTarget[idx];
+    return cloneTarget;
   } else {
     return target;
   }
@@ -4738,8 +4738,153 @@ function clone(target, map = new WeakMap()) {
 ```javascript
 //完整版
 
-//工具函数
 
+function isObject(target) {
+  let type = typeof target;
+  return type !== 'null' && (type === 'object' || type === 'function');
+}
+
+function getType(target) {
+  return Object.prototype.toString.call(target).slice(8, -1);
+}
+
+function cloneSymbol(target) {
+  return Object(Symbol.prototype.valueOf.call(target));
+}
+
+function cloneRegExp(target) {
+  let regFlag = /\w*$/;
+  return new target.constructor(target.source, regFlag.exec(target));
+}
+
+function cloneFunction(target) {
+  let paramReg = /(?=\().+(?=\)\s*{$);
+  let bodyReg = /(?={)(.|\n)+(?=})/m;
+  let funcString = target.toString();
+  if (target.prototype) {
+    let body = bodyReg.exec(funcString);
+    let param = paramReg.exec(funcString);
+    if (body) {
+      let paramArr = param[0].split(',');
+      if (param) {
+        return new Function(...paramArr, body[0]);
+      } else {
+        // no parameter
+        return new Function(body[0]);
+      }
+    } else {
+      return null;
+    }
+  } else {
+    // arrow function
+    return eval(target);
+  }
+}
+
+function getInit(target, type) {
+  switch	(type) {
+    case 'String':
+    case 'Number':
+    case 'Boolean':
+    case 'Date':
+    case 'Error':  //浏览器和nodejs在拷贝Error时报错
+      return new target.constructor(target);
+    case 'Symbol':
+      return cloneSymbol(target);
+    case 'RegExp':
+      return cloneRegExp(target);
+    case 'Function':
+      return cloneFunction(target);
+  }
+}
+
+function clone(target, map = new WeakMap()) {
+  if (!isObject) {
+    return target;
+  }
+  
+  let type = getType(target);
+  let cloneTarget;
+  
+  if (cloneDeepType.includes(type)) {
+    cloneTarget = getInit(target);
+  } else {
+    return cloneOtherType(target, type);
+  }
+  
+  if (map.get(target)) {
+    return map.get(target);
+  }
+  map.set(target, cloneTarget);
+  
+  if (type === 'Set') {
+    target.forEach(value => cloneTarget.add(clone(value)))
+    return cloneTarget;
+  }
+  
+  if (type === 'Map') {
+    target.forEach((value, key) => cloneTarget.set(key, clone(value));
+    return cloneTarget;
+  }
+  
+  let keys = type === 'Array' : undefined ? Object.keys(target);
+  forEach(keys || target, (value, idx) => {
+    if (keys) {
+      idx = value;
+    }
+    
+    cloneTarget[idx] = clone(target[idx]);
+  })
+  
+  return cloneTarget;
+}
+
+
+//error msg:
+"Error: Error
+    at cloneOtherType (<anonymous>:84:20)
+    at clone (<anonymous>:109:16)
+    at <anonymous>:140:28
+    at forEach (<anonymous>:24:9)
+    at clone (<anonymous>:136:5)
+    at <anonymous>:183:14"
+```
+
+
+
+```javascript
+const map = new Map();
+map.set('key', 'value');
+map.set('ConardLi', 'code秘密花园');
+
+const set = new Set();
+set.add('ConardLi');
+set.add('code秘密花园');
+
+const target = {
+    field1: 1,
+    field2: undefined,
+    field3: {
+        child: 'child'
+    },
+    field4: [2, 4, 8],
+    empty: null,
+    map,
+    set,
+    bool: new Boolean(true),
+    num: new Number(2),
+    str: new String(2),
+    symbol: Object(Symbol(1)),
+    date: new Date(),
+    reg: /\d+/,
+    error: new Error(),
+    func1: () => {
+        console.log('code秘密花园');
+    },
+    func2: function (a, b) {
+        return a + b;
+    }
+};
 ```
 
 
@@ -4870,7 +5015,7 @@ const result=JSON.parse(JSON.stringify(school));
 https://www.jianshu.com/p/52db1d0c1780
 ```
 
-#### 1.1.1  属性值对象里有时间对象
+##### 1.1.1  属性值对象里有时间对象
 
 ```js
 JSON返回结果是字符串形式,不是对象形式
@@ -4890,7 +5035,7 @@ console.log(b);
 
 
 
-#### 1.2 属性值对象里有正则缩写,Error对象
+##### 1.1.2 属性值对象里有正则缩写,Error对象
 
 ```js
 //序列号结果得到空对象
@@ -4905,7 +5050,7 @@ console.log(result); //{name: 'e', data: {}}
 
 
 
-#### 1.3 属性值对象里有函数,undefined
+##### 1.1.3 属性值对象里有函数,undefined
 
 ```js
 //
@@ -4928,11 +5073,11 @@ console.error('ddd', test, result);
 
 
 
-#### 1.4 如果属性值对象里由NaN, Infinity和-Infinity, 序列化结果是变成null
+##### 1.1.4 如果属性值对象里由NaN, Infinity和-Infinity, 序列化结果是变成null
 
 
 
-#### 1.5 不可枚举属性
+##### 1.1.5 不可枚举属性
 
 JSON.stringify()只能序列化对象的可枚举的自有属性，例如 如果obj中的对象是有构造函数生成的， 则使用JSON.parse(JSON.stringify(obj))深拷贝后，会丢弃对象的constructor；
 
@@ -4956,11 +5101,11 @@ console.log(test, result);
 
 
 
-#### 1.6 对象中存在循环引用的情况也无法实现深拷贝
+##### 1.1.6 对象中存在循环引用的情况也无法实现深拷贝
 
 
 
-#### 1.7 总结
+#### 1.2 总结
 
 序列化JS对象,所有函数和原型成员对象会被忽略.能被深拷贝的数据类型有**字符串,数值,布尔值,扁平对象.**
 

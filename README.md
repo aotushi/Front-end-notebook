@@ -31,7 +31,7 @@
 * [08_Git+BootStrap+Less](./note2/08_Git+BootStrap+Less.md)
 * [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝.md)
 * [10_Nodejs+Promise+模块化+gulp+存储+axios ](./note2/10_Nodejs+Promise+模块化+gulp+存储+axios.md)
-* [11_webpack配置教程](./note2/11_webpack配置教程.md)
+* [11_webpack](./note2/11_webpack配置教程.md)
 * [12_react](./note2/12_react.md)
 * [13_react脚手架Vue配置代理](./note2/13_react脚手架 Vue配置代理.md)
 * [14_移动端](./note2/14_移动端.md)

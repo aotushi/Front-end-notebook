@@ -751,13 +751,13 @@ note:
 
 ![](https://images0.cnblogs.com/blog/315302/201411/052135036896502.png)
 
-#### 3.事件流的典型应用事件代理
+#### 3.事件流的典型应用--事件代理
 
 传统的事件处理中，需要为**每个元素**添加事件处理器。js事件代理则是一种简单有效的技巧，通过它可以把事件处理器添加到**一个父级元素**上，从而避免把事件处理器添加到**多个子级元素**上。
 
 #### 3.1事件代理
 
-件代理的原理用到的就是事件冒泡和目标元素，把事件处理器添加到父元素，等待子元素事件冒泡，并且父元素能够通过target（IE为srcElement）判断是哪个子元素，从而做相应处理.
+事件代理的原理用到的就是事件冒泡和目标元素，把事件处理器添加到父元素，等待子元素事件冒泡，并且父元素能够通过target（IE为srcElement）判断是哪个子元素，从而做相应处理.
 
 ```html
 <body>
@@ -816,6 +816,8 @@ note:
 
 1.span的事件处理程序中阻止冒泡
 
+给子级加 event.stopPropagation( )
+
 ```js
 $(document).on('click', 'span', function(e){
   alert('li span');
@@ -827,11 +829,13 @@ $(document).on('click', 'span', function(e){
 
 2.li的事件处理程序中检测target元素
 
+return false;
+
 ```js
 $(document).on('click', 'li', function (e) {
   if (e.target.nodeName == 'SPAN') {
     e.stopPropagation();
-    return;
+    return false;
   }
   alert('li li');
 });
