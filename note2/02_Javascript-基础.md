@@ -9658,6 +9658,23 @@ let new_array = arr.map(function callback(currentValue[,index[, array]])) {
 * 如果存在的数组元素改变了，那么传给`callback`的值是`map`访问该元素时的值。在`map`函数调用后但在访问该元素前，该元素被删除的话，则无法被访问到。
 * 根据规范中定义的算法，如果被map调用的数组是离散的，新数组将也是离散的保持相同的索引为空。
 
+**重写**
+
+```javascript
+Array.prototype.myMap = function(callback) {
+  let _arr = this,
+      thisArg = arugments[1],
+      result = [];
+  
+  for (let i=0; i<_arr.length; i++) {
+    result = callback(thisArg, _arr[i], i, _arr);
+  }
+  return result;
+}
+```
+
+
+
 **实例**
 
 [使用 map 重新格式化数组中的对象](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map#使用_map_重新格式化数组中的对象)
@@ -9753,6 +9770,25 @@ let newArray = arr.filter(callback(element[, index[, array]])[, thisArg])
 * 如果为 `filter` 提供一个 `thisArg` 参数，则它会被作为 `callback` 被调用时的 `this` 值。否则，`callback` 的 `this` 值在非严格模式下将是全局对象，严格模式下为 `undefined`。
 * `filter` 遍历的元素范围在第一次调用 `callback` 之前就已经确定了。在调用 `filter` 之后被添加到数组中的元素不会被 `filter` 遍历到。
 * 如果已经存在的元素被改变了，则他们传入 `callback` 的值是 `filter` 遍历到它们那一刻的值。被删除或<u>从来未被赋值的元素</u>不会被遍历到。(null, undefined会被当做元素输出, 空位不会)
+
+
+
+**重写**
+
+```javascript
+Array.prototype.myFilter = function(callback) {
+  let _arr = this,
+      thisArg = arguments[1] || window,
+      result = [];
+  
+  for (let i=0; i<_arr.length; i++) {
+    if (callback.call(thisArg, _arr[i], i, _arr)) {
+      result.push(_arr[i])
+    }
+  }
+  return result;
+}
+```
 
 
 
@@ -10240,6 +10276,25 @@ arr.some(callback(element[, index[, array]])[, thisArg])
 * 在调用 `some()` 后被添加到数组中的值不会被 `callback` 访问到。
 * 如果数组中存在且还未被访问到的元素被 `callback` 改变了，则其传递给 `callback` 的值是 `some()` 访问到它那一刻的值。已经被删除的元素不会被访问到
 
+**重写**
+
+```javascript
+Array.prototype.mySome = function(callback) {
+  let _arr = this,
+      thisArg = arguments[1] || window,
+      flag = false;
+  
+  for (let i=0; i<_arr.length; i++) {
+    if (callback.call(thisArg, _arr[i], i, _arr)) {
+      return true
+    }
+  }
+  return flag;
+}
+```
+
+
+
 **实例**
 
 1.判断数组中是否存在某个值
@@ -10312,6 +10367,26 @@ arr.every(callback(element[, index[, array]])[, thisArg])
 * 如果为 `every` 提供一个 `thisArg` 参数，则该参数为调用 `callback` 时的 `this` 值。如果省略该参数，则 `callback` 被调用时的 `this` 值，在非严格模式下为全局对象，在严格模式下传入 `undefined`。
 * `every` 遍历的元素范围在第一次调用 `callback` 之前就已确定了。在调用 `every` 之后添加到数组中的元素不会被 `callback` 访问到。如果数组中存在的元素被更改，则他们传入 `callback` 的值是 `every` 访问到他们那一刻的值。那些被删除的元素或从来未被赋值的元素将不会被访问到。
 * `every` 和数学中的"所有"类似，当所有的元素都符合条件才会返回`true`。正因如此，若传入一个空数组，无论如何都会返回 `true`。（这种情况属于[无条件正确](http://en.wikipedia.org/wiki/Vacuous_truth)：正因为一个[空集合](https://en.wikipedia.org/wiki/Empty_set#Properties)没有元素，所以它其中的所有元素都符合给定的条件。)!!!!????
+
+**重写**
+
+```javascript
+Array.prototype.myEvery = function(callback) {
+  let _arr = this,
+      thisArg = arguments[1] || window,
+      flag = true;
+  
+  for (let i=0; i<_arr.length; i++) {
+    if (!callback(thisArg, _arr[i], i, _arr)) {
+      return false;
+    }
+  }
+  
+  return flag;
+}
+```
+
+
 
 **实例**
 
