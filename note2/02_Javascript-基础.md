@@ -5703,7 +5703,7 @@ console.log(factorial(5)); //0
 
 **定义**
 
-this是在执行上下文创建时确定的一个在执行过程中不可更改的变量.
+<u>this是在执行上下文创建时确定的一个在执行过程中不可更改的变量.</u>
 
 > 所谓**执行上下文**，就是JavaScript引擎在执行一段代码之前将代码内部会用到的一些**变量**、**函数**、**this**提前声明然后保存在变量对象中的过程。这个'代码片段'包括：**全局代码**(script标签内部的代码)、**函数内部代码**、**eval内部代码**。而我们所熟知的作用域链也会在保存在这里，以一个类数组的形式存储在对应函数的[[Scopes]]属性中。
 >
@@ -8811,6 +8811,34 @@ Array.prototype.toString()
 
 
 
+#### forEach
+
+
+
+**方法重写**
+
+```javascript
+Array.prototype.myForEach = function(callback) {
+  //判断this是否合法
+  if (this === null || this === undefined) {
+    return new TypeError("cannot read property of 'myForEach' of null");
+  }
+  
+  //判断callback是否合法
+  if (Object.prototype.toString.call(callback).slice(8, -1) !== 'Function') {
+    return new TypeError(callback + 'is not a function');
+  }
+  
+  let _arr = this,
+      thisArg = arguments[1] || window;
+  for (let i=0; i<_arr.length; i++) {
+    callback.call(thisArg, __arr[i], i, __arr);
+  }
+}
+```
+
+
+
 #### slice-截取
 
 **定义**
@@ -9835,6 +9863,37 @@ var maxCallback2 = ( max, cur ) => Math.max( max, cur );
 [ { x: 22 }, { x: 42 } ].map( el => el.x )
                         .reduce( maxCallback2, -Infinity );
 ```
+
+**方法重写**
+
+```javascript
+Array.prototype.myReduce = function (callback) {
+  let _arr = this,
+      accumulator = argument[1],
+      i = 0;
+  //判断是否传入初始值
+  if (accumentlator === undefined) {
+    //没有初始值的空数组调用reduce应该报错
+    if (_arr.length === 0) {
+      throw new Error('initVal and Array.length > 0 need one');
+    }
+    
+    //初始值赋值给
+    accumulator = _arr[i];
+    i++;
+  }
+  
+  for (;i<_arr.length; i++) {
+    accumulator = callback(accumulator, _arr[i], i, _arr);
+  }
+  
+  return accumulator;
+}
+```
+
+
+
+
 
 **实例**
 
@@ -11190,14 +11249,6 @@ function unique(arr) {
 > [面试官连环追问：数组拍平（扁平化） flat 方法实现 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904025993773063#heading-14)
 >
 > [2021年前端各大公司都考了那些手写题(附带代码) - 掘金 (juejin.cn)](https://juejin.cn/post/7033275515880341512)
-
-forEach
-
-```javascript
-Array.prototype.myForEach = function(callback) {
-  //https://juejin.cn/post/7033275515880341512
-}
-```
 
 
 
