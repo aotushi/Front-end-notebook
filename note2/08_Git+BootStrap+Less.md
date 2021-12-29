@@ -139,62 +139,11 @@ ssh -T git@github.com
 
 
 
-#### 管理多个密钥   (未完成没实践)
-
-1.**添加config文件**
-
-手动在ssh文件夹下新建config文件,配置密钥信息
-
-```js
-# gitlab
-Host gitlab.com
-HostName gitlab.com
-User root
-IdentityFile ~/.ssh/id_rsa
-
-# github
-Host github.com
-HostName github.com
-User root
-IdentityFile ~/.ssh/id_rsa_github
-
-Host 代表 关键词
-HostName 代表 主机地址
-User 代表 用户名
-IdentityFile 代表 认证文件
-```
 
 
+#### 同一电脑存在多个 Git 账号
 
-2.**添加密钥信任**
-
-完成配置，还需要对每个密钥添加信任，打开`Git Bash` 输入下面的指令
-
-```js
-eval $(ssh-agent -s)
-
-ssh-add ~/.ssh/other_id_rsa
-
-//eval 代表 开启代理认证指令
-
-//ssh-add 代表 添加ssh文件认证
-```
-
-
-
-3.**多密钥认证测试**
-
-完成多秘钥认证后，通过`ssh -T git@`，测试不同平台的密钥是否能连接成功
-
-```js
-//github
-ssh -T git@git.github.com
-
-//gitlab
-ssh -T git@xx.xx.xxx.xx
-```
-
-
+> [一些常用的 Git 进阶知识与技巧 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/431093836)
 
 
 
@@ -969,10 +918,6 @@ git pull origin master
 //其他 推送可能遇到的问题 上游无分支
 git push --set-upstream origin master
 ```
-
-
-
-
 
 
 

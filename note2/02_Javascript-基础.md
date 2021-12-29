@@ -10524,7 +10524,7 @@ arr.reduce((acc, val) => acc.concat(val), []);
 // [1, 2, 3, 4]
 
 // 使用扩展运算符 ...
-const flattened = arr => [].concat(...arr
+const flattened = arr => [].concat(...arr)
 ```
 
 [reduce + concat + isArray + recursivity](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat#reduce_concat_isarray_recursivity)
@@ -10891,39 +10891,6 @@ arr[6] = 15;
 
 
 
-#### 获取数组长度|length
-
-```JavaScript
-# 获取数组的长度
-	
-数组.length
-length的值实际就是数组的最大索引+1
-
-数组length属性是可以修改的 //字符串长度不能被修改
-    arr.length = 8; //假如数组长度为6,但是认为加长到8.所以多的是空元素
-	arr.length = 4; //删除数组中最后两个元素.再改回长度6的话,显示的空元素
-```
-
-
-
-#### 数组最后添加元素
-
-```JavaScript
-# 向数组的最后添加元素
-    
-数组[数组.length] = 值;
-```
-
-
-
-#### 访问数组最后一位
-
-```JavaScript
-# 访问数组最后一位
-   
-arr[arr.length-1] //可以理解最后一位是负1,倒数第二位是负2....
-```
-
 
 
 #### 判断两个数组是相等
@@ -11134,20 +11101,6 @@ let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index
 sort()排序+快慢指针
 
 ```javascript
-function unique(arr) {
-  arr.sort((a, b) => a - b);
-  let slow = 1,
-      falst = 1;
-  while(fast < arr.length) {
-    if (arr[fast] !== arr[fast - 1]) {
-      arr[slow++] = arr[fast];
-    }
-    ++fast;
-  }
-  arr.length = slow;
-  return arr;
-}
-
 //https://juejin.cn/post/6844904202162929671
 
 function unique(arr) {
@@ -11164,8 +11117,23 @@ function unique(arr) {
       right++;
     }
   }
+  return arr.slice(0, left+1);
+}
+
+//https://juejin.cn/post/7033275515880341512
+function unique2(arr) {
+  arr.sort((a, b) => a - b);
+  let slow = 1,
+      fast = 1;
   
-  return arr.slice(0, left + 1);
+  while(right < arr.length) {
+    if (arr[fast - 1] !== arr[fast]) {
+      arr[slow++] = arr[fast];
+    }
+    ++fast;
+  }
+  arr.length = slow;
+  return arr;
 }
 ```
 
@@ -11217,6 +11185,19 @@ function unique(arr) {
 
 
 
+#### 数组扁平化
+
+> [面试官连环追问：数组拍平（扁平化） flat 方法实现 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904025993773063#heading-14)
+>
+> [2021年前端各大公司都考了那些手写题(附带代码) - 掘金 (juejin.cn)](https://juejin.cn/post/7033275515880341512)
+
+forEach
+
+```javascript
+Array.prototype.myForEach = function(callback) {
+  //https://juejin.cn/post/7033275515880341512
+}
+```
 
 
 
@@ -11226,8 +11207,7 @@ function unique(arr) {
 
 
 
-
-#### 数组排序|冒泡排序
+#### 排序-数组排序|冒泡排序
 
 ```JavaScript
 # 编写代码，对arr进行排序
@@ -11267,11 +11247,7 @@ console.log(arr);
 
 
 
-### 数组排序
-
-
-
-#### 数组快速排序问题
+#### 排序-数组快速排序问题
 
 ```JavaScript
   快速排序（quickSort）
@@ -11319,7 +11295,7 @@ fn(arr);
 
 
 
-#### 数组快速排序(更新)
+#### 排序-数组快速排序(更新)
 
 
 
@@ -11373,7 +11349,7 @@ fn(arr);
 
 
 
-#### 快排|冒泡|sort比较
+#### 排序-快排|冒泡|sort比较
 
 ```JavaScript
 快速排序, 冒泡排序, sort排序用时比较
