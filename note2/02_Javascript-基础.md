@@ -7558,12 +7558,43 @@ function creatPerson(name, age, gender){
 >
 > 4.给新对象添加属性方法(执行构造函数内部的代码)
 >
-> 5.返回这个新对象(如果构造函数返回非空对象,则返回该对象; 否则返回刚创建的方法)
+> 5.如果构造函数返回非空对象,则返回该对象; 否则,返回刚创建的新对象.
 
 ```js
 var obj = {};
 obj.__proto__ = Foo.prototype;
 Foo.call(obj)
+```
+
+
+
+#### 模拟实现new操作符效果
+
+```javascript
+//https://juejin.cn/post/6844903986479251464#heading-39
+//https://juejin.cn/post/7033275515880341512#heading-35
+
+function newOperator(ctor, ...args) {
+  if (typeof ctor !== 'function') {
+    throw new Error('newOperator function the first param must be a function');
+  }
+  let obj = Object.create(ctor.prototype);
+  let res = ctor.apply(obj, args);
+  
+  let isObject = typeof res === 'object' && res !== null;
+  let isFunction = typeof res === 'function';  //????  是不是引用类型
+  
+  return isObject || isFunction ? res : obj;
+}
+
+function createObject(ctor) {
+  let obj = Object.create(null);
+  Object.setPropertyOf(obj, ctor.prototype);
+  
+  const res = ctor.apply(obj, [].slice.call(arguments, 1));
+  
+  return typeof(res) === 'object' ? ret : obj;
+}
 ```
 
 
@@ -9206,6 +9237,34 @@ arr.indexOf(searchElement[, fromIndex])
 * `indexOf` 使用[strict equality (en-US)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators#using_the_equality_operators) (无论是 ===, 还是 triple-equals操作符都基于同样的方法)进行判断 `searchElement与`数组中包含的元素之间的关系
 * 和`includes`类似, `+0`和`-0`是被认为是相等的, 但是`NaN`与`NaN`相反, `indexOf`认为不相等, `includes`认为相等
 
+
+
+**重写**
+
+```javascript
+Array.prototype.myIndexOf = function(searchItem, fromIndex) {
+  if (this.length === 0 || fromIndex >= this.length) {
+    return -1;
+  }
+  if (!searchItem) {
+    return new Error('need offer an initial value')
+  }
+  
+  if (fromIndex < 0) {
+    fromIndex = fromIndex+this.length < 0 ? 0 : fromIndex+this.length;
+  }
+  
+  for (let i=0; i<this.length; i++) {
+    if (searchItem === this[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
+```
+
+
+
 **实例**
 
 数组去重
@@ -9306,6 +9365,33 @@ arr.lastIndexOf(searchElement[, fromIndex])
 * 即使该值为负，数组仍然会被从后向前查找。
 * 如果该值为负时，其绝对值大于数组长度，则方法返回 -1，即数组不会被查找。
 
+**重写**
+
+```javascript
+Array.prototype.lastIndexOf = function(searchItem, fromIndex = this.length -1) {
+  if (this.length === 0) {
+    return new Error("the array's length must greater than 0")
+  }
+  if (fromIndex < 0 && Math.abs(fromIndex) > this.length) {
+    return -1;
+  }
+  if (fromIndex < 0 && Math.abs(fromIndex) <= this.length) {
+    fromIndex = this.length + fromIndex;
+  }
+  if (fromIndex >= this.length) {
+    fromIndex = this.length;
+  }
+  for (let i=fromIndex; i>=0; i--) {
+    if (searchItem === this[i]) {
+      return i;
+    }
+  }
+  return -1;
+}
+```
+
+
+
 **返回值**
 
 数组中该元素最后一次出现的索引，如未找到返回-1。
@@ -9379,7 +9465,7 @@ arr.join([separator])
 
 `separator` 可选
 
-* 指定一个字符串来分隔数组的每个元素。
+* 指定一个字符来分隔数组的每个元素。
 * 如果需要，将分隔符转换为字符串。
 * 如果缺省该值，数组元素用逗号（`,`）分隔。
 * 如果`separator`是空字符串(`""`)，则所有元素之间都没有任何字符。
@@ -9431,7 +9517,7 @@ let result = arr.join()
 
 **定义**
 
-`**reverse()**` 方法将数组中元素的位置颠倒，并返回该数组。数组的第一个元素会变成最后一个，数组的最后一个元素变成第一个。该方法会改变原数组。
+`reverse()` 方法将数组中元素的位置颠倒，并返回该数组。数组的第一个元素会变成最后一个，数组的最后一个元素变成第一个。该方法会改变原数组。
 
 **参数**
 
@@ -9448,6 +9534,43 @@ arr.reverse()
 * `reverse` 方法颠倒数组中元素的位置，改变了数组，并返回该数组的引用
 * reverse方法是特意类化的；此方法可被 [called](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [applied](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)于类似数组对象。
 * 对象如果不包含反映一系列连续的、基于零的数值属性中的最后一个长度的属性，则该对象可能不会以任何有意义的方式运行。
+
+**重写**
+
+```javascript
+Array.prototype.myReverse = function() {
+  let temp;
+  
+  //偶数
+  if (this.length % 2 === 0) {
+    for (let i=0; i<this.length/2; i++) {
+      temp = this[i];
+      this[i] = this[this.length-1-i];
+      this[this.length-1-i] = temp;
+      temp = null;
+    }
+  }
+  
+  
+  //奇数
+  if (this.length % 2 !== 0) {
+    for (let i=0; i<=Math.ceil(this.length / 2); i++) {
+    	if (Math.ceil(this.length/2) === i) {
+        this[i] = this[i]
+      }
+      
+      temp = this[i];
+      this[i] = this[this.length-1-i];
+      this[this.length-1-i] = temp;
+      temp = null;
+    }
+  }
+  
+  return this;
+}
+```
+
+
 
 **实例**
 
@@ -9566,6 +9689,17 @@ a - b = b - a =0 , 排序结果 ===> 保持不变
 ```
 
 `结论`: 无论a>b还是b>a，return a-b 总能得到升序的结果，而 return b-a 总能得到降序的结果. 另外，return a-b / return b - a 只是一种在理解的基础上简便的写法。复杂的写法就是使用上面的'比较函数的格式'.
+
+
+
+**重写**
+
+> https://juejin.cn/post/6844903986479251464#heading-33    本篇文章重要 精读
+
+```javascript
+```
+
+
 
 
 
@@ -10441,6 +10575,26 @@ console.log(array1.findIndex(isLargeNumber));
 // expected output: 3
 ```
 
+**重写**
+
+```javascript
+Array.prototype.myFind = function(callback) {
+  let _arr = this,
+      thisArg = arguments[1] || globalThis;
+  
+  for (let i=0; i<_arr.length; i++){
+    if (callback.call(thisArg, _arr[i], i, _arr)) {
+      return _arr[i]
+    }
+  }
+  return undefined;
+}
+```
+
+
+
+
+
 
 
 #### ES6-fill()
@@ -10472,6 +10626,8 @@ arr.fill(value[, start[, end]])
 * **`fill`** 方法故意被设计成通用方法, 该方法不要求 `this` 是数组对象
 * **`fill`** 方法是个可变方法, 它会改变调用它的 `this` 对象本身, 然后返回它, 而并不是返回一个副本
 * 当一个对象被传递给 **`fill`**方法的时候, 填充数组的是这个对象的引用
+
+
 
 **实例**
 
