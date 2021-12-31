@@ -14065,6 +14065,14 @@ function readNumber() {
 
 IEEE 754 标准是IEEE二进位浮点数算术标准(IEEE Standard for Floating-Point Arithmetic)的标准编号。IEEE 754 标准规定了计算机程序设计环境中的二进制和十进制的浮点数自述的交换、算术格式以及方法。
 
+typora输入公式
+
+> https://blog.csdn.net/mingzhuo_126/article/details/82722455
+
+$$
+V = (
+$$
+
 
 
 > https://www.jianshu.com/p/588eb74b5a03
