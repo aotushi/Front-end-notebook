@@ -2549,6 +2549,87 @@ console.log('~~(-2.999): ', ~~(-2.999));   // => -2
 
 
 
+#### 2.位移运算符
+
+在二进制基础上对数字进行移动操作
+
+##### 2.1 `<<` 按位左移运算符
+
+> Bitwise left shift operator
+
+
+
+##### 2.2 `>>` 按位右移运算符
+
+> Bitwise right shift opearotr
+
+
+
+##### 2.3 `>>>` 按位无符号右移运算符
+
+**Define**
+
+> Bitwise unsigned right shift opearot
+>
+> the unsigned right shift operator(>>>) (zero-fill right shift) shifts the first operand the specified number of bits to the right. Excess bits shifted off to the right are discarded. Zero bits are shifted in from the left. The sign bit becomes 0, so the result is always non-negative. Unlike the other bitwise operators, zero-fill right shift returns an unsigned 32-bit integer.
+
+无符号右移操作符（>>>）（零填充右移）将第一个操作数向右移动指定的位数。向右移出的多余的位被丢弃,再从从左边移入0。符号位变为0，所以结果总是非负的。与其他位操作符不同，零填充右移返回一个无符号的32位整数。
+
+**Desc**
+
+对非负整数,零填充右移符号和符号传播右移得到一样的结果.例如
+
+```javascript
+9(base 10): 00000000000000000000000000001001 (base 2)
+9>>>2(base 10): 00000000000000000000000000000010 (base 2) = 2 (base 10)
+```
+
+对负数来说,两者结果不同
+
+```javascript 
+-9(base 10): 11111111111111111111111111110111 (base 2)
+-9>>>2(base 10): 
+```
+
+**Example**
+
+取整,但不可对负数取整
+
+```javascript
+console.log(6.83>>>0) //6
+```
+
+其他
+
+非数值运算会变成0
+
+```javascript
+1>>>0  //1
+1.5>>>0 //1
+-1>>>0 //4294967295
+null>>>0 //0
+undefined>>>0 //0
+'sldkfj'>>>0 //0
+```
+
+
+
+**Other**
+
+1.`num>>>0`中的位运算
+
+> https://www.jianshu.com/p/588eb74b5a03
+
+
+
+1.1 JS中为什么浮点数也能参与位运算,在java,go,c中是不允许的?
+
+在JS中Number类型不区分整型,浮点型的.为了不丢失精度,JS中的Number类型实际上是一个基于IEEE754标准的双精度64位浮点数.
+
+JS需要位运算时,会将操作数转成32位比特序列,也就是补码.再按照64位浮点数存储.
+
+
+
 ### 8. 字符串运算符
 
 
@@ -3655,9 +3736,10 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 ```js
 * 创建对象(3种方法)
-let obj = new Object(); //new字可以省略
+let obj = new Object(); //new字可以省略,当以非构造函数形式调用,Object行为等同于new Object()
 let ojb = {};       //对象字面量 构造函数的语法糖
 let obj = Object.create(null); 
+
 工厂函数
 
 属性名没有任何要求,任何值都可以作为对象的属性名
@@ -9697,6 +9779,36 @@ a - b = b - a =0 , 排序结果 ===> 保持不变
 > https://juejin.cn/post/6844903986479251464#heading-33    本篇文章重要 精读
 
 ```javascript
+//插入排序 v1.0
+const insertSort = (arr, start=0, end) => {
+  end = end || arr.length;
+  for (let i=start; i<end; i++) {
+    for (let j=i; j>start&&arr[j-1]>arr[j]; j--) {
+      let temp = arr[j];
+      arr[j] = arr[j-1];
+      arr[j-1] = temp;
+    }
+  }
+  return arr;
+}
+
+//插入排序v2.0 优化插入
+//实际上交换元素会有相当大的性能消耗，我们完全可以用变量覆盖的方式来完成   ????
+const insertSort = (arr, start = 0, end) => {
+  end = end || arr.length;
+  for (let i=0; i<arr.length; i++) {
+    let e = arr[i];
+    let j;
+    for (j=i; j>start&&arr[j-1]>e; j--) {
+      arr[j-1] = arr[j];
+    }
+    arr[j] = e;
+  }
+  return arr;
+}
+
+
+//
 ```
 
 
@@ -13917,13 +14029,51 @@ function readNumber() {
 
 
 
+### 8. 其他
+
+> https://zhuanlan.zhihu.com/p/33333351
+>
+> https://zhuanlan.zhihu.com/p/66949640
+>
+> https://zhuanlan.zhihu.com/p/191395766
+>
+> https://zhuanlan.zhihu.com/p/351127362
+>
+> https://zhuanlan.zhihu.com/p/371530318
+>
+> https://www.zhihu.com/column/c_1042806379215601664?page=3
+
+#### 1. IEEE 754标准
+
+**背景**
+
+计算机中如何存储整数和小数?
+
+> 计算机内部信息都是由二进制方式表示的,但由于**某些浮点数没办法用二进制准确的表示出来**，也就带来了一系列精度问题。当然这也**不是JS独有的问题**。
+
+计算机中如何将小数转换成二进制?
+
+* 整数部分 除2取余数，若商不为0则继续对它除2，当商为0时则将所有余数逆序排列；
+* 小数部分 乘2取整数部分，若小数不为0则继续乘2，直至小数部分为0将取出的整数位正序排列。若小数部分无法为零，根据有效位数要求取得相应数值，位数后一位0舍1入进行取舍）
+
+```javascript
+//如果将0.1转换成二进制后,发现无法精确标识0.1
+0.1的二进制表示是：0.000110011......0011...... (0011无限循环)
+```
+
+**标准内容**
+
+IEEE 754 标准是IEEE二进位浮点数算术标准(IEEE Standard for Floating-Point Arithmetic)的标准编号。IEEE 754 标准规定了计算机程序设计环境中的二进制和十进制的浮点数自述的交换、算术格式以及方法。
 
 
 
+> https://www.jianshu.com/p/588eb74b5a03
 
 
 
+小数取整的几种方式
 
+> https://blog.csdn.net/AdminGuan/article/details/103324586
 
 
 

@@ -247,4 +247,35 @@ test
 | 3       | codeWars   lodash                 | 日常     |
 | 4       | Vue文档 Vue课程  下一步是项目     | 日常     |
 | 5(辅助) | 现代JavaScript教程 + mdn+飞书笔记 |          |
+| 6       |                                   |          |
+
+
+
+**书籍推荐**
+
+建议按照顺序阅读,
+
+首先是<js高级程序设计>+现代js教程, 学习语言体系
+
+再是<你不知道的js>, 学习语言细节
+
+最后是<JS语言精粹与编程实践>. 学习JS的设计思想
+
+
+
+| 序号 | 名称                                                         | 作者                                                         | 链接                                                       | 推荐来源                                                     |
+| ---- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------ |
+|      |                                                              |                                                              |                                                            |                                                              |
+|      | javascript高级程序设计 第四版<br />现代JavaScript教程        |                                                              |                                                            | 两个搭配学习                                                 |
+| 2    | 你不知道的JS                                                 | getify                                                       | https://github.com/getify/You-Dont-Know-JS                 | 如果只能推荐一本 JavaScript 的书，你会推荐哪本？ - 贺师俊的回答 - 知乎 https://www.zhihu.com/question/27471131/answer/1298702256 |
+| 3    | 深入理解JS特性                                               | Nicolás Bevacqua                                             | https://github.com/mjavascript/practical-modern-javascript | 如果只能推荐一本 JavaScript 的书，你会推荐哪本？ - 贺师俊的回答 - 知乎 https://www.zhihu.com/question/27471131/answer/1298702256 |
+|      | JS语言精髓与编程实践                                         | 周爱民                                                       | 官方仓库https://github.com/aimingoo/js-green-book-3        | 知乎-贺师俊                                                  |
+| 4    | Exploring JS                                                 | [Dr. Axel Rauschmayer](https://link.zhihu.com/?target=http%3A//dr-axel.de/) | https://exploringjs.com/<br />http://dr-axel.de/           | 知乎-贺师俊                                                  |
+|      | JS悟道                                                       | DC                                                           |                                                            |                                                              |
+|      | 深入理解ES6                                                  |                                                              |                                                            |                                                              |
+|      | ES6标准入门                                                  | 阮一峰                                                       | https://github.com/ruanyf/es6tutorial                      | 如果只能推荐一本 JavaScript 的书，你会推荐哪本？ - 贺师俊的回答 - 知乎 https://www.zhihu.com/question/27471131/answer/1298702256 |
+|      |                                                              |                                                              |                                                            |                                                              |
+|      | **javascript迷你正则书**                                     |                                                              | https://github.com/qdlaoyao/js-regex-mini-book             | 如果只能推荐一本 JavaScript 的书，你会推荐哪本？ - 蜗牛老湿-大圣的回答 - 知乎 https://www.zhihu.com/question/27471131/answer/1498957448 |
+|      | javascript编程精解<br />DOM启蒙<br />javascript函数式编程指南<br />javascript异步编程<br />javascript面向对象精要<br /> |                                                              | https://eloquentjavascript.net/<br />微信读书              | 知乎-蜗牛老湿                                                |
+|      |                                                              |                                                              |                                                            |                                                              |
 
