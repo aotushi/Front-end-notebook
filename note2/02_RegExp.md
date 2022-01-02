@@ -2,12 +2,13 @@
 
 ### 0.教程
 
-| 序号 | 名称                                                         | 来源                                                         |
+| 序号 | 名称                                                         | 地址                                                         |
 | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | 1    | LEARN REGEX THE EASY WAY                                     | [github](https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md) |
 | 2    | MDN                                                          | MDN                                                          |
 | 3    | https://github.com/cdoco/common-regex                        |                                                              |
 | 4    | https://docs.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-language-quick-reference?redirectedfrom=MSDN#Anchor_0 |                                                              |
+| 5    | JavaScript正则表达式迷你书                                   | https://github.com/qdlaoyao/js-regex-mini-book               |
 
 > [Regular expressions - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
 >
