@@ -4754,11 +4754,13 @@ function cloneSymbol(target) {
 
 function cloneRegExp(target) {
   let regFlag = /\w*$/;
-  return new target.constructor(target.source, regFlag.exec(target));
+  let result = new target.constructor(target.source, regFlag.exec(target));
+  result.lastIndex = target.lastIndex;
+  return result;
 }
 
 function cloneFunction(target) {
-  let paramReg = /(?=\().+(?=\)\s*{$);
+  let paramReg = /(?=\().+(?=\)\s*{$)/;
   let bodyReg = /(?={)(.|\n)+(?=})/m;
   let funcString = target.toString();
   if (target.prototype) {

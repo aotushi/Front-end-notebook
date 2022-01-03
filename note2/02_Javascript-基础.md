@@ -7815,6 +7815,7 @@ function newOperator(ctor, ...args) {
   }
   let obj = Object.create(ctor.prototype);
   let res = ctor.apply(obj, args);
+  // let res = ctor.call(obj, [].slice.call(arguments, 1));
   
   let isObject = typeof res === 'object' && res !== null;
   let isFunction = typeof res === 'function';  //????  是不是引用类型
@@ -9965,7 +9966,7 @@ const insertSort = (arr, start=0, end) => {
 //实际上交换元素会有相当大的性能消耗，我们完全可以用变量覆盖的方式来完成   ???? 这个我不明白
 const insertSort = (arr, start = 0, end) => {
   end = end || arr.length;
-  for (let i=0; i<arr.length; i++) {
+  for (let i=start; i<arr.length; i++) {
     let e = arr[i];
     let j;
     for (j=i; j>start&&arr[j-1]>e; j--) {
@@ -10043,6 +10044,8 @@ students.sort((firstItem, secondItem) => firstItem.grade - secondItem.grade);
 
 map()方法返回一个由原数组中每个元素调用一个指定方法后的返回值组成的新数组, 可以改变原数组
 
+
+
 **参数**
 
 ```javascript
@@ -10079,14 +10082,23 @@ let new_array = arr.map(function callback(currentValue[,index[, array]])) {
 
 ```javascript
 Array.prototype.myMap = function(callback) {
-  let _arr = this,
-      thisArg = arugments[1],
-      result = [];
+  let arr = this,
+      thisArg = arguments[1],
+      resArr = [];
   
-  for (let i=0; i<_arr.length; i++) {
-    result = callback(thisArg, _arr[i], i, _arr);
+  // verify this
+  if (Object.prototype.toString.call(this).slice(8, -1) !== 'Array') {
+    throw new TypeError('the Object type must be an Array');
   }
-  return result;
+  // verify callback
+  if (arguments.length === 0) {
+    throw new TypeError('undefined is not a function');
+  }
+  
+  for (let i=0; i<arr.length; i++) {
+    resArr.push(callback.call(thisArg, arr[i], i, arr));
+  }
+  return resArr;
 }
 ```
 

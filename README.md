@@ -240,14 +240,14 @@ test
 
 正在学习的有:
 
-| 序号    | 名称                              | 频率     |
-| ------- | --------------------------------- | -------- |
-| 1       | JS高级程序设计                    | 日常     |
-| 2       | 深入理解ES6                       | 基本完成 |
-| 3       | codeWars   lodash                 | 日常     |
-| 4       | Vue文档 Vue课程  下一步是项目     | 日常     |
-| 5(辅助) | 现代JavaScript教程 + mdn+飞书笔记 |          |
-| 6       |                                   |          |
+| 序号    | 名称                              | 频率                                                         |
+| ------- | --------------------------------- | ------------------------------------------------------------ |
+| 1       | JS高级程序设计                    | 日常                                                         |
+| 2       | 深入理解ES6                       | 基本完成                                                     |
+| 3       | codeWars   lodash                 | 日常                                                         |
+| 4       | Vue文档 Vue课程  下一步是项目     | 日常                                                         |
+| 5(辅助) | 现代JavaScript教程 + mdn+飞书笔记 |                                                              |
+| 6       | impatient-js                      | https://exploringjs.com/impatient-js/toc.html?continueFlag=9c43f00127715534c37f17de1 |
 
 
 
@@ -266,7 +266,7 @@ test
 | 序号 | 名称                                                         | 作者                                                         | 链接                                                       | 推荐来源                                                     |
 | ---- | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------ |
 |      |                                                              |                                                              |                                                            |                                                              |
-|      | javascript高级程序设计 第四版<br />现代JavaScript教程        |                                                              |                                                            | 两个搭配学习                                                 |
+|      | javascript高级程序设计 第四版<br />现代JavaScript教程        |                                                              |                                                            | 两个搭配学习 更新笔记                                        |
 | 2    | 你不知道的JS                                                 | getify                                                       | https://github.com/getify/You-Dont-Know-JS                 | 如果只能推荐一本 JavaScript 的书，你会推荐哪本？ - 贺师俊的回答 - 知乎 https://www.zhihu.com/question/27471131/answer/1298702256 |
 | 3    | 深入理解JS特性                                               | Nicolás Bevacqua                                             | https://github.com/mjavascript/practical-modern-javascript | 如果只能推荐一本 JavaScript 的书，你会推荐哪本？ - 贺师俊的回答 - 知乎 https://www.zhihu.com/question/27471131/answer/1298702256 |
 |      | JS语言精髓与编程实践                                         | 周爱民                                                       | 官方仓库https://github.com/aimingoo/js-green-book-3        | 知乎-贺师俊                                                  |
