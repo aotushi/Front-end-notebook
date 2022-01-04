@@ -664,7 +664,7 @@ console.log(child2.colors); //["red", "blue", "green"]
 
 Douglas Crockford的原型式继承. 这个object()函数会创建一个临时构造函数，将传入的对象赋值给这个构造函数的原型，然后返回这个临时类型的一个实例。本质上，object()是对传入的对象执行了一次浅复制.
 
-这种原型式继承适用的情况: 你有一种对象,想在它的基础上再创建一个新对象.
+这种原型式继承适用的情况: 你有一种对象,想在它的基础上再创建一个新对象.就是就是 ES5 Object.create 的模拟实现.
 
 ```javascript
 function object(o) {
@@ -674,7 +674,40 @@ function object(o) {
 }
 ```
 
+原型式继承的缺点:
+
+包含引用类型的属性值始终都会共享相应的值,这点跟原型链继承一样.
+
 ```javascript
+let person = {
+  name: 'kevin',
+  frineds: ['daisy', 'kelly']
+};
+
+let person1 = object(person);
+let person2 = object(person);
+
+person1.name = 'person1';
+console.log(person2.name); //'kevin'
+
+person1.friends.push('taylor');
+console.log(person2.frineds); //["daisy", "kelly", "taylor"]
+```
+
+
+
+#### 寄生式继承
+
+创建一个仅用于封装继承过程的函数,该函数在内部以某种形式来做增强对象,最后返回对象
+
+```javascript
+function createObj(o) {
+  let clone = object.create(o);
+  clone.sayName = function() {
+    console.log('hi');
+  }
+  return clone;
+}
 ```
 
 

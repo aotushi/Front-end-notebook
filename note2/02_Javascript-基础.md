@@ -4435,7 +4435,47 @@ Object.is与`===`比较
 
 
 
+#### Object.create()
 
+**Define**
+
+> the method creates a new object, using an exist object as the prototype of the newly created object.
+
+**Syntax**
+
+> Object.create(proto)
+>
+> Object.create(proto, propertiesObject)
+
+**Parameters**
+
+`proto`
+
+* The object which should be the prototype of the newly-created object.
+
+`propertiesObject` optional
+
+* If specified and not undefined, an object whose enumerable own properties(that is , those properties defined upon itself and not enumerable properties along its prototype chain)specify property descriptors to be added to the newly-created object, with the corresponding property names. 
+* These properties correspond to the second argument of Object.defineProperties()
+
+**Return value**
+
+> A new object with the specified prototype object and properties.
+
+**Exceptions**
+
+The `proto` parameter has to be either(要么是)
+
+* null
+* an Object excluding <u>[primitive wrapper objects](https://developer.mozilla.org/en-US/docs/Glossary/Primitive#primitive_wrapper_objects_in_javascript)</u>(原始包装对象)
+
+If `proto` is neither of these a TypeError is thrown.
+
+**Custom and Null objects**
+
+> A new object created from a completely custom object (especially one created from the null object, which is basically a custom object with NO members) can behave in unexpected way.
+>
+> This is especially true when debugging, since common object-property converting/detecting utility functions may generate errors, or lose information(especially if using silent error-traps(静默错误陷阱) that ignore errors).
 
 
 
