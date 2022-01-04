@@ -2557,7 +2557,7 @@ $$
 
 <u>对二进制补码求相反数的快速方法</u>
 
-把每个0都转为1以及每个1都转为0,然后对结果加1. 这个捷径基于以下观察: 一个数与其取反表达式的和一定是111...111<sub>2</sub>,它表示负1. 由于x+<span style="text-decoration: overline">x</span> = 1.,因此x+<span style="text-decoration: overline">x</span>+1 = 0或x+1 = -<span style="text-decoration: overline">x</span>.(用符号来表示<span style="text-decoration: overline">x</span>按位取反)
+把每个0都转为1以及每个1都转为0,然后对结果加1. 这个捷径基于以下观察: 一个数与其取反表达式的和一定是111...111<sub>2</sub>,它表示负1. 由于x+<span style="text-decoration: overline">x</span> = -1.,因此x+<span style="text-decoration: overline">x</span>+1 = 0或x+1 = -<span style="text-decoration: overline">x</span>.(用符号来表示<span style="text-decoration: overline">x</span>按位取反)
 
 
 
@@ -4156,6 +4156,218 @@ obj.sayHello(); //运行alert函数
 
 
 
+```
+
+
+
+#### 3. toString()
+
+**Define**
+
+> the method returns a string representing the object.
+
+**Syntax**
+
+```javascript
+toString()
+```
+
+**Return value**
+
+
+
+**Desc**
+
+Every object has a `toString()` method that is automatically called when the object is to be represented as a text value or when an object is referred to in a manner in which a string is expected(或当以预期字符串方式引用对象时).
+
+By default, the `toString()` method is inherited by every object descended from `Object`. If this method is not overridden in a custom object, `toString()` return `[object type]`, where `type` is the object type. 
+
+The following code illustrates this:
+
+```javascript
+const o = new Object();
+o.toString(); //[object Object]
+```
+
+Note:
+
+> Starting in JavaScript 1.8.5, 'toString()' called on null returns '[object null]', and undefined returns '[object undefined]', as defined in the 5th Edition of ECMAScript and subsequent Errata.
+
+**Parameters**
+
+For Numbers and BigInts `toString()` takes an optional parameter `radix` the value of radix must be minimun 2 and maximum 36.
+
+By using `radix` you can also convert base 10 numbers(like 1,2,3,4,5,....) to another base numbers, in example blow we are conveting base 10 number to a base 2 (binary) number.
+
+```javascript
+let base10Int = 10;
+console.log(base10Int.toString(2)); //1010
+```
+
+and same for big integers
+
+```javascript
+let bigNum = BigInt(20);
+console.log(bigNum.toString()); //10100
+```
+
+
+
+**Examples**
+
+1.overriding the default toString method
+
+You can create a function to be called in place of the default `toString()` method. The `toString()` method takes no arguments and should return a string. The `toString()` method you create can be any value you want, but it will be most useful if it carries information about the object.
+
+The following code defines the 'Dog' object type and creates 'theDog', an object of type 'Dog':
+
+```javascript
+function Dog(name, breed , color, sex) {
+  this.name = name;
+  this.breed = breed;
+  this.color = color;
+  this.sex = sex;
+}
+
+theDog = new Dog('Gabby' , 'Lab', 'chocolate', 'female');
+```
+
+If you call the 'toString()' method on this custom object, it returns the default value inherited from `Object`:
+
+```javascript
+theDog.toString() //'[object Object]'
+```
+
+The following code create and assigns 'dogToString()' to override the default 'toString()' method. This function generates a string containing the 'name breed color and sex'of the object, in the form 'property =value'.
+
+```javascript
+Dog.prototype.toString = function dogToString() {
+  const ret = 'Dog ' + this.name + ' is a ' + this.sex + ' ' + this.color + ' ' + this.breed;
+  return ret;
+}
+```
+
+With the preceding code in place, any time `toString()` is used in a `Dog` context, JavaScript automatically calls the `dogToString()` function, which returns the following string:
+
+```javascript
+"Dog Gabby is a female chocolate Lab"
+```
+
+
+
+2.Using toString() to detect object class
+
+`toString()` can be used with every object and (by default) allows you to get its class.
+
+To use the `Object.prototype.toString()` with every object, you need to call [`Function.prototype.call()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call) or [`Function.prototype.apply()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) on it, passing the object you want to inspect as the first parameter (called `thisArg`).
+
+```javascript
+cosnt toString = Object.prototype.toString;
+
+toString.call(new Date);    // [object Date]
+toString.call(new String);  // [object String]
+toString.call(Math);        // [object Math]
+
+// Since JavaScript 1.8.5
+toString.call(undefined);   // [object Undefined]
+toString.call(null);        // [object Null]
+```
+
+Using `toString()` in this way is unreliable; objects can change the behavior of `Object.prototype.toString()` by defining a [`Symbol.toStringTag`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/toStringTag) property, leading to unexpected results. For example:
+
+```javascript
+const myDate = new Date();
+Object.prototype.toString.call(myDate);     // [object Date]
+
+myDate[Symbol.toStringTag] = 'myDate';
+Object.prototype.toString.call(myDate);     // [object myDate]
+
+Date.prototype[Symbol.toStringTag] = 'prototype polluted';
+Object.prototype.toString.call(new Date()); // [object prototype polluted]
+```
+
+
+
+#### 4. valueOf()
+
+**Define**
+
+> this method returns the primite value of the specified object
+
+**Syntax**
+
+> valueOf()
+
+**Return value**
+
+the primitive value of the specified object.
+
+A [(unary) plus sign](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Unary_plus) can sometimes be used as a shorthand for valueOf. e.g. in `+new Number()`.
+
+**Desc**
+
+<u>JavaScript calls the `valueOf` method to convert an object to a primitive value.</u> You rarely need to invoke the `valueOf` method yourself, JavaScript automatically invoke it when encountering  an object where a primitive value is expected.
+
+By default, the `valueOf` method is inherited by every object descended from `Object`. Every built-in core object overrides this method to return an appopriate value. If an object has no primitive value, `valueOf` returns the object iteself.
+
+<u>You can use `valueOf` within your own code to convert a built-in object into a primitive value.</u> When you create a custom object, you can override `Object.prototype.valueOf()` to call a custom method instead of the default  `Object` method.
+
+Overriding valueOf for custom objects
+
+You can create a function to be called in place of the default `valueOf` method. Your function must take no arguments.
+
+Suppose you have an object type `MyNumberType` and you want to create a `valueOf` method for it. The following code assigns a user-defined function to the object's `valueOf` method.
+
+```javascript
+MyNumberType.prototype.valueOf = function() {return customPrimitiveValue;};
+```
+
+With the preceding code in place(使用上述代码), any time an object of type `MyNumberType` is used in a context where ti is to be represented as a primitive value,(只要在上下文中使用`MyNumberType`类型的对象,该对象将表示为私有值), JavaScript automatically calls the function defined in the preceding code.
+
+An object's `valueOf` method is usually invoked by JavaScript, but you can invoke it yourself as follows:
+
+```javascript
+myNumberType.valueOf()
+```
+
+Note:
+
+> Objects in string contexts convert via the 'toString()' method, which is different from 'String' objects converting to string primitive using 'valueOf'. All objects hava a string convertion, if only "[object type]". But many objects do not convert to number, boolean or function.
+
+**Examples**
+
+Using valueOf on custom types
+
+```javascript
+function MyNumberType(n) {
+  this.number = n;
+}
+MyNumberType.prototype.valueOf = function() {
+  return this.number;
+};
+
+let myObj = new MyNumberType(4);
+myObj + 3 ;//7
+```
+
+Using uary plus
+
+```javascript
++"5" // 5 (string to number)
++"" // 0 (string to number)
++"1 + 2" // NaN (doesn't evaluate)
++new Date() // same as (new Date()).getTime()
++"foo" // NaN (string to number)
++{} // NaN
++[] // 0 (toString() returns an empty string list)
++[1] // 1
++[1,2] // NaN
++new Set([1]) // NaN
++BigInt(1) // Uncaught TypeError: Cannot convert a BigInt value to a number
++undefined // NaN
++null // 0
++true // 1
++false // 0
 ```
 
 

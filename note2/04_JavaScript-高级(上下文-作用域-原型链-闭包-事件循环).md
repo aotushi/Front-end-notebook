@@ -479,20 +479,22 @@ Function是自己new了自己, 自己既是自己的构造函数,也是实例化
 
 ### 继承
 
-```HTML
-- 原型继承
-让父类的实例作为子类的原型, 将子类的原型构造器补充完整(为了让子类继承方法)
+#### 介绍
 
-- 借用构造函数继承
-在子类当中去调用父类的构造函数, 当普通函数调用(为了让子类继承属性)
+> JavaScript各种继承方式和优缺点
 
-- 混合继承
-原型继承, 借用构造函数继承一起使用
-```
+#### list
+
+* 原型链继承
+* 借用构造函数(经典继承)
+* 组合继承
+* 原型式继承
+* 寄生式继承
+* 寄生组合式继承
 
 
 
-#### 借用原型链继承
+#### 原型链继承
 
 **每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。**通俗点说就是，实例通过内部指针可以访问到原型对象，原型对象通过constructor指针，又可以找到构造函数
 
@@ -500,146 +502,184 @@ Function是自己new了自己, 自己既是自己的构造函数,也是实例化
 
 缺点: 
 
- 1.**对原型中引用类型值的误修改**:  原型上任何类型的属性值都不会通过实例被重写，但是引用类型的属性值会受到实例的影响而修
+ 1.引用类型的属性被所有实例共享.(基本类型的值更改后不会被共享, why?)
 
- 2.原型链不能实现子类向父类中传参
+ 2.子类不能向父类中传参
 
 ```js
-//https://www.cnblogs.com/sarahwang/p/6879161.html
+function Parent() {
+  this.name = 'kevin';
+}
 
-    //父类：人
-    function Person () {
-      this.head = '脑袋瓜子';
-      this.emotion = ['喜', '怒', '哀', '乐']; //人都有喜怒哀乐
-    }
-    //子类：学生，继承了“人”这个类
-    function Student(studentID) {
-      this.studentID = studentID;
-    }
-    Student.prototype = new Person();
+Parent.prototype.getName = function() {
+  console.log(this.name);
+}
 
-    var stu1 = new Student(1001);
-    console.log(stu1.emotion); //['喜', '怒', '哀', '乐']
+Parent.prototype.stringVal = 'parentA';
 
-    stu1.emotion.push('愁');
-    console.log(stu1.emotion); //["喜", "怒", "哀", "乐", "愁"]
-    
-    var stu2 = new Student(1002);
-    console.log(stu2.emotion); //["喜", "怒", "哀", "乐", "愁"]
+function Child() {}
+
+Child.prototype = new Parent();
+
+let child1 = new Parent();
+
+console.log(child1.getName()); //'kevin'
+```
+
+
+
+```javascript
+//引用类型的属性被所有实例共享
+
+function Parent() {
+  this.names = ['kevin', 'daisy'];
+  this.year = 1010
+}
+
+function Child() {}
+
+Child.prototype = new Parent();
+
+let child1 = new Child();
+child1.names.push('yayu');
+child1.year = 'abab';
+console.log(child1.names); //['kevin', 'daisy', 'yayu']
+
+let child2 = new Child();
+console.log(child2.names); //['kevin', 'daisy', 'yayu']
+console.log(child2.year); //1010
 ```
 
 
 
 
 
-#### 借助构造函数继承
+#### 借助构造函数(经典继承)
 
 在解决原型对象中包含引用类型值所带来问题的过程中，开发人员开始使用一种叫做**借用构造函数**的技术。实现原理是，在子类的构造函数中，通过 apply ( ) 或 call ( )的形式，调用父类构造函数，以实现继承。
 
 核心: 使用父类的构造函数增强子类实例, 等于是复制父类的实例给子类(没用到原型)
 
+优点:
+
+* 避免原型链继承中引用类型的属性被所有实例共享
+* 可以在子类中向父类传参
+
 缺点:
 
- 1.只能继承父类的实例属性和方法,不能继承原型的属性/方法
+* 方法都在构造函数中定义,每次创建实例都会创建一遍方法
 
- 2.无法实现函数复用,每个子类都有父类实例函数的副本,影响性能
+* 只能继承父类的实例属性和方法,不能继承原型的属性/方法
 
 ```js
-在子类函数中，通过call ( ) 方法调用父类函数后，子类实例 stu1, 可以访问到 Student 构造函数和 Person 构造函数里的所有属性和方法。这样就实现了子类向父类的继承，而且还解决了原型对象上对引用类型值的误修改操作。
-
-//父类：人
-function Person () {
-  this.head = '脑袋瓜子';
-  this.emotion = ['喜', '怒', '哀', '乐']; //人都有喜怒哀乐
-}
-//子类：学生，继承了“人”这个类
-function Student(studentID) {
-  this.studentID = studentID;
-  Person.call(this);
+function Parent() {
+  this.name = ['kevin', 'daisy'];
 }
 
-//Student.prototype = new Person();
+function Child() {
+  Parent.call(this);
+}
 
-var stu1 = new Student(1001);
-console.log(stu1.emotion); //['喜', '怒', '哀', '乐']
+let child1 = new Child();
+child1.names.push('yayu');
+console.log(child1.names); //["kevin", "daisy", "yayu"]
 
-stu1.emotion.push('愁');
-console.log(stu1.emotion); //["喜", "怒", "哀", "乐", "愁"]
+let child2 = new Child();
+console.log(child2.names); //["kevin", "daisy"]
+```
 
-var stu2 = new Student(1002);
-console.log(stu2.emotion); //["喜", "怒", "哀", "乐"]
 
+
+```javascript
+function Parent(name) {
+  this.name = name;
+}
+
+function Child(name) {
+  Parent.call(this, name);
+}
+
+let child1 = new Child('kevin');
+console.log(child1.name); //'kevin'
+
+let child2 = new Child('daisy');
+console.log(child2.name); //'daisy'
 ```
 
 
 
 
 
-#### 混合继承
+#### 组合继承
 
-[原型链继承](http://www.cnblogs.com/sarahwang/p/6870072.html)和[借用构造函数继承](http://www.cnblogs.com/sarahwang/p/6879161.html#3976607)。这两种模式都存在各自的缺点，所以，我们考虑是否能将这二者结合到一起，从而发挥二者之长。即在继承过程中，既可以保证每个实例都有它自己的属性，又能做到对一些属性和方法的复用
+> 组合继承（有时候也叫伪经典继承）综合了原型链和盗用构造函数，将两者的优点集中了起来。基
+> 本的思路是使用原型链继承原型上的属性和方法，而通过盗用构造函数继承实例属性。这样既可以把方
+> 法定义在原型上以实现重用，又可以让每个实例都有自己的属性'
 
-```js
-//方式一:基于构造函数的继承:原型链+借用构造函数的组合式继承
+优点: 融合原型链继承和构造函数的优点，是 JavaScript 中最常用的继承模式
+
+方式一:
+
  1.借用父类的构造函数: Person.call(this,name,age)
  2.子类原型等于父类的实例 Student.prototype = new Person();
  3.子类原型构造器为子类型 Student.prototype.constructor = Student;
 
+方式二:
 
-
-//父类
-function Dog(name, age, color){
-    this.name = name;
-    this.age = age; 
-    this.color = color;
-}
-Dog.prototype.run = function(){
-    console.log(`${name}今年${age}岁了,颜色是${color}`);
-}
-//子类
-function Taidi(name, age ,color){
-    //this.name =name;
-    //this.age = age;
-    //this.color = color;
-    //使用父类.call方法代替以上的3个this
-    //本作用域中的this指向Taidi的实例化对象,也就是call中的this 
-    Dog.call(this, name , age , color);
-}
-
-Taidi.prototype = new Dog();
-Taidi.prototype.constructor = Taidi.
-//子类的实例化对象(t1)调用一个方法,自己没有,顺着原型链找到其构造函数(Taidi)的显示原型(prototype).
-//但是现在构造函数的显式原型, 被我们指向父类的实例, 所以:
-//通过子类的实例化对象(t1)调用一个方法,自己没有,顺着原型链,找到父类Dog的实例化对象.
-//如果这个Dog的实例化对象也没有这个方法,则会顺着这个实例化对象的隐式原型, 找到Dog的显式原型.
-//这种只能继承方法
-
-//缺点: 如果存在一种场景,需要知道当前实例是由谁构造出来的,所以需要手动给这个实例添加一个构造器.
-// Taidi.prototype是Dog的实例, Taidi的__proto__指向Dog构造函数,Taidi的__proto__的__proto__就是Dog函数的
-
-
-
-
-var dog1 = new Dog('wangcai', 1, 'black');
-console.log(dog1); //Dog {name: "wangcai", age: 3, color: "black"}
-dog1.run();//跑得快
-
-var t1 = new Taidi('abc', 1, 'brown');
-console.log(t1);//Taidi {name: "ritian", age: 1, color: "brown"}
-t1.run();//跑得快
-
-//方式二 基于class类的继承
  1.子类继承父类: class Student extends Person;
  2.子类构造器中调用父类的构造: super(name,age)
 
-class Student extends Person{
-  constructor(name,age,course){
-    super(name,age)
-    this.course = course;
-  }
+```javascript
+function Parent(name) {
+  this.name = naem;
+  this.colors = ['red', 'blue', 'green'];
 }
 
+Parent.prototype.getName = function() {
+  console.log(this.name);
+}
+
+function Child(name, age) {
+  Parent.call(this, name);
+  this.age = age;
+}
+
+Child.prototype = new Parent();
+
+let child1 = new Child('kevin', '18');
+child1.colors.push('black');
+console.log(child1.name); //'kevin'
+console.log(child1.age); // 18
+console.log(child1.colors); // ["red", "blue", "green", "black"]
+
+let child2 = new Child('daisy', '20');
+console.log(child2.name); //'daisy'
+console.log(child2.age); //20
+console.log(child2.colors); //["red", "blue", "green"]
 ```
+
+
+
+#### 原型式继承
+
+Douglas Crockford的原型式继承. 这个object()函数会创建一个临时构造函数，将传入的对象赋值给这个构造函数的原型，然后返回这个临时类型的一个实例。本质上，object()是对传入的对象执行了一次浅复制.
+
+这种原型式继承适用的情况: 你有一种对象,想在它的基础上再创建一个新对象.
+
+```javascript
+function object(o) {
+  function F() {}
+  F.prototype = o;
+  return new F();
+}
+```
+
+```javascript
+```
+
+
+
+
 
 
 
