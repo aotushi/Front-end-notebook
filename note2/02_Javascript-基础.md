@@ -4482,8 +4482,8 @@ Object.is与`===`比较
 
 `propertiesObject` optional
 
-* If specified and not undefined, an object whose enumerable own properties(that is , those properties defined upon itself and not enumerable properties along its prototype chain)specify property descriptors to be added to the newly-created object, with the corresponding property names. 
-* These properties correspond to the second argument of Object.defineProperties()
+* If specified and not undefined, an object whose enumerable own properties(that is , those properties defined upon itself and not enumerable properties along its prototype chain)specify property descriptors to be added to the newly-created object, with the corresponding property names. (如果该参数被指定且不为undefined, 该传入对象的自有可枚举属性(即其自身定义的属性,而不是其原型链上的枚举属性)将为新创建的对象添加指定的属性值和对应的属性描述符.)
+* These properties correspond to the second argument of Object.defineProperties().(该对象的属性类型参数Object.defineProperties()的第二个参数)
 
 **Return value**
 
@@ -4758,7 +4758,24 @@ o2 = Object.create({}, {
 // is not equivalent to: o2 = Object.create({p: 42}) this will create an object with prototype
 ```
 
-**实现Object.create()**
+**Polyfill**
+
+```javascript
+if (typeof Object.create !== 'function') {
+  Object.create = function (proto, propertiesObject) {
+    throw new TypeError('object prototype may only be an object: ' + proto);
+  } else if (proto = null) {
+    throw new Error ("this browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.");
+    
+    if (typeof propertiesObject !== 'undefined') throw new Error("this browser's implementation of Object.create is a shim and doesn't support a second argument.")
+  }
+  
+  function F() {}
+  F.prototype = proto;
+  return new F();
+  
+}
+```
 
 ```javascript
 ```
@@ -4962,6 +4979,24 @@ Object.keys.sort()
 ```
 
 
+
+#### Object.defineProperty()
+
+#### Object.defineProperties()
+
+**define**
+
+> the method defines new or modifies existing properties directly on an object, returning the object.
+
+**syntax**
+
+> Object.defineProperties(obj, props);
+
+`obj` 
+
+* the object on which to define or modify properties
+
+`props` 
 
 
 
