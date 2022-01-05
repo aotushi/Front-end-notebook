@@ -496,9 +496,9 @@ Function是自己new了自己, 自己既是自己的构造函数,也是实例化
 
 #### 原型链继承
 
-**每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。**通俗点说就是，实例通过内部指针可以访问到原型对象，原型对象通过constructor指针，又可以找到构造函数
+> 子类原型 = 父类实例  Child.prototype = new Parent()
 
-核心: 将父类的实例作为子类的原型
+**每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。**通俗点说就是，实例通过内部指针可以访问到原型对象，原型对象通过constructor指针，又可以找到构造函数
 
 缺点: 
 
@@ -556,6 +556,8 @@ console.log(child2.year); //1010
 
 #### 借助构造函数(经典继承)
 
+> 在子类构造函数中,通过call()/apply()调用父类构造函数
+
 在解决原型对象中包含引用类型值所带来问题的过程中，开发人员开始使用一种叫做**借用构造函数**的技术。实现原理是，在子类的构造函数中，通过 apply ( ) 或 call ( )的形式，调用父类构造函数，以实现继承。
 
 核心: 使用父类的构造函数增强子类实例, 等于是复制父类的实例给子类(没用到原型)
@@ -612,9 +614,9 @@ console.log(child2.name); //'daisy'
 
 #### 组合继承
 
-> 组合继承（有时候也叫伪经典继承）综合了原型链和盗用构造函数，将两者的优点集中了起来。基
-> 本的思路是使用原型链继承原型上的属性和方法，而通过盗用构造函数继承实例属性。这样既可以把方
-> 法定义在原型上以实现重用，又可以让每个实例都有自己的属性'
+> 组合继承（有时候也叫伪经典继承）综合了原型链和盗用构造函数，将两者的优点集中了起来。基本的思路是使用原型链继承原型上的属性和方法，而通过盗用构造函数继承实例属性。
+>
+> 这样既可以把方法定义在原型上以实现重用，又可以让每个实例都有自己的属性'
 
 优点: 融合原型链继承和构造函数的优点，是 JavaScript 中最常用的继承模式
 
@@ -676,7 +678,7 @@ function object(o) {
 
 原型式继承的缺点:
 
-包含引用类型的属性值始终都会共享相应的值,这点跟原型链继承一样.
+跟原型链继承一样., 包含引用类型的属性值始终都会共享相应的值
 
 ```javascript
 let person = {
@@ -710,31 +712,64 @@ function createObj(o) {
 }
 ```
 
+缺点: 
+
+跟借用构造函数模式一样,每次创建对象都会创建一遍方法
 
 
 
+#### 寄生组合式继承
 
+组合式继承的最大缺点是会调用两次父构造函数. 一次是设置子类型实例的原型时;一次是创建子类实例时.
 
+如何避免在子类构造函数中的重复调用呢?
 
-#### 封装一个继承函数
-
-```js
-//https://blog.csdn.net/weixin_30621919/article/details/97747095
-
-function extend(child,parent){
-  let F=function(){}
-  F.prototype=parent.prototype;
-  child.prototype=new F();
-  child.prototype.constructor=child;
-  
-  child.parent=parent.prototype;
-  if(parent.prototype.constructor===Object.prototype.constructor){
-    parent.prototype.constructor=parent;
-  }
+```javascript
+function Parent(name) {
+  this.name = name;
+  this.corlors = ['red', 'blue', 'green'];
 }
 
+Parent.prototype.getName = function() {
+  console.log(this.name);
+}
 
+function Child(name, age) {
+  Parent.call(this, name);
+  this.age = age;
+}
+
+//关键步骤
+function F() {}
+F.prototype = Parent.prototype;
+Child.prototype = new F();
+
+let child1 = new Child('kevi', '18');
 ```
+
+封装下这个方法
+
+```javascript
+function object(o) {
+  function F() {};
+  F.prototype = o;
+  return new F();
+}
+
+function prototype(child, parent) {
+  let prototype = object(parent.prototype);
+  prototype.constructor = child;
+  child.prototype = prototype;
+}
+```
+
+> 这种方式的高效率体现它只调用了一次 Parent 构造函数，并且因此避免了在 Parent.prototype 上面创建不必要的、多余的属性。与此同时，原型链还能保持不变；因此，还能够正常使用 instanceof 和 isPrototypeOf。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。
+
+
+
+#### ES6中类的继承
+
+
 
 
 

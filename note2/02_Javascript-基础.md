@@ -3506,7 +3506,7 @@ for (const prop in obj) {
 }
 ```
 
-迭代自身的属性(搭配`hasOwnProperty()`)
+迭代自身的属性(搭配`hasOwnProperty()`)  推荐总是使用'hasOwnProperty'
 
 ```javascript
 let triangle = {a: 1, b: 2, c: 3};
@@ -4110,6 +4110,10 @@ hasOwnProperty() 检查属性是否存在于对象自身中
 
 
 
+
+
+
+
 JS中对象的**属性值**可以是任意类型的数据,也可以是一个对象
 
 ```JavaScript
@@ -4123,6 +4127,29 @@ obj.test.tt = Object();
 ```
 
  
+
+#### delete
+
+**define**
+
+> the delete operator removes a property from an object; if no more references to the same proeprty are held, it is eventually released automatically.(如果没有对同一属性更多的引用, 它最终将自动被释放)
+
+**syntax**
+
+> delete expression
+
+Where expression should evaluate to property references. e.g.:
+
+```javascript
+delete obj.property
+delete obj['property']
+```
+
+**return value**
+
+`true` for all cases except when the proeprty is  an [`own`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty)(Object.hasOwnProperty()) [`non-configurable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Cant_delete) property, in which case, `false` is returned in non-strict mode.
+
+**example**
 
 
 
@@ -4469,13 +4496,272 @@ The `proto` parameter has to be either(要么是)
 * null
 * an Object excluding <u>[primitive wrapper objects](https://developer.mozilla.org/en-US/docs/Glossary/Primitive#primitive_wrapper_objects_in_javascript)</u>(原始包装对象)
 
-If `proto` is neither of these a TypeError is thrown.
+<u>If `proto` is neither of these a TypeError is thrown.</u>
 
 **Custom and Null objects**
 
 > A new object created from a completely custom object (especially one created from the null object, which is basically a custom object with NO members) can behave in unexpected way.
 >
 > This is especially true when debugging, since common object-property converting/detecting utility functions may generate errors, or lose information(especially if using silent error-traps(静默错误陷阱) that ignore errors).
+>
+> For example, here are two objects
+
+```javascript
+let oco = Object.create({});
+let ocn = Object.create(null);
+
+console.log(oco); //{}
+console.log(ocn); //{}
+
+oco.p = 1;
+ocn.p = 0;
+
+console.log(oco); //{p:1}
+console.log(ocn); //{p:0}
+
+'oco is: ' + oco //'oco is: [object Object]'
+'ocn is: ' + ocn //throws error: cannot convert object to primitive value.
+
+alert(oco); //shows [object Object]
+alert(ocn); //throws error: cannot convert object to primitive value
+
+oco.toString(); //[object Object]
+ocn.toString(); //throws error: ocn.toString is not a function
+
+oco.valueOf(); //{}
+ocn.valueOf(); //throws error: ocn.valueOf is not a function
+
+oco.hasOwnProperty('p'); //true
+ocn.hasOwnProperty('p'); //throws error: ocn.hasOwnProperty is not a function
+```
+
+
+
+As said, these differences can make debugging(调试) even simple -seeming problems quickly go astray(迷途的).
+
+a simple common debugging function
+
+```javascript
+// display top-level property name: value pairs of given object
+
+function ShowProperties(obj) {
+  for (let prop in obj) {
+    console.log(prop + ': ' + obj[prop] + '\n');
+  }
+}
+```
+
+Not such simple result: (especially if silent error-trapping has hidden the error message)
+
+```javascript
+ob = {}; ob.po = oco; ob.pn = ocn;
+ShowProperties(ob); //display top-level properties
+ - po: [object Object]
+ - Error: cannot convert object to primitive value
+ 
+Note that only first property gets show.
+
+//but if the same object is created in a different order  at least in some implementations
+
+ob = {}; ob.pn = ocn; ob.po = oco;
+ShowProperties(ob);
+-Error: cannot convert object to primitive value
+
+Note that neigher property gets shown.
+```
+
+Note that such a different order may arise statically via disparate fixed codings such as here, but also dynamically via whatever the order any such property-adding code-branches actually get executed at runtime as depends on inputs and/or random-variables.[请注意，这种不同的顺序可能通过不同的固定编码（如此处）静态出现，但也可以通过任何此类添加属性的代码分支在运行时实际执行的顺序动态出现，这取决于输入和/或随机变量。]
+
+Then again, the actual iteration order is not guaranteed no matter what the order members are added.
+
+Be aware of , also, that using Object entries() on an object created via Object.create() will rsult in an empty array being returned.
+
+```javascript
+let obj = Object.create({a: 1, b: 2});
+console.log(Object.entries(obj)); //[]
+```
+
+Some NON-solutions
+
+Adding the missing object-method directly from the standard-object does NOT work.
+
+```javascript
+ocn = Object.create(null);
+
+ocn.toString = Object.toString;
+
+> ocn.toString //shows 'toString() {[native code]}'
+> ocn.toString == Object.toString //true
+
+>ocn.toString() //error: Function.prototypetoString requires that 'this' be a Function
+```
+
+Adding the missing object-method directly to new object's 'protptype' does not work either, since the new object does not hava a real prototype (which is really the cause of ALL these problems) and one cannot be directly added:
+
+```javascript
+let ocn = Object.create(null);
+
+ocn.prototype.toString = Object.toString; //Error: cannot set property 'toString' of undefined
+
+ocn.prototype = {};
+ocn.prototype.toString = Object.toString;
+
+> ocn.toString() //error: ocn.toString is not a function
+```
+
+Adding the missing object-method by calling 'Object.setPropertyOf()' with the name of the standard-object itself as the second argument does not work either.
+
+```javascript
+ocn = Object.create(null);
+Object.setPropertyOf(ocn, Object);//wrong; sets new object's prototype to the Object() function
+
+> ocn.toString() //error: Function.prototype.toString requires that 'this' be a function
+```
+
+In addition to all the string-related functions shown above, this also adds:
+
+```javascript
+ocn.valueOf(); //{}
+ocn.hasOwnProperty('x'); //'false'
+ocn.constructor // 'Object() {[native code]}'
+
+// ... and all the rest of the properties and methods of Object.prototype
+```
+
+
+
+Some OK solutions
+
+* generic method
+* generic prototype
+
+adding the missing object-method directly from the standard-object does NOT work. However, adding the **generic method** directly, DOES:
+
+```javascript
+ocn = Object.create(null);
+
+ocn.toString = toString;
+
+> ocn.toString() //'[object Object]'
+> 'ocn is: ' + ocn; //'ocn is: [object Object]'
+
+ob = {}; ob.pn = ocn; ob.po = oco;
+
+> ShowProeprties(ob);
+ - po: [object Object]
+ - pn: [object Object]
+```
+
+However, setting the **generic prototype** as the new object's prototype works even better.
+
+```javascript
+ocn = Object.create(null);
+Object.setPropertyOf(ocn, Object.prototype);
+```
+
+
+
+**Example**
+
+1.Classical inheritance with 'Object.create()
+
+```javascript
+//Shape superclass
+function Shape() {
+  this.x = 0;
+  this.y = 0;
+}
+
+//superclass method
+Shape.prototype.move = function(x, y) {
+  this.x += x;
+  this.y += y;
+  console.log('Shape moved');
+}
+
+//Rectangle  - subclass
+function Rectangle() {
+  Shape.call(this); //call super constructor
+}
+
+//subclass extends superclass
+Rectangle.prototype = Object.create(Shape.prototype);
+Rectangle.prototype.constructor = Rectangle;
+
+let rect = new Rectangle();
+
+console.log('Is rect an instance of Rectangle ?', rect instanceof Rectangle) //true
+console.log('Is rect an instance of Shape?', rect instanceof Shape); //true
+rect.move(1, 1); //outputs, 'Shape moved'
+```
+
+2.Using propertiesObject argument with Object.create()
+
+* by default properties ARE NOT writable, enumerable or configurable:
+
+```javascript
+let o;
+
+//create an object with null property
+o = Object.create(null);
+
+o = {};
+// is equal to :
+o = Object.create(Object.prototype);
+
+o = Object.create(Object.prototype, {
+  foo: {
+    wiritable: true,
+    configurable: true,
+    value: 'hello'
+  },
+  bar: {
+    configurable: false,
+    get: function() {return 10},
+    set: function(value) {
+      console.log('Setting `o.bar` to', value);
+    }
+  }
+})
+
+
+
+function Constructor() {}
+o = new Constructor();
+//is equivalent to:
+o = Object.create(Constructor.prototype);
+// Of course, if there is autual initialization code in the constructor function, the Object.create() cannot reflect it.
+
+//Create a new object whose prototype is a new, empty object and add a single property 'p' ,with value 42.
+o = Object.create({}, {p: {value: 42}});
+// by default properties ARE NOT writable, enumerable or configurable:
+o.p = 24;
+> o.p //42
+o.q = 12;
+for (let prop in o) {
+  console.log(prop);
+}
+//'q'
+
+delete o.p;  //false
+
+
+//to specify an ES3 property
+o2 = Object.create({}, {
+  p: {
+    value: 42,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  }
+});
+// is not equivalent to: o2 = Object.create({p: 42}) this will create an object with prototype
+```
+
+**实现Object.create()**
+
+```javascript
+```
 
 
 
