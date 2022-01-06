@@ -4777,8 +4777,12 @@ if (typeof Object.create !== 'function') {
 }
 ```
 
+**如何实现Object.create()方法**
+
 ```javascript
 ```
+
+
 
 
 
@@ -5098,6 +5102,9 @@ Enumerable属性
 
 `enumerable`定义了对象的属性是否可以在`for...in`循环和`Object.keys()`中被枚举.
 
+```javascript
+```
+
 
 
 Configurable属性
@@ -5155,6 +5162,48 @@ let b = new myclass();
 
 a.x = 1;
 console.log(b.x); //1
+```
+
+可以通过将值存储在另一个属性中解决.在get和set方法中,this指向某个被访问和修改属性的对象.
+
+```javascript
+function myclass() {}
+
+Object.defineProperty(myclass.prototype, 'x', {
+  get() {
+    return this.stored_x;
+  },
+  set(x) {
+    this.stored_x = x;
+  }
+});
+
+let a = new myclass();
+let b = new myclass();
+
+a.x = 1;
+console.log(b.x);//undefined
+```
+
+不像访问者属性,值属性始终在对象自身上设置,而不是一个原型.然而,如果一个不可写的属性被继承,它仍然可以防止修改对象的属性.
+
+```javascript
+function myclass() {}
+
+myclass.prototype.x = 1;
+Object.defineProperty(myclass.prototype, 'y', {
+  writable: false,
+  value: 1
+});
+
+let a = new myclass();
+a.x = 2;
+console.log(a.x); // 2
+console.log(myclass.prototype.x); // 1
+a.y = 2; // Ignored, throws in strict mode
+console.log(a.y); // 1
+console.log(myclass.prototype.y); // 1
+
 ```
 
 
