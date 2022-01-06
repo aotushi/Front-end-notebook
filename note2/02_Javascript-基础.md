@@ -4482,7 +4482,7 @@ Object.is与`===`比较
 
 `propertiesObject` optional
 
-* If specified and not undefined, an object whose enumerable own properties(that is , those properties defined upon itself and not enumerable properties along its prototype chain)specify property descriptors to be added to the newly-created object, with the corresponding property names. (如果该参数被指定且不为undefined, 该传入对象的自有可枚举属性(即其自身定义的属性,而不是其原型链上的枚举属性)将为新创建的对象添加指定的属性值和对应的属性描述符.)
+* If specified and not undefined, an object whose enumerable own properties(that is , those properties defined upon itself and not enumerable properties along its prototype chain)specify property descriptors to be added to the newly-created object, with the corresponding property names. (如果被指定且不是未定义的, 一个对象的可枚举自身属性(即那些定义在自身的属性, 而不是沿着其原型链的可枚举属性)指定要添加到新创建的对象中的属性描述符,以及相应的属性名.)
 * These properties correspond to the second argument of Object.defineProperties().(该对象的属性类型参数Object.defineProperties()的第二个参数)
 
 **Return value**
@@ -4663,7 +4663,7 @@ Object.setPropertyOf(ocn, Object.prototype);
 
 **Example**
 
-1.Classical inheritance with 'Object.create()
+1.组合式继承
 
 ```javascript
 //Shape superclass
@@ -4982,6 +4982,195 @@ Object.keys.sort()
 
 #### Object.defineProperty()
 
+**define**
+
+> the static method defines a new property directly on an object, or modifies an existing property on an object, and return the object.
+
+**syntax**
+
+> Object.definePorperty(object, prop, descriptor)
+
+`object`
+
+* the object on which to define the property
+
+`prop`
+
+* the name or Symbol of the property to be defined or modefied
+
+`descriptor`
+
+* the descriptor for the property being defined or modefied.
+
+**return value**
+
+the object that was passed to the function
+
+
+
+**Desc**
+
+this method allows a precise addition to or modification of a property on an object.
+
+<u>Normal property addition through assignment(赋值) creates properties</u> which show up during property enumeration(for...in or Object.keys() method), whose values may be changed, and which may be deleted.
+
+this method allows these extra details to be changed from their defaults.
+
+<span style="text-decoration: underline wavy">By default, values added using `Object.defineProperty()` are <u>immutable(不可改变的)</u> and not enumerable.</span>
+
+Property descriptors present in objects come in two main flavors:  data descriptors and accessor descriptor.
+
+* A data descriptor is a property that has a value, which may or may not be writable
+* An accessor descriptor is a property described by a getter-setter pair of functions.
+* A descriptor must be one of these two flavors; it cannot be both.
+
+Both data and accessor descriptors are objects. they share the following optional keys(note: the defaults mentioned here are in the case of defining properties using 'Object.defineProperty()'):
+
+* `configurable`
+  * true if the type of this proeprty descriptor may be changed and if the property may be deleted from the correspongding object.
+  * default to false
+* `enumerable`
+  * true if and only if this property shows up during enumeration of the properties on the correspongding object.
+  * default to false
+
+**A data descriptor** also has the following optional keys:
+
+* `value`
+  * default to false
+  * the value associated with the property. can be any valid JavaScript value (number, object, function, etc)
+
+* `writable`
+  * default to false
+  * true if the value associated with the property may be changed with an <u>assignment operator(赋值运算符)</u>.
+
+**A accessor descriptor** also has the following optional keys:
+
+* `get`
+  * A function which serves as a getter for the property, or undefined if there is no getter.
+  * when the property is accessed, this function is called without arguments and with this set to the object through which the property is accessed(this may not be the object on which the property is defined due to inheritance). the return value will be used as the value of the property.(这个长句不明白. 当访问该属性时, 会调用这个函数,没有参数,但会传入this对象(由于继承关系,this并不一定是该属性的对象). 返回值会被用作属性的值.
+  * default to undefined
+* `set`
+  * A function which serves as a setter for the property, or undefined if there is no setter.
+  * when the property is assigned, this function is called with one argument(the value being assigned to the property) and with this set to the object through which the property is assigned.
+  * default to undefined
+
+If a descriptor has <u>neither of</u> `value` ,`writable`, `get` and `set` keys, ti is treated as a data descriptor. If a descriptor has both [`value` or `writable`] and [`get` or `set` ]keys, an exception is thrown.
+
+Bear in mind that these attributes <u>are not necessarily(不一定是)</u> the descriptor's own properties. Inherited properties will be considered as well. In order to ensure these defaults are preserved, you might freeze the `Object` upfront, specify all options explicityly, or point to null with `Object.create(null)`. 
+
+
+
+**修改属性**
+
+Writable属性
+
+当writable属性设为false时,该属性被称为'不可写的'. 它不能被重新赋值.
+
+```javascript
+let o = {};
+Object.defineProperty(o, 'a', {
+  value: 37,
+  writable: false
+});
+
+console.log(o.a); //37
+o.a = 25; //No error thrown(it would throw in strict mode, even if the value had been the same)
+console.log(o.a); //37
+
+
+//strict mode
+(function() {
+  'use strict'
+  let o = {};
+  Object.defineProperty(o, 'a', {
+    value: 3,
+    writable: false
+  });
+  
+  o.a = 3; //throws TypeError: 'b' is read-only
+  return o.b;
+})();
+```
+
+
+
+Enumerable属性
+
+`enumerable`定义了对象的属性是否可以在`for...in`循环和`Object.keys()`中被枚举.
+
+
+
+Configurable属性
+
+`configurable`特性标识对象的属性是否可以被删除,以及除`value`和`writable`特性外的其他特性是否可以被修改.
+
+
+
+添加多个属性和默认值
+
+使用点运算符和 `Object.defineProperty()` 为对象的属性赋值时，数据描述符中的属性默认值是不同的
+
+```javascript
+let o = {};
+o.a = 1;
+//等同于
+Object.defineProperty(o, 'a', {
+  value: 1,
+  writable: true,
+  configurable: true,
+  enumerable: true
+})
+
+
+Object.defineProperty(o, 'a', {value: 1});
+//等同于
+Object.defineProperty(o, 'a', {
+  value: 1,
+  writable: false,
+  configurable: false,
+  enumerable: false
+})
+```
+
+
+
+继承属性
+
+如果访问者的属性是被继承的，它的 `get` 和 `set` 方法会在子对象的属性被访问或者修改时被调用。如果这些方法用一个变量存值，该值会被所有对象共享。
+
+```javascript
+function myclass() {}
+
+let value;
+Object.defineProperty(myclass.prototype, 'x', {
+  get() {
+    return value;
+  },
+  set(x) {
+    value = x;
+  }
+})
+let a = new myclass();
+let b = new myclass();
+
+a.x = 1;
+console.log(b.x); //1
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### Object.defineProperties()
 
 **define**
@@ -4997,6 +5186,73 @@ Object.keys.sort()
 * the object on which to define or modify properties
 
 `props` 
+
+> An Object whose keys represent the names of properties to be defined or modified and whose values are objects describing those properties. Each value in 'props' must be either a data descriptor or an accessor descriptor; it cannot be both.
+
+Data descriptors and access descriptors may <u>optionally</u> contain the following keys:
+
+`configurable`
+
+* true <u>if and only if</u> (当且仅当) the type of this property descriptor may be changed <u>and if</u>(并且) the proeprty may be deleted from the corresponding object.  
+
+* Default to false.
+
+`enumerable`
+
+* true if and only if this property shows up during enumeration of the properties on the corresponding object.
+* default to false
+
+A data descriptor also has the following <u>optional</u> keys:
+
+`value`
+
+* the value associated with the property. Can be any valid JavaScript value(number, object,function,etc).
+* default to undefined
+
+`writable`
+
+* true if and only if the value associated with the property may be changed with an [<u>assignment operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators#assignment_operators)</u>(赋值运算符).
+* default to false
+
+An access descriptor also has the following <u>optional</u> keys:
+
+`get`
+
+* A function which <u>serves as(作为)</u> a getter for the property, or undefined if there is no getter.
+* the function's return value will be used as the value of the property.
+* default to undefined
+
+`set`
+
+* A function which serves as a setter for the property, or undefined if there is no setter.
+* the function will receive as ites only argument the new value being assigned to the property
+* default to undefined
+
+If a descriptor has neither of `value`, `writable`, `get` and `set` keys, it is treated as a data descriptor.
+
+If a descriptor has both `value` or `writable` and `get` or `set` keys, an exception is thrown.
+
+**return value**
+
+the object that was passed to the function
+
+**Example**
+
+Using Object.defineProperties
+
+```javascript
+let obj = {};
+Object.defineProperties(obj, {
+  'property1': {
+    value: true,
+    writable: true
+  },
+  'property2': {
+    value: 'hello',
+    writabel: false
+  }
+})
+```
 
 
 
