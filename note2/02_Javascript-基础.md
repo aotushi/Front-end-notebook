@@ -4780,6 +4780,26 @@ if (typeof Object.create !== 'function') {
 **如何实现Object.create()方法**
 
 ```javascript
+function newCreate(proto, propertiesObject) {
+  if (typeof proto !== 'object' && typeof proto !== 'function') {
+    throw TypeError('object prototype may only be an Object')
+  }
+  
+  function F() {};
+  F.prototype = proto;
+  let obj = new F();
+  
+  if (propertiesObject !== undefined) {
+    Object.keys(propertiesObject).forEach(key => {
+      let value = propertiesObject[key];
+      if (typeof value !== 'object' || value === null) {
+        throw TypeError('Object prototype ....')
+      } else {
+        Object.defineProperty(obj, key, value);
+      }
+    })
+  }
+}
 ```
 
 
@@ -6720,7 +6740,67 @@ let obj = {
 
 #### arguments
 
-arguments 对象是一个类数组对象，包含调用函数时传入的所有参数.
+**define**
+
+> `arguments` is an Array-like object accessible inside functions that contains the values of the arguments passed to that function.
+
+**Properties**
+
+`arguments.callee`
+
+> Reference to the currently executing function that the arguments belong to.
+>
+> Forbidden in strict mode
+
+arguments 对象的callee 属性，是一个指向arguments 对象所在函数的指针。阶乘函数要正确执行就必须保证函数名是factorial，从而导致了紧密耦合。使用arguments.callee 就可以让函数逻辑与函数名解耦.
+
+```javascript
+//使用callee属性解决阶乘函数的耦合
+
+function factorial(num) {
+  if (num <= 1) {
+    return 1;
+  } else {
+    return num * arguments.callee(num - 1);
+    //return num * factorial(num - 1);
+  }
+}
+//用arguments.callee 代替了之前硬编码的factorial。这意味着无论函数叫什么名称，都可以引用正确的函数
+let trueFactorial = factorial;
+factorial = function() { return 0; }
+console.log(trueFactorial(5)); //120
+console.log(factorial(5)); //0
+```
+
+`arguments.length`
+
+> the number of arguments that were passed to the function
+
+`arguments[@@iterator]`
+
+> Returns a new Array iterator object that contains the values for each index in `arguments`
+
+
+
+
+
+**desc**
+
+* 'Array-Like' means that `arguments` has a `length` property and properties indexed from zero, but it doesn't hava `Array`'s built-in methods like `forEach()` or `map()`.
+* the `arguments` object is a local variable available within all non-arrow functions.
+* u can refer to a function's arguments inside that function by using its `arguments` object
+* it has entries(条目) for each argument the function was called with, with the first entry's index at 0.
+* each arguments can also be set or reassigned
+* the arguments object is not an `Array`. It is similar, but lacks all `Array` properties except `length`.
+* <u>converted to a real Array</u>
+  * [].slice.call(arguments)
+  * Array.from(arguments)
+  * [...arguments]
+* the `typeof` opetator returns `'object'` when used with `arguments`
+
+
+
+
 
 `arguments`变量只是 *”***类数组对象**“，并不是一个数组。称其为类数组对象是说它有一个<u>索引编号和`length`属性</u>。它并不拥有全部的Array对象的操作方法。
 
@@ -6737,6 +6817,12 @@ arguments 对象是一个类数组对象（但不是Array 的实例）:
 * 箭头函数中不能访问arguments,但可以在包装函数中将其传给箭头函数
 
 ```JavaScript
+//在浏览器中的表现形式
+function fn() {
+	console.log(arguments)
+}
+fn(1,2,3); //Arguments(3) [1, 2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+
 //与命名参数一起使用
 function doAdd(num1, num2) {
   if (arguments.length === 1) {
@@ -6784,28 +6870,6 @@ function sum(num1, num2) {
 }
 
 //Uncaught SyntaxError: Unexpected eval or arguments in strict mode
-```
-
-**callee属性**
-
-arguments 对象的callee 属性，是一个指向arguments 对象所在函数的指针。阶乘函数要正确执行就必须保证函数名是factorial，从而导致了紧密耦合。使用arguments.callee 就可以让函数逻辑与函数名解耦.
-
-```javascript
-//使用callee属性解决阶乘函数的耦合
-
-function factorial(num) {
-  if (num <= 1) {
-    return 1;
-  } else {
-    return num * arguments.callee(num - 1);
-    //return num * factorial(num - 1);
-  }
-}
-//用arguments.callee 代替了之前硬编码的factorial。这意味着无论函数叫什么名称，都可以引用正确的函数
-let trueFactorial = factorial;
-factorial = function() { return 0; }
-console.log(trueFactorial(5)); //120
-console.log(factorial(5)); //0
 ```
 
 
@@ -7271,42 +7335,40 @@ prototype 是保存引用类型所有实例方法的地方，这意味着toStrin
 
 #### **方法-call()**
 
-> https://www.cnblogs.com/gaoht/p/10978751.html
+**define**
 
-以指定的this 值来调用函数,即会设置调用函数时函数体内this 对象的值。
+> the method calls a function with a given `this` value and arguments provided individually
 
-call()方法接收两个参数：函数内this 的值和逐个传递的参数.
-
-**语法**
+**syntax**
 
 ```javascript
-//语法
-function.call(thisArg,arg1,arg2,...)
-
-thisArg
-可选的。在 function 函数运行时使用的 this 值.
-请注意，this可能不是该方法看到的实际值：如果这个函数处于非严格模式下，则指定为 null 或 undefined 时会自动替换为指向全局对象，原始值会被包装。
-              
-arg1,arg2...
-指定的参数列表
-
-//返回值
-使用调用者提供的 this 值和参数调用该函数的返回值。若该方法没有返回值，则返回 undefined 
-              
-
-//描述
-call() 允许为不同的对象分配和调用属于一个对象的函数/方法
-call() 提供新的 this 值给当前调用的函数/方法。你可以使用 call 来实现继承：写一个方法，然后让另外一个新的对象来继承它（而不是在新对象中再写一次这个方法）
-
-//实例
-function sum(num1, num2) {
-	return num1 + num2;
-}
-function callSum(num1, num2) {
-	return sum.call(this, num1, num2);
-}
-console.log(callSum(10, 10)); // 20
+call()
+call(thisArg)
+call(thisArg, arg1)
+call(thisArg, arg1,...,argN)
 ```
+
+`thisArg` optional
+
+* the value to use as `this` when calling `func`
+* In certain cases, `thisArg` may not be the actual value seen by the method.
+  * if the method is a function in [non-strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode), null and undefined will be replaced with the global object, and primitive values will be converted to objects.
+
+`arg1, ..., argN` optional
+
+* arguments for the function
+
+**return value**
+
+* the result of calling the function with the specified `this` value and arguments
+
+**desc**
+
+* the `call()` allows for a function/method belonging to one object to be assigned and called for a different object.
+* `call()` provides a new value of `this` to the function/emthod.
+* With `call()` , u can write a method once and then inherit it in another object, without having to rewrite the method for the new object.
+
+
 
 
 
@@ -7390,33 +7452,171 @@ function display(){
 display.call(); //can't read the property of 'sData' of undefined 
 ```
 
+**实现call()方法**
+
+```javascript
+Function.prototype.myCall = function() {
+  let thisArg = arguments[0] || globalThis;
+  thisArg.tempFn = this;
+  if (arguments.length === 0) {
+    return thisArg.tempFn(...[...arguments])
+  }
+  let result = thisArg.tempFn(...[...arguments].slice(1));  //Array.from(arguments).splice(1)
+  delete thisArg.tempFn;
+  return result;
+}
+
+//添加Symbol()避免变量重复
+Function.prototype.myCall = function() {
+  let thisArg = arguments[0] || globalThis;
+  let tempFn = Symbol();
+  thisArg[tempFn] =  this;
+  const result = arguments.length > 0 ? thisArg[tempFn](...[...arguments].slice(1)) : thisArg[tempFn]();
+  delete thisArg[tempFn];
+  return result;
+}
+
+//https://juejin.cn/post/7033275515880341512#heading-44
+Function.prototype.myCall = function(thisArg) {
+  thisArg = thisArg || globalThis;
+  thisArg.func = this;
+  const args = [];
+  for (let i=1; i<arguments.length; i++){
+    args.push('arguments[' + i + ']');
+  }
+  const result = eval('thisArg.func(' + args + ')');
+  delete thisArg.func;
+  return result;
+}
+```
+
 
 
 #### **方法-apply()**
 
-以指定的this 值来调用函数,即会设置调用函数时函数体内this 对象的值。
+**define**
 
-apply()方法接收两个参数：函数内this 的值和一个参数数组。第二个参数可以是Array 的实例，但也可以是arguments 对象。
+> the method calls a function with a given `this` value, and `arguments` provided as an array(or an array-like object)
+
+**syntax**
 
 ```javascript
-function sum(num1, num2) {
-	return num1 + num2;
-}
-function callSum1(num1, num2) {
-	return sum.apply(this, arguments); // 传入arguments 对象
-}
-function callSum2(num1, num2) {
-	return sum.apply(this, [num1, num2]); // 传入数组
-}
-console.log(callSum1(10, 10)); // 20
-console.log(callSum2(10, 10)); // 20
-
-
-//传递类数组对象
-Array.apply(null, {length: 5})
+apply(thisArg)
+apply(thisArg, argsArray)
 ```
 
+**parameters**
+
+`thisArg`
+
+* the value of `this` provided for the call to `func`
+* Note that `this` may not be the actual value seen by the method: 
+  * if the method is a function in non-strict mode code, `null` and `undefined` will be replaced with the global object, and primitive values will be boxed(原始值会被包装). 
+
+`argsArray` optional
+
+* an array-like object, specifying the arguments with which `func` should be called, or `null` or `undefined` if no arguments should be provided to the function.
+* Starting with ECMAScript 5 these arguments can be <u>a generic array-like object</u> instaed of an array.
+
+**return value**
+
+* the result of calling the function with the specified `this` value and arguments
+
+**desc**
+
+* when the first arguments is undefined or null a similar outcome can be achieved using the array spread syntax.
+* u can assign a different `this` object when calling an existing function. `this` refers to the current object(the calling object). With `apply`, u can write a method once, and then inherit it in another object, without having to rewrite the tmethod for the new object.
+* With `apply`, u can also use an <u>array literal</u>. for example, `func.apply(this, ['eat', 'bananas'])`, `func.apply(this, new Array('eat', 'banans'))`
+* U can also use `arguments` for the `argsArray` parameter. `arguments` is a local variable of a function. It can be used for all unspecified arguments of the called object. Thus, u don't know the arguments of the called object when u use the `apply` method.  U can use `arguments` to pass all the arguments to the called object.
+* Since ECMAScript 5th Edition, u can also use any kind of object which is array-like. In practice, this means it's going to have a `length` property, and integer('index') properties in the range(0...length-1).
+
+
+
+**examples**
+
+Using apply to append an array to other
+
+> U can use `push` to append an element to an array. If u pass an array to `push`, it will actually add that array as a single element.
+>
+> `concat` does have the desired behavior in this case, but it does not append to the existing array, it instead creates and returns a new array.
+>
+> So what now? a loop? surely not?
+
+```javascript
+const array = ['a', 'b'];
+const elements = [0, 1, 2];
+array.push.apply(array, elements)
+```
+
+Using apply and built-in functions  ????
+
+> clever usage of `apply` allows u to use built-in functions for some tasks that would probably have otherwise been written by looping over the array values
+>
+> 通过巧妙地使用 apply，您可以将内置函数用于某些任务，否则这些任务可能是通过循环遍历数组值来编写的。
+
+```javascript
+// min/max number in an array
+const numbers = [5,6,2,3,7];
+
+let max = Math.max.apply(null, numbers);//this about equal to Math.max(numbers[0],...)
+//or Math.max(5,6,...)
+
+let min = Math.min.apply(null, numbers);
+
+//vs. simple loop based algorithm
+max = -Infinity, min = +Infinity;
+
+for (let i=0; i<numbers.length; i++) {
+  if (numbers[i] > max) {
+    max = numbers[i]
+  }
+  if (numbers[i] < min) {
+    min = numbers[i];
+  }
+}
+```
+
+But beware: by using `apply` this way, you run the risk of exceeding the JavaScript engine's argument length limit.
+
+The consequences of applying a function with too many arguments(that is, more that tens of thousands of arguments) varies across engines.(应用具有太多参数（即，超过数万个参数）的函数的后果因引擎而异。) The JavaScriptCore engine has hard-coded [arguments limit of 65536.](https://bugs.webkit.org/show_bug.cgi?id=80797)
+
+This is because the limit(and indeed, even the nature of any <u>excessively-large-stack</u> behavior) is unspecified(未规定的). Some engines will throw an exception. More perniciously(更有害的是), others will arbitrarily(任意的) limit the number of arguments actually passed to the applied function. To illustrate this latter case: if such an engine had a limit of four arguments(actual limits are of course significantly higher), it would be as if the arguments `5,6,3,2` had been passed to `apply` in the examples above, <u>rather than(而不是)</u> the full array.
+
+If your value array might grow into the tens of thousands, use a hybrid(混合的) strategy: apply your function to chunks of the array at a time: 将数组切块后循环传入目标方法
+
+```javascript
+function minOfArray(arr) {
+  let min = Infinity;
+  let QUANTUM  =32768;
+  
+  for (let i=0; i<arr.length; i+=QUANTUM) {
+    let submin = Math.min.apply(null, arr.slice(i, Math.min(i+QUANTUM, len)));
+    min = Math.min(submin, min)
+  }
+  return min;
+}
+
+let min = minOfArray([5,6,2,3,7]);
+```
+
+
+
+Using apply to chain constructors
+
+> U can use `apply` to chain `[constructors]`(https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new) for an object.
+
+In the following example we will create a global `Function` method called `construct`, which will enable u to use an array-like object with a constructor instead of an arguments list.
+
+```javascript
+```
+
+
+
+
+
 #### **call()和apply()总结**
+
+> While the syntax of this function is almost identical to that of [`call()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call), the fundamental difference is that `call()` accepts an **argument list**, while `apply()` accepts a **single array of arguments**.
 
 ```javascript
 call() 
