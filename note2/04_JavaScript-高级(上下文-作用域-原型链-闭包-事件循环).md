@@ -1491,3 +1491,36 @@ self.onmessage = function(event){
 
 
 
+
+
+
+
+### JavaScript专题之函数柯里化
+
+> https://juejin.cn/post/6844903490771222542
+
+#### define
+
+维基百科中的定义
+
+> In mathematics and computer science, currying is the technique of translating the evaluation(评估) of a function that takes multiple arguments (or a tuple(数组) of arguments) into evaluating a sequence of functions, each with a single argument.
+
+在数学和计算机科学中，柯里化是一种将使用多个参数的一个函数转换成一系列使用一个参数的函数的技术。
+
+举个例子
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+//制定add函数,一次传入两个参数即可
+add(1, 2); //3
+
+//假设有一个curry函数可以做到柯里化
+let addCurry = curry(add);
+addCurry(1)(2);
+```
+
+#### implemention
+
