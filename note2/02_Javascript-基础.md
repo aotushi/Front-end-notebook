@@ -4799,6 +4799,7 @@ function newCreate(proto, propertiesObject) {
       }
     })
   }
+  return obj;
 }
 ```
 
@@ -7130,7 +7131,7 @@ JavaScript函数有两个不同的内部方法：**[[Call]]和[[Construct]]**。
 * 当通过new关键字调用函数时，执行的是[[Construct]]函数，它负责创建一个通常被称作实例的新对象，然后再执行函数体，将this绑定到实例上；具有[[Construct]]方法的函数被统称为构造函数。
 
 * 如果不通过new关键字调用函数，则执行[[Call]]函数，从而直接执行代码中的函数体。
-* 不是所有函数都有[[constructor]]方法,因此不是所有函数都可以通过new来调用.例如箭头函数
+* 不是所有函数都有[[construct]]方法,因此不是所有函数都可以通过new来调用.例如箭头函数
 
 
 
@@ -7576,7 +7577,7 @@ for (let i=0; i<numbers.length; i++) {
 }
 ```
 
-But beware: by using `apply` this way, you run the risk of exceeding the JavaScript engine's argument length limit.
+But beware: by using `apply` this way, you run the risk of exceeding <u>the JavaScript engine's argument length limit.</u>
 
 The consequences of applying a function with too many arguments(that is, more that tens of thousands of arguments) varies across engines.(应用具有太多参数（即，超过数万个参数）的函数的后果因引擎而异。) The JavaScriptCore engine has hard-coded [arguments limit of 65536.](https://bugs.webkit.org/show_bug.cgi?id=80797)
 
@@ -7605,9 +7606,56 @@ Using apply to chain constructors
 
 > U can use `apply` to chain `[constructors]`(https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new) for an object.
 
-In the following example we will create a global `Function` method called `construct`, which will enable u to use an array-like object with a constructor instead of an arguments list.
+In the following example we will create a global `Function` method called `construct`, which will enable u to use an array-like object with a constructor instead of an arguments list.(使用能够在构造器中使用一个类数组对象而非参数列表)
 
 ```javascript
+//使用Object.create()
+Function.prototype.construct = function(aArgs) {
+  let oNew = Object.create(this.prototype);
+  this.apply(oNew, aArgs);
+  return oNews;
+}
+//使用Object.__proto__
+Function.prototype.construct = function(aArgs) {
+  let oNew = {};
+  oNew.__proto__ = this.prototype;
+  this.apply(oNew, aArgs);
+  return oNew;
+}
+
+//使用闭包
+Function.prototype.construct = function(aArgs) {
+  let fConstructor = this,
+      fNewConstr = function() {
+        fConstructor.apply(this, aArgs);
+      }
+  fNewConstr.prototype = fConstructor.prototype;
+  return new fNewConstr();
+}
+
+//使用Function构造器
+Function.prototype.construct = function(aArgs) {
+  let fNewConstr = new Function('');
+  fNewConstr.prototype = this.prototype;
+  let oNew = new fNewConstr();
+  this.apply(oNew, aArgs);
+  return oNew;
+}
+```
+
+```javascript
+function MyConstructor(arguments) {
+  for (let nProp = 0; nProp < arguments.length; nProp++) {
+    this['property' + nProp] = arguments[nProp];
+  }
+}
+
+let myArray = [4, 'hello world', false];
+let myInstance = new MyConstructor(myArray); //fix MyConstructor.construct is not a function
+
+console.log(myInstance.property1); //'hello world'
+console.log(myInstance instanceof MyConstructor); //'true'
+console.log(myInstance.constructor); //MyConstructor
 ```
 
 
@@ -7648,18 +7696,164 @@ apply()
 
 #### **bind()**
 
-bind()方法会创建一个新的函数实例，其this 值会被绑定到传给bind()的对象
+**define**
+
+> 创建一个新韩淑,在bind()被调用时,这个新函数的`this`被指定位`bind()`的第一个参数,而其余参数将作为新函数的参数,供调用时使用.
+
+**syntax**
 
 ```javascript
-window.color = 'red';
-var o = { color: 'blue' };
-
-function sayColor() {
-  console.log(this.color);
-}
-let objectSayColor = sayColor.bind(o);//objectSayColor()中的this 值被设置为o
-objectSayColor(); //blue
+function.bind(thisArg[, arg1[, arg2[, ...]]])
 ```
+
+**parameter**
+
+`thisArg`
+
+* 调用绑定函数时作为`this`参数传递给目标函数的值.如果使用`new`运算符构造绑定函数,则忽略该值.
+* 当使用`bind`在`setTimeout`中创建一个函数(作为回调提供)时,作为`thisArg`传递的任何原始值都将转换为`object`.
+* 如果`bind`函数的参数列表为空,或者`thisArg`是`null`或`undefined`,执行作用域的`this`将被视为新函数的`thisArg`.
+
+`arg1,arg2,...`
+
+* 当目标函数被调用时,被预置入绑定函数的参数列表中的参数.
+
+**return value**
+
+* 返回一个原函数的拷贝,并拥有指定`this`值和初始参数.
+
+**desc**
+
+* `bind()`函数会创建一个新的绑定函数(bound function, BF). 绑定函数是一个exotic function object(怪异函数对象, ECMAScript 2015中的术语),它包装了原函数对象. 调用绑定函数通常会导致包装函数.
+* 绑定函数具有以下内部属性
+  * [[BoundTargetFunction]] - 包装函数对象
+  * [[BoundThis]] - 调用包装函数时始终作为this值传递的值
+  * [[BoundArguments]] - 列表.在对包装函数做任何调用都会优先用列表元素填充参数列表
+  * [[Call]] - 执行与此对象关联的代码.通过函数调用表达式调用. 内部方法的参数是一个this值和一个包含通过调用表达式传递给函数的参数列表
+* 当调用绑定函数时,它调用[[BoundTargetFunction]]上的内部方法[[Call]],就像这样Call(boundThis, args). 其中boundThis时[[BoundThis]], args是[[BoundArguments]]加上通过函数调用传入的参数列表.
+* 绑定函数也可以使用`new`运算构造,它会表现为目标函数已经被构建完毕了似的.提供的this值会被忽略,但前置参数让会提供给模拟函数.
+
+**examples**
+
+```javascript
+this.x = 9;    // 在浏览器中，this 指向全局的 "window" 对象
+var module = {
+  x: 81,
+  getX: function() { return this.x; }
+};
+
+module.getX(); // 81
+
+var retrieveX = module.getX;
+retrieveX();
+// 返回 9 - 因为函数是在全局作用域中调用的
+
+// 创建一个新函数，把 'this' 绑定到 module 对象
+// 新手可能会将全局变量 x 与 module 的属性 x 混淆
+var boundGetX = retrieveX.bind(module);
+boundGetX(); // 81
+```
+
+偏函数
+
+`bind()` 的另一个最简单的用法是使一个函数拥有预设的初始参数。只要将这些参数（如果有的话）作为 `bind()` 的参数写在 `this` 后面。当绑定函数被调用时，这些参数会被插入到目标函数的参数列表的开始位置，传递给绑定函数的参数会跟在它们后面。
+
+```javascript
+function list() {
+  return Array.prototype.slice.call(arguments);
+}
+
+function addArguments(arg1, arg2) {
+    return arg1 + arg2
+}
+
+var list1 = list(1, 2, 3); // [1, 2, 3]
+
+var result1 = addArguments(1, 2); // 3
+
+// 创建一个函数，它拥有预设参数列表。
+var leadingThirtysevenList = list.bind(null, 37);
+
+// 创建一个函数，它拥有预设的第一个参数
+var addThirtySeven = addArguments.bind(null, 37);
+
+var list2 = leadingThirtysevenList();
+// [37]
+
+var list3 = leadingThirtysevenList(1, 2, 3);
+// [37, 1, 2, 3]
+
+var result2 = addThirtySeven(5);
+// 37 + 5 = 42
+
+var result3 = addThirtySeven(5, 10);
+// 37 + 5 = 42 ，第二个参数被忽略
+```
+
+配合setTimeout
+
+在默认情况下，使用 [`window.setTimeout()`](https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout) 时，`this` 关键字会指向 [`window`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window) （或 `global`）对象。当类的方法中需要 `this` 指向类的实例时，你可能需要显式地把 `this` 绑定到回调函数，就不会丢失该实例的引用。
+
+```javascript
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#%E9%85%8D%E5%90%88_settimeout
+```
+
+作为构造函数使用的绑定函数
+
+Warning: 这部分演示了 JavaScript 的能力并且记录了 `bind()` 的超前用法。以下展示的方法并不是最佳的解决方案，且可能不应该用在任何生产环境中。
+
+```javascript
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#%E4%BD%9C%E4%B8%BA%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E4%BD%BF%E7%94%A8%E7%9A%84%E7%BB%91%E5%AE%9A%E5%87%BD%E6%95%B0
+```
+
+快捷调用
+
+在你想要为一个需要特定的 **`this`** 值的函数创建一个捷径（shortcut）的时候，`bind()` 也很好用。
+
+你可以用 [`Array.prototype.slice`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/slice) 来将一个类似于数组的对象（array-like object）转换成一个真正的数组，就拿它来举例子吧。你可以简单地这样写：
+
+```javascript
+let slice = Array.prototype.slice;
+//...
+slice.apply(arguments);
+```
+
+用 `bind()`可以使这个过程变得简单。在下面这段代码里面，`slice` 是 [`Function.prototype` (en-US)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) 的 [`apply()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 方法的绑定函数，并且将 `Array.prototype` 的 [`slice()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/slice) 方法作为 **`this`** 的值。这意味着我们压根儿用不着上面那个 `apply()`调用了
+
+```javascript
+// 与前一段代码的 "slice" 效果相同
+var unboundSlice = Array.prototype.slice;
+var slice = Function.prototype.apply.bind(unboundSlice);
+
+// ...
+
+slice(arguments);
+```
+
+**实现bind()方法**
+
+> [js 手动实现bind方法，超详细思路分析！ - 听风是风 - 博客园 (cnblogs.com)](https://www.cnblogs.com/echolun/p/12178655.html)   这个人写的真好!!!
+
+```javascript
+Function.prototype.bind_ = function(obj) {
+  if (typeof this !== 'function') {
+    throw new Error('Function.protoype.bind - what is bounding is not a function');
+  }
+  
+  let fn = this;
+  let fn_ = function() {};
+  let argsOut = Array.prototype.slice.call(arguments, 1);
+  let bound = function() {
+    let argsInner = Array.prototype.slice.call(arguments);
+    fn.apply(this.constructor === fn ? this : obj, argsOut.concat(argsInner));
+  }
+  fn_.prototype = fn.prototype;
+  bound.prototype = new fn_();
+  return bound;
+}
+```
+
+
 
 
 
