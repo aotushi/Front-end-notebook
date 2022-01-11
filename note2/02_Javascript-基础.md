@@ -7660,6 +7660,61 @@ console.log(myInstance.constructor); //MyConstructor
 
 
 
+**实现apply方法**
+
+```javascript
+Function.prototype.apply = function(obj) {
+  if (typeof this !== 'function') {
+    throw new Error('Function.prototype.apply this is not a function');
+  }
+  let fn = obj || globalThis;
+  let tempFn = Symbol();
+  fn[tempFn] = this
+  let res = fn.tempFn(...Array.prototype.slice.call(arguments, 1));
+  delete fn.tempFn;
+  return res;
+  
+}
+```
+
+```javascript
+//https://github.com/mqyqingfeng/Blog/issues/11
+Function.prototype.apply = function(obj, arr) {
+  obj = Object(obj) || globalThis;
+  let fn = obj;
+  let tempFn = Symbol();
+  fn[tempFn] = this;
+  let args = [];
+  for (let i=0; i<arr.length; i++) {
+    args.push('arguments[' + i + ']');
+  }
+  return eval('fn[tempFn](' + args +')');
+}
+
+Function.prototype.apply = function(obj, arr) {
+  obj = toObject(obj);
+  let tempFn = Symbol();
+  obj[tempFn] = this;
+  let result = obj.tempFn(...arr);
+  delete obj.tempFn;
+  return result;
+  
+}
+function toObject(val) {
+  const type = typeof val;
+  let result = val;
+  switch (type) {
+    case 'string':
+    case 'number':
+    case 'boolean':
+      result = Object(val);
+      break;
+    default:
+      result = obj || globalThis;
+  }
+}
+```
+
 
 
 #### **call()和apply()总结**
@@ -7833,22 +7888,24 @@ slice(arguments);
 **实现bind()方法**
 
 > [js 手动实现bind方法，超详细思路分析！ - 听风是风 - 博客园 (cnblogs.com)](https://www.cnblogs.com/echolun/p/12178655.html)   这个人写的真好!!!
+>
+> [JavaScript深入之bind的模拟实现 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903476623835149)
 
 ```javascript
-Function.prototype.bind_ = function(obj) {
+Function.prototype.bind = function(obj) {
   if (typeof this !== 'function') {
-    throw new Error('Function.protoype.bind - what is bounding is not a function');
+    throw new Error('Function.prototype.bind - what is trying to be bound is not callable');
   }
-  
   let fn = this;
-  let fn_ = function() {};
   let argsOut = Array.prototype.slice.call(arguments, 1);
-  let bound = function() {
+  return bound = function() {
     let argsInner = Array.prototype.slice.call(arguments);
-    fn.apply(this.constructor === fn ? this : obj, argsOut.concat(argsInner));
+    fn.apply(this instanceof fn ? this : obj, argsOut.concat(argsInner));
   }
-  fn_.prototype = fn.prototype;
-  bound.prototype = new fn_();
+  let F = function() {};
+  F.prototype = this.prototype;
+  bound.prototype = new F();
+  
   return bound;
 }
 ```
