@@ -1524,3 +1524,66 @@ addCurry(1)(2);
 
 #### implemention
 
+curry 的这种用途可以理解为：参数复用。本质上是降低通用性，提高适用性。
+
+//....
+
+#### 1 edition
+
+```javascript
+function curry(fn) {
+  let argsOut = [].slice.call(arguments, 1);
+  return function() {
+    let argsInner = [].slice.call(arguments);
+    return fn.apply(this, argsOut.concat(argsInner));
+  }
+}
+```
+
+```javascript
+//应用
+function add(a ,b) {
+  return a + b;
+}
+
+let addCurry = curry(add, 1, 2);
+addCurry() //3
+//或者
+let addCurry = curry(add, 1);
+addCurry(2) //3
+//或者
+let addCurry = curry(add);
+addCurry(2, 3); //3
+```
+
+#### 2 edition
+
+```javascript
+function sub_curry(fn) {
+  let args = [].slice.call(arguments, 1);
+  return function() {
+    return fn.apply(this, args.concat([].slice.call(arguments)));
+  }
+}
+
+function curry(fn, length) {
+  length = length || fn.length;
+  let slice = Array.prototype.slice;
+  return function() {
+    if (length < arguments.length) {
+      
+    } else {
+      
+    }
+  }
+}
+
+
+```
+
+
+
+
+
+
+

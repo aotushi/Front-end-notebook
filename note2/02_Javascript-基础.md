@@ -1123,48 +1123,9 @@ https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-e
 
 
 
-#### 4.判断变量是否为数组4种方法
+#### 4.判断数组的4种方法
 
-```js
-
-1.instacneof
-
-function isArray(obj){
-    return obj instanceof Array;
-}
-instanceof操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在2个以上不同的全局执行环境，从而存在2个以上不同版本的Array构造函数
-如果你从一个框架向另一个框架传人一个数组，那么传人的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
-
-为解决这个问题，ES5 新增了Array.isArray()方法
-
-
-2.对象的constuctor属性
-var arr = [1,2,3,1]
-alert(arr.constuctor===Array) //true
-
-arr.__proto__ == Array.prototype
-arr.__proto__.constructor == Array
-
-第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
-
-由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
-    
-
-3.Object.prototype.toString.call(obj)
-function isArray(obj){
-    return Object.prototype.toString.call(obj)==='[object Array]'
-}
-
-4.Array.isArray()
-ECMAScript5将Array.isArray()正式引入JavaScript，目的就是准确地检测一个值是否为数组。在IE8之前的版本是不支持的。
-function (obj) {
-    return Array.isArray(obj)
-}
-
-
-```
-
-
+见数组
 
 #### 5.识别整数
 
@@ -9942,6 +9903,55 @@ let c = [];
 
 
 
+### 判断数组的几种方式
+
+* 原型链1 obj.\_\_proto\_\_  === Array.prototype    
+* 原型链2 constructor  arr.constructor === Array
+* 原型链3 instanceof()  arr instanceof Array
+* 数组方法 Array.prototype.isPrototypeOf(obj)
+* 数组方法 Array.isArray()
+* 对象方法 Object.prototype.toString.call()
+
+```js
+1.instacneof
+
+function isArray(obj){
+    return obj instanceof Array;
+}
+instanceof操作符的问题在于，它假定只有一个全局执行环境。如果网页中包含多个框架，那实际上就存在2个以上不同的全局执行环境，从而存在2个以上不同版本的Array构造函数
+如果你从一个框架向另一个框架传人一个数组，那么传人的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数。
+
+为解决这个问题，ES5 新增了Array.isArray()方法
+
+
+2.对象的constuctor属性
+var arr = [1,2,3,1]
+alert(arr.constuctor===Array) //true
+
+arr.__proto__ == Array.prototype
+arr.__proto__.constructor == Array
+
+第1种和第2种方法貌似无懈可击，但是实际上还是有些漏洞的，当你在多个frame中来回穿梭的时候，这两种方法就亚历山大了。
+
+由于每个iframe都有一套自己的执行环境，跨frame实例化的对象彼此是不共享原型链的，因此导致上述检测代码失效!
+    
+
+3.Object.prototype.toString.call(obj)
+function isArray(obj){
+    return Object.prototype.toString.call(obj)==='[object Array]'
+}
+
+4.Array.isArray()
+ECMAScript5将Array.isArray()正式引入JavaScript，目的就是准确地检测一个值是否为数组。在IE8之前的版本是不支持的。
+function (obj) {
+    return Array.isArray(obj)
+}
+
+
+```
+
+
+
 ### 二维数组|非连续数组
 
 ```JavaScript
@@ -11198,7 +11208,10 @@ arr.sort([compareFunction])
 
 **描述**
 
-* 如果没有指明 `compareFunction` ，那么元素会按照转换为的字符串的诸个字符的Unicode位点进行排序。
+* If `compareFunction` is not supplied, all non-undefined array elements are sorted by convertng them to strings and comparing strings in UTF-16 codeunits order.
+  * For example: 'banana' coms before 'cherry'. In a numeric sort, 9 coms before 80. but because numbers are converted to strings, '80' comes before '9' in the Unicode order.
+  * <u>all undefined elements are sorted to the end of the array.</u>
+
 * 如果指明了 `compareFunction` ，那么数组会按照调用该函数的返回值排序。即 a 和 b 是两个将要被比较的元素：
   * 如果 `compareFunction(a, b)` 小于 0 ，那么 a 会被排列到 b 之前；
   * 如果 `compareFunction(a, b)` 等于 0 ， a 和 b 的相对位置不变。备注： ECMAScript 标准并不保证这一行为，而且也不是所有浏览器都会遵守（例如 Mozilla 在 2003 年之前的版本）；
@@ -11224,7 +11237,7 @@ function compare(a, b) {
 ```javascript
 - 如果希望 升序 排列(从小到大),传:
 function(a, b){
-  return a - b;
+  return a - b;  //记忆方法: 26个字符从a到z是从小到大, a - b理解为从小到大,是升序. b -a是从大到小
 }
 
 - 如果希望降序排列(从大到小),传:
@@ -11238,11 +11251,11 @@ function(a, b){ //参数a与b写不写都一样了
 }
 ```
 
-**为什么升序是a - b????**
+**为什么升序是a - b????**  
 
 ```javascript
 //https://blog.csdn.net/weixin_42207975/article/details/107538527
-
+// 是结果推原因, 怎么说呢, 总是记不住.
 let arr = [1, 22, 15, 32, 4, 5];
 arr.sort((a, b) => a - b); //升序排列 [1, 4, 5, 15, 22, 32]
 arr.sort((a, b) => b - a); //降序排列 [...]
@@ -11275,7 +11288,7 @@ a - b = b - a =0 , 排序结果 ===> 保持不变
 
 **重写**
 
-> https://juejin.cn/post/6844903986479251464#heading-33    本篇文章重要 精读
+> https://juejin.cn/post/6844903986479251464#heading-33    本篇文章重要 精读  看不懂
 
 ```javascript
 //插入排序 v1.0
@@ -12692,8 +12705,8 @@ for (let e of iterator) {
 >  [来源](https://github.com/getify/You-Dont-Know-JS): 通过“借用”数组的方法可以很方便的处理字符串。可以“借用”数组的非变更方法，但不能“借用”数组的可变更方法.
 
 ```javascript
-Array.prototype.非破坏性方法.call('string', parameter)
-[].非破坏性方法.call('string', parameter)
+Array.prototype.非破坏性方法.call('任意字符串', parameter)
+[].非破坏性方法.call('任意字符串', parameter)
 ```
 
 
@@ -12930,15 +12943,14 @@ console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
 
 
 
-#### 数组去重的8种方法
+#### 数组去重的7种方法
 
 * 双for循环+splice
 * for+indexOf/includes
 * reduce+includes+(push/concat)
 * filter+indexOf
 * sort()+快慢指针
-* [...new Set()]
-* Array.from(new Set())
+* [...new Set()]   Array.from(new Set())
 * Map
 
 双for循环+splice
@@ -12957,7 +12969,16 @@ for(let i=0; i<arr.length; i++){
         
     }
 }
-console.log(arr);
+
+
+for (let i=0; i<arr.length; i++) {
+  for (let j=i-1; j>0; j--) {
+    if (arr[i] === arr[j]) {
+      arr.splice(j, 1);
+      i--;
+    }
+  }
+}
 ```
 
 
@@ -12968,7 +12989,7 @@ for+indexOf / for+includes
 function unique(arr) {
   let uniqueArr = [];
   for (let i=0; i<arr.length; i++) {
-    if (uniqueArr.indexOf(arr[i]) !== -1) {
+    if (uniqueArr.indexOf(arr[i]) === -1) {
       uniqueArr.push(arr[i]);
     }
   }
@@ -12991,7 +13012,7 @@ function unique(arr) {
 
 
 
-reduce+includes+push / reduce+includes+concat
+reduce+includes/indexOf + concat/push
 
 ```javascript
 //reduce方法
@@ -13093,16 +13114,14 @@ Map方法
 ```javascript
 function unique(arr) {
   let map = new Map(),
-      uniqueArr = new Array();
-  for (let i=0; i<arr.length; i++) {
-    if (map.has(arr[i])) {
-      map.set(arr[i], true)
-    } else {
-      map.set(arr[i], false);
-      uniqueArr.push(arr[i])
+      newArr = [];
+  for (let i=0; i<arr.length; i++){
+    if (!map.get(arr[i])) {
+      map.set(arr[i], true);
+      newArr.push(arr[i]);
     }
   }
-  return uniqueArr;
+  return newArr;
 }
 ```
 
