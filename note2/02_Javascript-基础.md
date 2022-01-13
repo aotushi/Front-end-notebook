@@ -4050,7 +4050,7 @@ console.log(person.name); //'Greg'
 
 ### 6.对象中的方法
 
-####  1. in/delete/hasOwnPorperty
+####   in
 
 ```Markdown
 in 
@@ -4360,7 +4360,7 @@ Using uary plus
 
 
 
-### 7.对象静态方法
+### 7.对象的方法
 
 > ECMAScript其中一个设计目标是：不再创建新的全局函数，也不在Object.prototype上创建新的方法。
 >
@@ -5286,6 +5286,188 @@ Object.defineProperties(obj, {
 ```
 
 
+
+#### Object.prototype.hasOwnProperty()
+
+##### define
+
+> the method returns a boolean indicating whether the object has the specified property as its own property(as opposed to inheriting it)
+>
+> Note: `Object.hasOwn()` is recommended over `hasOwnProperty()`, in browsers where it it supported.
+
+##### Syntax
+
+> hasOwnProperty(prop)
+
+##### Parameters
+
+`prop`
+
+* The `String` name or `Symbol` of the property to test
+
+##### Return values
+
+> returns `true` if the object has the specified property as own property, `false` otherwise.
+
+##### Desc
+
+* the method returns `true` if the specified property is a direct property of the object --even if the value is `null` or `undefined`.
+* the method returns `false` if the property is inherited, or has not been declared at all.
+* Unlike the `in` operator, this method does not check for the specified property in the object's prototype chain.
+* the method can be called on most JS objects, because most objects descend from `Object`, and hence inherit its methods.
+* the method will not be available in objects where it is reimplemented, or on objects created using `Object.create(null)`(as these don't inherit from `Object.prototype`).
+
+
+
+
+
+
+
+#### Object.hasOwn():pencil2:
+
+##### Define
+
+> the static method return `true` if the specified object has the indicated property as its own property. If the property is inherited, or does not exist, the method returns `false`
+>
+> Note: `Object.hasOwn()` is intended as a replacement for `Object.hasOwnProperty()`
+
+##### **Syntax**
+
+> Object.hasOwn(instance, prop);
+
+##### **Parameters**
+
+`instance`
+
+* the JavaScript object instace to test.
+
+`prop`
+
+* the `String` name or `Symbol` of the property to test.
+
+##### **Desc**
+
+* the `Object.hasOwn()` method returns `true` if the specified property is a direct property of the object -even if the property values is `null` or `undefined`.
+* the method returns `false` if the property is inherited, <u>or has not been declared at all.</u>  ????
+* Unlike the `in` operator, this method <u>does not check for the specified property in the object's prototype chain.</u>
+* It is recommended over `Object.hasOwnProperty()` because it works for objects created using `Object.create(null)` and with objects that have overridden the inherited `hasOwnProperty()` method.
+* While it is possible to workaround these problems by calling `Object.prototype.hasOwnProperty()` on an external object, `Object.hasOwn()` is more intuitive(直观的).
+
+##### **example**
+
+<u>Using hasOwn to test for a property's existence</u>
+
+> The following code shows how to determine whether the `example` oject contains a proeprty named `prop`
+
+```javascript
+let example = {};
+Object.hasOwn(example, 'prop');   // false = 'prop' has not been defined
+
+example.prop = 'exists';
+Object.hasOwn(example, 'prop');   // true - 'prop' has been defined
+
+example.prop = null;
+Object.hasOwn(example, 'prop');   // true - own property exists with value of null
+
+example.prop = undefined;
+Object.hasOwn(example, 'prop');   // true - own property exists with value of undefined
+example.hasOwnProperty('prop')
+```
+
+
+
+
+
+<u>Direct  vs. inherited properties</u>
+
+> the following example differentiates between direct properties and properties inherited through the prototype chain.
+
+```javascript
+let example = {}
+example.prop = 'exists';
+
+// `hasOwn` will only return true for direct properties:
+Object.hasOwn(example, 'prop');             // returns true
+Object.hasOwn(example, 'toString');         // returns false
+Object.hasOwn(example, 'hasOwnProperty');   // returns false
+
+// The `in` operator will return true for direct or inherited properties:
+'prop' in example;                          // returns true
+'toString' in example;                      // returns true
+'hasOwnProperty' in example;                // returns true
+```
+
+
+
+
+
+<u>Iterating over the properties of an object</u>
+
+> To iterate over the enumerable properties of an object, 
+
+```javascript
+let example = { foo: true, bar: true };
+for (let name of Object.keys(example)) {
+  // ...
+}
+```
+
+but if you need to use `for...in`, u can use `Object.hasOwn()` to skip the inherited properties:
+
+```javascript
+let example = { foo: true, bar: true };
+for (let name in example) {
+  if (Object.hasOwn(example, name)) {
+    // ...
+  }
+}
+```
+
+
+
+
+
+<u>Checking if an Array index exists</u>
+
+> the elements of an `Array` are defined as direct properties, so you can use `hasOwn()` method to check whether a particular index exists
+
+```javascript
+let fruits = ['Apple', 'Banana','Watermelon', 'Orange'];
+Object.hasOwn(fruits, 3);   // true ('Orange')
+Object.hasOwn(fruits, 4);   // false - not defined
+```
+
+
+
+<u>Problematic cases for hasOwnProperty</u>
+
+> the section demonstrate that `hasOwn()` is immune to the problems that affect `hasOwnProperty`.
+>
+> Firstly, it can be used with objects that have reimplemented `hasOwnProperty()`
+
+```javascript
+let foo = {
+  hasOwnProperty: function() {
+    return false;
+  },
+  bar: 'xxx'
+};
+
+if (Object.hasOwn(foo, 'bar')) {
+  console.log(foo.bar); //
+}
+```
+
+It can also be used to test objects created using `Object.create(null)`. These do not inherit from `Object.prototype`, and so `hasOwnProperty()` is inaccessible.
+
+```javascript
+let foo = Object.create(null);
+foo.prop = 'exists';
+
+if (Object.hasOwn(foo, 'prop')) {
+  console.log(foo.prop);
+}
+```
 
 
 
@@ -9903,7 +10085,7 @@ let c = [];
 
 
 
-### 判断数组的几种方式
+### 判断数组的6种方式
 
 * 原型链1 obj.\_\_proto\_\_  === Array.prototype    
 * 原型链2 constructor  arr.constructor === Array
@@ -11678,14 +11860,12 @@ Array.prototype.myReduce = function (callback) {
   let _arr = this,
       accumulator = argument[1],
       i = 0;
+  //判断是否存在参数
+  if (arguments.length === 0) {
+    throw new TypeError('undefined is not a function');
+  }
   //判断是否传入初始值
   if (accumentlator === undefined) {
-    //没有初始值的空数组调用reduce应该报错
-    if (_arr.length === 0) {
-      throw new Error('initVal and Array.length > 0 need one');
-    }
-    
-    //初始值赋值给
     accumulator = _arr[i];
     i++;
   }
@@ -16887,249 +17067,4 @@ function getLocalStorage(key) {
 
 
 
-
-
-## 原型和原型链
-
-> [JavaScript深入之从原型到原型链](https://github.com/mqyqingfeng/Blog/issues/2#) 
-
-### 构造函数创建对象
-
-```javascript
-function Person() {
-  
-}
-
-let person = new Person();
-person.name = 'Kevin';
-console.log(person.name); //Kevin
-```
-
-在这个例子中，Person 就是一个构造函数，我们使用 new 创建了一个实例对象 person。
-
-### prototype
-
-构造函数与原型
-
-* 每个函数都有一个 prototype 属性，函数的 prototype 属性指向了一个对象，这个对象正是调用该构造函数而创建的**实例**的原型对象
- * 如果函数作为普通函数调用,则原型对象没有用;
- * 如果函数作为构造函数调用, 那么它所创建的对象都会由一个隐含的属性(__proto__)也指向该原型对象
- * 原型对象就相当于是一个公共区域,可以被类及该类的所有实例访问 //类-构造函数 实例-函数创建的对象
-
-**什么是原型呢？**
-
-可以这样理解：每一个JavaScript对象(null除外)在创建的时候就会与之关联另一个对象，这个对象就是我们所说的原型，每一个对象都会从原型"继承"属性。
-
-### \_\_proto\_\_
-
-实例与原型
-
-这是每一个JavaScript对象(除了 null )都具有的一个属性，叫\_\_proto\_\_，这个属性会指向该对象的原型
-
-```javascript
-//可以在火狐或者谷歌中输入
-function Person() {}
-
-let person = new Person;
-console.log(person.__proto__ == Person.prototype); //true
-```
-
-### constructor
-
-原型是否有属性指向构造函数或实例呢？
-
-指向实例倒是没有，因为一个构造函数可以生成多个实例，但是原型指向构造函数倒是有的，每个原型都有一个 constructor 属性指向关联的构造函数。
-
-```javascript
-function Person() {}
-
-console.log(Person.prototype.constructor === Person); //true
-```
-
-
-
-### 实例与原型
-
-当读取实例的属性时，如果找不到，就会查找与对象关联的原型中的属性，如果还查不到，就去找原型的原型，一直找到最顶层(Object.prototype)为止。
-
-
-
-### 原型的原型
-
-原型也是一个对象，既然是对象，我们就可以用最原始的方式创建它
-
-```javascript
-let obj = new Object();
-obj.name = 'Kevin';
-console.log(obj.name); //Kevin
-```
-
-原型对象就是通过 Object 构造函数生成的，结合之前所讲，实例的 __proto__ 指向构造函数的 prototype ，所以我们再更新下关系图：
-
-![prototyype](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/prototype4.3l1xwglbz600.png)
-
-### 原型链
-
-Object.prototype的原型为null
-
-```javascript
-console.log(Object.prototype.__proto__ === null); //true
-```
-
-null代表什么？
-
-> null 表示“没有对象”，即该处不应该有值。
-
-所以 Object.prototype.__proto__ 的值为 null 跟 Object.prototype 没有原型，其实表达了一个意思
-
-![原型链](https://github.com/mqyqingfeng/Blog/raw/master/Images/prototype5.png)
-
-图中由相互关联的原型组成的链状结构就是原型链，也就是蓝色的这条线。
-
-#### 原型链概述
-
-- 当我们要获取一个对象的属性时,浏览器会先在对象自身中寻找
-- 如果有则直接使用,如果没有则去对象的原型中寻找
-- 找到了则使用,没有则去原型的原型里去寻找.以此类推, 直到找到Object的原型,如果依然没有找到则返回undefined
-- Object的原型是所有对象的原型,它的原型没有原型
-
-#### 使用
-
-- 可以将对象中公有的属性(方法)统一存储在原型对象中. 这样只需要设置一次,即可让所有的实例都具有该属性(方法)
-- 以后在创建构造函数时,
- 对象中独有的属性, 在构造函数内通过this.xxx的形式来设置
-  对象中公有的属性, 在构造函数外,通过原型来设置,xxx.prototype.xxx
-
-### 补充
-
-#### constructor
-
-```javascript
-//例子
-function Person() {}
-
-let person = new Person;
-console.log(person.constructor === Person); //true
-```
-
-当获取 person.constructor 时，其实 person 中并没有 constructor 属性,当不能读取到constructor 属性时，会从 person 的原型也就是 Person.prototype 中读取，正好原型中有该属性
-
-```javascript
-person.constructor === Person.prototype.constructor; //true
-```
-
-
-
-#### \_\_proto\_\_
-
-绝大部分浏览器都支持这个非标准的方法访问原型，然而它并不存在于 Person.prototype 中，实际上，它是来自于 Object.prototype ，与其说是一个属性，不如说是一个 getter/setter，当使用 obj.\_\_proto\_\_ 时，可以理解成返回了 Object.getPrototypeOf(obj)
-
-
-
-
-
-#### 真的是继承吗？
-
-> 继承意味着复制操作，然而 JavaScript 默认并不会复制对象的属性，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，所以与其叫继承，委托的说法反而更准确些。
-
-\_\_proto\_\_特性
-
-* 只能在对象字面量中指定一次\_\_proto\_\_, 如果指定两个则会抛出错误.这是唯一具有该限制的对象字面量属性
-* 可计算形式["__proto__"]的行为类似于普通属性，不会设置或返回当前对象的原型。与对象字面量属性相关的所有规则均适用于此形式，应用不可计算的形式则会抛出异常。
-
-ECMAScript 6引擎中，Object.prototype.\_\_proto\_\_被定义为一个访问器属性，其get方法会调用Object.getPrototypeOf()方法，其set方法会调用Object.setPrototypeOf()方法。因此，使用\_\_proto\_\_和使用Object.getPrototypeOf()方法或Object.setPrototypeOf()方法的区别在于，**\_\_proto\_\_可以直接设置对象字面量的原型**。
-
-```javascript
-let person = {
-  getGreeting() {
-    return 'Hello';
-  }
-};
-
-let dog = {
-  getGreeting() {
-    return 'Woof';
-  }
-};
-
-//原型是person
-let friend = {
-  __proto__: person
-};
-
-console.log(friend.getGreeting()); //'Hello'
-console.log(Object.getPrototypeOf(friend) === person); //true
-console.log(friend.__proto__ === person); //true
-
-//将原型设置为dog
-friend.__proto__ = dog;
-console.log(friend.getGreeting()); //'Woof'
-console.log(friend.__proto__ === dog); //true
-console.log(Object.getPrototypeOf(friend) === dog); //true
-```
-
-此示例没有通过调用Object.create()方法来创建friend对象，而是创建一个标准对象字面量，并将一个值赋给\_\_proto\_\_属性。<u>换句话说，当使用Object.create()方法创建对象时，必须为所有其他对象属性指定完整的属性描述符。 ????</u>
-
-
-
-#### 构造函数中的对象创建方法(函数)
-
-```JavaScript
-目的: 构造函数/类的实例 使用 方法.可以在构造函数中创建方法
-
-
-## 向类(构造函数)中的实例(对象)添加一个方法(对象的属性是函数)
-function Person(name, age){
-    this.name = name;
-    this.age = age;
-    //给新的对象添加一个方法
-    this.sayHello = function(){
-        alert('hello, 大家好,我是'+this.name);
-    }
-}
-
-let p = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 18);
-p.sayHello();
-p2.sayHello();
-
-===========================================================================
-
-## 上面写法的问题: ??
-- 将对象的方法直接定义在构造函数中 
- - 意味着构造函数每执行一次,就会创建一个新的函数对象.
-  //怎么判断是否是同一个对象,使用全等判断
-  //判断两个函数是否为同一个
-  //console.log(p.sayHello === p2.sayHello); //返回false 
- - 也就是说每一个对象都有他自己的sayHello函数
-- 每一个函数的代码和功能是一致的,重复创建非常浪费内存空间
-
-==============================================================================
-## 如何改进? 
-让sayHello这个共享函数放在构造函数外边
-
-function Person(name, age){
-    this.name = name;
-    this.age = age;
-    //给新的对象添加一个方法
-    this.sayHello = fn; //函数直接赋值
-    
-}
-function fn(){
-        alert('hello, 大家好,我是'+this.name);
-}
-
-let p = new Person('孙悟空', 18);
-let p2 = new Person('猪八戒', 18);
-p.sayHello();
-p2.sayHello();    
-console.log(p.sayHello === p2.sayHello); //现在只有一个函数,故相等    
-
-=================================================================================
- 上面的解决方法不完美:
-
-1.函数直接定义在全局中,影响命名空间; //
-2.函数定义在外面,每一次都要赋值; //最好的方法是函数只创建一次,值只赋值一次
-
-```
 
