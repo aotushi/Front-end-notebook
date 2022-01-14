@@ -1877,9 +1877,29 @@ function curry(fn, args) {
 
 
 
-#### 3 edition
+#### 3 edition  ???? 看不懂
 
 ```javascript
+function curry(fn, args, holes) {
+  length = fn.length;
+  args = args || [];
+  holes = holes || [];
+  
+  return function() {
+    let _args = args.slice(0),
+    		_holes = holes.slice(0),
+        argsLen = args.length,
+        holesLen = holes.length,
+        arg, i, index = 0;
+    
+    for (i=0; i<arguments.length; i++){
+      arg = arguments[i];
+      if (arg === _&&holesLen) {
+        
+      }
+    }
+  }
+}
 ```
 
 

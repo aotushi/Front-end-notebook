@@ -4937,17 +4937,286 @@ console.log(Object.values(my_obj)); //['bar']
 
 
 
+#### Object.getPrototypeOf()
+
+##### Define
+
+> the method returns the prototype(i.e the value of the internal [[Prototype]] property) of the specified object
+
+##### Syntax
+
+> Object.getPrototype(bj)
+
+##### Parameters
+
+`obj`
+
+* the object whose prototype is to be returned
+
+##### return value
+
+* the prototype of the given object. 
+* <u>If there are no inherited properties, `null` is returned.</u>
+
+##### examples
+
+Using getPrototypeOf
+
+```javascript
+let proto = {};
+var obj = Object.create(proto);
+Object.getPrototypeOf(bj) === proto; //true
+```
+
+Non-object coercion(强制转换)
+
+In ES5, it will throw a TypeError exception if the obj parameter isn't an object.
+
+In ES2015, the parameter will be coerced to an Object.
+
+```javascript
+Object.getPrototypeOf('foo');
+// TypeError: "foo" is not an object (ES5 code)
+Object.getPrototypeOf('foo');
+// String.prototype                  (ES2015 code)
+```
+
+
+
+#### Object.setPrototypeOf() (未完成)
+
+##### Define
+
+> the method sets the prototype of a specified object to another object or null.
+
+##### Warning
+
+> Changing the [[Prototype]] of an object is, by the nature of [how modern JavaScript engines optimize property accesses](https://mathiasbynens.be/notes/prototypes), currently a very slow operation in every browser and JavaScript engine. In addition, the effects of altering inheritance are subtle and far-flung, and are not limited to the time spent in the `Object.setPrototypeOf()` statement, but may extend to any code that ahs access to any object whose `[[Protootype]]` has been altered.
+>
+> Because this feature is a part of the language, it is still the burden on engine developers to implement that feature performantly(ideally). Until engine developers address this issue, if u are concerned about performance, u should avoid setting the `[[Prototype]]` of an object. Instead, create a new object with the secired `[[Prototype]]` using `Object.create(null)`.
+
+##### Syntax
+
+> Object.setPrototypeOf(obj, prototype)
+
+##### Parameters
+
+`obj`
+
+* the object which is to have its prototype set.
+
+`prototype`
+
+* the object's new prototype(an object or null).
+
+##### return value
+
+* the specified object
+
+##### Desc
+
+* Throws a TypeError exception if the object whose `[[Prototype]]` is to be modified is non-extensible according to `Object.isExtensible()`.
+* Does nothing if the `prototype` parameter isn't an object or `null`(i.e., number , string, boolean, or undefined). Otherwise, this method changes the `[[Prototype]]` of `obj` to the new value.
+* `Object.setPrototypeOf()` is in the ECMAScript 2015 specification. It is generally considered the proper way to set the prototype of an object, vs. the more controversial `Object.prototype.__proto__` property.
 
 
 
 
 
+#### Object.prototype.isPrototypeOf()
 
-如何保证对象属性的顺序?
+
+
+#### Object.getOwnPropertyDescriptor()
+
+##### Define
+
+>the method returns an object describing the configuration of a specific property on a given object(that is, one directly present on an object and not in the object's prototype chain).
+>
+>The object returned is mutable but mutating it has no effect on the original property's configuration.
+
+##### Syntax
+
+> Object.getOwnPropertyDescriptor(obj, prop);
+
+##### Parameter
+
+`obj`
+
+* the object in which to look for the proeprty
+
+`prop`
+
+* the name or `Symbol` of the proeprty whose description is to be retrieved(检索).
+
+##### Desc
+
+* this method permits examinition(检查) of the precise description of a property.
+* A property in JavaScript consists of either a string-valued(字符串值) name or a Symbol and a property descriptor.
+* Futher information about property descriptor types and their attributes can be found in `Object.defineProperty()`
+* A property descriptor is a record with some of the following attributes:
+  * `value`  
+    * the value associated with the property(data descriptors only)
+  * `writable` 
+    *  `true` if and only if the value associated with the property may be changed(data descriptors only)
+  * `get` 
+    * A function which serves as a getter for the property, or `undefined` if there is no getter(accessor descriptor only)
+  * `set`
+    * A function which serves as a setter for the property, or `undefined` if there is no setter(accessor descriptor only)
+  * `configurable`
+    * `true` if and only if the type of this proeprty descriptor may be changed and if the property any be deleted from the corresponding object.
+  * `enumerable`
+    * `true` if and only if the property shows up during enumeration of the properties on the corresponding object.
+
+##### Examples
+
+Using Object.getOwnPropertyDescriptor
+
+```javascript
+let o, d;
+o = {get foo() {return 17;}};
+d = Object.getOwnPropertyDescripor(o, 'foo');
+//d 
+{
+  configurable: true,
+  enumerable: true,
+  get: /*this getter function*/,
+  set: undefined
+}
+
+o = {bar: 42};
+d = Object.getOwnPropertyDescriptor(o, 'bar');
+{
+  value: 42,
+  writable: true,
+  configurable: true,
+  enumerable: true
+}
+
+o = {[Symbol.for('baz')]: 73};
+d = Object.getOwnPropertyDescriptor(o, Symbol.for('baz'));
+{
+  configurable: true,
+  enumerable: true,
+  value: 73,
+  writable: true
+}
+
+o = {};
+Object.defineProperty(o, 'qux', {
+  value: 8675309,
+  writable: false,
+  enumerable: false
+});
+d = Object.getOwnPropertyDescriptor(o, 'qux');
+{
+  value: 8675309
+  writable: false,
+  enumerable: false,
+  configurable: false
+}
+```
+
+Non-object coercion(强制转换)
+
+> In ES5, if the first argument to this method is not an object(a primitive), then it will cause a `TypeError`. In ES2015, a non-object first argument will be coerced to an object at first.
+
+```javascript
+Object.getOwnPropertyDescriptor('foo', 0);
+//TypeError: 'foo' is not an object //ES5 code
+
+Object.getOwnPropertyDescriptor('foo', 0);
+{
+  configurable: false,
+  enumerable: true,
+  value: 'f',
+  writable: false
+}
+```
+
+
+
+#### Object.getOwnPropertyDescriptors()
+
+##### Define
+
+>the method returns all own property descriptors of a given object
+
+##### Syntax
+
+> Object.getOwnPropertyDescriptors(obj);
+
+##### Parameter
+
+`obj`
+
+* the object for which to get all own property descriptors
+
+##### return value
+
+* An object containing all own property descriptors of an object. 
+* Might be <u>an empty object</u>, if there are no properties.
+
+##### Desc
+
+* the method permits examiniation of the precise description of all own properties of an object.
+* A property in JavaScript consists of either a string-valued name or a `Symbol` and a property descriptor.
+* Futher information about property descriptor types and their attributes can be found in `Object.defineProperty()`
+* A proeprty descriptor is a record with some of the following attributes:
+  * `value`
+    * the value associated with the property(data descriptor only)
+  * `writable`
+    * `true` if and only if the values associated with property may be changed(data descriptors only)
+  * `get`
+    * A function which serves as a getter for the property, or `undefined` if there is no getter(accessor descriptors only)
+  * `set`
+    * A function which serves as a stter for the property, or `undefined` if there is no setter(accessor descriptor only).
+  * `configurable`
+    * `true` if and only if the type of this proeprty descriptor may be changed and if the property may be deleted from the corresponding object.
+  * `enumerable`
+    * `true` if and only if this property shows up during enumeration of the properties on the corresponding object.
+
+
+
+##### example
+
+<u>Creating a shallow(浅的) clone</u>   ????
+
+Whereas the `Object.assign()` method will only copy enumerable and own properties from a source object to a target object, u are able to use this method and `Object.create()` for a shallow copy between two unknown objects:
+
+```javascript
+Object.create(
+	Object.getPrototype(obj),
+  Object.getOwnPropertyDescriptors(obj)
+)
+```
+
+<u>Creating a subclass</u> ????
+
+A typical way of creating a subclass is to define the subclass, set its prototype to an instance of the superclass, and then define properties on that instance.
+
+This can get awkward(笨拙的) especially for getters and setters. Instead, u can use this code to set the prototype.
+
+```javascript
+function superclass() {}
+superclass.prototype = {};
+
+function subclass() {}
+subclass.prototype = Object.create(
+	superclass.prototype,
+  {
+    // define the subclass constructor, methods, and the properties here
+  }
+)
+```
+
+
+
+
 
 #### Object.getOwnPropertyNames()
 
-Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不可枚举属性. 但为了和ES5保持一致,不包括Symbol属性.
+Object.getOwnPropertyNames()返回<u>直接挂在目标对象上的</u>可枚举、不可枚举属性. 但为了和ES5保持一致,不包括Symbol属性.
 
 ```js
 https://juejin.cn/post/6844903796062191624
@@ -4962,6 +5231,41 @@ Object.getOwnPropertyNames()返回直接挂在目标对象上的可枚举、不�
 
 //为Object.keys()添加顺序
 Object.keys.sort()
+```
+
+
+
+#### Object.getOwnPropertySymbols()
+
+##### Define
+
+> the method returns an array of all symbol properties found directly upon a given object.
+
+##### Syntax
+
+> Object.getOwnPropertySymbol(obj)
+
+##### Parameters
+
+`obj`
+
+* the object whose symbol properties are to be returned
+
+##### return value
+
+* an array of all symbol properties found directly upon the given object
+
+##### Desc
+
+* Similar to `Object.getOwnPropertyNames()`, u can get all symbol properties of a given object as an array of symbols.
+* Note that `Object.getOwnPropertyNames()` itself does not contain the symbol properties of an object and only the string properties.
+* As all objects have no own symbols properties initially, `Object.getOwnPropertySymbols()` returns an empty array unless u have set symbol properties on ur object.
+
+##### example
+
+```javascript
+
+//xxx
 ```
 
 
@@ -5506,7 +5810,7 @@ if (Object.hasOwn(foo, 'prop')) {
 
 **注意**
 
-对于for-in循环，由于并非所有厂商都遵循相同的实现方式，因此仍未指定一个明确的枚举顺序；而<span style="text-decoration:underline double red;">Object.keys()方法和JSON.stringify()方法都指明与for-in使用相同的枚举顺序，因此它们的枚举顺序目前也不明晰。</span>
+对于for-in循环，由于并非所有厂商都遵循相同的实现方式，因此<span style="text-decoration:underline wavy">仍未指定一个明确的枚举顺序</span>；而<span style="text-decoration:underline double red;">Object.keys()方法和JSON.stringify()方法都指明与for-in使用相同的枚举顺序，因此它们的枚举顺序目前也不明晰。</span>
 
 #### 2. for...in枚举
 
@@ -7845,16 +8149,17 @@ Function.prototype.apply = function(obj, arr) {
 }
 function toObject(val) {
   const type = typeof val;
-  let result = val;
+  //let result = val;
   switch (type) {
     case 'string':
     case 'number':
     case 'boolean':
-      result = Object(val);
+      val = Object(val);
       break;
     default:
-      result = obj || globalThis;
+      val = obj || globalThis;
   }
+  return val;
 }
 ```
 
@@ -10613,6 +10918,9 @@ forEach(callback, thisArg)
 
 ```javascript
 Array.prototype.myForEach = function(callback) {
+  let _arr = this,
+      thisArg = arguments[1] || globalThis;
+  
   //判断this是否合法
   if (this === null || this === undefined) {
     return new TypeError("cannot read property of 'myForEach' of null");
@@ -10623,10 +10931,9 @@ Array.prototype.myForEach = function(callback) {
     return new TypeError(callback + 'is not a function');
   }
   
-  let _arr = this,
-      thisArg = arguments[1] || window;
+  
   for (let i=0; i<_arr.length; i++) {
-    callback.call(thisArg, __arr[i], i, __arr);
+    callback.call(thisArg, _arr[i], i, _arr);
   }
 }
 ```
@@ -10721,15 +11028,24 @@ Array.of(arguments)
 **代码实现**
 
 ```js
-//代码实现
-Array.prototype.slice = function(start,end){
-  let result = new Array();
-  let start = start || 0;
-  let end = end || this.length;
-  for(let i=start;i<end;i++){
-    result.push(this[i])
+Array.prototype.mySlice = function(start, end) {
+  let arr = this;
+  let newArr = [];
+  
+  start = start || 0;
+  end = end || arr.length;
+  start = start < 0 ? 0 : start;
+  end = end + arr.length < 0 ? 0 : end + length;
+  if (end > arr.length) end = arr.length;
+  
+  if (start > arr.length || end === 0) {
+    return newArr;
   }
-  return result;
+  
+  for (let i=start; i<end; i++) {
+    newArr.push(arr[i]);
+  }
+  return newArr;
 }
 ```
 
@@ -17062,7 +17378,6 @@ function getLocalStorage(key) {
 #### 6. 存储函数
 
 > https://mp.weixin.qq.com/s/1Sbr_GGm5k-L0oq4_cfQ3w
-
 
 
 
