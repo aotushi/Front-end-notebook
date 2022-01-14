@@ -10539,7 +10539,7 @@ console.log(result); // ['parsnip', 'potato', 'celery', 'beetroot']
 
 `push`是通用的,`Array.prototype.push`也能在对象上使用.
 
-我们无需创建一个数组来存储对象集合,反而,我们可以用对象集合存储它自己,在`Array.prototype.push`上使用`call`来调用, ,让方法认为在处理数组. ????
+我们无需创建一个数组来存储对象集合,反而,我们可以用对象集合存储它自己,在`Array.prototype.push`上使用`call`来调用, ,让方法认为在处理数组. 
 
 ```javascript
 let obj = {

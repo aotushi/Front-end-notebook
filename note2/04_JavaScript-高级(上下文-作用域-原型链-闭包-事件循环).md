@@ -388,6 +388,212 @@ foo(); //'foo2'
 
 这个“一段一段”中的“段”究竟是怎么划分的呢？JavaScript引擎遇到一段怎样的代码时才会做“准备工作”呢？
 
+### 2. 可执行代码
+
+JavaScript 的可执行代码(executable code)的类型有哪些?
+
+就三种，全局代码、函数代码、eval代码
+
+举个例子，当执行到一个函数的时候，就会进行准备工作，这里的“准备工作”，让我们用个更专业一点的说法，就叫做"执行上下文(execution context)"。
+
+### 3. 执行上下文
+
+我们写的函数多了去了，如何管理创建的那么多执行上下文呢？
+
+所以 JavaScript 引擎创建了**执行上下文栈（Execution context stack，ECS）**来管理执行上下文
+
+为了模拟执行上下文栈的行为，让我们定义执行上下文栈是一个数组：
+
+```javascript
+ECStack = [];
+```
+
+试想当 JavaScript 开始要解释执行代码的时候，最先遇到的就是全局代码，所以初始化的时候首先就会向执行上下文栈压入一个全局执行上下文，我们用 globalContext 表示它，并且只有当整个应用程序结束的时候，ECStack 才会被清空，所以程序结束之前， ECStack 最底部永远有个 globalContext：
+
+```javascript
+ECStack = [
+  globalContext
+];
+```
+
+现在JavaScript遇到了这段代码:
+
+```JavaScript
+function fn3() {
+  console.log('fn3');
+}
+function fn2() {
+  fn3();
+}
+function fn1() {
+  fn2();
+}
+fn1();
+```
+
+<span style='text-decoration: underline wavy blue'>当执行一个函数的时候，就会创建一个执行上下文，并且压入执行上下文栈，当函数执行完毕的时候，就会将函数的执行上下文从栈中弹出。</span>知道了这样的工作原理，让我们来看看如何处理上面这段代码：
+
+```javascript
+//伪代码
+
+//fn1()
+ECStack.push(<fn1> functionContext)
+
+//fn1中调用了fn2,需要创建fn2的执行上下文
+ECStack.push(<fn2>, functionContext);
+
+//fn2中调用了fn3,需要创建fn3的执行上下文
+ECStack.push(<fn3>, functionContext);
+
+//fn3执行完毕
+ECStack.pop();
+
+//fn2执行完毕
+ECStack.pop();
+
+//fn1执行完毕
+ECStack.pop();
+
+// javascript接着执行下面的代码，但是ECStack底层永远有个globalContext
+```
+
+
+
+### 4.练习题
+
+让我们看看上篇文章[《JavaScript深入之词法作用域和动态作用域》](https://github.com/mqyqingfeng/Blog/issues/3)最后的问题：
+
+```javascript
+let scope = 'global scope';
+function checkscope() {
+  let scope = 'local scope';
+  function f() {
+    return scope;
+  }
+  return f();
+}
+checkscope();
+```
+
+```javascript
+let scope = 'global scope';
+function checkscope() {
+  let scope = 'local scope';
+  function f() {
+    return scope;
+  }
+  return f;
+}
+checkscope()();
+```
+
+两段代码执行的结果一样，但是两段代码究竟有哪些不同呢？
+
+答案就是执行上下文栈的变化不一样。
+
+让我们模拟第一段代码：
+
+```javascript
+ECStack.push(<checksopce> functionContext);
+ECStack.push(<f>, functionContext);
+ECStack.pop();
+ECStack.pop();
+```
+
+模拟第二段代码:
+
+```javascript
+ECStack.push(<checkscope> functionContext);
+ECStack.pop();
+ECStack.push(<f> functionContext);
+ECStack.pop();
+```
+
+这样概括的回答执行上下文栈的变化不同，是不是依然有一种意犹未尽的感觉呢，为了更详细讲解两个函数执行上的区别，我们需要探究一下执行上下文到底包含了哪些内容，所以欢迎阅读下一篇《JavaScript深入之变量对象》。
+
+
+
+## 变量对象
+
+### 1. 执行上下文组成
+
+当 JavaScript 代码执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)。
+
+对于每个执行上下文，都有三个重要属性：
+
+- 变量对象(Variable object，VO)
+- 作用域链(Scope chain)
+- this
+
+### 2. 变量对象
+
+<u>变量对象是与执行上下文相关的数据作用域，存储了在上下文中定义的变量和函数声明。</u>
+
+因为不同执行上下文下的变量对象稍有不同，所以我们来聊聊全局上下文下的变量对象和函数上下文下的变量对象。
+
+### 3. 全局上下文
+
+我们先了解一个概念，叫全局对象。在 [W3School](http://www.w3school.com.cn/jsref/jsref_obj_global.asp) 中也有介绍：
+
+> 全局对象是预定义的对象，作为 JavaScript 的全局函数和全局属性的占位符。通过使用全局对象，可以访问所有其他所有预定义的对象、函数和属性。
+>
+> 在顶层 JavaScript 代码中，可以用关键字 this 引用全局对象。因为全局对象是作用域链的头，这意味着所有非限定性的变量和函数名都会作为该对象的属性来查询。
+>
+> 例如，当JavaScript 代码引用 parseInt() 函数时，它引用的是全局对象的 parseInt 属性。全局对象是作用域链的头，还意味着在顶层 JavaScript 代码中声明的所有变量都将成为全局对象的属性。
+
+全局对象案例介绍:
+
+1.可以通过this 引用，在客户端 JavaScript 中，全局对象就是 Window 对象。
+
+```javascript
+console.log(this);
+```
+
+2.全局对象是由 Object 构造函数实例化的一个对象。
+
+```javascript
+console.log(this instanceof Object);
+```
+
+3.预定义了一堆，嗯，一大堆函数和属性
+
+```javascript
+// 都能生效
+console.log(Math.random());
+console.log(this.Math.random());
+```
+
+4.作为全局变量的宿主
+
+```javascript
+var a = 1;
+console.log(this.a);
+```
+
+5.客户端 JavaScript 中，全局对象有 window 属性指向自身。
+
+```javascript
+var a = 1;
+console.log(window.a);
+
+this.window.b = 2;
+console.log(this.b);
+```
+
+全局上下文中的变量对象就是全局对象呐！
+
+
+
+### 2.函数上下文
+
+在函数上下文中，我们用活动对象(activation object, AO)来表示变量对象。
+
+
+
+
+
+
+
 
 
 
