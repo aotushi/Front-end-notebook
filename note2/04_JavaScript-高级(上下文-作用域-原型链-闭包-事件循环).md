@@ -228,7 +228,7 @@ f(3);
 
 程序为了管理执行上下文(确保程序的执行顺序)所创建的一个栈数据结构,被称作执行上下文栈.
 
-
+7
 
 
 
@@ -347,19 +347,9 @@ checkscope()();
 
 
 
-### 作用域链
-
-真实存在的,作用域链是使用执行上下文当中变量对象所组成的链条结构(数组结构) //scope: local - closure - Global
-
-查找的时候其实真正是先去自身的变量对象当中查找.如果没有, 去上级执行上下文的变量对象当中查找, 直到找到全局执行上下文的变量对象.    函数调用的时候上一级的变量对象其实是在函数定义的时候都已经确定好的(与函数调用位置无关,  )
-
-
-
-作用域链什么时候确定的,在函数定义时候确定的.
-
 ## 执行上下文栈
 
-### 1.顺序执行
+### 1. 顺序执行
 
 ```javascript
 var foo = function() {
@@ -588,9 +578,249 @@ console.log(this.b);
 
 在函数上下文中，我们用活动对象(activation object, AO)来表示变量对象。
 
+活动对象和变量对象其实是一个东西，只是变量对象是规范上的或者说是引擎实现上的，不可在 JavaScript 环境中访问，只有到当进入一个执行上下文中，这个执行上下文的变量对象才会被激活，所以才叫 activation object 呐，而只有被激活的变量对象，也就是活动对象上的各种属性才能被访问。
+
+活动对象是在进入函数上下文时刻被创建的，它通过函数的 arguments 属性初始化。arguments 属性值是 Arguments 对象。
+
+### 3.执行过程
+
+执行上下文的代码会分成两个阶段进行处理：分析和执行，我们也可以叫做：
+
+1. 进入执行上下文
+2. 代码执行
+
+#### 进入执行上下文
+
+当进入执行上下文时，这时候还没有执行代码，
+
+变量对象会包括：
+
+1. 函数的所有形参 (如果是函数上下文)
+   - 由名称和对应值组成的一个变量对象的属性被创建
+   - 没有实参，属性值设为 undefined
+2. 函数声明
+   - 由名称和对应值（函数对象(function-object)）组成一个变量对象的属性被创建
+   - 如果变量对象已经存在相同名称的属性，则完全替换这个属性
+3. 变量声明
+   - 由名称和对应值（undefined）组成一个变量对象的属性被创建；
+   - 如果变量名称跟已经声明的形式参数或函数相同，则变量声明不会干扰已经存在的这类属性
+
+举个例子:
+
+```javascript
+function foo(a) {
+  var b = 2;
+  function c() {}
+  var d = function() {};
+
+  b = 3;
+
+}
+
+foo(1);
+```
+
+在进入执行上下文后，这时候的 AO 是：
+
+```javascript
+AO = {
+    arguments: {
+        0: 1,
+        length: 1
+    },
+    a: 1,
+    b: undefined,
+    c: reference to function c(){},
+    d: undefined
+}
+```
 
 
 
+#### 代码执行
+
+在代码执行阶段，会顺序执行代码，根据代码，修改变量对象的值
+
+还是上面的例子，当代码执行完后，这时候的 AO 是：
+
+```javascript
+AO = {
+    arguments: {
+        0: 1,
+        length: 1
+    },
+    a: 1,
+    b: 3,
+    c: reference to function c(){},
+    d: reference to FunctionExpression "d"
+}
+```
+
+到这里变量对象的创建过程就介绍完了，让我们简洁的总结我们上述所说：
+
+1. 全局上下文的变量对象初始化是全局对象
+2. 函数上下文的变量对象初始化只包括 Arguments 对象
+3. 在进入执行上下文时会给变量对象添加形参、函数声明、变量声明等初始的属性值
+4. 在代码执行阶段，会再次修改变量对象的属性值
+
+### 练习题
+
+**第一题**
+
+```javascript
+function foo() {
+  console.log(a);
+  a = 1;
+}
+foo(); //
+
+function bar() {
+  a = 1;
+  console.log(a);
+}
+bar(); //
+```
+
+第一段会报错：`Uncaught ReferenceError: a is not defined`。
+
+第二段会打印：`1`。
+
+这是因为函数中的 "a" 并没有通过 var 关键字声明，所有不会被存放在 AO 中。
+
+第一段执行 console 的时候， AO 的值是：
+
+```javascript
+AO = {
+  arguments: {
+    length: 0
+  }
+}
+```
+
+没有 a 的值，然后就会到全局去找，全局也没有，所以会报错。
+
+当第二段执行 console 的时候，全局对象已经被赋予了 a 属性，这时候就可以从全局找到 a 的值，所以会打印 1。
+
+
+
+**第二题**
+
+```javascript
+console.log(foo);
+function foo() {
+  console.log('foo');
+}
+var foo = 1;
+```
+
+会打印函数，而不是 undefined 。
+
+这是因为在进入执行上下文时，首先会处理函数声明，其次会处理变量声明，如果变量名称跟已经声明的形式参数或函数相同，则变量声明不会干扰已经存在的这类属性。
+
+
+
+
+
+## 作用域链
+
+### 1.含义
+
+当查找变量的时候，会先从当前上下文的变量对象中查找，如果没有找到，就会从父级(词法层面上的父级)执行上下文的变量对象中查找，一直找到全局上下文的变量对象，也就是全局对象。这样由多个执行上下文的变量对象构成的链表就叫做作用域链。
+
+### 2. 使用函数来模拟
+
+下面，让我们以一个函数的创建和激活两个时期来讲解作用域链是如何创建和变化的。
+
+在[《JavaScript深入之词法作用域和动态作用域》](https://github.com/mqyqingfeng/Blog/issues/3)中讲到，函数的作用域在函数定义的时候就决定了。
+
+这是因为函数有一个内部属性 [[scope]]，当函数创建的时候，就会保存所有父变量对象到其中，你可以理解 [[scope]] 就是所有父变量对象的层级链，但是注意：[[scope]] 并不代表完整的作用域链！
+
+举个例子:
+
+```javascript
+function foo() {
+  function bar() {
+    ...
+  }
+}
+```
+
+函数创建时,各自的[[scope]]为:
+
+```javascript
+foo.[[scope]] = [globalContext.VO]
+
+bar.[[scope]] = [
+  fooContext.AO,
+  globalContext.VO
+]
+```
+
+### 3. 函数激活
+
+当函数激活时，进入函数上下文，创建 VO/AO 后，就会将活动对象添加到作用链的前端。
+
+这时候执行上下文的作用域链，我们命名为 Scope：
+
+```javascript
+Scope = [AO].concat([[Scope]]);
+```
+
+至此，作用域链创建完毕。
+
+### 4. 案例
+
+以下面的例子为例，结合着之前讲的变量对象和执行上下文栈，我们来总结一下函数执行上下文中作用域链和变量对象的创建过程：
+
+```javascript
+var scope = 'global scope';
+function checkscope() {
+  var scope2 = 'local scope';
+  return scope2;
+}
+checkscope();
+```
+
+执行过程如下:
+
+1.checkscope函数被创建,保存作用域链到内部属性[[scope]]
+
+```javascript
+checkscope.[[scope]] = [
+  globalContext.VO
+]
+```
+
+2.执行checkscope函数,创建checkscope函数执行上下文,checkscope函数执行上下文被压入执行上下文栈
+
+```javascript
+ECStack = [
+  checkscopeContext,
+  globalContext
+]
+```
+
+3.checkscope函数并不立即执行,开始准备工作,第一步: 复制函数[[scope]]属性创建作用域链
+
+```javascript
+checkscopeContext = {
+  Scope: checkscope.[[scope]];
+}
+```
+
+4.第二步: 用arguments创建活动对象,随后初始化活动对象,加入形参,函数声明,变量声明
+
+```javascript
+checkscopeContext = {
+  AO: {
+    arguments: {
+      length: 0
+    },
+    scope2: undefined
+  },
+  Scope: checkscope.[[scope]]
+}
+```
 
 
 
