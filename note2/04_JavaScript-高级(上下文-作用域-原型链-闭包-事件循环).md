@@ -822,6 +822,42 @@ checkscopeContext = {
 }
 ```
 
+5.第三步: 将活动对象压入checkscope作用域顶端
+
+```javascript
+checkscopeContext = {
+  AO: {
+    arguments: {
+      length: 0
+    },
+    scope2: undefined
+  },
+  Scope: [AO, [[Scope]]]
+}
+```
+
+6.准备工作做完,开始执行函数,随着函数的执行,修改AO的属性值
+
+```javascript
+checkscopeContext = {
+  AO: {
+    arguments: {
+      length: 0
+    },
+    scope2: 'local scope'
+  },
+  scope: [AO, [[Scope]]]
+}
+```
+
+7.查找到scope2的值,返回后的函数执行完毕,函数上下文从执行上文栈中弹出
+
+```javascript
+ECStack = [
+  globalContext
+];
+```
+
 
 
 
