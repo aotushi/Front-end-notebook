@@ -8339,22 +8339,74 @@ slice(arguments);
 >
 > [JavaScript深入之bind的模拟实现 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903476623835149)
 
+
+
 ```javascript
-Function.prototype.bind = function(obj) {
-  if (typeof this !== 'function') {
-    throw new Error('Function.prototype.bind - what is trying to be bound is not callable');
-  }
+//2 edition
+Function.prototype.myBind = function(cxt) {
   let fn = this;
-  let argsOut = Array.prototype.slice.call(arguments, 1);
-  return bound = function() {
-    let argsInner = Array.prototype.slice.call(arguments);
-    fn.apply(this instanceof fn ? this : obj, argsOut.concat(argsInner));
+  let argsOut = [].slice.call(arguments, 1);
+  return function () {
+    let argsInner = [].slice.call(arguments);
+    fn.apply(this, argsOut.concat(argsInner));
   }
-  let F = function() {};
-  F.prototype = this.prototype;
-  bound.prototype = new F();
-  
+}
+```
+
+```javascript
+//3 edition 实现构造函数效果
+//一个绑定函数也能使用new操作符创建对象：这种行为就像把原函数当成构造器。提供的 this 值被忽略，同时调用时的参数被提供给模拟函数。
+
+Function.prototype.myBind = function(cxt) {
+  let fn = this;
+  let argsOut = [].slice.call(arguments, 1);
+  let bound = function() {
+    let argsInner = [].slice.call(arguments);
+    //当作为构造函数使用时,this指向实例,fn指向调用绑定方法的函数.因为下面的'bound.prototype = this.prototype', 已经修改了bound.prototype为调用方法的函数的原型.此时结果为true,当结果为true时,this指向实例.
+    fn.apply(this instanceof fn ? this : cxt, argsOut.concat(argsInner));
+  }
+  //修改返回函数的prototype为调用绑定方法函数的prototype,实例就可以继承函数的原型中的值
+  bound.prototype = this.prototype;
   return bound;
+}
+```
+
+
+
+```javascript
+//4 edition
+//避免实例通过原型链更改函数原型上的属性,使用空函数中转
+Function.prototype.myBind = function(cxt) {
+  let fn = this;
+  let argsOut = [].slice.call(arguments, 1);
+  let bound = function() {
+    let argsInner = [].slice.call(argumetns);
+    fn.apply(this instanceof fn ? this : cxt, argsOut.concat(argsInner));
+  }
+  bound.prototype = this.prototype;
+  return bound
+}
+```
+
+
+
+```javascript
+//lastest edition
+
+Function.prototype.myBind = function(cxt) {
+  if (typeof this !== "function") {
+  	throw new Error("Function.prototype.bind - what is trying to be bound is not callable");
+    }
+  let fn = this;
+  let argsOut = [].slice.call(arguments, 1);
+  let fNOP = function() {};
+  let fbound = function() {
+    let argsInner = [].slice.call(arguments);
+    return cxt.apply(this instanceof fNOP ? this : cxt, argsOut.concat(argsInner));
+  }
+  fNOP.prototype = this.prototype;
+  fbound.prototype = new fNOP();
+  return fbound;
 }
 ```
 
