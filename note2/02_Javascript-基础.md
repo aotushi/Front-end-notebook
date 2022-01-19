@@ -112,7 +112,7 @@ script标签同时只能有一个功能,要么引入要么输出
 > 比如, 变量名,函数名,类名
 
 * 标识符命名遵循规范:
-  * 标识符可以含有字母,数字,下划线,$,但不能以数字开头. 
+  * 标识符可以含有**字母,数字,下划线,$**,但不能以数字开头. 
     * 下划线开头的变量一般是隐藏变量,不需要被别人访问
     * $开头的变量一般是系统用的变量
     * 严格区分大小写
@@ -484,14 +484,16 @@ person = {
 ##### 2.3 const & let
 
 1.都是块级标识符，只在当前代码块内有效，一旦执行到块外汇立即被销毁；
-2.在同一作用域声明已经存在的标识符会导致语法错误，<u>无论标识符是使用var(全局或函数),还是let(块级作用域)声明的</u>。3.无论是否是严格模式，都不能为const定义的常量再赋值
+2.在同一作用域声明已经存在的标识符会导致语法错误，<u>无论标识符是使用var(全局或函数),还是let(块级作用域)声明的</u>。
+
+3.无论是否是严格模式，都不能为const定义的常量再赋值
 4.JS中的常量如果是对象，则对象的值可以修改;const声明不允许修改绑定,但允许修改绑定的值
 
 
 
 
 
-##### 2.3 临时性死区(TMD Temporal Dead Zone)
+##### 2.4 临时性死区(TMD Temporal Dead Zone)
 
 > 与var不同，let和const声明的变量不会被提升到作用域顶部，如果在声明之前访问这些变量，即使是相对安全的typeof操作符也会触发引用错误
 >
@@ -501,7 +503,7 @@ person = {
 
 ```js
 if (condition) {
-  console.log(typeof value); //引用错误
+  console.log(typeof value); //引用错误 Uncaught ReferenceError: Cannot access 'value' before initialization
   let value = 'blue';
 }
 ```
@@ -515,7 +517,7 @@ if(condition) {
 }
 ```
 
-typeof是在声明变量value的代码块外执行的，此时value并不在TDZ中。这也就意味着不存在value这个绑定，typeof操作最终返回"undefined"。
+<u>typeof是在声明变量value的代码块外执行的，此时value并不在TDZ中。这也就意味着不存在value这个绑定，typeof操作最终返回"undefined"。</u>
 
 #### 3. 循环中的块作用域绑定
 
@@ -528,15 +530,15 @@ for (var i=0; i<10; i++) {
 console.log(i); //10
 ```
 
-在默认拥有块级作用域的其他语言中，这个示例也可以正常运行，并且变量i只在for循环中才能访问到。而在JavaScript中，由于var声明得到了提升，变量i在循环结束后仍可访问。如果换用let声明变量就能得到想要的结果
+在默认拥有块级作用域的其他语言中，这个示例也可以正常运行，并且变量i只在for循环中才能访问到。而在JavaScript中，<u>由于var声明得到了提升，变量i在循环结束后仍可访问</u>。如果换用let声明变量就能得到想要的结果
 
 ```javascript
 for (let i=0; i<10; i++) {
   process(items[i]);
 }
 
-//i在这里不可以访问，抛出一个错误
-console.log(i);
+//i在这里不可以访问， Uncaught ReferenceError: i is not defined
+console.log(i); 
 
 //在这个示例中，变量i只存在于for循环中，一旦循环结束，在其他地方均无法访问该变量。
 ```
@@ -690,7 +692,7 @@ var ncz = 'hi';
 console.log(window.ncz); //'hi'
 ```
 
->  如果你在全局作用域中使用let或const，会在全局作用域下创建一个新的绑定，但该绑定不会添加为全局对象的属性。换句话说，用let或const不能覆盖全局变量，而只能遮蔽它。
+>  <u>如果你在全局作用域中使用let或const，会在全局作用域下创建一个新的绑定，但该绑定不会添加为全局对象的属性。换句话说，用let或const不能覆盖全局变量，而只能遮蔽它。</u>
 
 ```javascript
 let RegExp = 'hello';
@@ -737,7 +739,6 @@ Note: 如果希望在全局对象下定义变量，仍然可以使用var。这�
 
 
 ```js
-- 基本类型可以被改变,不能被替换
 
 //使用字符串方法不会改变一个字符串
 var bar = "baz";
@@ -928,27 +929,23 @@ null?.someProp
 
 ####   1.typeof
 
-typeof 运算符 可以用来检查一个变量的数据类型 返回的结果是 ==字符串==
+> The `typeof` oeprator returns a string indicating the type of the unevaluated operand.
 
-```js
-- 使用typeof检查一个数值(种类有整数和小数,先暂时这么记)时,会返回一个number
-- 使用typeof检查一个字符串,会返回string
-- 检查null object array时,返回的都是object. 因为这几个是Ojbect重写的实例,他们有自己的toString方法. 按照原型链的思路会优先使用重写后的toString方法.
-```
+**Syntax**
 
+> typeof operand
+>
+> typeof (operand)
 
+**Paramenter**
 
-**类型之间的比较**
+`operand`
 
-```js
-null == undefined  //true
-undefined == false  //false
-undefined == 0 //false
+An expression representing the object or primitive whose type is to be returned.
 
+一个标识对象或原始值的表达式,其类型将被返回.
 
-```
-
-
+**Desc**
 
 
 
@@ -1007,20 +1004,6 @@ typeof undefined === 'undefined'
 
 
 ```
-
-
-
-| 类型      | 结果        |
-| --------- | ----------- |
-| undefined | 'undefined' |
-| Null      | 'object'    |
-| Boolean   | 'boolean'   |
-| Number    | 'number'    |
-| String    | 'string'    |
-| Function  | 'function'  |
-| BigInt    | 'bigint'    |
-| Symbol    | 'symbol'    |
-|           |             |
 
 
 
@@ -1092,40 +1075,31 @@ console.log(arr.toString()); //[object Array]
 
 #### 3.null和undefined使用比较
 
-```HTML
-Null
-- Number(null)返回0.
-- 作为函数参数,表示该参数不是对象
-- 对象原型链的终点: Object.prototype.__proto__=null
+* In JavaScript, `undefined` means a variable has been declared but has not yet been assign a value
+* `null` is an assignment value(分配值). It can be assigned to a variable as a representation of no value.
+* two distinct types: `undefined` is a type itself(undefined) ,`null`is an object.
 
-Undefined
-- Number(undefined)返回NaN
-- 变量声明未赋值;对象属性未赋值;调用函数时,对应参数没有提供;函数没有返回值;数组越界索引
+```javascript
+null == undefined //true
 
-
-===============================
-null作为函数参数的用法:
-function fn(a, b){console.log(a+b);}
-// 需要传递参数，但是我们暂时不想传递，或者不需要传递，那么我们可以传一个空对象null
-fn() ;//结果是NaN
-fn(null,null);//结果: 0
-fn(undefined, undefined);//结果: NaN
-
-函数为什么传入参数null?
-
-
-function sayHello(name='World'){console.log('Hello,'+name+'!');}
-sayHello('jim');//Hello,jim!
-sayHello(undefined);//Hello, World!
-sayHello(null);//Hello, null!
-https://stackoverflow.com/questions/32725034/passing-in-null-as-a-parameter-in-es6-does-not-use-the-default-parameter-when-on
+null = 'value' //ReferenceError
+undefined = 'value' //'value'
 ```
 
 
 
-#### 4.判断数组的4种方法
 
-见数组
+
+#### 4.判断数组的6种方法
+
+详细见数组
+
+* 方法 Object.prototype.toString.call(arr).slice(8, -1)
+* 方法 Array.isArray(arr)
+* 方法 Array.prototype.isPrototypeOf(obj)
+* 原型链 arr.\_\_proto\_\_ === Array.prototype
+* 原型链 arr.constructor === Array
+* 原型链 arr instanceof Array
 
 #### 5.识别整数
 
@@ -1151,7 +1125,7 @@ console.log(Number.isInteger(25.1)); //false
 
 两者区别:引用类型可以添加属性和方法,而基本类型不可以
 
-基本类型
+基本类型 (位置 访问 可变 比较)
 基本类型的变量是存放在栈内存（Stack）里的
 基本数据类型的值是按值访问的
 基本类型的值是不可变的  //例如字符串中的某一项不能像对象一样赋值改变
@@ -1318,9 +1292,9 @@ var example = {
 console.log(+example);// 23
 ```
 
-通过例子1和例子2比较, 一元加操作符在操作对象时,会先调用对象的valueOf()方法来转换, 最后在用Number()方法来转换. 
+<span style="text-decoration: underline wavy">通过例子1和例子2比较, 一元加操作符在操作对象时,会先调用对象的valueOf()方法来转换, 最后在用Number()方法来转换. </span>
 
-通过例子2和例子3比较, 如果只改写了toString()方法, 证明valueOf()的优先级比toString()高.
+<span style="text-decoration: underline wavy">通过例子2和例子3比较, 如果只改写了toString()方法, 证明valueOf()的优先级比toString()高.</span>
 
 alert情况下:
 
@@ -1902,6 +1876,10 @@ undefined == undefined; //true
 null == null; //true
 NaN == NaN; //false
 
+
+null == undefined  //true
+undefined == false  //false
+undefined == 0 //false
 ```
 
 
@@ -4294,9 +4272,9 @@ A [(unary) plus sign](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Re
 
 **Desc**
 
-<u>JavaScript calls the `valueOf` method to convert an object to a primitive value.</u> You rarely need to invoke the `valueOf` method yourself, JavaScript automatically invoke it when encountering  an object where a primitive value is expected.
+<u>JavaScript calls the `valueOf` method to convert an object to a primitive value.</u> You rarely need to invoke the `valueOf` method yourself, JavaScript **automatically invoke it** when encountering  an object where a primitive value is expected.
 
-By default, the `valueOf` method is inherited by every object descended from `Object`. Every built-in core object overrides this method to return an appopriate value. If an object has no primitive value, `valueOf` returns the object iteself.
+By default, the `valueOf` method is inherited by every object descended from `Object`. Every built-in core object overrides this method to return an appopriate value. **If an object has no primitive value, `valueOf` returns the object iteself.**
 
 <u>You can use `valueOf` within your own code to convert a built-in object into a primitive value.</u> When you create a custom object, you can override `Object.prototype.valueOf()` to call a custom method instead of the default  `Object` method.
 
@@ -11597,6 +11575,8 @@ let filterArr = arr.filter((item, index) => arr.indexOf(item) === arr.lastIndexO
 **定义**
 
 `**join()**` 方法将一个数组（或一个[类数组对象](https://developer.mozilla.org/zh-CN_docs/Web/JavaScript/Guide/Indexed_collections#working_with_array-like_objects)）的所有元素连接成一个字符串并返回这个字符串。如果数组只有一个项目，那么将返回该元素字符串而不使用分隔符。
+
+toString()与join()实现同样的效果
 
 **参数**
 

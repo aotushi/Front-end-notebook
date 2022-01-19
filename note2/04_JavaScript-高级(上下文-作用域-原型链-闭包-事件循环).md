@@ -1279,6 +1279,40 @@ var fooReference = {
 
 
 
+## 执行上下文
+
+### 1.思考题
+
+```javascript
+var scope = 'global scope';
+function checkscope() {
+  var scope = 'local scope';
+  function f() {
+    return scope;
+  }
+  return f();
+}
+checkscope()
+```
+
+```javascript
+var scope = "global scope";
+function checkscope(){
+    var scope = "local scope";
+    function f(){
+        return scope;
+    }
+    return f;
+}
+checkscope()();
+```
+
+两段代码都会打印'local scope'。虽然两段代码执行的结果一样，但是两段代码究竟有哪些不同呢？
+
+紧接着就在下一篇[《JavaScript深入之执行上下文栈》](https://github.com/mqyqingfeng/Blog/issues/4)中，讲到了两者的区别在于执行上下文栈的变化不一样，然而，如果是这样笼统的回答，依然显得不够详细，本篇就会详细的解析执行上下文栈和执行上下文的具体变化过程。
+
+### 2. 具体执行分析
+
 
 
 
