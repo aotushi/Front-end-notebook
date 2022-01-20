@@ -507,7 +507,7 @@ ECStack.pop();
 
 ### 1. 执行上下文的3个属性
 
-当 JavaScript 代码执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)。
+当 JavaScript 引擎执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)。
 
 对于每个执行上下文，都有三个重要属性：
 
@@ -715,7 +715,17 @@ var foo = 1;
 
 会打印函数，而不是 undefined 。
 
-这是因为在进入执行上下文时，首先会处理函数声明，其次会处理变量声明，如果变量名称跟已经声明的形式参数或函数相同，则变量声明不会干扰已经存在的这类属性。
+<u>这是因为在进入执行上下文时，首先会处理函数声明，其次会处理变量声明</u>，<u>如果变量名称跟已经声明的形式参数或函数相同，则变量声明不会干扰已经存在的这类属性</u>。
+
+```javascript
+function fn(a) {
+  var a;
+  console.log(a);
+  a = 3;
+  console.log(a);
+}
+fn(2); //2 3
+```
 
 
 
@@ -1279,7 +1289,7 @@ var fooReference = {
 
 
 
-## 执行上下文
+## 执行上下文???? 未完成
 
 ### 1.思考题
 
@@ -1313,9 +1323,166 @@ checkscope()();
 
 ### 2. 具体执行分析
 
+我们分析第一段代码：
+
+```javascript
+var scope = 'global scope';
+
+function checkscope() {
+  var scope = 'local scope';
+  function f() {
+    return scope;
+  }
+  return f();
+}
+
+checkscope();
+```
+
+执行过程如下：
+
+1.执行全局代码，创建全局执行上下文，全局上下文被压入执行上下文栈
+
+```javascript
+ECStack = [
+  globalContext
+];
+```
+
+2.全局上下文初始化
+
+```javascript
+globalContext = {
+  VO: [global],
+  Scope: [globalContext.VO],
+  this: globalContext.VO
+}
+```
+
+3.初始化同时,checkscope 函数被创建，保存作用域链到函数的内部属性[[scope]]
+
+```javascript
+checkscope.[[scope]] = [
+  globalContext.VO
+]
+```
+
+4.执行checkscope函数,创建checkscope函数执行上下文,checkscope函数执行上下文被压入执行上下文栈
+
+```javascript
+ECStack = [
+  checkscopeContext,
+  globalContext
+]
+```
+
+5.checkscope函数执行上下文初始化:
+
+5.1 复制函数[[scope]]属性创建作用域链
+
+5.2 用arguments创建活动对象
+
+5.3 初始化活动对象,即加入形参,函数声明,变量声明
+
+5.4 将活动对象压入checkscope作用域链顶端
 
 
 
+同时f函数被创建，保存作用域链到 f 函数的内部属性[[scope]]
+
+```javascript
+checkscopeContext = {
+  AO: {
+    arguments: {
+      length: 0
+    },
+    scope: undefined,
+    f: reference to function f() {}
+  },
+  Scope: [AO, globalContext.VO],
+  this: undefined
+}
+```
+
+6.执行f函数,创建f函数执行上下文, f函数执行上下文被压入执行上下文栈.
+
+```javascript
+ECStack = [
+  fContext,
+  checkscopeContext,
+  globalContext
+]
+```
+
+7.f函数执行上下文初始化,以下跟第5步相同
+
+7.1 复制函数[[scope]]属性创建作用域链
+
+7.2 用arguments创建活动对象
+
+7.3 初始化活动对象,即加入形参,函数声明,变量声明
+
+7.4 将活动对象压入f作用域链顶端
+
+```javascript
+fContext = {
+  AO: {
+    arguments: {
+      length: 0
+    }
+  },
+  Scope: [AO, checkscopeContext.AO, globalContext.VO],
+  this: undefined
+}
+```
+
+8.f函数执行,沿着作用域链查找scope的值,返回scope的值
+
+9.f函数执行完毕, f函数上下文从执行上下文栈中弹出
+
+```javascript
+ECStack = [
+  checkscopeContext,
+  globalContext
+]
+```
+
+10.checkscope函数执行完毕,checkscope执行上下文从执行上下文栈中弹出
+
+```javascript
+ECStack = [
+  globalContext
+]
+```
+
+
+
+
+
+## 闭包
+
+> https://github.com/mqyqingfeng/Blog/issues/9
+
+### 1.定义
+
+MDN 对闭包的定义为：(理论上的)
+
+> 闭包是指那些能够访问自由变量的函数。
+
+那什么是自由变量呢？
+
+> 自由变量是指在函数中使用的，但既不是函数参数也不是函数的局部变量的变量。
+
+由此，我们可以看出闭包共有两部分组成：
+
+> 闭包 = 函数 + 函数能够访问的自由变量
+
+ECMAScript中，闭包指的是：(实践上的)
+
+1. 从理论角度：所有的函数。因为它们都在创建的时候就将上层上下文的数据保存起来了。哪怕是简单的全局变量也是如此，因为函数中访问全局变量就相当于是在访问自由变量，这个时候使用最外层的作用域。
+2. 从实践角度：以下函数才算是闭包：
+   1. 即使创建它的上下文已经销毁，它仍然存在（比如，内部函数从父函数中返回）
+   2. 在代码中引用了自由变量
 
 
 

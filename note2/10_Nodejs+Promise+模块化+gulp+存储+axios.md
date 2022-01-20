@@ -1,5 +1,9 @@
 ## NodeJS简介
 
+### 资源
+
+> https://nqdeng.github.io/7-days-nodejs/#1
+
 #### 介绍
 
 ```

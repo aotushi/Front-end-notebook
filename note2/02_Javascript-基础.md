@@ -1897,7 +1897,7 @@ ECMA文档定义没有直接指出原因,但从下面这句话可以看出原因
 
 在Javascript中, `undefined`也是同样的设置,它没有任何值.然而, `false`有一个值.  `Null`和`undefined`不应该提供任何值,同样的, 它也没有能转换成抽象相等比较的值, 所以这个结果总是`false`. 
 
-这也是`null == undefined` 返回`true`的原因(它们两个都没有任何值). 应该注意`null===undefined`返回`false`, 因为这是两种类型.
+这也是`null == undefined` 返回`true`的原因(它们两个都没有任何值,此点没有相应解释). 应该注意`null===undefined`返回`false`, 因为这是两种类型.
 
 
 
