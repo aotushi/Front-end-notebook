@@ -1484,6 +1484,165 @@ ECMAScript中，闭包指的是：(实践上的)
    1. 即使创建它的上下文已经销毁，它仍然存在（比如，内部函数从父函数中返回）
    2. 在代码中引用了自由变量
 
+### 2.示例
+
+让我们先写个例子，例子依然是来自《JavaScript权威指南》，稍微做点改动
+
+```javascript
+var scope = "global scope";
+function checkscope(){
+    var scope = "local scope";
+    function f(){
+        return scope;
+    }
+    return f;
+}
+
+var foo = checkscope();
+foo();
+```
+
+首先我们要分析一下这段代码中执行上下文栈和执行上下文的变化情况
+
+另一个与这段代码相似的例子，在[《JavaScript深入之执行上下文》](https://github.com/mqyqingfeng/Blog/issues/8)中有着非常详细的分析。如果看不懂以下的执行过程，建议先阅读这篇文章。
+
+这里直接给出简要的执行过程：
+
+1. 进入全局代码，创建全局执行上下文，全局执行上下文压入执行上下文栈
+2. 全局执行上下文初始化
+3. 执行 checkscope 函数，创建 checkscope 函数执行上下文，checkscope 执行上下文被压入执行上下文栈
+4. checkscope 执行上下文初始化，创建变量对象、作用域链、this等
+5. checkscope 函数执行完毕，checkscope 执行上下文从执行上下文栈中弹出
+6. 执行 f 函数，创建 f 函数执行上下文，f 执行上下文被压入执行上下文栈
+7. f 执行上下文初始化，创建变量对象、作用域链、this等
+8. f 函数执行完毕，f 函数上下文从执行上下文栈中弹出
+
+了解到这个过程，我们应该思考一个问题，那就是：
+
+当 f 函数执行的时候，checkscope 函数上下文已经被销毁了啊(即从执行上下文栈中被弹出)，怎么还会读取到 checkscope 作用域下的 scope 值呢？
+
+以上的代码，要是转换成 PHP，就会报错，因为在 PHP 中，f 函数只能读取到自己作用域和全局作用域里的值，所以读不到 checkscope 下的 scope 值。(这段我问的PHP同事……)
+
+然而 JavaScript 却是可以的！
+
+当我们了解了具体的执行过程后，我们知道 f 执行上下文维护了一个作用域链：
+
+```javascript
+fContext = {
+  Scope: [AO, checkscopeContext.AO, globalContext.VO]
+}
+```
+
+
+
+### 3.练习题
+
+```javascript
+var data = [];
+
+for (var i=0; i<3; i++) {
+  data[i] = function() {
+    console.log(i);
+  };
+}
+
+data[0]();
+data[1]();
+data[2]();
+```
+
+当执行到 data[0] 函数之前，此时全局上下文的 VO 为：
+
+```javascript
+globalContext = {
+  VO: {
+    data: [...],
+    i: 3
+  }
+}
+```
+
+当执行 data[0] 函数的时候，data[0] 函数的作用域链为：
+
+```javascript
+data[0]Context = {
+  Scope: [AO, globalContext.VO]
+}
+```
+
+data[0]Context 的 AO 并没有 i 值，所以会从 globalContext.VO 中查找，i 为 3，所以打印的结果就是 3。
+
+data[1] 和 data[2] 是一样的道理。
+
+所以让我们改成闭包看看：
+
+```javascript
+var data = [];
+
+for (var i=0; i<3; i++) {
+  data[i] = (function(i) {
+    return function() {
+      console.log(i);
+    }
+  })(i);
+}
+
+data[0]();
+data[1]();
+data[2]();
+```
+
+当执行到 data[0] 函数之前，此时全局上下文的 VO 为：
+
+```javascript
+globalContext = {
+  VO: {
+    data: [...],
+    i: 3
+  }
+}
+```
+
+跟没改之前的一样.
+
+当执行data[0]函数的时候,data[0]函数作用域链发生了改变:
+
+```javascript
+data[0]Context = {
+  Scope: [AO, 匿名函数Context.AO, globalContext.VO]
+}
+```
+
+匿名函数执行上下文的AO为:
+
+```javascript
+匿名函数Context = {
+  AO: {
+    arguments: {
+      0: 0,
+      length: 1
+    },
+    i: 0
+  }
+}
+```
+
+data[0]Context 的 AO 并没有 i 值，所以会沿着作用域链从匿名函数 Context.AO 中查找，这时候就会找 i 为 0，找到了就不会往 globalContext.VO 中查找了，即使 globalContext.VO 也有 i 的值(值为3)，所以打印的结果就是0
+
+
+
+## 参数按值传递
+
+具体查看02_JavaScript基础中函数参数部分.
+
+
+
+
+
+
+
+
+
 
 
 ## 原型和原型链

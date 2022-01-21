@@ -6901,7 +6901,7 @@ function fn(a, b){
 
 如果是原始值，那么就跟原始值变量的复制一样，
 
-如果是引用值，那么就跟引用值变量的复制一样。传递的是对象的引用.
+如果是引用值，那么就跟引用值变量的复制一样。传递的是对象的引用.   ????
 
 > 在按值传递参数时，值会被复制到一个局部变量（即一个命名参数，或者用ECMAScript 的话说，就是arguments 对象中的一个槽位）。
 >
@@ -6932,6 +6932,101 @@ alert(person.name); // "Nicholas"
 
 //资料来源: https://www.cnblogs.com/superdg003/p/5946727.html 
 ```
+
+
+
+> 以上的内容不好理解不用看,以下内容来自JavaScript深入之参数按值传递 https://github.com/mqyqingfeng/Blog/issues/10
+
+
+
+**定义**
+
+在《JavaScript高级程序设计》第三版 4.1.3，讲到传递参数：
+
+> ECMAScript中所有函数的参数都是按值传递的。
+
+什么是按值传递呢？
+
+> 也就是说，把函数外部的值复制给函数内部的参数，就和把值从一个变量复制到另一个变量一样。
+
+
+
+**按值传递**
+
+```javascript
+var value = 1;
+function foo(v) {
+  v = 2;
+  console.log(v); //2
+}
+
+foo(value);
+console.log(value); //1
+```
+
+
+
+**引用传递?**
+
+拷贝虽然很好理解，但是当值是一个复杂的数据结构的时候，拷贝就会产生性能上的问题。
+
+所以还有另一种传递方式叫做按引用传递。
+
+所谓按引用传递，就是传递对象的引用，函数内部对参数的任何改变都会影响该对象的值，因为两者引用的是同一个对象。
+
+```javascript
+var obj = {
+  value: 1
+};
+
+function foo(o) {
+  o.value = 2;
+  console.log(o.value); //2
+}
+
+foo(obj);
+console.log(obj.value); //2
+```
+
+那以上这种传值方式到底是不是按引用传递呢?
+
+**共享传递**
+
+案例
+
+```javascript
+var obj = 1;
+
+function foo(o) {
+  o = 2;
+  console.log(o); //2
+}
+
+foo(obj); 
+console.log(obj); //1
+```
+
+如果JavaScript采用的是引用传递,外层的值也会被修改,以上案例中却没有被修改,所以不是引用传递.
+
+其实还有第三种传递方式, 共享传递.
+
+<span style="text-decoration: underline wavy">共享传递是指, 在传递对象的时候, 传递对象的引用的副本.</span>
+
+注意: 按引用传递是传递对象的引用, 而<u>按共享传递是传递对象的引用的副本</u>.
+
+所以修改o.value,可以通过引用找到原值,但是直接修改o,并不会修改原值.
+
+**结论**
+
+* <span style="color: red">参数如果是基本类型是按值传递,如果是引用类型按共享传递</span>
+*  按值传递拷贝了原值，按共享传递拷贝了引用，都是拷贝值，所以可以理解成都是按值传递。
+* 但是因为拷贝副本也是一种值的拷贝,所以在高程中也直接认为是按值传递.
+
+
+
+
+
+
 
 
 
@@ -7208,6 +7303,31 @@ console.log(factorial(5)); //0
 
 
 
+**callee实例**
+
+> [实现一个函数 where，它返回它被调用的时候所在的函数的名字](https://www.zhihu.com/question/37904806/answer/488668791)
+
+写一个函数,实现调用这个函数的函数的名称
+
+```javascript
+//非严格模式下
+function where() {
+  return arguments.callee.caller.name;
+}
+```
+
+```javascript
+//严格模式下
+const where = () => {
+  let reg = /\s+at\s(\S+)\s\(/g
+  let str = new Error().stack.toString();
+  let res = reg.exec(str) && reg.exec(str)
+  return res && res[1];
+}
+```
+
+
+
 
 
 **desc**
@@ -7218,8 +7338,10 @@ console.log(factorial(5)); //0
 * it has entries(条目) for each argument the function was called with, with the first entry's index at 0.
 * each arguments can also be set or reassigned
 * the arguments object is not an `Array`. It is similar, but lacks all `Array` properties except `length`.
-* <u>converted to a real Array</u>
+* <u>**converted to a real Array**</u>
   * [].slice.call(arguments)
+  * [].splice.call(arguments, 0)
+  * [].concat.apply([], arguments)
   * Array.from(arguments)
   * [...arguments]
 * the `typeof` opetator returns `'object'` when used with `arguments`
@@ -7235,7 +7357,7 @@ arguments 对象是一个类数组对象（但不是Array 的实例）:
 * 使用中括号语法访问传入的实参,而不必定义形参
 * 访问arguments.length,确定传入参数个数
 * arguments对象可以跟命名参数一起使用
-* arguments对象的值始终与对应的命名参数同步,但内存地址时不同的.
+* arguments对象的值始终与对应的命名参数同步,但内存地址是不同的.
 * arguments 对象的长度是根据传入的参数个数，而非定义函数时给出的命名参数个数确定的
 * 如果只传了1个参数,然后为arguments[1]赋值,这个值并不会反映到第二个命名参数.
 * ES5严格模式下,为arguments[n]赋值不会改变传入实参的值;重写arguments对象会导致语法错误
@@ -7545,7 +7667,7 @@ function inner() {
 
 ```
 
-在严格模式下访问arguments.callee 会报错。ECMAScript 5 也定义了arguments.caller，但在严格模式下访问它会报错，在非严格模式下则始终是undefined。这是为了分清rguments.caller和函数的caller 而故意为之的。而作为对这门语言的安全防护，这些改动也让第三方代码无法检测同一上下文中运行的其他代码。严格模式下还有一个限制，就是不能给函数的caller 属性赋值，否则会导致错误。
+<u>在严格模式下访问arguments.callee 会报错</u>。ECMAScript 5 也定义了arguments.caller，但在严格模式下访问它会报错，在非严格模式下则始终是undefined。这是为了分清arguments.caller和函数的caller 而故意为之的。而作为对这门语言的安全防护，这些改动也让第三方代码无法检测同一上下文中运行的其他代码。严格模式下还有一个限制，就是不能给函数的caller 属性赋值，否则会导致错误。
 
 #### new.target
 
@@ -7897,7 +8019,7 @@ Function.prototype.myCall = function() {
   let thisArg = arguments[0] || globalThis;
   let tempFn = Symbol();
   thisArg[tempFn] =  this;
-  const result = arguments.length > 0 ? thisArg[tempFn](...[...arguments].slice(1)) : thisArg[tempFn]();
+  const result = arguments.length > 1 ? thisArg[tempFn](...[...arguments].slice(1)) : thisArg[tempFn]();
   delete thisArg[tempFn];
   return result;
 }
@@ -8110,10 +8232,28 @@ Function.prototype.apply = function(obj, arr) {
   let tempFn = Symbol();
   fn[tempFn] = this;
   let args = [];
-  for (let i=0; i<arr.length; i++) {
+  for (let i=1; i<arr.length; i++) {
     args.push('arguments[' + i + ']');
   }
   return eval('fn[tempFn](' + args +')');
+}
+
+Function.prototype.myApply = function(obj, arr) {
+  obj = obj || globalThis;
+  obj.tempFn = this;
+  let result;
+  if (!arr) {
+  	result = eval('obj.tempFn()')
+  } else {
+    let args = [];
+    for (let i=0; i<arr.length; i++) {
+      args.push('arr[' + i + ']');
+    }
+    result = eval('obj[tempFn](' + args + ')');
+  }
+  
+  delete obj.tempFn;
+  return result;
 }
 
 Function.prototype.apply = function(obj, arr) {
@@ -9639,6 +9779,22 @@ function createObject(ctor) {
   return typeof(res) === 'object' ? ret : obj;
 }
 ```
+
+
+
+```javascript
+//https://github.com/mqyqingfeng/Blog/issues/13
+
+function newOperator() {
+  let obj = {};
+  Constructor = [].shift.call(arguments);
+  obj.__proto__ = Constructor.prototype;
+  let result = Constructor.apply(obj, arguments);
+  return typeof result === 'object' ? result : obj;
+}
+```
+
+
 
 
 
