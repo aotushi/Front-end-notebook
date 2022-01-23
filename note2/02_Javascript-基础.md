@@ -3808,6 +3808,54 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 
 
+### 0.1 类数组对象
+
+#### 定义
+
+> 拥有一个length属性和若干索引属性的对象
+
+
+
+#### 与数组的比较
+
+* 在读写,长度,遍历上与数组相同
+* 无法直接调用数组方法, 可以借助Function.call方法间接调用
+
+```javascript
+let arrayLike = {
+  0: 'name',
+  1: 'age',
+  2: 'sex',
+  length: 3
+};
+
+Array.prototype.join.call(arrayLike, '&');
+Array.prototype.slice.call(arrayLike, 0); //['name', 'age', 'sex'] slice可以将类数组转换成数组
+
+Array.prototype.map.call(arrayLike, function(item) {
+  return item.toUpperCase();
+});
+//['NAME', 'AGE', 'SEX']
+```
+
+
+
+#### 类数组转换成数组的5种方法
+
+* [].slice.call(arrayLike)
+
+* [].splice.call(arrayLike, 0)
+
+* [].concat.apply(arrayLike, [])
+
+* Array.from(arrayLike)
+
+* [...arrayLike]
+
+  
+
+
+
 ### 1.基本认识
 
 ```js
@@ -3824,7 +3872,9 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 
 
-### 2.创建对象3种方法
+### 2.创建对象几种种方法
+
+创建对象的方式及优缺点
 
 ```js
 * 创建对象(3种方法)
@@ -3832,23 +3882,207 @@ let obj = new Object(); //new字可以省略,当以非构造函数形式调用,O
 let ojb = {};       //对象字面量 构造函数的语法糖
 let obj = Object.create(null); 
 
-工厂函数
 
-属性名没有任何要求,任何值都可以作为对象的属性名
-如果属性名太过特殊,则需要使用一个特殊的方式来设置:
 ```
 
-#### 1.定义
+#### 2.1 工厂模式
 
-使用**字面量**创建对象,可以在创建对象的同时向对象中添加属性. 使用**大括号{}**创建一个对象, 以在对象中指定需要的属性, 属性名和属性值以 **冒号** 连接,以 **逗号** 结尾, 最后一个属性最好不要写逗号
+缺点: 对象无法识别,因为所有的实例都指向一个原型
+
+```javascript
+function createPerson(name) {
+  let o = new Object();
+  o.name = name;
+  o.getName = function() {
+    console.log(this.name);
+  };
+  return o;
+}
+
+let person1 = createPerson('kevin');
+```
+
+
+
+#### 2.2 构造函数模式
+
+优点: 实例可以识别为一个特定的类型
+
+缺点: 每次创建实例时，每个方法都要被创建一次
+
+
 
 ```JavaScript
-let obj = {         //左边的花括号表示字面量的开始
-    name:'孙悟空',
-    age:18,
-    gender:'男'
-};
+function Person(name) {
+    this.name = name;
+    this.getName = function () {
+        console.log(this.name);
+    };
+}
+
+var person1 = new Person('kevin');
 ```
+
+
+
+##### 2.1 构造函数模式优化
+
+优点: 解决了每个方法都要被重新创建的问题
+
+缺点: 不是封装
+
+```javascript
+function Person(name) {
+  this.name = name;
+  this.getName = getName;
+}
+function getName() {
+  console.log(this.name);
+}
+
+let person1 = new Person('kevin');
+```
+
+
+
+#### 3.原型模式
+
+优点：方法不会重新创建
+
+缺点：1. 所有的属性和方法都共享 2. 不能初始化参数
+
+```javascript
+function Person() {}
+
+Person.prototype.name = 'kevin';
+Person.prototype.getName = function() {
+  console.log(this.name);
+}
+
+let person1 = new Person();
+```
+
+
+
+##### 3.1 原型模式优化
+
+优点：封装性好了一点
+
+缺点：重写了原型，丢失了constructor属性
+
+```javascript
+function Person() {}
+
+Person.prototype = {
+  name: 'kevin',
+  getName: function() {
+    console.log(this.name);
+  }
+};
+
+let person1 = new Person();
+```
+
+
+
+##### 3.2 原型模式优化二
+
+优点：实例可以通过constructor属性找到所属构造函数
+
+缺点：原型模式该有的缺点还是有
+
+```javascript
+function Person() {}
+
+Person.prototype = {
+  constructor: Person,
+  name: 'kevin',
+  getName: function() {
+    console.log(this.name);
+  }
+};
+
+let person1 = new Person();
+```
+
+
+
+#### 4.组合模式
+
+构造函数模式与原型模式双剑合璧。
+
+优点：该共享的共享，该私有的私有，使用最广泛的方式
+
+缺点：有的人就是希望全部都写在一起，即更好的封装性
+
+```javascript
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype = {
+  constructor: Person,
+  getName: function() {
+    console.log(this.name);
+  }
+};
+
+let person1 = new Person();
+```
+
+
+
+#### 5. 动态原型模式
+
+```javascript
+function Person(name) {
+  this.name = name;
+  if (typeof this.getName !== 'function') {
+    Person.prototype.getName = function() {
+      console.log(this.name);
+    }
+  }
+}
+
+let person1 = new Person();
+```
+
+注意：使用动态原型模式时，不能用对象字面量重写原型
+
+解释下为什么：
+
+```javascript
+function Person(name) {
+  this.name = name;
+  if (typeof this.getName !== 'function') {
+    Person.prototype = {
+      constrcutor: Person,
+      getName: function() {
+        console.log(this.name);
+      }
+    }
+  }
+}
+
+let person1 = new Person('kevin');
+let person2 = new Person('daisy');
+
+//报错 并没有该方法
+person1.getName();
+
+//注释掉上面的代码,这句是可以执行的
+person2.getName();
+```
+
+
+
+#### 6.寄生构造函数模式
+
+#### 7.稳妥构造函数模式
+
+
+
+
 
 
 
@@ -9736,11 +9970,9 @@ function creatPerson(name, age, gender){
 >
 > 2.将新对象内部的[[prototype]]的指针赋值为构造函数的prototype属性
 >
-> 3.构造函数内部的this被赋值为这个新的对象(this指向新对象)
+> 3.更新构造函数内的this为这个对象Constructor.apply(obj), 并执行构造函数内部的代码,
 >
-> 4.给新对象添加属性方法(执行构造函数内部的代码)
->
-> 5.如果构造函数返回非空对象,则返回该对象; 否则,返回刚创建的新对象.
+> 4.返回值: 如果构造函数返回非空对象,则返回该对象; 否则,返回刚创建的新对象.
 
 ```js
 var obj = {};
