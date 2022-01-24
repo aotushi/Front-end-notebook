@@ -1292,11 +1292,79 @@ console.log(Boolean(new Boolean(false))); //true
 
 #### 对象转字符串和数字1
 
-对象到字符串和对象到数字的转换都是通过调用待转换对象的一个方法来完成的。而 JavaScript 对象有两个不同的方法来执行转换，一个是 `toString`，一个是 `valueOf`。注意这个跟上面所说的 `ToString` 和 `ToNumber` 是不同的，这两个方法是真实暴露出来的方法。
+<u>对象到字符串和对象到数字的转换都是通过调用待转换对象的一个方法来完成的</u>。而 JavaScript 对象有两个不同的方法来执行转换，一个是 `toString`，一个是 `valueOf`。注意这个跟上面所说的 `ToString` 和 `ToNumber` 是不同的，这两个方法是真实暴露出来的方法。
 
 所有的对象除了 null 和 undefined 之外的任何值都具有 `toString` 方法，通常情况下，它和使用 String 方法返回的结果一致。`toString` 方法的作用在于返回一个反映这个对象的字符串，然而这才是情况复杂的开始。
 
+当调用对象的 toString 方法时，其实调用的是 Object.prototype 上的 toString 方法
+
+当调用对象的 toString 方法时，其实调用的是 Object.prototype 上的 toString 方法
+
+* 数组的 toString 方法将每个数组元素转换成一个字符串，并在元素之间添加逗号后合并成结果字符串。
+* 函数的 toString 方法返回源代码字符串。
+* 日期的 toString 方法返回一个可读的日期和时间字符串。
+* RegExp 的 toString 方法返回一个表示正则表达式直接量的字符串。
+
+另一个转换对象的函数是 valueOf，表示对象的原始值。默认的 valueOf 方法返回这个对象本身，数组、函数、正则简单的继承了这个默认方法，也会返回对象本身。日期是一个例外，它会返回它的一个内容表示: 1970 年 1 月 1 日以来的毫秒数。
+
+```javascript
+let date = new Date(2017,4,2);
+console.log(date.valueOf()) //14952960000000
+```
+
+
+
 #### 对象转字符串和数字2
+
+了解了 toString 方法和 valueOf 方法，我们分析下从对象到字符串是如何转换的。看规范 [ES5 9.8](http://es5.github.io/#x9.8)，其实就是 ToString 方法的对应表，只是这次我们加上 Object 的转换规则：
+
+| 参数类型 | 结果                                                         |
+| -------- | ------------------------------------------------------------ |
+| Object   | 1. primValue = ToPrimitive(input, String)<br />2. 返回ToString(primValue) |
+
+ 所谓的 ToPrimitive 方法，其实就是输入一个值，然后返回一个一定是基本类型的值。
+
+我们总结一下，当我们用 String 方法转化一个值的时候，如果是基本类型，就参照 “原始值转字符” 这一节的对应表，如果不是基本类型，我们会将调用一个 ToPrimitive 方法，将其转为基本类型，然后再参照“原始值转字符” 这一节的对应表进行转换。
+
+其实，从对象到数字的转换也是一样：
+
+| 参数类型 | 结果                                                         |
+| -------- | ------------------------------------------------------------ |
+| Object   | 1. primValue = ToPrimitive(input, Number)<br />2. 返回ToNumber(primValue) |
+
+虽然转换成基本值都会使用 ToPrimitive 方法，但传参有不同，最后的处理也有不同，转字符串调用的是 `ToString`，转数字调用 `ToNumber`。
+
+
+
+##### ToPrimitive
+
+让我们看规范 9.1，函数语法表示如下：
+
+> ToPrimitive(input, [, PreferredType])
+
+第一个参数是 input，表示要处理的输入值。
+
+第二个参数是 PreferredType，非必填，表示希望转换成的类型，有两个值可以选，Number 或者 String。
+
+当不传入 PreferredType 时，如果 input 是日期类型，相当于传入 String，否则，都相当于传入 Number。
+
+如果传入的 input 是 Undefined、Null、Boolean、Number、String 类型，直接返回该值。
+
+如果是 ToPrimitive(obj, Number)，处理步骤如下：
+
+1. 如果 obj 为 基本类型，直接返回
+2. 否则，调用 valueOf 方法，如果返回一个原始值，则 JavaScript 将其返回。
+3. 否则，调用 toString 方法，如果返回一个原始值，则 JavaScript 将其返回。
+4. 否则，JavaScript 抛出一个类型错误异常。
+
+如果是 ToPrimitive(obj, String)，处理步骤如下：
+
+1. 如果 obj为 基本类型，直接返回
+2. 否则，调用 toString 方法，如果返回一个原始值，则 JavaScript 将其返回。
+3. 否则，调用 valueOf 方法，如果返回一个原始值，则 JavaScript 将其返回。
+4. 否则，JavaScript 抛出一个类型错误异常。
+
+
 
 #### 对象转字符串
 
