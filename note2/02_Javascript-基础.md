@@ -1146,6 +1146,170 @@ console.log(Number.isInteger(25.1)); //false
 
 
 
+#### 原始值转布尔值
+
+我们使用 **Boolean 函数**将类型转换成布尔类型，在 JavaScript 中，只有 **6 种值**可以被转换成 false，其他都会被转换成 true。
+
+```javascript
+console.log(Boolean()); //false
+
+console.log(Boolean(false)); //false
+
+console.log(Boolean(undefined)); //false
+console.log(Boolean(null)); //false
+console.log(Boolean(+0)); //false
+console.log(Boolean(-0)); //false
+console.log(Boolean(NaN)); //false
+console.log(Boolean('')); //false
+```
+
+#### 原始值转数字
+
+使用Number函数将类型转换为数字类型,如果参数无法转换为数字,则返回NaN.
+
+在看例子之前，我们先看 [ES5 规范 15.7.1.1](http://es5.github.io/#x15.7.1.1) 中关于 Number 的介绍:
+
+> Returns a Number value (not a Number object) computed by [ToNumber](http://es5.github.io/#x9.3)(*value*) if *value* was supplied, else returns **+0**.
+
+根据规范，如果 Number 函数不传参数，返回 +0，如果有参数，调用 `ToNumber(value)`
+
+注意这个 `ToNumber` 表示的是一个底层规范实现上的方法，并没有直接暴露出来。
+
+而 `ToNumber` 则直接给了一个[对应的结果表](http://es5.github.io/#x9.3)。表如下：
+
+| 参数类型  | 结果                                                         |
+| --------- | ------------------------------------------------------------ |
+| Undefined | NaN                                                          |
+| Null      | +0                                                           |
+| Boolean   | 如果参数是true,返回1.参数为false,返回0                       |
+| Number    | 返回与之相等的值                                             |
+| String    | 如果通过 Number 转换函数传入一个字符串，它会试图将其转换成一个整数或浮点数，而且会忽略所有前导的 0<br/>如果有一个字符不是数字，结果都会返回 NaN，<br/>鉴于这种严格的判断，我们一般还会使用更加灵活的 parseInt 和 parseFloat 进行转换。 |
+
+
+
+```javascript
+console.log(Number()); //+0
+
+console.log(Number(undefined)); //NaN
+console.log(Number(null)); //+0
+
+console.log(Number(false)); //+0
+console.log(Number(true)); //1
+
+console.log(Number('123')); //123
+console.log(Number('-123')); //-123
+console.log(Number('1.2')); //1.2
+console.log(Number('000123')); //123
+console.log(Number('-000123')); //-123
+
+console.log(Number('0x11')); //17
+
+console.log(Number('')); //0
+console.log(Number(' ')); //0
+
+console.log(Number("123 123")) // NaN
+console.log(Number("foo")) // NaN
+console.log(Number("100a")) // NaN
+```
+
+parseInt 只解析整数，parseFloat 则可以解析整数和浮点数，如果字符串前缀是 "0x" 或者"0X"，parseInt 将其解释为十六进制数，parseInt 和 parseFloat 都会跳过任意数量的前导空格，尽可能解析更多数值字符，并忽略后面的内容。如果第一个非空格字符是非法的数字直接量，将最终返回 NaN：
+
+```javascript
+console.log(parseInt("3 abc")) // 3
+console.log(parseFloat("3.14 abc")) // 3.14
+console.log(parseInt("-12.34")) // -12
+console.log(parseInt("0xFF")) // 255
+console.log(parseFloat(".1")) // 0.1
+console.log(parseInt("0.1")) // 0
+```
+
+
+
+#### 原始值转字符
+
+我们使用 `String` 函数将类型转换成字符串类型，依然先看 [规范15.5.1.1](http://es5.github.io/#x15.5.1.1)中有关 `String` 函数的介绍：
+
+> Returns a String value (not a String object) computed by [ToString](http://es5.github.io/#x9.8)(*value*). If *value* is not supplied, the empty String `**""**` is returned.
+
+如果 `String` 函数不传参数，返回空字符串，如果有参数，调用 `ToString(value)`，而 `ToString` 也给了一个对应的结果表。
+
+表格如下：
+
+| 参数类型  | 结果                                                  |
+| --------- | ----------------------------------------------------- |
+| Undefined | 'undefined'                                           |
+| Null      | 'null'                                                |
+| Boolean   | 如果参数是true,返回'true',如果参数是false,返回'false' |
+| Number    | 参看以下示例                                          |
+| String    | 返回与之前相等的值                                    |
+
+
+
+```javascript
+console.log(String()) // 空字符串
+
+console.log(String(undefined)) // undefined
+console.log(String(null)) // null
+
+console.log(String(false)) // false
+console.log(String(true)) // true
+
+console.log(String(0)) // 0
+console.log(String(-0)) // 0
+console.log(String(1)) // 1
+console.log(String(-1)) //-1
+console.log(String(NaN)) // NaN
+console.log(String(Infinity)) // Infinity
+console.log(String(-Infinity)) // -Infinity
+```
+
+
+
+#### 原始值转对象
+
+原始值到对象的转换非常简单，原始值通过调用 String()、Number() 或者 Boolean() 构造函数，转换为它们各自的包装对象。
+
+null 和 undefined 属于例外，当将它们用在期望是一个对象的地方都会造成一个类型错误 (TypeError) 异常，而不会执行正常的转换。
+
+```javascript
+let a = 1;
+console.log(typeof a); //number
+let b = new Number(a);
+console.log(typeof b); //object
+```
+
+
+
+#### 对象转布尔值
+
+对象到布尔值的转换非常简单：所有对象(包括数组和函数)都转换为 true。对于包装对象也是这样
+
+```javascript
+console.log(Boolean(new Boolean(false))); //true
+```
+
+
+
+#### 对象转字符串和数字1
+
+对象到字符串和对象到数字的转换都是通过调用待转换对象的一个方法来完成的。而 JavaScript 对象有两个不同的方法来执行转换，一个是 `toString`，一个是 `valueOf`。注意这个跟上面所说的 `ToString` 和 `ToNumber` 是不同的，这两个方法是真实暴露出来的方法。
+
+所有的对象除了 null 和 undefined 之外的任何值都具有 `toString` 方法，通常情况下，它和使用 String 方法返回的结果一致。`toString` 方法的作用在于返回一个反映这个对象的字符串，然而这才是情况复杂的开始。
+
+#### 对象转字符串和数字2
+
+#### 对象转字符串
+
+#### 对象转数字
+
+#### JSON.stringify()
+
+
+
+
+
+
+
 #### 其他类型转换为字符串类型
 
 ##### 方式一 toString
@@ -3885,7 +4049,7 @@ let obj = Object.create(null);
 
 ```
 
-#### 2.1 工厂模式
+#### 1.工厂模式
 
 缺点: 对象无法识别,因为所有的实例都指向一个原型
 
@@ -3904,7 +4068,7 @@ let person1 = createPerson('kevin');
 
 
 
-#### 2.2 构造函数模式
+#### 2.构造函数模式
 
 优点: 实例可以识别为一个特定的类型
 
@@ -4032,7 +4196,7 @@ let person1 = new Person();
 
 
 
-#### 5. 动态原型模式
+#### 5.动态原型模式
 
 ```javascript
 function Person(name) {
@@ -4074,15 +4238,148 @@ person1.getName();
 person2.getName();
 ```
 
+为了解释这个问题，假设开始执行`var person1 = new Person('kevin')`。
+
+如果对 new 和 apply 的底层执行过程不是很熟悉，可以阅读底部相关链接中的文章。
+
+我们回顾下 new 的实现步骤：
+
+1. 首先新建一个对象
+2. 然后将对象的原型指向 Person.prototype
+3. 然后 Person.apply(obj)
+4. 返回这个对象
+
+注意这个时候，回顾下 apply 的实现步骤，会执行 obj.Person 方法，这个时候就会执行 if 语句里的内容，<u>注意构造函数的 prototype 属性指向了实例的原型，使用字面量方式直接覆盖 Person.prototype，并不会更改实例的原型的值，person1 依然是指向了以前的原型，而不是 Person.prototype。</u>而之前的原型是没有 getName 方法的，所以就报错了！((划线部分: 关于原型链以前的理解是有问题的. 我以为新建实例对象的原型会一直指向构造函数原型, 无论构造函数原型如何变化. 这是错误的, 因为实例原型只有过一次被赋值的行为, 再执行构造函数内部代码并更改函数原型并不会再影响实例原型啊,  背诵原型图后想当然以为这个关系是实时的一直存在的.))
+
+如果你就是想用字面量方式写代码，可以尝试下这种：
+
+```javascript
+function Person(name) {
+  this.name = name;
+  if (typeof this.getName !== 'function') {
+    Person.prototype = {
+      getName: function() {
+        console.log(this.name);
+      }
+    }
+    return new Person(name);
+  }
+}
+
+
+let person1 = new Person('kevin');
+let person2 = new Person('daisy');
+
+person1.getName(); //kevin
+person2.getName(); //daisy
+```
+
 
 
 #### 6.寄生构造函数模式
 
+```javascript
+function Person(name) {
+  let o = new Object();
+  o.name = name;
+  o.getName = function() {
+    console.log(this.name);
+  }
+  return o;
+}
+
+let person1 = new Person('kevin');
+console.log(person1 instanceof Person); //false
+console.log(person1 instanceof Object); //true
+```
+
+寄生构造函数模式，我个人认为应该这样读：
+
+<u>寄生-构造函数-模式，也就是说寄生在构造函数的一种方法。</u>
+
+也就是说打着构造函数的幌子挂羊头卖狗肉，你看创建的实例使用 instanceof 都无法指向构造函数！
+
+这样方法可以在特殊情况下使用。比如我们想<span style="text-decoration: underline wavy;">创建一个具有额外方法的特殊数组，但是又不想直接修改Array构造函数</span>，我们可以这样写：
+
+```javascript
+function specialArray() {
+  let values = new Array();
+  
+  for (let i=0, len=arguments.length; i<len; i++) {
+    values.push(arguments[i]);
+  }
+  
+  values.toPipedString = function() {
+    return this.join('|');
+  }
+  return values;
+}
+
+let colors = new SpecialArray('red', 'blue', 'green');
+let colors2 = SpecialArray('red2', 'blues', 'green2');
+
+console.log(colors);
+console.log(colors.toPipedString()); // red|blue|green
+
+console.log(colors2);
+console.log(colors2.toPipedString()); // red2|blue2|green2
+
+```
+
+你会发现，其实所谓的寄生构造函数模式就是比工厂模式在创建对象的时候，多使用了一个new，实际上两者的结果是一样的。
+
+但是作者可能是希望能像使用普通 Array 一样使用 SpecialArray，虽然把 SpecialArray 当成函数也一样能用，但是这并不是作者的本意，也变得不优雅。????
+
+<u>在可以使用其他模式的情况下，不要使用这种模式。</u>
+
+但是值得一提的是，上面例子中的循环：
+
+```javascript
+for (let i=0, len=arguments.length; i<len; i++) {
+  values.push(arguments[i]);
+}
+```
+
+可以替换成:
+
+```javascript
+values.push.apply(values, arguments);
+[].push.apply(values, arguments);
+```
+
+
+
 #### 7.稳妥构造函数模式
 
+```javascript
+function Person(name) {
+  let o = new Object();
+  o.sayName = function() {
+    console.log(name);
+  };
+  return o;
+}
 
+let person1 = person('kevin');
 
+person1.sayName(); //'kevin'
 
+person1.name = 'daisy';
+person1.sayName(); //kevin
+
+console.log(person1.name); //daisy
+```
+
+所谓**稳妥对象，指的是没有公共属性，而且其方法也不引用 this 的对象。**
+
+与寄生构造函数模式有两点不同：
+
+1. 新创建的实例方法不引用 this
+2. 不使用 new 操作符调用构造函数
+
+稳妥对象最适合在一些安全的环境中。
+
+稳妥构造函数模式也跟工厂模式一样，无法识别对象所属类型。
 
 
 
@@ -16485,7 +16782,7 @@ function readNumber() {
 
 
 
-### 8. 其他
+### 8. 其他(笔记记得乱七八糟,需重记)
 
 > [前端应该知道的JavaScript浮点数和大数的原理 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/66949640)
 
@@ -16577,14 +16874,16 @@ JavaScript中只有一种数字类型number,而number使用的是IEEE754双精�
 在控制台中使用[toPrecision](https://link.zhihu.com/?target=https%3A//developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toPrecision)看一下0.1在不同精度下的返回
 
 ```javascript
-0.1toPrecision(16) //0.1000000000000000
-0.1toPrecision(17) //'0.10000000000000001'
-0.1toPrecision(20) //
-0.1toPrecision(30) //
-0.1toPrecision(64) //0.1000000000000000055511151231257827021181583404541015625000000000
+0.1.toPrecision(16) //0.1000000000000000
+0.1.toPrecision(17) //'0.10000000000000001'
+0.1.toPrecision(20) //
+0.1.toPrecision(30) //
+0.1.toPrecision(64) //0.1000000000000000055511151231257827021181583404541015625000000000
 ```
 
 可以看出来其实0.1是截断了一部分精度后得到的结果，那么这个问题就可以转化为：双精度浮点数是按什么规则来截断的呢？
+
+
 
 **如果一个 IEEE 754 的双精度浮点数被转成至少含17位有效数字的十进制数字字符串，当这个字符串转回双精度浮点数时，必须要跟原来的数相同；换句话说，如果一个双精度的浮点数转为十进制的数字时，只要它转回来的双精度浮点数不变，精度取最短的那个就行。**
 
@@ -16605,7 +16904,7 @@ JavaScript中只有一种数字类型number,而number使用的是IEEE754双精�
 控制台打印:
 
 ```javascript
-Number.MAX_SAFE)INTEGER  /9007199254740991
+Number.MAX_SAFE_INTEGER  /9007199254740991
 
 Number.MAX_VALUE //1.7976931348623157e+308
 
