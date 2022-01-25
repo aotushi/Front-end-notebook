@@ -1290,13 +1290,11 @@ console.log(Boolean(new Boolean(false))); //true
 
 
 
-#### 对象转字符串和数字1
+#### 对象转字符串和数字
 
 <u>对象到字符串和对象到数字的转换都是通过调用待转换对象的一个方法来完成的</u>。而 JavaScript 对象有两个不同的方法来执行转换，一个是 `toString`，一个是 `valueOf`。注意这个跟上面所说的 `ToString` 和 `ToNumber` 是不同的，这两个方法是真实暴露出来的方法。
 
 所有的对象除了 null 和 undefined 之外的任何值都具有 `toString` 方法，通常情况下，它和使用 String 方法返回的结果一致。`toString` 方法的作用在于返回一个反映这个对象的字符串，然而这才是情况复杂的开始。
-
-当调用对象的 toString 方法时，其实调用的是 Object.prototype 上的 toString 方法
 
 当调用对象的 toString 方法时，其实调用的是 Object.prototype 上的 toString 方法
 
@@ -1313,8 +1311,6 @@ console.log(date.valueOf()) //14952960000000
 ```
 
 
-
-#### 对象转字符串和数字2
 
 了解了 toString 方法和 valueOf 方法，我们分析下从对象到字符串是如何转换的。看规范 [ES5 9.8](http://es5.github.io/#x9.8)，其实就是 ToString 方法的对应表，只是这次我们加上 Object 的转换规则：
 
@@ -1350,14 +1346,14 @@ console.log(date.valueOf()) //14952960000000
 
 如果传入的 input 是 Undefined、Null、Boolean、Number、String 类型，直接返回该值。
 
-如果是 ToPrimitive(obj, Number)，处理步骤如下：
+<u>如果是 ToPrimitive(obj, Number)，处理步骤如下：</u>
 
 1. 如果 obj 为 基本类型，直接返回
 2. 否则，调用 valueOf 方法，如果返回一个原始值，则 JavaScript 将其返回。
 3. 否则，调用 toString 方法，如果返回一个原始值，则 JavaScript 将其返回。
 4. 否则，JavaScript 抛出一个类型错误异常。
 
-如果是 ToPrimitive(obj, String)，处理步骤如下：
+<u>如果是 ToPrimitive(obj, String)，处理步骤如下：</u>
 
 1. 如果 obj为 基本类型，直接返回
 2. 否则，调用 toString 方法，如果返回一个原始值，则 JavaScript 将其返回。
@@ -1366,337 +1362,260 @@ console.log(date.valueOf()) //14952960000000
 
 
 
-#### 对象转字符串
+##### 对象转字符串
 
-#### 对象转数字
+所以总结下，对象转字符串(就是 Number() 函数)可以概括为：
+
+* 如果对象具有 toString 方法，则调用这个方法。如果他返回一个原始值，JavaScript 将这个值转换为字符串，并返回这个字符串结果。
+* 如果对象没有 toString 方法，或者这个方法并不返回一个原始值，那么 JavaScript 会调用 valueOf 方法。如果存在这个方法，则 JavaScript 调用它。如果返回值是原始值，JavaScript 将这个值转换为字符串，并返回这个字符串的结果。
+* 否则，JavaScript 无法从 toString 或者 valueOf 获得一个原始值，这时它将抛出一个类型错误异常。
+
+##### 对象转数字
+
+对象转数字的过程中，JavaScript 做了同样的事情，只是它会首先尝试 valueOf 方法
+
+1. 如果对象具有 valueOf 方法，且返回一个原始值，则 JavaScript 将这个原始值转换为数字并返回这个数字
+2. 否则，如果对象具有 toString 方法，且返回一个原始值，则 JavaScript 将其转换并返回。
+3. 否则，JavaScript 抛出一个类型错误异常。
+
+举个例子
+
+```javascript
+console.log(Number({})); //NaN
+console.log(Number({a: 1})); //NaN
+
+console.log(Number([])); //0
+console.log(Number([0])); //0
+console.log(Number([1, 2, 3])) // NaN
+console.log(Number(function(){var a = 1;})) // NaN
+console.log(Number(/\d+/g)) // NaN
+console.log(Number(new Date(2010, 0, 1))) // 1262275200000
+console.log(Number(new Error('a'))) // NaN
+```
+
+当我们 `Number([])` 的时候，先调用 `[]` 的 `valueOf` 方法，此时返回 `[]`，因为返回了一个对象而不是原始值，所以又调用了 `toString` 方法，此时返回一个空字符串，接下来调用 `ToNumber` 这个规范上的方法，参照对应表，转换为 `0`, 所以最后的结果为 `0`。
+
+而当我们 `Number([1, 2, 3])` 的时候，先调用 `[1, 2, 3]` 的 `valueOf` 方法，此时返回 `[1, 2, 3]`，再调用 `toString` 方法，此时返回 `1,2,3`，接下来调用 `ToNumber`，参照对应表，因为无法转换为数字，所以最后的结果为 `NaN`。
 
 #### JSON.stringify()
 
+JSON.stringify() 方法可以将一个 JavaScript 值转换为一个 JSON 字符串，实现上也是调用了 toString 方法，也算是一种类型转换的方法。下面讲一讲JSON.stringify 的注意要点：
 
+1.处理基本类型,与使用 toString基本相同,结果都是字符串.除了undefined.
 
-
-
-
-
-#### 其他类型转换为字符串类型
-
-##### 方式一 toString
-
-可以调用<u>被转换类型</u>的**toString()方法**来将其转换成字符串
-
-由于null和undefined中没有toString()方法,所以这种方式不适用于这两种,会报错
-
-```js
-a = 10; 
-
-console.log(a,typeof a);   //10 "number"
-a = a.toString();
-console.log(a, typeof a);  //10 "string"
-
-//多维数组也可以转换成字符串
-[1,2,[3,4,[5,6]]].toString()
-"1,2,3,4,5,6"
-
-
-//数组中的undefined,null转换成空值,但直接转换为字符串形式
-[1,2,,undefined,null].toString() // "1,2,,,"
-String([1,2,,undefined,null])   // "1,2,,,"
+```javascript
+console.log(JSON.stringify(null)) // null
+console.log(JSON.stringify(undefined)) // undefined，注意这个undefined不是字符串的undefined
+console.log(JSON.stringify(true)) // true
+console.log(JSON.stringify(42)) // 42
+console.log(JSON.stringify("42")) // "42"
 ```
 
+2.布尔值,数字,字符串的包装对象在序列化过程中会自动转换成对应的原始值
 
-
-
-
-##### 方式二 String
-
-```js
-调用 String()函数,来将其转换为字符串 
-
-原理:  对于有toString()方法的类型,也是在内部调用toString()完成转换
-
-		  对于null和undefined,没有toString()方法,会直接使用String()函数来完成转换
-
+```javascript
+JSON.stringify([new Number(1), new String("false"), new Boolean(false)]); 
+// "[1,"false",false]"
 ```
 
+3.undefined、任意的函数以及 symbol 值，在序列化过程中会被忽略（出现在非数组对象的属性值中时）或者被转换成 null（出现在数组中时）
 
+```javascript
+JSON.stringify({x: undefined, y: Object, z: Symbol("")}); 
+// "{}"
 
-```js
-a = null;  // null--> 'null'
-a = undefined;  // undefined --> 'undefined'
-
-console.log(a, typeof a); // undefined "undefined"
-
-a = 10;
-a=String(a);   //注意: 转换的是10,而不是变量a
-
-a = undefined;
-console.log(a, typeof a);// undefined "undefined"
+JSON.stringify([undefined, Object, Symbol("")]);          
+// "[null,null,null]" 
 ```
 
+4.JSON.stringify 有第二个参数 replacer，它可以是数组或者函数，用来指定对象序列化过程中哪些属性应该被处理，哪些应该被排除。
 
+```javascript
+function replacer(key, value) {
+  if (typeof value === 'string') {
+    return undefined;
+  }
+  return value;
+}
 
+let foo = {foundation: 'Mozilla', model: 'box', week: 45, transport: 'car', month: 7};
+let jsonString = JSON.stringify(foo, replacer);
 
-
-##### 实例
-
-```HTML
-[1,2].toString(); //'1,2'
-({}).toString(); //[object Object]
-true.toString(); //'true'
-null.toString();// Uncaught TypeError: Cannot read property 'toString' of null
-undefined.toString();// Uncaught TypeError: Cannot read property 'toString' of null
+console.log(jsonString);
+//{"week":45,"month":7}
 ```
 
-
-
-#### 对象身上toString()和valueOf()介绍
-
-> https://segmentfault.com/a/1190000010824347?utm_source=sf-similar-article
-
-toString() 和 valueOf() 是对象的两个方法.
-
- 先说一下两个东西的用途：
-
-​    toString( ):返回对象的字符串表示。
-
-​    valueOf( ):返回对象的字符串、数值或布尔值表示
-
-```js
-//null undefined没有这两个方法
-
-//先看看toString()方法的结果
-var a = 3;
-var b = '3';
-var c = true;
-var d = {test:'123',example:123}
-var e = function(){console.log('example');}
-var f = ['test','example'];
-
-a.toString();// "3"
-b.toString();// "3"
-c.toString();// "true"
-d.toString();// "[object Object]"
-e.toString();// "function (){console.log('example');}"
-f.toString();// "test,example"
-
-//再看看valueOf()方法的结果
-var a = 3;
-var b = '3';
-var c = true;
-var d = {test:'123',example:123}
-var e = function(){console.log('example');}
-var f = ['test','example'];
-
-a.valueOf();// 3
-b.valueOf();// "3"
-c.valueOf();// true
-d.valueOf();// {test:'123',example:123}
-e.valueOf();// function(){console.log('example');}
-f.valueOf();// ['test','example']
+```javascript
+var foo = {foundation: "Mozilla", model: "box", week: 45, transport: "car", month: 7};
+console.log(JSON.stringify(foo, ['week', 'month']));
+// {"week":45,"month":7}
 ```
 
-toString( )就是将其他东西用字符串表示，比较特殊的地方就是，表示对象的时候，变成"[object Object]",表示数组的时候，就变成数组内容以逗号连接的字符串，相当于Array.join(',')。 而valueOf( )就返回它自身
+5.如果一个被序列化的对象拥有 toJSON 方法，那么该 toJSON 方法就会覆盖该对象默认的序列化行为：不是那个对象被序列化，而是调用 toJSON 方法后的返回值会被序列化，例如：
 
-什么时候调用?
-
-```js
-//例子一
-var example = {test:'123'};
-console.log(+example);// NaN
-
-//例子二 同时改写 toString 和 valueOf 方法
-var example = {
-    toString:function(){
-        return '23';
-    },
-    valueOf:function(){
-        return '32';
-    }
+```javascript
+let obj = {
+  foo: 'foo',
+  toJSON: function() {
+    return 'bar';
+  }
 };
-console.log(+example);// 32
 
-//例子三 只改写 toString 方法
-var example = {
-    toString:function(){
-        return '23';
-    }
-};
-console.log(+example);// 23
-```
-
-<span style="text-decoration: underline wavy">通过例子1和例子2比较, 一元加操作符在操作对象时,会先调用对象的valueOf()方法来转换, 最后在用Number()方法来转换. </span>
-
-<span style="text-decoration: underline wavy">通过例子2和例子3比较, 如果只改写了toString()方法, 证明valueOf()的优先级比toString()高.</span>
-
-alert情况下:
-
-```js
-//例子一
-var example = {test:'123'};
-alert(example);// "[object Object]"
-
-//例子二 同时改写 toString 和 valueOf 方法
-var example = {
-    toString:function(){
-        return '23';
-    },
-    valueOf:function(){
-        return '32';
-    }
-};
-alert(example);// "23"
-
-//例子三 只改写 valueOf 方法
-var example = {
-    valueOf:function(){
-        return '32';
-    }
-};
-alert(example);// "[object Object]"
-```
-
-虽然上面结果用双引号了，但是你知道弹窗不会将字符串的双引号表示出来的。
-
-alert它对待对象，就和字符串和对象相加一样，就是调用它的toString( )方法，和valueOf方法无关。
-
-#### 其他类型转换为数值
-
-* 方式:  使用Number()函数将其转换为数值
-
-* 转换的情况:
-
-  * **字符串**: 对于字符串来说,如果字符串是一个合法的数值,则直接转换为对应的数值;
-    * 如果是一个**不合法的数值**(例如,'a'),则转换为**NaN**
-    * **空串**和**纯空格的字符串**都会转换为**0**
-  * **布尔值**
-    * true --> 1
-    * false --> 0
-  * null --> 0
-  * undefined --> NaN
-
-* **专门用来对付字符串的两种方式**:
-
-  > parseInt(),parseFloat()在转换空串,纯空格字符串,空值时,布尔值,返回的都是NaN
-  
-* parseInt()
-    * 将一个字符串转换成整数
-
-    * parseInt()在解析一个字符串时,它会**自左向右一位位的解析**,直到获取所有合法整数
-
-    * 案例
-    
-    * ```
-      parseInt('123px'); //--> 123
-      parseInt('12px3'); //--> 12
-      ```
-    
-  * parseFloat()
-    * 将一个字符串转换成小数
-    * parseFloat()在解析一个字符串时,会自左向右一位位解析,直到获取所有合法浮点数
-  
-* ```js
-  let a = '123';
-  console.log(a, typeof a); // 123 string
-  
-  a = Number(a);
-  console.log(a, typeof a); // 123 "number"
-  
-  
-  a = true;
-  console.log(a, typeof a); //true,boolean
-  a = Number(a);
-  console.log(a, typeof a); //1,"number"
-  
-  
-  a = null;
-  console.log(a, typeof a);//null,"object"
-  a = Number(a);
-  console.log(a, typeof a);//0, "number"
-  
-  a = undefined;
-  console.log(a, typeof a); //undefined "undefined"
-  a = Number(a);
-  console.log(a, typeof a); //NaN "number"
-  
-  使用Number()函数:
-  a = '123px'; //'123px' --> 'NaN'
-  
-  a = ''; // string --> 0 "number"
-  
-  a = '   '; // string --> 0 "number"
-  
-  a = false; // false "boolean" --> 0 "number"
-  
-  a = true; //  true "boolean"  --> 1 "number"
-  
-  
-  parseInt(''); //NaN  空串和含空字符串返回NaN
-  parseInt(' '); //NaN
-  parseFloat(''); //NaN 空串和含空字符串返回NaN
-  
-  parseInt(true)--> parseInt('true')-->返回NaN
-  ```
-  
-  
-
-
-
-#### 其他类型转换为布尔值
-
-> 调用==Boollean()==函数来将其他类型转换为布尔值
-
-
-
-* 数值转布尔值
-  * 除了0和NaN,都是true
-* 字符串
-  * 除了空串`''`,都是true   
-* null和undefined 都是false
-* {}, [], Infinity求布尔值都为true
-
-
-
-​	所有的表示**没有的**都是false, 一般情况下,对象都会转换为true[Boolean(Object);  --> true]
-
-​	总结:
-
-​	转换为布尔值false的6种情况: **0 NaN '' null undefined false** 
-
-```js
-6种值转换为布尔值时为false, 其他为true
-1. undefined (未定义,找不到值时出现)
-2. null(代表空值)
-3. false(布尔值false,字符串'false'布尔值为true)
-4. 0(数字0,字符串'0'布尔值为true)
-5. NaN(w无法计算结果时出现,表示非数值. 但是typeof NaN === 'number'是true)
-6.''(单引号)或""(双引号) (空字符串,中间有空格时是true)
-
-
-
-
-let a = Infinity; //true
-a = 0; //false
-a = NaN; //false
-a = ' '; //true
-a=''; //false
-
-a = null; //false
-a = undefined; //false
-a = false; //false
-
-console.log(a, typeof a);
-
-a = Boolean(a);
-console.log(a, typeof a);
-
-
-null==undefined //true
-null===undefined //false
+JSON.stringify(obj); //'"bar"'
+JSON.stringify({x: obj}); //'{"x": "bar"}'
 ```
 
 
 
+### 一元操作符
 
+当 + 运算符作为一元操作符的时候，查看 [ES5规范1.4.6](http://es5.github.io/#x11.4.6)，会调用 `ToNumber` 处理该值，相当于 `Number('1')`，最终结果返回数字 `1`。
+
+```javascript
+console.log(+[]); 
+console.log(+['1']); 
+console.log(+['1','2','3']);
+console.log(+{});
+```
+
+既然是调用 `ToNumber` 方法，回想[《JavaScript 深入之头疼的类型转换(上)》](https://github.com/mqyqingfeng/Blog/issues/159)中的内容，当输入的值是对象的时候，先调用 `ToPrimitive(input, Number)` 方法，执行的步骤是：
+
+1. 如果 `obj` 为基本类型，直接返回
+2. 否则，调用 `valueOf` 方法，如果返回一个原始值，则 `JavaScript` 将其返回。
+3. 否则，调用 `toString` 方法，如果返回一个原始值，则`JavaScript` 将其返回。
+4. 否则，`JavaScript` 抛出一个类型错误异常。
+
+以 `+[]` 为例，`[]` 调用 `valueOf` 方法，返回一个空数组，因为不是原始值，调用 `toString` 方法，返回 `""`。
+
+得到返回值后，然后再调用 `ToNumber` 方法，`""` 对应的返回值是 `0`，所以最终返回 `0`。
+
+
+
+### 二元操作符
+
+#### 规范:
+
+> 规范地址：http://es5.github.io/#x11.6.1
+>
+> 当计算 value1 + value2时：
+>
+> 1. lprim = ToPrimitive(value1)
+> 2. rprim = ToPrimitive(value2)
+> 3. 如果 lprim 是字符串或者 rprim 是字符串，那么返回 ToString(lprim) 和 ToString(rprim)的拼接结果
+> 4. 返回 ToNumber(lprim) 和 ToNumber(rprim)的运算结果
+
+
+
+#### Null 与 数字
+
+```javascript
+console.log(null + 1);
+```
+
+按照以上规范的步骤进行分析:
+
+1.lprim = ToPrimitive(null) 因为null是基本类型,直接返回,所以lprim = null
+
+2.rprim = ToPrimitive(1) 因为1是基本类型,直接返回. 所以rprim = 1
+
+3.lprim 和 rprim都不是字符串
+
+4.返回ToPrimitive(null) 和 ToPrimitive(1)的运算结果
+
+接下来：
+
+`ToNumber(null)` 的结果为0，(回想上篇 Number(null))，`ToNumber(1)` 的结果为 1
+
+所以，`null + 1` 相当于 `0 + 1`，最终的结果为数字 `1`。
+
+
+
+#### 数组与数组
+
+```javascript
+console.log([] + []);
+```
+
+按照规范:
+
+1.lprim = ToPrimitive([]), []是数组, 相当于调用ToPrimitive([], Number), 先调用valueOf方法,返回对象本身,因为不是原始值,调用toString方法,返回空字符串''.
+
+2.rprim类似
+
+3.lprim 和 rpim都是字符串,执行拼接操作
+
+所以, [] + [] 相当于 '' + '', 最终结果是空字符串''.
+
+
+
+#### 数组与对象
+
+```javascript
+console.log([] + {});
+console.log({} + []);
+```
+
+按照规范:
+
+1.lprim = ToPrimitive([]), lprim = ''
+
+2.rprim = ToPrimitive({}), 相当于调用ToPrimitive({}, Number).  先调用valuefOf()方法,返回对象本身,,因为不是原始值,调用toString方法, 返回'[object Object].
+
+3.lprim 和 rpim都是字符串, 执行拼接操作
+
+所以, `[] + {}` 相当于 `'' + [object Object]`, 最终的结果是'[object Object]'.
+
+下面的案例, 按照示例推出结果
+
+```javascript
+console.log(1 + true);
+console.log({} + {});
+console.log(new Date(2017, 04, 21) + 1);
+```
+
+结果是
+
+```javascript
+console.log(1 + true); // 2
+console.log({} + {}); //'[object Object][object Object]'
+console.log(new Date(2017, 04, 21) + 1); //"Sun May 21 2017 00:00:00 GMT+0800 (CST)1"
+```
+
+
+
+#### 注意:
+
+以上的运算都是在 `console.log` 中进行，如果你直接在 `Chrome` 或者 `Firebug` 开发工具中的命令行直接输入，你也许会惊讶的看到一些结果的不同，比如：
+
+```javascript
+> {} + []
+<. 0
+```
+
+我们刚才才说过 `{} + []` 的结果是 `"[object Object]"` 呐，这怎么变成了 `0` 了？
+
+不急，我们尝试着加一个括号：
+
+```javascript
+> ({} + [])
+< "[object Object]"
+```
+
+结果又变成了正确的值，这是为什么呢？
+
+其实，在不加括号的时候，`{}` 被当成了一个独立的空代码块，所以 `{} + []` 变成了 `+[]`，结果就变成了 0
+
+同样的问题还出现在 `{} + {}` 上，而且火狐和谷歌的结果还不一样：
+
+```javascript
+> {} + {}
+//火狐: NaN
+//Chrome: "[object Object][object Object]"
+```
+
+如果 `{}` 被当成一个独立的代码块，那么这句话相当于 `+{}`，相当于 `Number({})`，结果自然是 `NaN`，可是 `Chrome` 却在这里返回了正确的值。
+
+那为什么这里就返回了正确的值呢？我也不知道，欢迎解答~   ????
 
 
 
