@@ -1631,10 +1631,6 @@ data[0]Context 的 AO 并没有 i 值，所以会沿着作用域链从匿名函�
 
 
 
-## 参数按值传递
-
-具体查看02_JavaScript基础中函数参数部分.
-
 
 
 
@@ -3069,3 +3065,148 @@ function curry(fn, args, holes) {
 
 
 
+## 防抖函数
+
+> https://github.com/mqyqingfeng/Blog/issues/22
+
+### 前言
+
+在前端开发中会遇到一些频繁的事件触发，比如：
+
+1. window 的 resize、scroll
+2. mousedown、mousemove
+3. keyup、keydown
+   ……
+
+如果是复杂的回调函数或是 ajax 请求呢? 假设 1 秒触发了 60 次，每个回调就必须在 1000 / 60 = 16.67ms 内完成，否则就会有卡顿出现。
+
+为了解决这个问题，一般有两种解决方案：
+
+1. debounce 防抖
+2. throttle 节流
+
+### 防抖
+
+#### 原理
+
+你尽管触发事件，但是我一定在事件触发 n 秒后才执行，如果你在一个事件触发的 n 秒内又触发了这个事件，那我就以新的事件的时间为准，n 秒后才执行，总之，就是要等你触发完事件 n 秒内不再触发事件
+
+#### 第一版
+
+```javascript
+function debounce (func, wait) {
+  let timeId;
+  return function () {
+    clearTimeout(timeId);
+    timeId = setTimeout(func, wait);
+  }
+}
+```
+
+**存在的问题**
+
+> this指向问题
+
+```javascript
+
+let count = 1,
+    container = document.getElementById('container');
+
+function getUserAction() {
+  container.innerHTML = count++;
+}
+
+container.onmousemove = getUserAction;
+
+//添加防抖函数后
+container.onmousemove = debounce(getUserAction, 1000);
+```
+
+在`getUserAction`函数中打印this, 值为如下:
+
+```
+<div id="container"></div>
+```
+
+但如果我们使用debounce函数,this就会指向Window对象.
+
+
+
+### 第二版(修复this问题)
+
+```javascript
+
+function debounce(func, wait) {
+  let timeId;
+  return function() {
+    let context = this;
+    clearTimeout(timeId);
+    timeId = setTimeout(function() { func.call(context) }, wait);
+  }
+}
+```
+
+**存在的问题**
+
+JavaScript 在事件处理函数中会提供事件对象 event，我们修改下 getUserAction 函数：
+
+```javascript
+function getUserAction(e) {
+  console.log(e);
+  container.innerHTML = count++;
+}
+```
+
+如果我们不使用debounce函数, 这里会打印MouseEvent对象, 如图所示:
+
+![](https://camo.githubusercontent.com/7cc0af80b9b8ac3805eec37a66f381b8054759b59899c3cdd1a16b6406115a0d/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f6465626f756e63652f6576656e742e706e67)
+
+
+
+但是,我们在debounce函数中,却指回打印undefined
+
+### 第三版
+
+```javascript
+function debounce(func, wait) {
+  let timeId;
+  return function() {
+    let context = this;
+    let args = arguments;
+    clearTimeout(timeId);
+    timeId = setTimeout(function() {func.apply(context, args)}, wait);
+  }
+}
+```
+
+
+
+### 第四版
+
+新增需求: 
+
+不希望非要等到事件停止触发后才执行，我希望立刻执行函数，然后等到停止触发 n 秒后，才可以重新触发执行。
+
+通过加一个immediate参数来判断是否是立即执行.
+
+```javascript
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function() {
+    let context = this,
+        args = arguments;
+    
+    if (timeout) clearTimeout(timeout);
+    if (immediate) {
+      //如果已经执行, 不再执行
+      let callNow = !timeout;
+      timeout = setTimeout(function() { timeout = null }, wait);
+      if (callNow) func.apply(context, args)
+    } else {
+      timeout = setTimeout(function() {func.apply(context, args)}, wait);
+    }
+  }
+}
+```
+
+这个函数没有第一时间理解. onmousemove事件绑定的函数是debounce内返回的那个函数.
