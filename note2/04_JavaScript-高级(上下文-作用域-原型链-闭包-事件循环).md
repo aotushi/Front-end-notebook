@@ -3152,6 +3152,44 @@ function unique(arr) {
 
 
 
+#### filter
+
+```javascript
+arr.filter((item,idx,arr) => arr.indexOf(item) === idx)
+
+//排序后
+arr.concat().sort().filter((item,idx,arr) => !idx||item !== arr[idx-1])
+```
+
+
+
+#### Object键值对
+
+这种方法是利用一个空的 Object 对象，我们把数组的值存成 Object 的 key 值，比如 Object[value1] = true，在判断另一个值的时候，如果 Object[value2]存在的话，就说明该值是重复的。
+
+```javascript
+
+arr.filter((item,idx,arr) => obj.hasOwnProperty(item) ? false : (obj[item] = true))
+```
+
+因为 1 和 '1' 是不同的，但是这种方法会判断为同一个值，这是因为对象的键值只能是字符串，所以我们可以使用 `typeof item + item` 拼成字符串作为 key 值来避免这个问题
+
+```javascript
+arr.filter((item,idx,arr) => obj.hasOwnProperty(typeof item + item) ? false : (obj[typeof item + item] = true))
+```
+
+因为 1 和 '1' 是不同的，但是这种方法会判断为同一个值，这是因为对象的键值只能是字符串，所以我们可以使用 `typeof item + item` 拼成字符串作为 key 值来避免这个问题
+
+```javascript
+arr.filter((item,idx,arr) => obj.hasOwnProperty(typeof item + JSON.stringify(item)) ? false : (obj[typeof item + JSON.stringify(item)] = true))
+```
+
+
+
+#### ES6-Set
+
+#### Map
+
 ### API
 
 

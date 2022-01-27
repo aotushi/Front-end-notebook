@@ -14662,6 +14662,7 @@ console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
 * for+indexOf/includes
 * reduce+includes+(push/concat)
 * filter+indexOf
+* filter+sort()
 * sort()+快慢指针
 * [...new Set()]   Array.from(new Set())
 * Map
@@ -14802,6 +14803,14 @@ filter+indexOf方法
 //filter方法
 let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index)
 
+```
+
+
+
+filter+sort()
+
+```javascript
+arr.concat().sort().filter((item, idx, arr) => !idx || item !== arr[idx - 1])
 ```
 
 
