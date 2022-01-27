@@ -4527,7 +4527,7 @@ https://segmentfault.com/a/1190000039310119#:~:text=%E6%B5%85%E6%8B%B7%E8%B4%9D%
 * 扩展运算符实现的复制
 * 函数库lodash的_.clone方法
 
-#### 实现方式案例
+#### 案例
 
 `Object.assign()`
 
@@ -4604,6 +4604,26 @@ let obj1 = {
 
 let obj2 = _.clone(obj1);
 console.log(obj1.b.f === obj2.b.f); //true
+```
+
+#### 手写浅拷贝
+
+遍历对象，然后把属性和属性值都放在一个新的对象
+
+```javascript
+let copyObj = function(obj) {
+  //只拷贝对象
+  if (typeof obj !== 'object') return;
+  //根据obj类型判断,是新建数组还是对象
+  let newObj = obj instanceof Array ? [] : {};
+  //遍历obj,并且判断是obj属性才拷贝
+  for (let key in obj) {   //Object.keys()只包含自身可枚举的属性
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = obj[key];
+    }
+  }
+  return newObj;
+}
 ```
 
 
@@ -4935,14 +4955,7 @@ function targetType(target) {
 
 //深拷贝函数
 function clone(target) {
-  let container,
-      targetType = targetType(target);
-  if (targetType === "Object") {
-    container = {};
-  }
-  if (targetType === 'Array') {
-    container = [];
-  }
+  let container = target instanceof Array ? [] : {};
   
   for (const key in target) {
     let type = targetType(target[key]);
@@ -4960,13 +4973,31 @@ function clone(target) {
 
 //问题
 开始写成了 type === "Object" || "Array" Node环境中没有报错,浏览器环境中会报错
+
+//属性值没有对象的深拷贝
+function deepClone(obj) {
+  if (typeof obj !== 'object') return;
+  let newObj = obj instanceof Array ? [] : {};
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = typeof obj[key] === 'object' ? deepClone(obj[key]) : obj[key];
+    }
+  }
+  return newObj;
+}
 ```
 
 
 
 
 
-#### 1. JSON方式
+#### 4. JSON方式
+
+```javascript
+let cloneObj = JSON.parse(JSON.stringify(obj));
+```
+
+
 
 ```js
 - 会忽略undefined
@@ -4978,46 +5009,17 @@ function clone(target) {
 
 
 
-```js
-- JSON方法
-JSON.stringify() 将字符串转换成对象 typeof类型是string 利于数据的传递和持久化保存
-JSON.parse() 将对象转换成字符串
 
 
 
-//源对象  
-const school = {
-    name: 'abc',
-    pos: ['北京','上海','深圳'],
-    founder: {
-        name:'创始人',
-        age: 45
-    },
-    improve: function(){
-        console.log('提升');
-    }
-};
-//将对象转换为字符串
-const str =JSON.stringify(school);
-//将JSON字符串转换为新的对象
-const result = JSON.parse(str);
-//修改新对象的属性
-result[3].name='beijing';
-console.log(school);//原对象school没有发生改变
 
-//stringify和parse组合写法:
-const result=JSON.parse(JSON.stringify(school));
-```
-
-
-
-#### 1.1 JSON深拷贝缺点
+##### 4.1 JSON深拷贝缺点
 
 ```js
 https://www.jianshu.com/p/52db1d0c1780
 ```
 
-##### 1.1.1  属性值对象里有时间对象
+###### 1  属性值对象里有时间对象
 
 ```js
 JSON返回结果是字符串形式,不是对象形式
@@ -5037,7 +5039,7 @@ console.log(b);
 
 
 
-##### 1.1.2 属性值对象里有正则缩写,Error对象
+###### 2 属性值对象里有正则缩写,Error对象
 
 ```js
 //序列号结果得到空对象
@@ -5052,7 +5054,7 @@ console.log(result); //{name: 'e', data: {}}
 
 
 
-##### 1.1.3 属性值对象里有函数,undefined
+###### 3 属性值对象里有函数,undefined
 
 ```js
 //
@@ -5075,11 +5077,11 @@ console.error('ddd', test, result);
 
 
 
-##### 1.1.4 如果属性值对象里由NaN, Infinity和-Infinity, 序列化结果是变成null
+###### 4 如果属性值对象里由NaN, Infinity和-Infinity, 序列化结果是变成null
 
 
 
-##### 1.1.5 不可枚举属性
+###### 5 不可枚举属性
 
 JSON.stringify()只能序列化对象的可枚举的自有属性，例如 如果obj中的对象是有构造函数生成的， 则使用JSON.parse(JSON.stringify(obj))深拷贝后，会丢弃对象的constructor；
 
@@ -5103,13 +5105,13 @@ console.log(test, result);
 
 
 
-##### 1.1.6 对象中存在循环引用的情况也无法实现深拷贝
+###### 6 对象中存在循环引用的情况也无法实现深拷贝
 
 
 
-#### 1.2 总结
+#### 总结
 
 序列化JS对象,所有函数和原型成员对象会被忽略.能被深拷贝的数据类型有**字符串,数值,布尔值,扁平对象.**
 
-
+性能问题:  尽管使用深拷贝会完全的克隆一个新对象，不会产生副作用，但是深拷贝因为使用递归，性能会不如浅拷贝，在开发中，还是要根据实际情况进行选择
 

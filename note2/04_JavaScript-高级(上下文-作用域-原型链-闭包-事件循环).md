@@ -3063,6 +3063,105 @@ function curry(fn, args, holes) {
 
 
 
+## JavaScript专题之如何判断两个参数相等
+
+### 前言
+
+> https://github.com/mqyqingfeng/Blog/issues/41
+
+
+
+
+
+## JavaScript专题之数组去重
+
+### 前言
+
+> https://github.com/mqyqingfeng/Blog/issues/27
+
+
+
+### 3种方法
+
+#### 方法列表
+
+* 双for循环
+* for循环 + indexOf
+* for循环 + 排序
+
+#### 双for循环
+
+```javascript
+
+function unique(arr) {
+  let res = [];
+  for (let i=0; i<arr.length; i++) {
+    for (let j=0; j<res.length; j++) {
+      if (arr[i] === res[j]) {
+        break;
+      }
+    }
+    //如果arr[i]是唯一的, 那么执行完循环, j等于arr.length
+    if (j === arr.length) {
+      res.push(arr[i]);
+    }
+  }
+  return res;
+}
+```
+
+#### indexOf
+
+使用indexOf简化内层for循环
+
+```javascript
+function unique(arr) {
+  let res = [];
+  for (let i=0; i<arr.length; i++) {
+    let curretnVal = arr[i];   //这个地方为什么要将当下循环到的值赋给一个变量?
+    if (res.indexOf(currentVal) === -1) {
+      res.push(currentVal);
+    }
+  }
+  return res;
+}
+```
+
+#### 排序后去重sort()
+
+先将要去重的数组使用 sort 方法排序后，相同的值就会被排在一起，然后我们就可以只判断当前元素与上一个元素是否相同，相同就说明重复，不相同就添加进 res.
+
+对一个已经排好序的的数组去重,这种方法效率肯定是高于indexOf
+
+```javascript
+function unique(arr) {
+  let res = [],
+      sortedArr = arr.concat().sort(),
+      seen;
+  
+  for (let i=0; i<sortedArr.length; i++) {
+    //如果第一个元素或者相邻的元素不相同
+    if (!i || seen !== sortedArr[i]) {
+      res.push(sortedArr[i]);
+    }
+    seen = sortedArr[i];
+  }
+  return res;
+}
+```
+
+
+
+### API
+
+
+
+### 优化
+
+
+
+
+
 
 
 ## 防抖函数
@@ -3085,13 +3184,11 @@ function curry(fn, args, holes) {
 1. debounce 防抖
 2. throttle 节流
 
-### 防抖
-
-#### 原理
+**原理**
 
 你尽管触发事件，但是我一定在事件触发 n 秒后才执行，如果你在一个事件触发的 n 秒内又触发了这个事件，那我就以新的事件的时间为准，n 秒后才执行，总之，就是要等你触发完事件 n 秒内不再触发事件
 
-#### 第一版
+### 第一版
 
 ```javascript
 function debounce (func, wait) {
@@ -3165,7 +3262,7 @@ function getUserAction(e) {
 
 但是,我们在debounce函数中,却指回打印undefined
 
-### 第三版
+### 第三版(修复事件对象传递)
 
 ```javascript
 function debounce(func, wait) {
@@ -3181,7 +3278,7 @@ function debounce(func, wait) {
 
 
 
-### 第四版
+### 第四版(立即执行)
 
 新增需求: 
 
@@ -3210,3 +3307,81 @@ function debounce(func, wait, immediate) {
 ```
 
 这个函数没有第一时间理解. onmousemove事件绑定的函数是debounce内返回的那个函数.
+
+这个函数需要常回来看看 ,理解的并不好.
+
+
+
+### 第五版(返回值) ????
+
+此时注意一点，就是getUserAction 函数可能是有返回值的，所以我们也要返回函数的执行结果，但是当 immediate 为 false 的时候，<span style="text-decoration: underline wavy">因为使用了 setTimeout ，我们将 func.apply(context, args) 的返回值赋给变量，最后再 return 的时候，值将会一直是 undefined</span>，所以我们只在 immediate 为 true 的时候返回函数的执行结果。
+
+```javascript
+function debounce(func, wait, immeidate) {
+  let timeout, result;
+  return function() {
+    let context = this,
+        args = arguments;
+    
+    if (timeout) clearTimeout(timeout);
+    if (immediate) {
+      let callNow = !timeout;
+      timeout = setTimeout(function() { timeout = null }, wait);
+      if (callNow) result = func.apply(context, args);
+    } else {
+      timeout = setTimeout(function() { func.apply(context, args)}, wait);
+    }
+    return result;
+  }
+}
+```
+
+Note:
+
+setTimeout(fn, wait)定时器中函数的返回值问题,需要找资料加深理解.
+
+
+
+### 第六版(取消防抖立即触发)
+
+最后我们再思考一个小需求，我希望能取消 debounce 函数，比如说我 debounce 的时间间隔是 10 秒钟，immediate 为 true，这样的话，我只有等 10 秒后才能重新触发事件，现在我希望有一个按钮，点击后，取消防抖，这样我再去触发，就可以又立刻执行.
+
+```javascript
+function debounce(func, wait, immediate) {
+  let timeout, result;
+  let debounced = function() {
+    let context = this,
+        args = arguments;
+    
+    if (timeout) clearTimeout(timeout);
+    if (immediate) {
+      let callNow = !timeout;
+      timeout = setTimeout(function() {
+        timeout = null;
+      }, wait)
+      if (callNow) result = func.apply(context, args);
+    } else {
+      timeout = setTimeout(function() {func.apply(context, args)}, wait);
+    }
+    return result;
+  }
+  deboundced.cancel = function() {
+    cleatTimeout(timeout);
+    timeout = null;
+  }
+  return debounced;
+}
+```
+
+
+
+## 节流函数
+
+### 原理
+
+如果你持续触发事件，每隔一段时间，只执行一次事件。
+
+根据首次是否执行以及结束后是否执行，效果有所不同，实现的方式也有所不同。
+我们用 leading 代表首次是否执行，trailing 代表结束后是否再执行一次。
+
+关于节流的实现，有两种主流的实现方式，一种是使用时间戳，一种是设置定时器。

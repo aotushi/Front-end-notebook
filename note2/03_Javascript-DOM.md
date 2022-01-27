@@ -2686,7 +2686,7 @@ boxNode.detachEvent('onclick', fn2);
 
 
 
-### 定时器
+## 定时器
 
 #### setTimeout()  延迟定时器/单次定时器
 

@@ -1009,13 +1009,67 @@ typeof undefined === 'undefined'
 
 #### 2.Object.prototype.toString
 
-```js
-- toString()方法能返回这个对象的类型(字符串形式)
+#####  2.0 规范
+
+> https://es5.github.io/#x15.2.4.2
+
+> When the toString method is called, the following steps are taken:
+>
+> 1.If the  **this** value is **undefined**, return "**[object Undefined]**"
+>
+> 2.If the **this** value is **null**, return "**[object Null]**"
+>
+> 3.Let O be the result of calling ToObject passing the **this** value as the argument.
+>
+> 4.Let *class* be the value of the [[Class]] internal property of O.
+>
+> 5.Return the String value that is the result of concatenating the three Strings "[**object**,  *class*, and "**]**"
+
+>当调用toString方法, 下面的步骤会被执行
+>
+>1.如果this值是undefined, 就返回[object Undefined]
+>
+>2.如果this值是null, 就返回[object Null
+>
+>3.让O成为ToObject(this)的结果
+>
+>4.让class成为对象O内部属性[[Class]]的值
+>
+>5.最后返回由3个字符串"[object" 和 class 和 "]"组成的字符串
+
+
+
+##### 2.1 14种识别类型
+
+```javascript
+var number = 1;          // [object Number]
+var string = '123';      // [object String]
+var boolean = true;      // [object Boolean]
+var und = undefined;     // [object Undefined]
+var nul = null;          // [object Null]
+var obj = {a: 1}         // [object Object]
+var array = [1, 2, 3];   // [object Array]
+var date = new Date();   // [object Date]
+var error = new Error(); // [object Error]
+var reg = /a/g;          // [object RegExp]
+var func = function a(){}; // [object Function]
+
+
+Object.prototype.toString(Math); //[object Math]
+Object.prototype.toString(JSON); //[object JSON]
+
+function func() {
+  Object.prototype.toString.call(arguments); //[object Arguments]
+}
 ```
 
+所以我们可以识别至少 14 种类型，当然我们也可以算出来，<u>[[class]] 属性至少有 12 个</u>。 ???? why?
 
 
-##### 2.1 Object.prototype.toString.call原因
+
+
+
+##### 2.2 加call原因
 
 ```js
 https://www.cnblogs.com/youhong/p/6209054.html
@@ -1066,6 +1120,64 @@ console.log(arr.toString()); //[object Array]
 ```
 
 
+
+##### 2.3 API
+
+>  写个 type 函数帮助我们以后识别各种类型的值
+
+函数需求:
+
+* 如果是基本类型，就使用 typeof，引用类型就使用 toString。
+* 此外鉴于 typeof 的结果是小写，我也希望所有的结果都是小写。
+* 考虑到实际情况下并不会检测 Math 和 JSON，所以去掉这两个类型的检测。
+
+**第一版**
+
+```javascript
+let class2type = {};
+
+//生成class2type的映射出
+"Boolean String Number Null Undefined Object Array Function Date Error RegExp".split(" ").map(item => class2type["[object " + item + "]"] = item.toLowerCase());  //第一次看经把它当做一次性赋值的表达式,结果是class2type['[object boolean]', ....]
+
+function type(obj) {
+  return typeof obj === 'object' || typeof obj === 'function' ? class2type[Object.prototype.toString.call(obj)] || 'object' : typeof obj;
+}
+```
+
+但是注意，在 IE6 中，null 和 undefined 会被 Object.prototype.toString 识别成 [object Object]！
+
+**第二版(解决IE兼容性)**
+
+```javascript
+let class2type = {};
+"Boolean Number String Object Array Function RegExp Date Error".split(' ').map(item => class2type["[object " + item + "]"] = item.toLowerCase());
+
+function type(obj) {
+  if (obj == null) { //注意,是两个双等号  非常聪明的方法 啧啧!
+    return obj + '';
+  }
+  
+  return typeof obj === 'object' || typeof obj === 'function' ? class2type[Object.prototype.toString.call(obj)] || 'object' : typeof obj;
+}
+```
+
+**日常封装再使用**
+
+```javascript
+//函数
+function isFunction(obj) {
+  return type(obj) === 'function';
+}
+
+//数组
+let isArray = Array.isArray || (obj) => type(obj) === 'array';
+```
+
+**结语**
+
+我们已经可以判断日期、正则、错误类型啦，但是还有更复杂的判断比如 plainObject、空对象、Window对象、类数组对象等.
+
+这个 type 函数抄的 jQuery，[点击查看 type 源码](https://github.com/jquery/jquery/blob/ac9e3016645078e1e42120822cfb2076151c8cbe/src/core.js#L269)。
 
 
 
@@ -2468,20 +2580,18 @@ ECMA文档定义没有直接指出原因,但从下面这句话可以看出原因
 
   * 可以通过 isNaN()函数来检查一个值是否是NaN,返回的是布尔值
 
-* ```javascript
-  let result = 10;
-  result = 10 === 10; //true
-  result = 10 === '10'; //false
-  result = true === '1'; //false
-  result = null === undeined; //false
+```javascript
++0 === -0; //true
+NaN === NaN //false
+```
+
+**如何判断两个参数相等**
+
+> https://github.com/mqyqingfeng/Blog/issues/41
+
+见04_Javascript-高级中的'如何判断两个参数相等'
+
   
-  result = NaN == 1; //false
-  result = NaN === NaN; //false
-  
-  a = NaN;
-  console.log(isNaN(a)); //返回的是true
-  
-  ```
 
   
 
@@ -5306,7 +5416,7 @@ Object.is(NaN, 0/0);         // true
 Object.is(NaN,NaN);          //true
 ```
 
-Object.is与`===`比较
+**Object.is与`===`比较**
 
 ```javascript
 //不同
@@ -7466,7 +7576,9 @@ let result = arr.reduce((acc, cur) => {
 
 
 
+#### 3. 判断两个对象相等
 
+> 见运算符>>>关系运算符>>>全等运算符中的 自定义函数
 
 ## 函数
 
@@ -14543,9 +14655,10 @@ console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
 
 
 
-#### 数组去重的7种方法
+#### 数组去重的8种方法
 
 * 双for循环+splice
+* 双for循环+新数组
 * for+indexOf/includes
 * reduce+includes+(push/concat)
 * filter+indexOf
@@ -14579,6 +14692,17 @@ for (let i=0; i<arr.length; i++) {
     }
   }
 }
+
+//其他写法 这种写法效率肯定是低的
+for (let i=0; i<arr.length; i++) {
+  for (let j=i+1; j<arr.length; j++) {
+    if (arr[i] === arr[j]) {
+      arr.splice(i, 1);
+      i--;
+      //break;
+    }
+  }
+}
 ```
 
 
@@ -14602,7 +14726,22 @@ function unique(array) {
 
 
 
+双for循环+新数组
 
+```javascript
+let res = [];
+for (let i=0; i<arr.length; i++) {
+  for (let j=0; j<res.length; j++) {
+    if (arr[i] === res[j]) {
+      break;
+    }
+  }
+  
+  if (j === res.length) {
+    res.push(arr[i]);
+  }
+}
+```
 
 
 
@@ -14958,6 +15097,51 @@ console.timeEnd('快排');
 console.time('冒泡');  //用时很大
 bubble(arr3);
 console.timeEnd('冒泡');
+
+```
+
+
+
+#### 求数组的最大值和最小值
+
+JavaScript提供了Math.max()函数返回一组数中的最大值,但是注意:
+
+* 如果有任一参数不能被转换为数值, 则结果NaN
+* 如果没有参数, 结果为`-Infinity`(负无穷大)
+
+**方法list**
+
+* for循环
+* reduce
+* 排序
+* eval
+* apply
+* ES6扩展运算符
+
+```javascript
+let arr = [1,2,3,4,5,6,'99'];
+
+//for循环
+let result = arr[0];
+for (let i of arr) {
+  if (arr[i] > result) result = arr[i];
+}
+console.log(result);
+
+//reduce
+arr.reduce((acc, cur, idx) => acc > cur ? acc : cur, 0)
+
+//排序
+let maxNum = arr.sort((a, b) => a - b)[length - 1]
+
+//eval
+eval("Math.max(" + arr + ")") //将一个数组转换成参数传进 Math.max 函数
+//apply方法
+Math.max.apply(null, arr);
+
+//ES6扩展运算符
+let maxNum = Math.max(...arr);
+
 
 ```
 
