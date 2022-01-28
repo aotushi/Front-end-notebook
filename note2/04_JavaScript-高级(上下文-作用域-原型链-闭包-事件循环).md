@@ -3063,6 +3063,250 @@ function curry(fn, args, holes) {
 
 
 
+## JavaScript专题之偏函数
+
+### 定义
+
+维基百科中对偏函数 (Partial application) 的定义为：
+
+> In computer science, partial application(or partial function application) refers to the process of fixing a number of arguments to a function, producing another function of smaller arity.
+>
+> 翻译:
+>
+> 在计算机科学中，局部应用是指固定一个函数的一些参数，然后产生另一个更小元的函数。
+
+什么是元? 元是指函数参数的个数,比如一个带有两个参数的函数被称为二元函数.
+
+来个例子:
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+//执行 add 函数，一次传入两个参数即可
+add(1, 2)
+
+//假设有一个 partial 函数可以做到局部应用
+let addOne = partial(add, 1);
+addOne(2); //3
+```
+
+
+
+### 柯里化与局部应用
+
+两者的区别:
+
+* 柯里化是将一个多参数函数转换成多个单参数函数，也就是将一个 n 元函数转换成 n 个一元函数。
+* 局部应用则是固定一个函数的一个或者多个参数，也就是将一个 n 元函数转换成一个 n - x 元函数。
+
+如果说两者有什么关系的话，引用 [functional-programming-jargon](https://github.com/hemanth/functional-programming-jargon#partial-application) 中的描述就是：
+
+> Curried functions are automatically partially applied.
+
+
+
+### 重写partial
+
+目的是模仿 underscore 写一个 partial 函数
+
+也许你在想我们可以直接使用 bind 呐，举个例子：
+
+```javascript
+function add(a, b) {
+    return a + b;
+}
+
+var addOne = add.bind(null, 1);
+
+addOne(2) // 3
+```
+
+
+
+#### 第一版
+
+```javascript
+function partial(fn) {
+  let args = [].slice.call(arguments, 1);
+  return function() {
+    let newArrs = args.concat([].slice.call(arguments));
+    return fn.apply(this, newArrs);
+  }
+}
+```
+
+
+
+demo
+
+```javascript
+function add(a, b) {
+  return a + b + this.value;
+}
+
+let addOne = partial(add, 1);
+
+let value = 1;
+let obj = {
+  value: 2,
+  addOne: addOne
+}
+
+obj.addOne(2); //???
+//使用bind时, 结果是4
+//使用partial时, 结果是5
+```
+
+
+
+#### 第二版 ????
+
+然而正如 curry 函数可以使用占位符一样，我们希望 partial 函数也可以实现这个功能，我们再来写第二版：
+
+```javascript
+let _ = {};
+
+function partial(fn) {
+  let args = [].slice.call(arguments, 1);
+  return function() {
+    let position = 0,
+        len = args.length;
+    for (let i=0; i<len; i++) {
+      args[i] = args[i] === _ ? arguments[position++] : args[i];
+    }
+    while(position < arguments.length) args.push(arguments[position++]);
+    return fn.apply(this, args);
+  }
+}
+```
+
+
+
+## JavaScript专题之惰性函数
+
+### 需求
+
+我们现在需要写一个 foo 函数，这个函数返回首次调用时的 Date 对象，注意是首次。
+
+
+
+### 解决方案
+
+#### 1 普通方法
+
+```javascript
+let t;
+
+function foo() {
+  if (t) return t;
+  t = new Date();
+  return t;
+}
+```
+
+问题有两个，一是污染了全局变量，二是每次调用 foo 的时候都需要进行一次判断。
+
+#### 2 闭包
+
+使用闭包避免污染全局变量
+
+还是没有解决调用时都必须进行一次判断的问题。
+
+```javascript
+let foo = (function() {
+  let t;
+  return function() {
+    if (t) return t;
+    t = new Date();
+    return t;
+  }
+})
+```
+
+#### 3. 函数对象
+
+函数也是一种对象，利用这个特性，我们也可以解决这个问题。
+
+依旧没有解决调用时都必须进行一次判断的问题。
+
+```javascript
+function foo() {
+  if (foo.t) return foo.t;
+  foo.t = new Date();
+  return foo.t;
+}
+```
+
+
+
+#### 4. 惰性函数
+
+惰性函数就是解决每次都要进行判断的这个问题，解决原理很简单，重写函数。
+
+```javascript
+let foo = function() {
+  let t = new Date();
+  foo = function() {
+    return t;
+  };
+  
+  return foo();
+}
+```
+
+
+
+### 应用
+
+DOM 事件添加中，为了兼容现代浏览器和 IE 浏览器，我们需要对浏览器环境进行一次判断：
+
+```javascript
+//简化写法
+
+function addEvent(type, e1, fn) {
+  if (window.addEventListener) {
+    el.addEventListener(type, fn, false);
+  } else if (window.attachEvent) {
+    el.attachEvent('on' + type, fn);
+  }
+}
+```
+
+问题在于我们每当使用一次 addEvent 时都会进行一次判断。
+
+利用惰性函数，我们可以这样做：
+
+```javascript
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## JavaScript专题之如何判断两个参数相等
 
 ### 前言
@@ -3131,7 +3375,8 @@ function unique(arr) {
 
 先将要去重的数组使用 sort 方法排序后，相同的值就会被排在一起，然后我们就可以只判断当前元素与上一个元素是否相同，相同就说明重复，不相同就添加进 res.
 
-对一个已经排好序的的数组去重,这种方法效率肯定是高于indexOf
+* 对一个已经排好序的的数组去重,这种方法效率肯定是高于indexOf
+* sort()排序有漏洞, 并不适用于特殊类型的排序. !!!!????
 
 ```javascript
 function unique(arr) {
@@ -3152,6 +3397,86 @@ function unique(arr) {
 
 
 
+#### API1
+
+根据一个参数 isSorted 判断传入的数组是否是已排序的，如果为 true，我们就判断相邻元素是否相同，如果为 false，我们就使用 indexOf 进行判断
+
+```javascript
+
+function unique(arr, isSorted) {
+  let res = [],
+      seen = [];
+  
+  for (let i=0; i<arr.length; i++) {
+    let value = arr[i];
+    if (isSorted) {
+      if (!i || seen !== value) {
+        res.push(value);
+      }
+      seen = value;
+    } else if (res.indexOf(value) === -1){
+      res.push(value);
+    }
+  }
+  return res;
+}
+```
+
+
+
+#### API1优化  ????
+
+为了让这个 API 更加强大，我们来考虑一个需求：
+
+新需求：字母的大小写视为一致，比如'a'和'A'，保留一个就可以了！
+
+虽然我们可以先处理数组中的所有数据，比如将所有的字母转成小写，然后再传入unique函数，但是有没有方法可以省掉处理数组的这一遍循环，直接就在去重的循环中做呢?
+
+```javascript
+function unique(arr, isSorted, iteratee) {
+  let res = [],
+      seen = [];
+  
+  for (let i=0; i<arr.length; i++) {
+    let value = arr[i],
+        computed = iteratee ? iteratee(value, i, arr) : value;
+    
+    if (isSorted) {
+      if (!i || seen !== computed) {
+        arr.push(value)
+      }
+      seen = computed;
+    } else if (iteratee) {
+      if (seen.indexOf(computed) === -1) {
+        seen.push(computed);
+        res.push(value);
+      }
+    } else if (res.indexOf(value) === -1) {
+      res.push(value);
+    }
+  }
+  
+  return res;
+}
+
+
+console.log(unique(arr, false, function(item) {
+  return typeof item == 'string' ? item.toLowerCase() : item
+}))
+```
+
+在这一版也是最后一版的实现中，函数传递三个参数：
+
+array：表示要去重的数组，必填
+
+isSorted：表示函数传入的数组是否已排过序，如果为 true，将会采用更快的方法进行去重
+
+iteratee：传入一个函数，可以对每个元素进行重新的计算，然后根据处理的结果进行去重
+
+至此，我们已经仿照着 underscore 的思路写了一个 unique 函数，具体可以查看 [Github](https://github.com/jashkenas/underscore/blob/master/underscore.js#L562)。
+
+
+
 #### filter
 
 ```javascript
@@ -3164,6 +3489,8 @@ arr.concat().sort().filter((item,idx,arr) => !idx||item !== arr[idx-1])
 
 
 #### Object键值对
+
+> 键值对方法不能去重正则表达式
 
 这种方法是利用一个空的 Object 对象，我们把数组的值存成 Object 的 key 值，比如 Object[value1] = true，在判断另一个值的时候，如果 Object[value2]存在的话，就说明该值是重复的。
 
@@ -3184,11 +3511,97 @@ arr.filter((item,idx,arr) => obj.hasOwnProperty(typeof item + item) ? false : (o
 arr.filter((item,idx,arr) => obj.hasOwnProperty(typeof item + JSON.stringify(item)) ? false : (obj[typeof item + JSON.stringify(item)] = true))
 ```
 
+依然存在的问题: 考虑到 `JSON.stringify` 任何一个正则表达式的结果都是 `{}`，所以这个方法并不适用于处理正则表达式去重。(引用[勘误](https://github.com/mqyqingfeng/Blog/issues/212) )
+
+```javascript
+console.log(JSON.stringify(/a/)); //{}
+console.log(JSON.stringify(/b/)); //{}
+```
+
 
 
 #### ES6-Set
 
-#### Map
+```javascript
+function unique() {
+  return Array.from(new Set([].concat.apply([], arguments)))
+}
+
+function unique(arr) {
+  return Array.from(new Set(arr));
+}
+
+//简化
+function unique(arr) {
+  return [...new Set(arr)]
+}
+
+//再简化
+let unique = (arr) => [...new Set(arr)];
+```
+
+
+
+#### ES6-Map
+
+```javascript
+function unique(arr) {
+  let seen = new Map();
+  return arr.filter((item) => !seen.has(item) && seen.set(a, 1));
+}
+```
+
+我们可以看到，去重方法从原始的 14 行代码到 ES6 的 1 行代码，其实也说明了 JavaScript 这门语言在不停的进步，相信以后的开发也会越来越高效。(通过案例得出结论,信服)
+
+
+
+### 特殊类型的比较
+
+```javascript
+let str1 = '1';
+let str2 = new String('1');
+
+str1 == str2; //true
+str1 === str2; //false
+
+null == null; //true
+null === null; //true
+
+undefined == undefined //true
+undefined === undefined; //true
+
+NaN == NaN; //false
+NaN === NaN; //false
+
+/a/ == /a/; //false
+/a/ === /a/; //false
+
+{} == {}; //false
+{} === {}; //false
+```
+
+那么，对于这样一个数组
+
+```javascript 
+var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), new String('1'), /a/, /a/, NaN, NaN];
+```
+
+我特地整理了一个列表，我们重点关注下对象和 NaN 的去重情况：
+
+| 方法               | 结果                                                         | 说明                              |
+| ------------------ | ------------------------------------------------------------ | --------------------------------- |
+| for循环            | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
+| indexOf            | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
+| sort               | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 也不去重 |
+| filter+indexOf     | [1, "1", null, undefined, String, String, /a/, /a/]          | 对象不去重 NaN 会被忽略掉         |
+| 优化后的键值对方法 | [1, "1", null, undefined, String, /a/, NaN]                  | 全部去重                          |
+| Set                | [1, "1", null, undefined, String, String, /a/, /a/, NaN]     | 对象不去重 NaN 去重               |
+
+
+
+
+
+
 
 ### API
 
