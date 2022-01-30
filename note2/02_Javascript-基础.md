@@ -12318,7 +12318,7 @@ var removed = myFish.splice(-2, 1);
 
 
 
-**代码实现**
+**代码实现** ????
 
 ```js
 //代码实现  https://blog.csdn.net/weixin_43523913/article/details/106021147
@@ -14651,21 +14651,46 @@ console.log(arr); //[a: 2, l: 3, s: 4, k: 4, d: 4, …]
 
     
 //方法3: reduce 在reduce实例中
+var str = 'aalskdjfslkdjsdkjfsldkjfzz';  
+let result = str.split('').reduce((acc, cur, idx) => {
+  if (acc[cur]) {
+    acc[cur]++;
+  } else {
+    acc[cur] = 1;
+  }
+  
+  return acc;
+}, {})
 ```
 
 
 
-#### 数组去重的8种方法
+#### 数组去重的6种方法
 
-* 双for循环+splice
-* 双for循环+新数组
-* for+indexOf/includes
-* reduce+includes+(push/concat)
-* filter+indexOf
-* filter+sort()
-* sort()+快慢指针
-* [...new Set()]   Array.from(new Set())
-* Map
+* **双for循环**
+  * splice
+  * 新数组
+
+* **for循环**
+  * indexOf
+  * includes
+
+* **reduce**
+  * includes+(push/concat)
+
+* **filter**
+  * indexOf
+  * sort
+
+* **sort()**+快慢指针
+* **ES6**
+  * Set
+  * Map
+
+
+
+
+
 
 双for循环+splice
 
@@ -14803,6 +14828,9 @@ filter+indexOf方法
 //filter方法
 let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index)
 
+//存在的问题: 
+1.arr.indexOf(NaN)的结果是-1,所以会忽略NaN这个值.
+2.对象不去重
 ```
 
 
@@ -14812,6 +14840,8 @@ filter+sort()
 ```javascript
 arr.concat().sort().filter((item, idx, arr) => !idx || item !== arr[idx - 1])
 ```
+
+
 
 
 
@@ -14856,33 +14886,31 @@ function unique2(arr) {
 
 
 
-Set去重
+ES6-Set去重
 
 ```javascript
-function unique(arr) {
-  const result = new Set(arr);
-  return [...result]; //使用扩展运算符将Set结构转换为数组
+function unique() {
+  return Array.from(new Set([].concat.apply([], arguments)));
 }
-```
 
-
-
-Array.from() + Set
-
-```javascript
-//mdn https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/from
-funtion combine() {
-  let arr = [].contact.apply([], arguments);
+function unique(arr) {
   return Array.from(new Set(arr));
 }
 
-let m = [1,2,2], n = [2,3,3];
-console.log(combine(m, n)); //[1,2,3]
+//简化
+function unique(arr) {
+  return [...new Set(arr)];
+}
+
+//再简化
+let unique = (arr) => [...new Set(arr)];
+
+
 ```
 
 
 
-Map方法
+ES6-Map方法
 
 ```javascript
 function unique(arr) {
@@ -14896,7 +14924,34 @@ function unique(arr) {
   }
   return newArr;
 }
+
+
+function unique2(arr) {  //太聪明了真是. 来自JS专题之数组去重
+  let map = new Map();
+  return arr.filter((item) => !map.has(item) && map.set(a, 1));
+}
 ```
+
+
+
+#### 数组去重的方法存在的问题
+
+对于这样一个数组使用以上的去重方法:
+
+```javascript
+var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), new String('1'), /a/, /a/, NaN, NaN];
+```
+
+
+
+| 方法               | 结果 | 说明 |
+| ------------------ | ---- | ---- |
+| for循环            |      |      |
+| for循环+ indexOf   |      |      |
+| for循环 + includes |      |      |
+|                    |      |      |
+
+
 
 
 
@@ -15153,6 +15208,10 @@ let maxNum = Math.max(...arr);
 
 
 ```
+
+
+
+
 
 
 
