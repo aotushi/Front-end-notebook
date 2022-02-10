@@ -2954,6 +2954,8 @@ curry 的这种用途可以理解为：参数复用。本质上是降低通用�
 
 #### 1 edition
 
+这个版本的柯里化函数只能用一次,也就是addCurry()函数只能用一次
+
 ```javascript
 function curry(fn) {
   let argsOut = [].slice.call(arguments, 1);
@@ -2977,8 +2979,10 @@ let addCurry = curry(add, 1);
 addCurry(2) //3
 //或者
 let addCurry = curry(add);
-addCurry(2, 3); //3
+addCurry(1, 2); //3
 ```
+
+已经有柯里化的感觉了，但是还没有达到要求，不过我们可以把这个函数用作辅助函数，帮助我们写真正的 curry 函数。
 
 #### 2 edition
 
@@ -3007,17 +3011,121 @@ function curry(fn, length) {
 
 
 
-#### 2.1 edition
+我们来验证下这个函数:
+
+```javascript
+let fn = curry(function(a, b, c) {
+  return [a, b, c];
+})
+
+fn("a", "b", "c") // ["a", "b", "c"]
+fn("a", "b")("c") // ["a", "b", "c"]
+fn("a")("b")("c") // ["a", "b", "c"]
+fn("a")("b", "c") // ["a", "b", "c"]
+```
+
+效果已经达到我们的预期，然而这个 curry 函数的实现好难理解呐……
+
+为了让大家更好的理解这个 curry 函数，我给大家写个极简版的代码：
+
+
 
 ```javascript
 //简单版
 
-function curry(fn, args) {
-  length = fn.length;
-  args = args || [];
+function sub_curry(fn) {
   return function() {
-    let _args = args.slice(0),
-        arg;
+    return fn()
+  }
+}
+
+function curry(fn, length) {
+  length = length || 4;
+  return function() {
+    if (length > 1) {
+      return curry(sub_curry(fn), --length);
+    } else {
+      return fn();
+    }
+  }
+}
+
+
+let fn0 = function() {
+  console.log(1);
+}
+
+let fn1 = curry(fn0);
+
+fn1()()()(); //
+```
+
+当执行到fn1()时,函数返回:
+
+```javascript
+curry(sub_curry(fn0))
+//相当于
+curry(function() {
+  return fn0()
+})
+```
+
+当执行到fn1()()时,函数返回:
+
+```javascript
+curry(sub_curry(function() {
+  return fn()
+}))
+//相当于
+curry(function() {
+  return (function() {
+    return fn0()
+  })()
+})
+//相当于
+curry(function() {
+  return fn0()
+})
+```
+
+当执行 fn1()()() 时，函数返回：
+
+```javascript
+// 跟 fn1()() 的分析过程一样
+curry(function(){
+    return fn0()
+})
+```
+
+
+
+当执行到fn1()()()()时, 因为此时length>1为false,所以执行fn():
+
+```javascript 
+fn();
+//相当于
+(function(){
+  return fn0()
+})()
+//相当于
+fn0();
+
+```
+
+
+
+#### 2.1 更易懂版本
+
+如果你觉得还是无法理解，你可以选择下面这种实现方式，可以实现同样的效果：
+
+```javascript
+function curry(fn, args) {
+  let length = fn.length;
+  args = args || [];
+  
+  return function() {
+    let _args = args.slice(0);
+    let arg, i;
     
     for (let i=0; i<arguments.length; i++) {
       arg = arguments[i];
@@ -3029,7 +3137,6 @@ function curry(fn, args) {
     } else {
       return fn.apply(this, _args);
     }
-    
   }
 }
 ```
@@ -3037,6 +3144,10 @@ function curry(fn, args) {
 
 
 #### 3 edition  ???? 看不懂
+
+curry 函数写到这里其实已经很完善了，但是注意这个函数的传参顺序必须是从左到右，根据形参的顺序依次传入，如果我不想根据这个顺序传呢？
+
+我们可以创建一个占位符，比如这样：
 
 ```javascript
 function curry(fn, args, holes) {
@@ -3243,7 +3354,9 @@ function foo() {
 
 #### 4. 惰性函数
 
-惰性函数就是解决每次都要进行判断的这个问题，解决原理很简单，重写函数。
+惰性函数就是解决每次都要进行判断的这个问题，解决原理很简单，<u>重写函数</u>。
+
+如何重写?在函数体内重新赋值, 然后根据需要来返回.
 
 ```javascript
 let foo = function() {
@@ -3279,23 +3392,259 @@ function addEvent(type, e1, fn) {
 利用惰性函数，我们可以这样做：
 
 ```javascript
+function addEvent(type, el, fn) {
+  if (window.addEventListener) {
+    addEvent = function(type, el, fn) {
+      el.addEventListener(type, fn, false);
+    }
+  } else if (window.attachEvent) {
+    addEvent = function (type, el, fn) {
+      el.attachEvent('on' + type, fn);
+    }
+  }
+}
+```
+
+当然,我们可以使用闭包形式
+
+```javascript
+let addEvent = (function() {
+  if (window.addEventListener) {
+    return function(type, el, fn) {
+      el.addEventListener(type, fn, false);
+    }
+  } else if (window.attachEvent) {
+    return function(type, el, fn) {
+      el.attachEvent('on' + type, fn);
+    }
+  }
+})();
+```
+
+当我们每次都需要进行条件判断，其实只需要判断一次，接下来的使用方式都不会发生改变的时候，想想是否可以考虑使用惰性函数。
+
+### 重要参考
+
+> [peter.michaux.ca - Lazy Function Definition Pattern](http://peter.michaux.ca/articles/lazy-function-definition-pattern)
+
+
+
+## JavaScript专题之函数组合   ????
+
+> [JavaScript专题之函数组合 · Issue #45 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/45)
+
+### 需求
+
+我们需要写一个函数，输入 'kevin'，返回 'HELLO, KEVIN'。
+
+### 尝试
+
+```javascript
+let toUpperCase = function(x) {return x.toUpperCase()};
+let hello = function(x) {return 'HELLO, ' + x}
+function greet(x) {
+  return hello(toUpperCase(x));
+}
+greet('kevin');
 ```
 
 
 
+### 优化
+
+试想我们写个compose函数
+
+```javascript
+let compose = function(f, g) {
+  return function(x) {
+    return f(g(x));
+  }
+}
+```
+
+greet函数就可以被优化为:
+
+```javascript
+let greet = compose(hello, toUpperCase);
+greet('kevin');
+```
+
+<u>利用 compose 将两个函数组合成一个函数，让代码**从右向左**运行，而不是由内而外运行，可读性大大提升。这便是函数组合。</u>
+
+但是现在的 compose 函数也只是能支持两个参数，如果有更多的步骤呢？我们岂不是要这样做：
+
+```javascript
+compose(d, compose(c, compose(b, a)))
+```
+
+为什么我们不写一个帅气的 compose 函数支持传入多个函数呢？这样就变成了：
+
+```javascript
+compose(d, c, b, a)
+```
 
 
 
+### compose
+
+我们直接抄袭underscore的compose函数的实现:
+
+```javascript
+function compose() {
+  let args = arguments;
+  let start = args.length - 1;
+  let i = start;
+  return function() {
+    let result = args[start].apply(this, arguments);
+    while(i--) result = args[i].call(this, result);
+    return result;
+  }
+}
+```
+
+现在的 compose 函数已经可以支持多个函数了，然而有了这个又有什么用呢？
+
+在此之前，我们先了解一个概念叫做 pointfree。
+
+### pointfree
+
+<u>pointfree 指的是函数无须提及将要操作的数据是什么样的</u>。依然是以最初的需求为例：
+
+```javascript
+// 需求：输入 'kevin'，返回 'HELLO, KEVIN'。
+
+// 非 pointfree，因为提到了数据：name
+let greet = function(name) {
+  return ('hello ' + name).toUpperCase();
+}
+
+// pointfree
+//先定义基本运算,这些可以封装起来复用
+let toUpperCase = function(x) {return x.toUpperCase();};
+let hello = function(x) {return 'HELLO, ' + x;};
+
+let greet = compose(hello, toUpperCase);
+greet('kevin')
+```
+
+我们再举个稍微复杂一点的例子，为了方便书写，我们需要借助在[《JavaScript专题之函数柯里化》](https://github.com/mqyqingfeng/Blog/issues/42)中写到的 curry 函数：
+
+```javascript
+// 需求：输入 'kevin daisy kelly'，返回 'K.D.K'
+
+// 非 pointfree，因为提到了数据：name
+let initials = function(name) {
+  return name.split(' ').map(item => item[0].toUpperCase()).join('. ')
+}
+
+let initials = function(name) {
+  return name.split(' ').map(compose(toUpperCase, head)).join('. ');
+}
+
+//pointfree 
+// 先定义基本运算
+let split = curry(function(separator, str) { str.split(separator) });
+let head = function(str) { return str.slice(0, 1) };
+let toUpperCase = function(str) { return str.toUpperCase() };
+let join = curry(function(sepatator, arr) { return arr.join(separator) });
+let map = curry(function(fn, arr) { return arr.map(fn) });
+
+let initials = compose(join(' '), map(compose(toUpperCase, head), split(' ')));
+
+initials('kevin daisy kelly')
+```
+
+从这个例子中我们可以看到，利用柯里化（curry）和函数组合 (compose) 非常有助于实现 pointfree。
+
+也许你会想，这种写法好麻烦呐，我们还需要定义那么多的基础函数……可是如果有工具库已经帮你写好了呢？比如 [ramda.js](http://ramda.cn/docs/)：
+
+```javascript
+//使用ramda.js
+let initials = R.compose(R.join(' '), R.map(R.compose(R.toUpper, R.head)), R.split(' '));
+```
+
+而且你也会发现：
+
+> Pointfree 的本质就是使用一些通用的函数，组合出各种复杂运算。上层运算不要直接操作数据，而是通过底层函数去处理。即不使用所要处理的值，只合成运算过程。
+
+那么使用 pointfree 模式究竟有什么好处呢？
+
+> pointfree 模式能够帮助我们减少不必要的命名，让代码保持简洁和通用，更符合语义，更容易复用，测试也变得轻而易举。
+
+### 实战
+
+这个例子来自于 [Favoring Curry](http://fr.umio.us/favoring-curry/)：
+
+假设我们从服务器获取这样的数据：
+
+```javascript
+var data = {
+    result: "SUCCESS",
+    tasks: [
+        {id: 104, complete: false,            priority: "high",
+                  dueDate: "2013-11-29",      username: "Scott",
+                  title: "Do something",      created: "9/22/2013"},
+        {id: 105, complete: false,            priority: "medium",
+                  dueDate: "2013-11-22",      username: "Lena",
+                  title: "Do something else", created: "9/22/2013"},
+        {id: 107, complete: true,             priority: "high",
+                  dueDate: "2013-11-22",      username: "Mike",
+                  title: "Fix the foo",       created: "9/22/2013"},
+        {id: 108, complete: false,            priority: "low",
+                  dueDate: "2013-11-15",      username: "Punam",
+                  title: "Adjust the bar",    created: "9/25/2013"},
+        {id: 110, complete: false,            priority: "medium",
+                  dueDate: "2013-11-15",      username: "Scott",
+                  title: "Rename everything", created: "10/2/2013"},
+        {id: 112, complete: true,             priority: "high",
+                  dueDate: "2013-11-27",      username: "Lena",
+                  title: "Alter all quuxes",  created: "10/5/2013"}
+    ]
+};
+```
+
+我们需要写一个名为 getIncompleteTaskSummaries 的函数，接收一个 username 作为参数，从服务器获取数据，然后筛选出这个用户的未完成的任务的 ids、priorities、titles、和 dueDate 数据，并且按照日期升序排序。
+
+以 Scott 为例，最终筛选出的数据为：
+
+```javascript
+[
+  {id: 110, title: "Rename everything", 
+   dueDate: "2013-11-15", priority: "medium"},
+  {id: 104, title: "Do something", 
+   dueDate: "2013-11-29", priority: "high"}
+]
+```
 
 
 
+```javascript
+function getIncompleteTaskSummaties(username) {
+  return username.tasks.map(item => {
+    let obj = {};
+  	for (const [key, value] of Object.entries(item)) {
+      if (['id','title','dueDate','priority'].includes(key)) {
+        obj[key] =  value;
+      }
+    }
+    return obj;
+  }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+}
+```
 
 
 
+```javascript
+//第一版 过程式编程
+let fetchDate = function() {
+  //模拟
+  return Promise.resolve(data)
+}
 
-
-
-
+let getIncompleteTaskSummaries = function(memebername) {
+  
+}
+```
 
 
 
@@ -3603,18 +3952,6 @@ var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), 
 
 
 
-### API
-
-
-
-### 优化
-
-
-
-
-
-
-
 ## 防抖函数
 
 > https://github.com/mqyqingfeng/Blog/issues/22
@@ -3828,6 +4165,8 @@ function debounce(func, wait, immediate) {
 
 ## 节流函数
 
+> [JavaScript专题之跟着 underscore 学节流 · Issue #26 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/26)
+
 ### 原理
 
 如果你持续触发事件，每隔一段时间，只执行一次事件。
@@ -3836,3 +4175,154 @@ function debounce(func, wait, immediate) {
 我们用 leading 代表首次是否执行，trailing 代表结束后是否再执行一次。
 
 关于节流的实现，有两种主流的实现方式，一种是使用时间戳，一种是设置定时器。
+
+
+
+### 时间戳方案
+
+使用时间戳，当触发事件的时候，我们取出当前的时间戳，然后减去之前的时间戳(最一开始值设为 0 )，如果大于设置的时间周期，就执行函数，然后更新时间戳为当前的时间戳，如果小于，就不执行。
+
+```javascript
+//第一版
+
+function throttle(func, wait) {
+  let context, args;
+  let previous = 0;
+  return function() {
+    let now = +new Date();
+    context = this;
+    args = arguments;
+    
+   	if (now - previous > wait) {
+      func.apply(context, args);
+      previous = now;
+    } 
+  }
+}
+```
+
+
+
+### 定时器方案
+
+当触发事件的时候，我们设置一个定时器，再触发事件的时候，如果定时器存在，就不执行，直到定时器执行，然后执行函数，清空定时器，这样就可以设置下个定时器。
+
+```javascript
+function throttle(func, wait) {
+  let timeout,
+      previous = 0;
+  
+  return function() {
+    context = this;
+    args = arguments;
+    if (!timeout) {
+      timeout = setTimeout(function() {
+        timeout = null;
+        func.apply(context, args)
+      }, wait)
+    }
+  }
+}
+```
+
+
+
+所以比较两个方法：
+
+1. 第一种事件会立刻执行，第二种事件会在 n 秒后第一次执行
+2. 第一种事件停止触发后没有办法再执行事件，第二种事件停止触发后依然会再执行一次事件
+
+
+
+
+
+### 时间戳+定时器方案
+
+鼠标移入能立刻执行，停止触发的时候还能再执行一次！
+
+```javascript
+function throttle(func, wait) {
+  let timeout, context, args, result;
+  let previous = 0;
+  
+  let later = function() {
+    previous = +new Date();
+    timeout = null;
+    func.apply(context, args)
+  };
+  
+  let throttled = function() {
+    let now = +new Date();
+    //下次触发 func 剩余的时间
+    let remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    
+    //如果没有剩余时间了或者你改了系统时间
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      previous = now;
+      func.apply(context, args);
+    } else if (!timeout) {
+      timeout = setTimeout(later, remaining);
+    }
+  };
+  
+  return throttled;
+}
+```
+
+
+
+### 优化
+
+我有时也希望无头有尾，或者有头无尾，这个咋办？
+
+那我们设置个 options 作为第三个参数，然后根据传的值判断到底哪种效果，我们约定:
+
+leading：false 表示禁用第一次执行
+trailing: false 表示禁用停止触发的回调
+
+```javascript
+```
+
+
+
+### 取消
+
+在 debounce 的实现中，我们加了一个 cancel 方法，throttle 我们也加个 cancel 方法：
+
+```javascript
+// 第五版 非完整代码，完整代码请查看最后的演示代码链接
+...
+throttled.cancel = function() {
+    clearTimeout(timeout);
+    previous = 0;
+    timeout = null;
+}
+...
+```
+
+
+
+### 注意
+
+我们要注意 underscore 的实现中有这样一个问题：
+
+那就是 `leading：false` 和 `trailing: false` 不能同时设置。
+
+如果同时设置的话，比如当你将鼠标移出的时候，因为 trailing 设置为 false，停止触发的时候不会设置定时器，所以只要再过了设置的时间，再移入的话，就会立刻执行，就违反了 leading: false，bug 就出来了，所以，这个 throttle 只有三种用法：
+
+```javascript
+container.onmousemove = throttle(getUserAction, 1000);
+container.onmousemove = throttle(getUserAction, 1000, {
+    leading: false
+});
+container.onmousemove = throttle(getUserAction, 1000, {
+    trailing: false
+});
+```
+
