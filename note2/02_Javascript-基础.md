@@ -9917,6 +9917,12 @@ y = fn(x);
 
 ### 递归函数
 
+#### 定义
+
+> 程序调用自身时的变成技巧称为递归(recursion)
+
+#### 实现方法
+
 一个函数可以指向并调用自身.调用自身的函数我们称之为**递归函数**. 有三种方法可以达到这个目的:
 
 * 函数名
@@ -9976,70 +9982,198 @@ const factorial = (function f(num) {
 
 
 
-#### 求任意数阶乘
+#### 使用
 
-```JavaScript
-- 定义一个函数,用来求任意数的阶乘
+##### 阶乘
 
-- 阶乘: 
-5! = 5* 4* 3 * 2 * 1; //5 * 4!
-4! = 4 * 3 * 2 *1;   // 4 * 3!
-3! = 3 * 2 * 1;	    //  3 * 2!
-2! = 2* 1;
+以阶乘为例
+
+```javascript
+function factorial(n) {
+  if (n === 1) return n;
+  return n * factorial(n - 1)
+}
+```
+
+示意图(图片来自 [wwww.penjee.com](https://github.com/mqyqingfeng/Blog/issues/wwww.penjee.com))：
+
+![](https://camo.githubusercontent.com/e7f3e971eebd1f8c6e0bd15be013506e516443ed7caeb27dc29c983bf5b1a2e9/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f726563757273696f6e2f666163746f7269616c2e676966)
+
+##### 斐波那契数列
+
+> 一对兔子从出生后的第3个月起，每月可生出一对小兔子。
+> 编写函数，求第n个月时，兔子的对数。
+>
+> 斐波那契数列:1 1 2 3 5 8 13 21.....
+>
+> 简化: 某一项数是前两项数之和
+
+在[《JavaScript专题之函数记忆》](https://github.com/mqyqingfeng/Blog/issues/46)中讲到过的斐波那契数列也使用了递归：
+
+```javascript
+function fibonacci(n) {
+  return n < 2 ? n : fibonacci(n - 1) + fibonacci(n - 2);
+}
+```
 
 
-============使用函数+for循环====================    
-  
-        
-  function jiecheng(nums){
-          let sum = 1;  
-          for(i=1; i<=nums; i++){
-              sum *= i;
-          }
-      return sum;
+
+#### 递归条件
+
+从这两个例子中，我们可以看出：
+
+构成递归需具备边界条件、递归前进段和递归返回段，当边界条件不满足时，递归前进，当边界条件满足时，递归返回。阶乘中的 `n == 1` 和 斐波那契数列中的 `n < 2` 都是边界条件。
+
+总结一下递归的特点：
+
+1. 子问题须与原始问题为同样的事，且更为简单；
+2. 不能无限制地调用本身，须有个出口，化简为非递归状况处理。
+
+
+
+#### 执行上下文栈
+
+在[《JavaScript深入之执行上下文栈》](https://github.com/mqyqingfeng/Blog/issues/4)中，我们知道：
+
+当执行一个函数的时候，就会创建一个执行上下文，并且压入执行上下文栈，当函数执行完毕的时候，就会将函数的执行上下文从栈中弹出。
+
+试着对阶乘函数分析执行的过程，我们会发现，JavaScript 会不停的创建执行上下文压入执行上下文栈，对于内存而言，维护这么多的执行上下文也是一笔不小的开销呐！那么，我们该如何优化呢？
+
+答案就是尾调用。
+
+#### 尾调用
+
+尾调用，是指函数内部的最后一个动作是函数调用。该调用的返回值，直接返回给函数。
+
+举个例子:
+
+```javascript
+function f(x) {
+  return g(x);
+}
+```
+
+非尾调用:
+
+```javascript
+function f(x) {
+  return g(x) + 1;
+}
+```
+
+并不是尾调用，因为 g(x) 的返回值还需要跟 1 进行计算后，f(x)才会返回值。
+
+两者又有什么区别呢？答案就是执行上下文栈的变化不一样。
+
+为了模拟执行上下文栈的行为，让我们定义执行上下文栈是一个数组：
+
+```
+    ECStack = [];
+```
+
+我们模拟下第一个尾调用函数执行时的执行上下文栈变化：
+
+```
+// 伪代码
+ECStack.push(<f> functionContext);
+
+ECStack.pop();
+
+ECStack.push(<g> functionContext);
+
+ECStack.pop();
+```
+
+我们再来模拟一下第二个非尾调用函数执行时的执行上下文栈变化：
+
+```
+ECStack.push(<f> functionContext);
+
+ECStack.push(<g> functionContext);
+
+ECStack.pop();
+
+ECStack.pop();
+```
+
+也就说尾调用函数执行时，虽然也调用了一个函数，但是因为原来的的函数执行完毕，执行上下文会被弹出，执行上下文栈中相当于只多压入了一个执行上下文。然而非尾调用函数，就会创建多个执行上下文压入执行上下文栈。
+
+<u>函数调用自身，称为递归。如果尾调用自身，就称为尾递归。</u>
+
+所以我们只用把阶乘函数改造成一个尾递归形式，就可以避免创建那么多的执行上下文。但是我们该怎么做呢？
+
+
+
+#### 阶乘函数优化 ????
+
+我们需要做的就是把所有用到的内部变量改写成函数的参数，以阶乘函数为例：
+
+```javascript
+function factorial(n, res) {
+  if (n == 1) return res;
+  return factorial(n-1, n*res);
+}
+```
+
+然而这个很奇怪呐……我们计算 4 的阶乘，结果函数要传入 4 和 1，我就不能只传入一个 4 吗？
+
+这个时候就要用到我们在[《JavaScript专题之偏函数》](https://github.com/mqyqingfeng/Blog/issues/43)中编写的 partial 函数了：
+
+```
+var newFactorial = partial(factorial, _, 1)
+
+newFactorial(4) // 24
+```
+
+
+
+#### 应用
+
+如果你看过 [JavaScript 专题系列](https://github.com/mqyqingfeng/Blog)的文章，你会发现递归有着很多的应用。
+
+作为专题系列的第十八篇，我们来盘点下之前的文章中都有哪些涉及到了递归：
+
+1.[《JavaScript 专题之数组扁平化》](https://github.com/mqyqingfeng/Blog/issues/36)：
+
+```javascript
+function flatter(arr) {
+  return arr.reduce((prev, crx) => {
+    return prev.concat(Array.isArray(crx) ? flatter(crx) : crx)
+  },[])
+}
+```
+
+2.[《JavaScript 专题之深浅拷贝》](https://github.com/mqyqingfeng/Blog/issues/32)：
+
+```javascript
+let deepCopy = function(obj) {
+  if (typeof obj !== 'object') return;
+  let newObj = obj instanceof Array ? [] : {};
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
+    }
   }
-  
-  jiecheng();
-  
-=================使用阶乘=========================
-    
-function fn(i){
-    if(i === 1){  //基线条件 设置递归停止的条件
-        return 1;
-    }
-    
-    return i * fn(i-1); //递归条件,设置如何对问题进行拆分
+  return newObj;
 }
+```
 
-fn(i);
+3.[JavaScript 专题之从零实现 jQuery 的 extend](https://github.com/mqyqingfeng/Blog/issues/33)：
+
+```javascript
+```
+
+4.[《JavaScript 专题之如何判断两个对象相等》](https://github.com/mqyqingfeng/Blog/issues/41)：
+
+```javascript
+```
+
+5.[《JavaScript 专题之函数柯里化》](https://github.com/mqyqingfeng/Blog/issues/42)：
+
+```javascript
 ```
 
 
-
-####   斐波那契数列/兔子问题
-
-```JavaScript
-一对兔子从出生后的第3个月起，每月可生出一对小兔子。
-编写函数，求第n个月时，兔子的对数。
-
-斐波那契数列:1 1 2 3 5 8 13 21.....
-
-简化: 某一项数是前两项数之和
-```
-
-
-
-
-
-```JavaScript
-function rabbit(i){
-    if(i<=2){     //设置基准线
-        return 1;
-    }
-    return rabbit(i-2)+rabbit(i-1);  //设置递归条件
-}
-rabbit(i);
-```
 
 
 
@@ -11118,7 +11252,7 @@ console.log(per.name = '朝天阙'); //朝天阙
 
 ### 尾调用优化
 
-ECMAScript 6关于函数最有趣的变化可能是尾调用系统的引擎优化. 尾调用指的是函数作为另一个函数的最后一条语句被调用:
+ECMAScript 6关于函数最有趣的变化可能是尾调用系统的引擎优化. <u>尾调用指的是函数作为另一个函数的最后一条语句被调用:</u>
 
 ```javascript
 function doSomething() {
@@ -11185,7 +11319,7 @@ function doSomething() {
 
 #### 如何利用尾调用优化
 
-实际上，尾调用的优化发生在引擎背后，除非你尝试优化一个函数，否则无须思考此类问题。递归函数是其最主要的应用场景，此时尾调用优化的效果最显著。请看下面这个阶乘函数：
+实际上，尾调用的优化发生在引擎背后，除非你尝试优化一个函数，否则无须思考此类问题。<span style="text-decoration: underline wavy blue">递归函数是其最主要的应用场景，此时尾调用优化的效果最显著</span>。请看下面这个阶乘函数：
 
 ```javascript
 function factorial(n) {
@@ -13028,7 +13162,7 @@ arr.sort([compareFunction])
 
 `compareFunction` 可选
 
-* 用来指定按某种顺序进行排列的函数。如果省略，元素按照转换为的字符串的各个字符的Unicode位点进行排序。
+* 用来指定按某种顺序进行排列的函数。如果省略，元素按照转换为的字符串的各个字符的<u>Unicode位点</u>进行排序。
 * `firstEl` 第一个用于比较的元素。
 * `secondEl` 第二个用于比较的元素
 
