@@ -13162,7 +13162,7 @@ arr.sort([compareFunction])
 
 `compareFunction` 可选
 
-* 用来指定按某种顺序进行排列的函数。如果省略，元素按照转换为的字符串的各个字符的<u>Unicode位点</u>进行排序。
+* 用来指定按某种顺序进行排列的函数。如果省略，元素按照转换为的字符串的各个字符的<u>Unicode位点</u>进行排序。([字符编码笔记:ASCII, Unicode和UTF-8](https://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html))
 * `firstEl` 第一个用于比较的元素。
 * `secondEl` 第二个用于比较的元素
 
@@ -13213,6 +13213,12 @@ function(a, b){
 function(a, b){ //参数a与b写不写都一样了
   return Math.random() - Math.random
 }
+() => Math.random() - 0.5;
+
+//没有传递参数的写法
+[1,3,2,5,4].sort(() => -1); //[4, 5, 2, 3, 1]
+[1,3,2,5,4].sort(() => 1); //[1,3,2,5,4]
+[1,3,2,5,4].sort(() => 0); //[1,3,2,5,4]
 ```
 
 **为什么升序是a - b????**  

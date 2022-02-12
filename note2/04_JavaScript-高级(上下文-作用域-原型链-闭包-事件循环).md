@@ -4023,6 +4023,112 @@ console.log(count) // 12
 
 > [JavaScript专题之乱序 · Issue #51 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/51)
 
+### 乱序
+
+乱序的意思就是将数组打乱。
+
+### Math.random
+
+一个经常会遇见的写法是使用 Math.random()：
+
+```javascript
+let values = [1,2,3,4,5];
+
+values.sort(() => Math.random() - 0.5);
+
+console.log(values)
+```
+
+`Math.random() - 0.5` 随机得到一个正数、负数或是 0，如果是正数则降序排列，如果是负数则升序排列，如果是 0 就不变，然后不断的升序或者降序，最终得到一个乱序的数组。
+
+看似很美好的一个方案，实际上，效果却不尽如人意。不信我们写个 demo 测试一下：
+
+```javascript
+let times = [0,0,0,0,0];
+
+for (let i=0; i<100000; i++) {
+  let arr = [1,2,3,4,5];
+  arr.sort(() => Math.random() - 0.5);
+  times[arr[4] - 1]++;
+}
+
+console.log(times);
+```
+
+测试原理是：将 `[1, 2, 3, 4, 5]` 乱序 10 万次，计算乱序后的数组的最后一个元素是 1、2、3、4、5 的次数分别是多少。
+
+一次随机的结果为：
+
+```javascript
+[30636, 30906, 20456, 11743, 6259]
+```
+
+结果表示 10 万次中，数组乱序后的最后一个元素是 1 的情况共有 30636 次，是 2 的情况共有 30906 次，其他依此类推。
+
+我们会发现，最后一个元素为 5 的次数远远低于为 1 的次数，所以这个方案是有问题的。
+
+### 插入排序
+
+如果要追究这个问题所在，就必须了解 sort 函数的原理，然而 ECMAScript 只规定了效果，没有规定实现的方式，所以不同浏览器实现的方式还不一样。
+
+为了解决这个问题，我们以 v8 为例，v8 在处理 sort 方法时，当目标数组长度小于 10 时，使用插入排序；反之，使用快速排序和插入排序的混合排序。
+
+所以我们来看看 v8 的源码，因为是用 JavaScript 写的，大家也是可以看懂的。
+
+源码地址：https://github.com/v8/v8/blob/master/src/js/array.js
+
+为了简化篇幅，我们对 `[1, 2, 3]` 这个数组进行分析，数组长度为 3，此时采用的是插入排序。
+
+插入排序的源码是：
+
+```javascript
+function InsertionSort(a, from, to) {
+  for (let i = from+1; i<to; i++) {
+    let element = a[i];
+    for (let j=i-1; j>=from; j--) {
+      let tmp = arr[j];
+      let order = comparefn(tmp, element);
+      if (order > 0) {
+        a[j+1] = tmp;
+      } else {
+        break;
+      }
+    }
+    a[j+1] = element;
+  }
+}
+```
+
+其原理在于将第一个元素视为有序序列，遍历数组，将之后的元素依次插入这个构建的有序序列中。
+
+我们来个简单的示意图：
+
+![](https://camo.githubusercontent.com/dd3f21a42c693891a11a5ec75e56d8be95c269e3399969c6aeec05cce2aa7d82/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f736f72742f696e73657274696f6e2e676966)
+
+
+
+### 具体分析
+
+明白了插入排序的原理，我们来具体分析下 [1, 2, 3] 这个数组乱序的结果。
+
+演示代码为：
+
+```javascript
+let values = [1,2,3];
+
+values.sort(() => Math.random() - 0.5);
+```
+
+注意此时 sort 函数底层是使用插入排序实现，InsertionSort 函数的 from 的值为 0，to 的值为 3。
+
+
+
+
+
+
+
+
+
 
 
 
