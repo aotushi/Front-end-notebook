@@ -365,6 +365,34 @@ console.log(b.x); //{n:2}
 
 ### 块级作用域
 
+#### 0. 背景
+
+<u>为了加强对变量生命周期的控制,ES6引入了块作用域</u>
+
+来个例子:
+
+通过var声明的变量存在变量提升的特性:
+
+```javascript
+if (condition) {
+  var value = 1;
+}
+
+console.log(value);
+```
+
+因为存在变量提升,代码相当于:
+
+```javascript
+var value;
+if (condition) {
+  value = 1;
+}
+console.log(value);
+```
+
+如果 condition 为 false，结果会是 undefined。
+
 #### 1. var声明及变量提升（Hoisting）机制
 
 在函数作用域或全局作用域中通过关键字var声明的变量，无论实际上是在哪里声明的，都会被当成<u>在当前作用域顶部</u>声明的变量，这就是我们常说的提升（Hoisting）机制。

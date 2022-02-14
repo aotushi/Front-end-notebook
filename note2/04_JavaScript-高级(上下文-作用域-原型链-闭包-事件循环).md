@@ -2917,9 +2917,13 @@ self.onmessage = function(event){
 
 
 
+## JavaScript专题系列-GitHub冴羽的博客
+
+> [mqyqingfeng/Blog: 冴羽写博客的地方，预计写四个系列：JavaScript深入系列、JavaScript专题系列、ES6系列、React系列。 (github.com)](https://github.com/mqyqingfeng/Blog)
 
 
-## JavaScript专题之函数柯里化(未完成)
+
+### JavaScript专题之函数柯里化(未完成)
 
 > https://juejin.cn/post/6844903490771222542
 
@@ -3174,9 +3178,9 @@ function curry(fn, args, holes) {
 
 
 
-## JavaScript专题之偏函数
+### JavaScript专题之偏函数
 
-### 定义
+#### 定义
 
 维基百科中对偏函数 (Partial application) 的定义为：
 
@@ -3205,7 +3209,7 @@ addOne(2); //3
 
 
 
-### 柯里化与局部应用
+#### 柯里化与局部应用
 
 两者的区别:
 
@@ -3218,7 +3222,7 @@ addOne(2); //3
 
 
 
-### 重写partial
+#### 重写partial
 
 目的是模仿 underscore 写一个 partial 函数
 
@@ -3236,7 +3240,7 @@ addOne(2) // 3
 
 
 
-#### 第一版
+##### 第一版
 
 ```javascript
 function partial(fn) {
@@ -3272,7 +3276,7 @@ obj.addOne(2); //???
 
 
 
-#### 第二版 ????
+##### 第二版 ????
 
 然而正如 curry 函数可以使用占位符一样，我们希望 partial 函数也可以实现这个功能，我们再来写第二版：
 
@@ -3295,17 +3299,17 @@ function partial(fn) {
 
 
 
-## JavaScript专题之惰性函数
+### JavaScript专题之惰性函数
 
-### 需求
+#### 需求
 
 我们现在需要写一个 foo 函数，这个函数返回首次调用时的 Date 对象，注意是首次。
 
 
 
-### 解决方案
+#### 解决方案
 
-#### 1 普通方法
+##### 1 普通方法
 
 ```javascript
 let t;
@@ -3319,7 +3323,7 @@ function foo() {
 
 问题有两个，一是污染了全局变量，二是每次调用 foo 的时候都需要进行一次判断。
 
-#### 2 闭包
+##### 2 闭包
 
 使用闭包避免污染全局变量
 
@@ -3336,7 +3340,7 @@ let foo = (function() {
 })
 ```
 
-#### 3. 函数对象
+##### 3. 函数对象
 
 函数也是一种对象，利用这个特性，我们也可以解决这个问题。
 
@@ -3352,7 +3356,7 @@ function foo() {
 
 
 
-#### 4. 惰性函数
+##### 4. 惰性函数
 
 惰性函数就是解决每次都要进行判断的这个问题，解决原理很简单，<u>重写函数</u>。
 
@@ -3371,7 +3375,7 @@ let foo = function() {
 
 
 
-### 应用
+#### 应用
 
 DOM 事件添加中，为了兼容现代浏览器和 IE 浏览器，我们需要对浏览器环境进行一次判断：
 
@@ -3423,21 +3427,21 @@ let addEvent = (function() {
 
 当我们每次都需要进行条件判断，其实只需要判断一次，接下来的使用方式都不会发生改变的时候，想想是否可以考虑使用惰性函数。
 
-### 重要参考
+#### 重要参考
 
 > [peter.michaux.ca - Lazy Function Definition Pattern](http://peter.michaux.ca/articles/lazy-function-definition-pattern)
 
 
 
-## JavaScript专题之函数组合   ????
+### JavaScript专题之函数组合   ????
 
 > [JavaScript专题之函数组合 · Issue #45 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/45)
 
-### 需求
+#### 需求
 
 我们需要写一个函数，输入 'kevin'，返回 'HELLO, KEVIN'。
 
-### 尝试
+#### 尝试
 
 ```javascript
 let toUpperCase = function(x) {return x.toUpperCase()};
@@ -3450,7 +3454,7 @@ greet('kevin');
 
 
 
-### 优化
+#### 优化
 
 试想我们写个compose函数
 
@@ -3485,7 +3489,7 @@ compose(d, c, b, a)
 
 
 
-### compose
+#### compose
 
 我们直接抄袭underscore的compose函数的实现:
 
@@ -3506,7 +3510,7 @@ function compose() {
 
 在此之前，我们先了解一个概念叫做 pointfree。
 
-### pointfree
+#### pointfree
 
 <u>pointfree 指的是函数无须提及将要操作的数据是什么样的</u>。依然是以最初的需求为例：
 
@@ -3571,7 +3575,7 @@ let initials = R.compose(R.join(' '), R.map(R.compose(R.toUpper, R.head)), R.spl
 
 > pointfree 模式能够帮助我们减少不必要的命名，让代码保持简洁和通用，更符合语义，更容易复用，测试也变得轻而易举。
 
-### 实战 ???? 懵逼
+#### 实战 ???? 懵逼
 
 这个例子来自于 [Favoring Curry](http://fr.umio.us/favoring-curry/)：
 
@@ -3801,11 +3805,11 @@ var getIncompleteTaskSummaries = function(membername) {
 
 
 
-## JavaScript专题之函数记忆 ????
+### JavaScript专题之函数记忆 ????
 
 > [JavaScript专题之函数记忆 · Issue #46 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/46)
 
-### 定义
+#### 定义
 
 函数记忆是指将上次的计算结果缓存起来，当下次调用时，如果遇到相同的参数，就直接返回缓存中的数据。
 
@@ -3825,11 +3829,11 @@ memorizeAdd(1, 2); //相同的参数，第二次调用时，从缓存中取出�
 
 
 
-### 原理
+#### 原理
 
 实现这样一个 memoize 函数很简单，原理上只用把参数和对应的结果数据存到一个对象中，调用时，判断参数对应的数据是否存在，存在就返回对应的结果数据。
 
-### 第一版
+#### 第一版
 
 ```javascript
 function memorize(f) {
@@ -3878,7 +3882,7 @@ console.timeEnd('not use memoize')
 
 在 Chrome 中，使用 memoize 大约耗时 60ms，如果我们不使用函数记忆，大约耗时 1.3 ms 左右。
 
-### 注意
+#### 注意
 
 什么，我们使用了看似高大上的函数记忆，结果却更加耗时，这个例子近乎有 60 倍呢！
 
@@ -3886,7 +3890,7 @@ console.timeEnd('not use memoize')
 
 需要注意的是，函数记忆只是一种编程技巧，本质上是牺牲算法的空间复杂度以换取更优的时间复杂度，在客户端 JavaScript 中代码的执行时间复杂度往往成为瓶颈，因此在大多数场景下，这种牺牲空间换取时间的做法以提升程序执行效率的做法是非常可取的。
 
-### 第二版
+#### 第二版
 
 因为第一版使用了 join 方法，我们很容易想到当参数是对象的时候，就会自动调用 toString 方法转换成 `[Object object]`，再拼接字符串作为 key 值。我们写个 demo 验证一下这个问题：
 
@@ -3946,7 +3950,7 @@ console.log(memoizedAdd(1, 2, 4)) // 7
 
 如果使用 JSON.stringify，参数是对象的问题也可以得到解决，因为存储的是对象序列化后的字符串。
 
-### 使用场景
+#### 使用场景
 
 我们以斐波那契数列为例：
 
@@ -4019,15 +4023,15 @@ console.log(count) // 12
 
 
 
-## JavaScript专题之乱序
+### JavaScript专题之乱序
 
 > [JavaScript专题之乱序 · Issue #51 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/51)
 
-### 乱序
+#### 乱序
 
 乱序的意思就是将数组打乱。
 
-### Math.random
+#### Math.random
 
 一个经常会遇见的写法是使用 Math.random()：
 
@@ -4067,7 +4071,7 @@ console.log(times);
 
 我们会发现，最后一个元素为 5 的次数远远低于为 1 的次数，所以这个方案是有问题的。
 
-### 插入排序
+#### 插入排序
 
 如果要追究这个问题所在，就必须了解 sort 函数的原理，然而 ECMAScript 只规定了效果，没有规定实现的方式，所以不同浏览器实现的方式还不一样。
 
@@ -4107,7 +4111,7 @@ function InsertionSort(a, from, to) {
 
 
 
-### 具体分析
+#### 具体分析
 
 明白了插入排序的原理，我们来具体分析下 [1, 2, 3] 这个数组乱序的结果。
 
@@ -4177,7 +4181,7 @@ console.log(res)
 
 那么如何实现真正的乱序呢？而这就要提到经典的 Fisher–Yates 算法。
 
-### Fisher-Yates
+#### Fisher-Yates
 
 为什么叫 Fisher–Yates 呢？ 因为这个算法是由 Ronald Fisher 和 Frank Yates 首次提出的。
 
@@ -4213,9 +4217,10 @@ function shuffle(a) {
 
 
 <<<<<<< HEAD
-## JavaScript专题之偏函数
 
-### 定义
+### JavaScript专题之偏函数
+
+#### 定义
 
 维基百科中对偏函数 (Partial application) 的定义为：
 
@@ -4244,7 +4249,7 @@ addOne(2); //3
 
 
 
-### 柯里化与局部应用
+#### 柯里化与局部应用
 
 两者的区别:
 
@@ -4257,7 +4262,7 @@ addOne(2); //3
 
 
 
-### 重写partial
+#### 重写partial
 
 目的是模仿 underscore 写一个 partial 函数
 
@@ -4334,17 +4339,17 @@ function partial(fn) {
 
 
 
-## JavaScript专题之惰性函数
+### JavaScript专题之惰性函数
 
-### 需求
+#### 需求
 
 我们现在需要写一个 foo 函数，这个函数返回首次调用时的 Date 对象，注意是首次。
 
 
 
-### 解决方案
+#### 解决方案
 
-#### 1 普通方法
+##### 1 普通方法
 
 ```javascript
 let t;
@@ -4358,7 +4363,7 @@ function foo() {
 
 问题有两个，一是污染了全局变量，二是每次调用 foo 的时候都需要进行一次判断。
 
-#### 2 闭包
+##### 2 闭包
 
 使用闭包避免污染全局变量
 
@@ -4375,7 +4380,7 @@ let foo = (function() {
 })
 ```
 
-#### 3. 函数对象
+##### 3. 函数对象
 
 函数也是一种对象，利用这个特性，我们也可以解决这个问题。
 
@@ -4391,7 +4396,7 @@ function foo() {
 
 
 
-#### 4. 惰性函数
+##### 4. 惰性函数
 
 惰性函数就是解决每次都要进行判断的这个问题，解决原理很简单，重写函数。
 
@@ -4408,7 +4413,7 @@ let foo = function() {
 
 
 
-### 应用
+#### 应用
 
 DOM 事件添加中，为了兼容现代浏览器和 IE 浏览器，我们需要对浏览器环境进行一次判断：
 
@@ -4428,40 +4433,60 @@ function addEvent(type, e1, fn) {
 
 利用惰性函数，我们可以这样做：
 
-```javascript
+：
+
+```
+function addEvent (type, el, fn) {
+    if (window.addEventListener) {
+        addEvent = function (type, el, fn) {
+            el.addEventListener(type, fn, false);
+        }
+    }
+    else if(window.attachEvent){
+        addEvent = function (type, el, fn) {
+            el.attachEvent('on' + type, fn);
+        }
+    }
+}
 ```
 
+当然我们也可以使用闭包的形式：
+
+```
+var addEvent = (function(){
+    if (window.addEventListener) {
+        return function (type, el, fn) {
+            el.addEventListener(type, fn, false);
+        }
+    }
+    else if(window.attachEvent){
+        return function (type, el, fn) {
+            el.attachEvent('on' + type, fn);
+        }
+    }
+})();
+```
+
+当我们每次都需要进行条件判断，其实只需要判断一次，接下来的使用方式都不会发生改变的时候，想想是否可以考虑使用惰性函数。
+
+重要参考
+
+[Lazy Function Definition Pattern](http://peter.michaux.ca/articles/lazy-function-definition-pattern)
 
 
 
 
 
+### JavaScript专题之解读 v8 排序源码
+
+> https://github.com/mqyqingfeng/Blog/issues/52)
 
 
 
 
+### JavaScript专题之如何判断两个参数相等
 
-
-
-
-
-=======
->>>>>>> 00c58c76672eed7702569979234cf2a2cca89f8b
-
-
-
-
-
-
-
-
-
-
-
-
-## JavaScript专题之如何判断两个参数相等
-
-### 前言
+#### 前言
 
 > https://github.com/mqyqingfeng/Blog/issues/41
 
@@ -4469,15 +4494,15 @@ function addEvent(type, e1, fn) {
 
 
 
-## JavaScript专题之数组去重
+### JavaScript专题之数组去重
 
-### 前言
+#### 前言
 
 > https://github.com/mqyqingfeng/Blog/issues/27
 
 
 
-### 3种方法
+#### 3种方法
 
 #### 方法列表
 
@@ -4485,7 +4510,7 @@ function addEvent(type, e1, fn) {
 * for循环 + indexOf
 * for循环 + 排序
 
-#### 双for循环
+##### 双for循环
 
 ```javascript
 
@@ -4506,7 +4531,7 @@ function unique(arr) {
 }
 ```
 
-#### indexOf
+##### indexOf
 
 使用indexOf简化内层for循环
 
@@ -4523,7 +4548,7 @@ function unique(arr) {
 }
 ```
 
-#### 排序后去重sort()
+##### 排序后去重sort()
 
 先将要去重的数组使用 sort 方法排序后，相同的值就会被排在一起，然后我们就可以只判断当前元素与上一个元素是否相同，相同就说明重复，不相同就添加进 res.
 
@@ -4549,7 +4574,7 @@ function unique(arr) {
 
 
 
-#### API1
+##### API1
 
 根据一个参数 isSorted 判断传入的数组是否是已排序的，如果为 true，我们就判断相邻元素是否相同，如果为 false，我们就使用 indexOf 进行判断
 
@@ -4576,7 +4601,7 @@ function unique(arr, isSorted) {
 
 
 
-#### API1优化  ????
+##### API1优化  ????
 
 为了让这个 API 更加强大，我们来考虑一个需求：
 
@@ -4629,7 +4654,7 @@ iteratee：传入一个函数，可以对每个元素进行重新的计算，然
 
 
 
-#### filter
+##### filter
 
 ```javascript
 arr.filter((item,idx,arr) => arr.indexOf(item) === idx)
@@ -4640,7 +4665,7 @@ arr.concat().sort().filter((item,idx,arr) => !idx||item !== arr[idx-1])
 
 
 
-#### Object键值对
+##### Object键值对
 
 > 键值对方法不能去重正则表达式
 
@@ -4672,7 +4697,7 @@ console.log(JSON.stringify(/b/)); //{}
 
 
 
-#### ES6-Set
+##### ES6-Set
 
 ```javascript
 function unique() {
@@ -4695,7 +4720,7 @@ let unique = (arr) => [...new Set(arr)];
 
 
 
-#### ES6-Map
+##### ES6-Map
 
 ```javascript
 function unique(arr) {
@@ -4708,7 +4733,7 @@ function unique(arr) {
 
 
 
-### 特殊类型的比较
+#### 特殊类型的比较
 
 ```javascript
 let str1 = '1';
@@ -4777,7 +4802,7 @@ function unique(arr) {
 
 
 
-### 特殊类型的比较
+#### 特殊类型的比较
 
 ```javascript
 let str1 = '1';
@@ -4818,6 +4843,14 @@ var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), 
 | filter+indexOf     | [1, "1", null, undefined, String, String, /a/, /a/]          | 对象不去重 NaN 会被忽略掉         |
 | 优化后的键值对方法 | [1, "1", null, undefined, String, /a/, NaN]                  | 全部去重                          |
 | Set                | [1, "1", null, undefined, String, String, /a/, /a/, NaN]     | 对象不去重 NaN 去重               |
+
+
+
+## JavaScript underscore系列 (未开始)
+
+### 来源:
+
+> [mqyqingfeng/Blog: 冴羽写博客的地方，预计写四个系列：JavaScript深入系列、JavaScript专题系列、ES6系列、React系列。 (github.com)](https://github.com/mqyqingfeng/Blog)
 
 
 

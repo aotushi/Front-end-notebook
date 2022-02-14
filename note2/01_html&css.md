@@ -2,7 +2,25 @@
 
 > 结构、表现、行为
 
-###  0.简介
+###  0.资源
+
+#### 1.标准和文档
+
+* w3.org
+* whatwg.org
+* developer.mozilla.org
+* msdn.microsoft.com
+* developer.apple.com
+
+#### 2.大师
+
+* Tim Berners-Lee
+* Brendan Eich
+* Bjarne Stroustrup
+
+
+
+
 
 ### 1.基本标签
 
