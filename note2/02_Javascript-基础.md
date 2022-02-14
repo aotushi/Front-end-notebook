@@ -13595,6 +13595,8 @@ Current Index(idx)当前索引
 Source Array(src)源数组
 ```
 
+reducer函数的返回值分配给累计器,该返回值在数组的每个迭代中被记住,并最后称为最终的单个结果值.
+
 `callback` 
 
 执行数组中每个值 (如果没有提供 `initialValue则第一个值除外`)的函数，包含四个参数：
@@ -13653,7 +13655,7 @@ Array.prototype.myReduce = function (callback) {
     throw new TypeError('undefined is not a function');
   }
   //判断是否传入初始值
-  if (accumentlator === undefined) {
+  if (accumulator === undefined) {
     accumulator = _arr[i];
     i++;
   }
