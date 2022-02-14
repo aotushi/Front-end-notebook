@@ -2954,6 +2954,8 @@ curry 的这种用途可以理解为：参数复用。本质上是降低通用�
 
 #### 1 edition
 
+这个版本的柯里化函数只能用一次,也就是addCurry()函数只能用一次
+
 ```javascript
 function curry(fn) {
   let argsOut = [].slice.call(arguments, 1);
@@ -2977,8 +2979,10 @@ let addCurry = curry(add, 1);
 addCurry(2) //3
 //或者
 let addCurry = curry(add);
-addCurry(2, 3); //3
+addCurry(1, 2); //3
 ```
+
+已经有柯里化的感觉了，但是还没有达到要求，不过我们可以把这个函数用作辅助函数，帮助我们写真正的 curry 函数。
 
 #### 2 edition
 
@@ -3007,17 +3011,121 @@ function curry(fn, length) {
 
 
 
-#### 2.1 edition
+我们来验证下这个函数:
+
+```javascript
+let fn = curry(function(a, b, c) {
+  return [a, b, c];
+})
+
+fn("a", "b", "c") // ["a", "b", "c"]
+fn("a", "b")("c") // ["a", "b", "c"]
+fn("a")("b")("c") // ["a", "b", "c"]
+fn("a")("b", "c") // ["a", "b", "c"]
+```
+
+效果已经达到我们的预期，然而这个 curry 函数的实现好难理解呐……
+
+为了让大家更好的理解这个 curry 函数，我给大家写个极简版的代码：
+
+
 
 ```javascript
 //简单版
 
-function curry(fn, args) {
-  length = fn.length;
-  args = args || [];
+function sub_curry(fn) {
   return function() {
-    let _args = args.slice(0),
-        arg;
+    return fn()
+  }
+}
+
+function curry(fn, length) {
+  length = length || 4;
+  return function() {
+    if (length > 1) {
+      return curry(sub_curry(fn), --length);
+    } else {
+      return fn();
+    }
+  }
+}
+
+
+let fn0 = function() {
+  console.log(1);
+}
+
+let fn1 = curry(fn0);
+
+fn1()()()(); //
+```
+
+当执行到fn1()时,函数返回:
+
+```javascript
+curry(sub_curry(fn0))
+//相当于
+curry(function() {
+  return fn0()
+})
+```
+
+当执行到fn1()()时,函数返回:
+
+```javascript
+curry(sub_curry(function() {
+  return fn()
+}))
+//相当于
+curry(function() {
+  return (function() {
+    return fn0()
+  })()
+})
+//相当于
+curry(function() {
+  return fn0()
+})
+```
+
+当执行 fn1()()() 时，函数返回：
+
+```javascript
+// 跟 fn1()() 的分析过程一样
+curry(function(){
+    return fn0()
+})
+```
+
+
+
+当执行到fn1()()()()时, 因为此时length>1为false,所以执行fn():
+
+```javascript 
+fn();
+//相当于
+(function(){
+  return fn0()
+})()
+//相当于
+fn0();
+
+```
+
+
+
+#### 2.1 更易懂版本
+
+如果你觉得还是无法理解，你可以选择下面这种实现方式，可以实现同样的效果：
+
+```javascript
+function curry(fn, args) {
+  let length = fn.length;
+  args = args || [];
+  
+  return function() {
+    let _args = args.slice(0);
+    let arg, i;
     
     for (let i=0; i<arguments.length; i++) {
       arg = arguments[i];
@@ -3029,7 +3137,6 @@ function curry(fn, args) {
     } else {
       return fn.apply(this, _args);
     }
-    
   }
 }
 ```
@@ -3037,6 +3144,10 @@ function curry(fn, args) {
 
 
 #### 3 edition  ???? 看不懂
+
+curry 函数写到这里其实已经很完善了，但是注意这个函数的传参顺序必须是从左到右，根据形参的顺序依次传入，如果我不想根据这个顺序传呢？
+
+我们可以创建一个占位符，比如这样：
 
 ```javascript
 function curry(fn, args, holes) {
@@ -3063,6 +3174,1045 @@ function curry(fn, args, holes) {
 
 
 
+## JavaScript专题之偏函数
+
+### 定义
+
+维基百科中对偏函数 (Partial application) 的定义为：
+
+> In computer science, partial application(or partial function application) refers to the process of fixing a number of arguments to a function, producing another function of smaller arity.
+>
+> 翻译:
+>
+> 在计算机科学中，局部应用是指固定一个函数的一些参数，然后产生另一个更小元的函数。
+
+什么是元? 元是指函数参数的个数,比如一个带有两个参数的函数被称为二元函数.
+
+来个例子:
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+//执行 add 函数，一次传入两个参数即可
+add(1, 2)
+
+//假设有一个 partial 函数可以做到局部应用
+let addOne = partial(add, 1);
+addOne(2); //3
+```
+
+
+
+### 柯里化与局部应用
+
+两者的区别:
+
+* 柯里化是将一个多参数函数转换成多个单参数函数，也就是将一个 n 元函数转换成 n 个一元函数。
+* 局部应用则是固定一个函数的一个或者多个参数，也就是将一个 n 元函数转换成一个 n - x 元函数。
+
+如果说两者有什么关系的话，引用 [functional-programming-jargon](https://github.com/hemanth/functional-programming-jargon#partial-application) 中的描述就是：
+
+> Curried functions are automatically partially applied.
+
+
+
+### 重写partial
+
+目的是模仿 underscore 写一个 partial 函数
+
+也许你在想我们可以直接使用 bind 呐，举个例子：
+
+```javascript
+function add(a, b) {
+    return a + b;
+}
+
+var addOne = add.bind(null, 1);
+
+addOne(2) // 3
+```
+
+
+
+#### 第一版
+
+```javascript
+function partial(fn) {
+  let args = [].slice.call(arguments, 1);
+  return function() {
+    let newArrs = args.concat([].slice.call(arguments));
+    return fn.apply(this, newArrs);
+  }
+}
+```
+
+
+
+demo
+
+```javascript
+function add(a, b) {
+  return a + b + this.value;
+}
+
+let addOne = partial(add, 1);
+
+let value = 1;
+let obj = {
+  value: 2,
+  addOne: addOne
+}
+
+obj.addOne(2); //???
+//使用bind时, 结果是4
+//使用partial时, 结果是5
+```
+
+
+
+#### 第二版 ????
+
+然而正如 curry 函数可以使用占位符一样，我们希望 partial 函数也可以实现这个功能，我们再来写第二版：
+
+```javascript
+let _ = {};
+
+function partial(fn) {
+  let args = [].slice.call(arguments, 1);
+  return function() {
+    let position = 0,
+        len = args.length;
+    for (let i=0; i<len; i++) {
+      args[i] = args[i] === _ ? arguments[position++] : args[i];
+    }
+    while(position < arguments.length) args.push(arguments[position++]);
+    return fn.apply(this, args);
+  }
+}
+```
+
+
+
+## JavaScript专题之惰性函数
+
+### 需求
+
+我们现在需要写一个 foo 函数，这个函数返回首次调用时的 Date 对象，注意是首次。
+
+
+
+### 解决方案
+
+#### 1 普通方法
+
+```javascript
+let t;
+
+function foo() {
+  if (t) return t;
+  t = new Date();
+  return t;
+}
+```
+
+问题有两个，一是污染了全局变量，二是每次调用 foo 的时候都需要进行一次判断。
+
+#### 2 闭包
+
+使用闭包避免污染全局变量
+
+还是没有解决调用时都必须进行一次判断的问题。
+
+```javascript
+let foo = (function() {
+  let t;
+  return function() {
+    if (t) return t;
+    t = new Date();
+    return t;
+  }
+})
+```
+
+#### 3. 函数对象
+
+函数也是一种对象，利用这个特性，我们也可以解决这个问题。
+
+依旧没有解决调用时都必须进行一次判断的问题。
+
+```javascript
+function foo() {
+  if (foo.t) return foo.t;
+  foo.t = new Date();
+  return foo.t;
+}
+```
+
+
+
+#### 4. 惰性函数
+
+惰性函数就是解决每次都要进行判断的这个问题，解决原理很简单，<u>重写函数</u>。
+
+如何重写?在函数体内重新赋值, 然后根据需要来返回.
+
+```javascript
+let foo = function() {
+  let t = new Date();
+  foo = function() {
+    return t;
+  };
+  
+  return foo();
+}
+```
+
+
+
+### 应用
+
+DOM 事件添加中，为了兼容现代浏览器和 IE 浏览器，我们需要对浏览器环境进行一次判断：
+
+```javascript
+//简化写法
+
+function addEvent(type, e1, fn) {
+  if (window.addEventListener) {
+    el.addEventListener(type, fn, false);
+  } else if (window.attachEvent) {
+    el.attachEvent('on' + type, fn);
+  }
+}
+```
+
+问题在于我们每当使用一次 addEvent 时都会进行一次判断。
+
+利用惰性函数，我们可以这样做：
+
+```javascript
+function addEvent(type, el, fn) {
+  if (window.addEventListener) {
+    addEvent = function(type, el, fn) {
+      el.addEventListener(type, fn, false);
+    }
+  } else if (window.attachEvent) {
+    addEvent = function (type, el, fn) {
+      el.attachEvent('on' + type, fn);
+    }
+  }
+}
+```
+
+当然,我们可以使用闭包形式
+
+```javascript
+let addEvent = (function() {
+  if (window.addEventListener) {
+    return function(type, el, fn) {
+      el.addEventListener(type, fn, false);
+    }
+  } else if (window.attachEvent) {
+    return function(type, el, fn) {
+      el.attachEvent('on' + type, fn);
+    }
+  }
+})();
+```
+
+当我们每次都需要进行条件判断，其实只需要判断一次，接下来的使用方式都不会发生改变的时候，想想是否可以考虑使用惰性函数。
+
+### 重要参考
+
+> [peter.michaux.ca - Lazy Function Definition Pattern](http://peter.michaux.ca/articles/lazy-function-definition-pattern)
+
+
+
+## JavaScript专题之函数组合   ????
+
+> [JavaScript专题之函数组合 · Issue #45 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/45)
+
+### 需求
+
+我们需要写一个函数，输入 'kevin'，返回 'HELLO, KEVIN'。
+
+### 尝试
+
+```javascript
+let toUpperCase = function(x) {return x.toUpperCase()};
+let hello = function(x) {return 'HELLO, ' + x}
+function greet(x) {
+  return hello(toUpperCase(x));
+}
+greet('kevin');
+```
+
+
+
+### 优化
+
+试想我们写个compose函数
+
+```javascript
+let compose = function(f, g) {
+  return function(x) {
+    return f(g(x));
+  }
+}
+```
+
+greet函数就可以被优化为:
+
+```javascript
+let greet = compose(hello, toUpperCase);
+greet('kevin');
+```
+
+<u>利用 compose 将两个函数组合成一个函数，让代码**从右向左**运行，而不是由内而外运行，可读性大大提升。这便是函数组合。</u>
+
+但是现在的 compose 函数也只是能支持两个参数，如果有更多的步骤呢？我们岂不是要这样做：
+
+```javascript
+compose(d, compose(c, compose(b, a)))
+```
+
+为什么我们不写一个帅气的 compose 函数支持传入多个函数呢？这样就变成了：
+
+```javascript
+compose(d, c, b, a)
+```
+
+
+
+### compose
+
+我们直接抄袭underscore的compose函数的实现:
+
+```javascript
+function compose() {
+  let args = arguments;
+  let start = args.length - 1;
+  let i = start;
+  return function() {
+    let result = args[start].apply(this, arguments);
+    while(i--) result = args[i].call(this, result);
+    return result;
+  }
+}
+```
+
+现在的 compose 函数已经可以支持多个函数了，然而有了这个又有什么用呢？
+
+在此之前，我们先了解一个概念叫做 pointfree。
+
+### pointfree
+
+<u>pointfree 指的是函数无须提及将要操作的数据是什么样的</u>。依然是以最初的需求为例：
+
+```javascript
+// 需求：输入 'kevin'，返回 'HELLO, KEVIN'。
+
+// 非 pointfree，因为提到了数据：name
+let greet = function(name) {
+  return ('hello ' + name).toUpperCase();
+}
+
+// pointfree
+//先定义基本运算,这些可以封装起来复用
+let toUpperCase = function(x) {return x.toUpperCase();};
+let hello = function(x) {return 'HELLO, ' + x;};
+
+let greet = compose(hello, toUpperCase);
+greet('kevin')
+```
+
+我们再举个稍微复杂一点的例子，为了方便书写，我们需要借助在[《JavaScript专题之函数柯里化》](https://github.com/mqyqingfeng/Blog/issues/42)中写到的 curry 函数：
+
+```javascript
+// 需求：输入 'kevin daisy kelly'，返回 'K.D.K'
+
+// 非 pointfree，因为提到了数据：name
+let initials = function(name) {
+  return name.split(' ').map(item => item[0].toUpperCase()).join('. ')
+}
+
+let initials = function(name) {
+  return name.split(' ').map(compose(toUpperCase, head)).join('. ');
+}
+
+//pointfree 
+// 先定义基本运算
+let split = curry(function(separator, str) { str.split(separator) });
+let head = function(str) { return str.slice(0, 1) };
+let toUpperCase = function(str) { return str.toUpperCase() };
+let join = curry(function(sepatator, arr) { return arr.join(separator) });
+let map = curry(function(fn, arr) { return arr.map(fn) });
+
+let initials = compose(join(' '), map(compose(toUpperCase, head), split(' ')));
+
+initials('kevin daisy kelly')
+```
+
+从这个例子中我们可以看到，利用柯里化（curry）和函数组合 (compose) 非常有助于实现 pointfree。
+
+也许你会想，这种写法好麻烦呐，我们还需要定义那么多的基础函数……可是如果有工具库已经帮你写好了呢？比如 [ramda.js](http://ramda.cn/docs/)：
+
+```javascript
+//使用ramda.js
+let initials = R.compose(R.join(' '), R.map(R.compose(R.toUpper, R.head)), R.split(' '));
+```
+
+而且你也会发现：
+
+> Pointfree 的本质就是使用一些通用的函数，组合出各种复杂运算。上层运算不要直接操作数据，而是通过底层函数去处理。即不使用所要处理的值，只合成运算过程。
+
+那么使用 pointfree 模式究竟有什么好处呢？
+
+> pointfree 模式能够帮助我们减少不必要的命名，让代码保持简洁和通用，更符合语义，更容易复用，测试也变得轻而易举。
+
+### 实战 ???? 懵逼
+
+这个例子来自于 [Favoring Curry](http://fr.umio.us/favoring-curry/)：
+
+假设我们从服务器获取这样的数据：
+
+```javascript
+var data = {
+    result: "SUCCESS",
+    tasks: [
+        {id: 104, complete: false,            priority: "high",
+                  dueDate: "2013-11-29",      username: "Scott",
+                  title: "Do something",      created: "9/22/2013"},
+        {id: 105, complete: false,            priority: "medium",
+                  dueDate: "2013-11-22",      username: "Lena",
+                  title: "Do something else", created: "9/22/2013"},
+        {id: 107, complete: true,             priority: "high",
+                  dueDate: "2013-11-22",      username: "Mike",
+                  title: "Fix the foo",       created: "9/22/2013"},
+        {id: 108, complete: false,            priority: "low",
+                  dueDate: "2013-11-15",      username: "Punam",
+                  title: "Adjust the bar",    created: "9/25/2013"},
+        {id: 110, complete: false,            priority: "medium",
+                  dueDate: "2013-11-15",      username: "Scott",
+                  title: "Rename everything", created: "10/2/2013"},
+        {id: 112, complete: true,             priority: "high",
+                  dueDate: "2013-11-27",      username: "Lena",
+                  title: "Alter all quuxes",  created: "10/5/2013"}
+    ]
+};
+```
+
+我们需要写一个名为 getIncompleteTaskSummaries 的函数，接收一个 username 作为参数，从服务器获取数据，然后筛选出这个用户的未完成的任务的 ids、priorities、titles、和 dueDate 数据，并且按照日期升序排序。
+
+以 Scott 为例，最终筛选出的数据为：
+
+```javascript
+[
+  {id: 110, title: "Rename everything", 
+   dueDate: "2013-11-15", priority: "medium"},
+  {id: 104, title: "Do something", 
+   dueDate: "2013-11-29", priority: "high"}
+]
+```
+
+
+
+```javascript
+function getIncompleteTaskSummaties(username) {
+  return username.tasks.map(item => {
+    let obj = {};
+  	for (const [key, value] of Object.entries(item)) {
+      if (['id','title','dueDate','priority'].includes(key)) {
+        obj[key] =  value;
+      }
+    }
+    return obj;
+  }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+}
+```
+
+看不懂????
+
+```javascript
+//第一版 过程式编程
+var fetchData = function() {
+    // 模拟
+    return Promise.resolve(data)
+};
+
+var getIncompleteTaskSummaries = function(membername) {
+     return fetchData()
+         .then(function(data) {
+             return data.tasks;
+         })
+         .then(function(tasks) {
+             return tasks.filter(function(task) {
+                 return task.username == membername
+             })
+         })
+         .then(function(tasks) {
+             return tasks.filter(function(task) {
+                 return !task.complete
+             })
+         })
+         .then(function(tasks) {
+             return tasks.map(function(task) {
+                 return {
+                     id: task.id,
+                     dueDate: task.dueDate,
+                     title: task.title,
+                     priority: task.priority
+                 }
+             })
+         })
+         .then(function(tasks) {
+             return tasks.sort(function(first, second) {
+                 var a = first.dueDate,
+                     b = second.dueDate;
+                 return a < b ? -1 : a > b ? 1 : 0;
+             });
+         })
+         .then(function(task) {
+             console.log(task)
+         })
+};
+
+getIncompleteTaskSummaries('Scott')
+```
+
+如果使用pointfree模式:
+
+```javascript
+// 第二版 pointfree 改写
+var fetchData = function() {
+    return Promise.resolve(data)
+};
+
+// 编写基本函数
+var prop = curry(function(name, obj) {
+    return obj[name];
+});
+
+var propEq = curry(function(name, val, obj) {
+    return obj[name] === val;
+});
+
+var filter = curry(function(fn, arr) {
+    return arr.filter(fn)
+});
+
+var map = curry(function(fn, arr) {
+    return arr.map(fn)
+});
+
+var pick = curry(function(args, obj){
+    var result = {};
+    for (var i = 0; i < args.length; i++) {
+        result[args[i]] = obj[args[i]]
+    }
+    return result;
+});
+
+var sortBy = curry(function(fn, arr) {
+    return arr.sort(function(a, b){
+        var a = fn(a),
+            b = fn(b);
+        return a < b ? -1 : a > b ? 1 : 0;
+    })
+});
+
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(prop('tasks'))
+        .then(filter(propEq('username', membername)))
+        .then(filter(propEq('complete', false)))
+        .then(map(pick(['id', 'dueDate', 'title', 'priority'])))
+        .then(sortBy(prop('dueDate')))
+        .then(console.log)
+};
+
+getIncompleteTaskSummaries('Scott')
+```
+
+如果直接使用 ramda.js，你可以省去编写基本函数:
+
+```javascript
+// 第三版 使用 ramda.js
+var fetchData = function() {
+    return Promise.resolve(data)
+};
+
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(R.prop('tasks'))
+        .then(R.filter(R.propEq('username', membername)))
+        .then(R.filter(R.propEq('complete', false)))
+        .then(R.map(R.pick(['id', 'dueDate', 'title', 'priority'])))
+        .then(R.sortBy(R.prop('dueDate')))
+        .then(console.log)
+};
+
+getIncompleteTaskSummaries('Scott')
+```
+
+当然了，利用 compose，你也可以这样写：
+
+```javascript
+// 第四版 使用 compose
+var fetchData = function() {
+    return Promise.resolve(data)
+};
+
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(R.compose(
+            console.log,
+            R.sortBy(R.prop('dueDate')),
+            R.map(R.pick(['id', 'dueDate', 'title', 'priority'])
+            ),
+            R.filter(R.propEq('complete', false)),
+            R.filter(R.propEq('username', membername)),
+            R.prop('tasks'),
+        ))
+};
+
+getIncompleteTaskSummaries('Scott')
+```
+
+compose 是从右到左依此执行，当然你也可以写一个从左到右的版本，但是从右向左执行更加能够反映数学上的含义。
+
+ramda.js 提供了一个 R.pipe 函数，可以做的从左到右，以上可以改写为：
+
+```javascript
+// 第五版 使用 R.pipe
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(R.pipe(
+            R.prop('tasks'),
+            R.filter(R.propEq('username', membername)),
+            R.filter(R.propEq('complete', false)),
+            R.map(R.pick(['id', 'dueDate', 'title', 'priority'])
+            R.sortBy(R.prop('dueDate')),
+            console.log,
+        ))
+};
+```
+
+
+
+## JavaScript专题之函数记忆 ????
+
+> [JavaScript专题之函数记忆 · Issue #46 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/46)
+
+### 定义
+
+函数记忆是指将上次的计算结果缓存起来，当下次调用时，如果遇到相同的参数，就直接返回缓存中的数据。
+
+举个例子:
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+//假设memorize可以实现函数记忆
+let memorizeAdd = memorize(add);
+
+memorizeAdd(1, 2); //3
+memorizeAdd(1, 2); //相同的参数，第二次调用时，从缓存中取出数据，而非重新计算一次
+```
+
+
+
+### 原理
+
+实现这样一个 memoize 函数很简单，原理上只用把参数和对应的结果数据存到一个对象中，调用时，判断参数对应的数据是否存在，存在就返回对应的结果数据。
+
+### 第一版
+
+```javascript
+function memorize(f) {
+  let cache = {};
+  return function() {
+    let key = arguments.length + Array.prototype.join.call(arguments, ',');
+    if (key in cache) {
+      return cache[key]
+    } else {
+      return cache[key] = f.apply(this, arguments);
+    }
+  }
+}
+
+//key为什么要这么处理?
+//担心 Array.prototype.join.call(arguments, ",") 会导致缓存的 key 值相同，比如在一些特殊情况下：
+function add(a, b) {
+  console.log(a + b);
+}
+let memorizeAdd = memorize(add);
+memorizeAdd(1, 2); //3
+memorizeAdd('1,2'); //3
+```
+
+我们来测试一下：
+
+```
+var add = function(a, b, c) {
+  return a + b + c
+}
+
+var memoizedAdd = memoize(add)
+
+console.time('use memoize')
+for(var i = 0; i < 100000; i++) {
+    memoizedAdd(1, 2, 3)
+}
+console.timeEnd('use memoize')
+
+console.time('not use memoize')
+for(var i = 0; i < 100000; i++) {
+    add(1, 2, 3)
+}
+console.timeEnd('not use memoize')
+```
+
+在 Chrome 中，使用 memoize 大约耗时 60ms，如果我们不使用函数记忆，大约耗时 1.3 ms 左右。
+
+### 注意
+
+什么，我们使用了看似高大上的函数记忆，结果却更加耗时，这个例子近乎有 60 倍呢！
+
+所以，函数记忆也并不是万能的，你看这个简单的场景，其实并不适合用函数记忆。
+
+需要注意的是，函数记忆只是一种编程技巧，本质上是牺牲算法的空间复杂度以换取更优的时间复杂度，在客户端 JavaScript 中代码的执行时间复杂度往往成为瓶颈，因此在大多数场景下，这种牺牲空间换取时间的做法以提升程序执行效率的做法是非常可取的。
+
+### 第二版
+
+因为第一版使用了 join 方法，我们很容易想到当参数是对象的时候，就会自动调用 toString 方法转换成 `[Object object]`，再拼接字符串作为 key 值。我们写个 demo 验证一下这个问题：
+
+```JavaScript
+var propValue = function(obj){
+    return obj.value
+}
+
+var memoizedAdd = memoize(propValue)
+
+console.log(memoizedAdd({value: 1})) // 1
+console.log(memoizedAdd({value: 2})) // 1
+```
+
+两者都返回了 1，显然是有问题的，所以我们看看 underscore 的 memoize 函数是如何实现的：
+
+```javascript
+// 第二版 (来自 underscore 的实现)
+var memoize = function(func, hasher) {
+    var memoize = function(key) {
+        var cache = memoize.cache;
+        var address = '' + (hasher ? hasher.apply(this, arguments) : key);
+        if (!cache[address]) {
+            cache[address] = func.apply(this, arguments);
+        }
+        return cache[address];
+    };
+    memoize.cache = {};
+    return memoize;
+};
+```
+
+这个实现可以看出，underscore 默认使用 function 的第一个参数作为 key，所以如果直接使用
+
+```javascript
+var add = function(a, b, c) {
+  return a + b + c
+}
+
+var memoizedAdd = memoize(add)
+
+memoizedAdd(1, 2, 3) // 6
+memoizedAdd(1, 2, 4) // 6
+```
+
+肯定是有问题的，如果要支持多参数，我们就需要传入 hasher 函数，自定义存储的 key 值。所以我们考虑使用 JSON.stringify：
+
+```javascript
+var memoizedAdd = memoize(add, function(){
+    var args = Array.prototype.slice.call(arguments)
+    return JSON.stringify(args)
+})
+
+console.log(memoizedAdd(1, 2, 3)) // 6
+console.log(memoizedAdd(1, 2, 4)) // 7
+```
+
+如果使用 JSON.stringify，参数是对象的问题也可以得到解决，因为存储的是对象序列化后的字符串。
+
+### 使用场景
+
+我们以斐波那契数列为例：
+
+```
+var count = 0;
+var fibonacci = function(n){
+    count++;
+    return n < 2? n : fibonacci(n-1) + fibonacci(n-2);
+};
+for (var i = 0; i <= 10; i++){
+    fibonacci(i)
+}
+
+console.log(count) // 453
+```
+
+我们会发现最后的 count 数为 453，也就是说 fibonacci 函数被调用了 453 次！也许你会想，我只是循环到了 10，为什么就被调用了这么多次，所以我们来具体分析下：
+
+```
+当执行 fib(0) 时，调用 1 次
+
+当执行 fib(1) 时，调用 1 次
+
+当执行 fib(2) 时，相当于 fib(1) + fib(0) 加上 fib(2) 本身这一次，共 1 + 1 + 1 = 3 次
+
+当执行 fib(3) 时，相当于 fib(2) + fib(1) 加上 fib(3) 本身这一次，共 3 + 1 + 1 = 5 次
+
+当执行 fib(4) 时，相当于 fib(3) + fib(2) 加上 fib(4) 本身这一次，共 5 + 3 + 1 = 9 次
+
+当执行 fib(5) 时，相当于 fib(4) + fib(3) 加上 fib(5) 本身这一次，共 9 + 5 + 1 = 15 次
+
+当执行 fib(6) 时，相当于 fib(5) + fib(4) 加上 fib(6) 本身这一次，共 15 + 9 + 1 = 25 次
+
+当执行 fib(7) 时，相当于 fib(6) + fib(5) 加上 fib(7) 本身这一次，共 25 + 15 + 1 = 41 次
+
+当执行 fib(8) 时，相当于 fib(7) + fib(6) 加上 fib(8) 本身这一次，共 41 + 25 + 1 = 67 次
+
+当执行 fib(9) 时，相当于 fib(8) + fib(7) 加上 fib(9) 本身这一次，共 67 + 41 + 1 = 109 次
+
+当执行 fib(10) 时，相当于 fib(9) + fib(8) 加上 fib(10) 本身这一次，共 109 + 67 + 1 = 177 次
+```
+
+所以执行的总次数为：177 + 109 + 67 + 41 + 25 + 15 + 9 + 5 + 3 + 1 + 1 = 453 次！
+
+如果我们使用函数记忆呢？
+
+```
+var count = 0;
+var fibonacci = function(n) {
+    count++;
+    return n < 2 ? n : fibonacci(n - 1) + fibonacci(n - 2);
+};
+
+fibonacci = memoize(fibonacci)
+
+for (var i = 0; i <= 10; i++) {
+    fibonacci(i)
+}
+
+console.log(count) // 12
+```
+
+我们会发现最后的总次数为 12 次，因为使用了函数记忆，调用次数从 453 次降低为了 12 次!
+
+兴奋的同时不要忘记思考：为什么会是 12 次呢？
+
+从 0 到 10 的结果各储存一遍，应该是 11 次呐？咦，那多出来的一次是从哪里来的？
+
+所以我们还需要认真看下我们的写法，在我们的写法中，其实我们用生成的 fibonacci 函数覆盖了原本了 fibonacci 函数，当我们执行 fibonacci(0) 时，执行一次函数，cache 为 {0: 0}，但是当我们执行 fibonacci(2) 的时候，执行 fibonacci(1) + fibonacci(0)，因为 fibonacci(0) 的值为 0，`!cache[address]` 的结果为 true，又会执行一次 fibonacci 函数。原来，多出来的那一次是在这里！
+
+
+
+## JavaScript专题之乱序
+
+> [JavaScript专题之乱序 · Issue #51 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/51)
+
+### 乱序
+
+乱序的意思就是将数组打乱。
+
+### Math.random
+
+一个经常会遇见的写法是使用 Math.random()：
+
+```javascript
+let values = [1,2,3,4,5];
+
+values.sort(() => Math.random() - 0.5);
+
+console.log(values)
+```
+
+`Math.random() - 0.5` 随机得到一个正数、负数或是 0，如果是正数则降序排列，如果是负数则升序排列，如果是 0 就不变，然后不断的升序或者降序，最终得到一个乱序的数组。
+
+看似很美好的一个方案，实际上，效果却不尽如人意。不信我们写个 demo 测试一下：
+
+```javascript
+let times = [0,0,0,0,0];
+
+for (let i=0; i<100000; i++) {
+  let arr = [1,2,3,4,5];
+  arr.sort(() => Math.random() - 0.5);
+  times[arr[4] - 1]++;
+}
+
+console.log(times);
+```
+
+测试原理是：将 `[1, 2, 3, 4, 5]` 乱序 10 万次，计算乱序后的数组的最后一个元素是 1、2、3、4、5 的次数分别是多少。
+
+一次随机的结果为：
+
+```javascript
+[30636, 30906, 20456, 11743, 6259]
+```
+
+结果表示 10 万次中，数组乱序后的最后一个元素是 1 的情况共有 30636 次，是 2 的情况共有 30906 次，其他依此类推。
+
+我们会发现，最后一个元素为 5 的次数远远低于为 1 的次数，所以这个方案是有问题的。
+
+### 插入排序
+
+如果要追究这个问题所在，就必须了解 sort 函数的原理，然而 ECMAScript 只规定了效果，没有规定实现的方式，所以不同浏览器实现的方式还不一样。
+
+为了解决这个问题，我们以 v8 为例，v8 在处理 sort 方法时，当目标数组长度小于 10 时，使用插入排序；反之，使用快速排序和插入排序的混合排序。
+
+所以我们来看看 v8 的源码，因为是用 JavaScript 写的，大家也是可以看懂的。
+
+源码地址：https://github.com/v8/v8/blob/master/src/js/array.js
+
+为了简化篇幅，我们对 `[1, 2, 3]` 这个数组进行分析，数组长度为 3，此时采用的是插入排序。
+
+插入排序的源码是：
+
+```javascript
+function InsertionSort(a, from, to) {
+  for (let i = from+1; i<to; i++) {
+    let element = a[i];
+    for (let j=i-1; j>=from; j--) {
+      let tmp = arr[j];
+      let order = comparefn(tmp, element);
+      if (order > 0) {
+        a[j+1] = tmp;
+      } else {
+        break;
+      }
+    }
+    a[j+1] = element;
+  }
+}
+```
+
+其原理在于将第一个元素视为有序序列，遍历数组，将之后的元素依次插入这个构建的有序序列中。
+
+我们来个简单的示意图：
+
+![](https://camo.githubusercontent.com/dd3f21a42c693891a11a5ec75e56d8be95c269e3399969c6aeec05cce2aa7d82/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f736f72742f696e73657274696f6e2e676966)
+
+
+
+### 具体分析
+
+明白了插入排序的原理，我们来具体分析下 [1, 2, 3] 这个数组乱序的结果。
+
+演示代码为：
+
+```javascript
+let values = [1,2,3];
+
+values.sort(() => Math.random() - 0.5);
+```
+
+注意此时 sort 函数底层是使用插入排序实现，InsertionSort 函数的 from 的值为 0，to 的值为 3。
+
+我们开始逐步分析乱序的过程：
+
+因为插入排序视第一个元素为有序的，所以数组的外层循环从 `i = 1` 开始，a[i] 值为 2，此时内层循环遍历，比较 `compare(1, 2)`，因为 `Math.random() - 0.5` 的结果有 50% 的概率小于 0 ，有 50% 的概率大于 0，所以有 50% 的概率数组变成 [2, 1, 3]，50% 的结果不变，数组依然为 [1, 2, 3]。
+
+假设依然是 [1, 2, 3]，我们再进行一次分析，接着遍历，`i = 2`，a[i] 的值为 3，此时内层循环遍历，比较 `compare(2, 3)`：
+
+有 50% 的概率数组不变，依然是 `[1, 2, 3]`，然后遍历结束。
+
+有 50% 的概率变成 [1, 3, 2]，因为还没有找到 3 正确的位置，所以还会进行遍历，所以在这 50% 的概率中又会进行一次比较，`compare(1, 3)`，有 50% 的概率不变，数组为 [1, 3, 2]，此时遍历结束，有 50% 的概率发生变化，数组变成 [3, 1, 2]。
+
+综上，在 [1, 2, 3] 中，有 50% 的概率会变成 [1, 2, 3]，有 25% 的概率会变成 [1, 3, 2]，有 25% 的概率会变成 [3, 1, 2]。
+
+另外一种情况 [2, 1, 3] 与之分析类似，我们将最终的结果汇总成一个表格：
+
+| 数组          | i = 1           | i = 2         | 总计          |
+| ------------- | --------------- | ------------- | ------------- |
+| [1, 2, 3]     | 50% [1, 2, 3]   | 50% [1, 2, 3] | 25% [1, 2, 3] |
+| 25% [1, 3, 2] | 12.5% [1, 3, 2] |               |               |
+| 25% [3, 1, 2] | 12.5% [3, 1, 2] |               |               |
+| 50% [2, 1, 3] | 50% [2, 1, 3]   | 25% [2, 1, 3] |               |
+| 25% [2, 3, 1] | 12.5% [2, 3, 1] |               |               |
+| 25% [3, 2, 1] | 12.5% [3, 2, 1] |               |               |
+
+为了验证这个推算是否准确，我们写个 demo 测试一下：
+
+```
+var times = 100000;
+var res = {};
+
+for (var i = 0; i < times; i++) {
+    
+    var arr = [1, 2, 3];
+    arr.sort(() => Math.random() - 0.5);
+    
+    var key = JSON.stringify(arr);
+    res[key] ? res[key]++ :  res[key] = 1;
+}
+
+// 为了方便展示，转换成百分比
+for (var key in res) {
+    res[key] = res[key] / times * 100 + '%'
+}
+
+console.log(res)
+```
+
+这是一次随机的结果：
+
+[![Math random 效果演示](https://camo.githubusercontent.com/cee66d8a65ef2c9ea96826083cf8af395c3d3e73e78f4428c3eaacaae5c51606/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f73687566666c652f6d61746852616e646f6d2e706e67)](https://camo.githubusercontent.com/cee66d8a65ef2c9ea96826083cf8af395c3d3e73e78f4428c3eaacaae5c51606/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f73687566666c652f6d61746852616e646f6d2e706e67)
+
+我们会发现，乱序后，`3` 还在原位置(即 [1, 2, 3] 和 [2, 1, 3]) 的概率有 50% 呢。
+
+所以根本原因在于什么呢？其实就在于在插入排序的算法中，当待排序元素跟有序元素进行比较时，一旦确定了位置，就不会再跟位置前面的有序元素进行比较，所以就乱序的不彻底。
+
+那么如何实现真正的乱序呢？而这就要提到经典的 Fisher–Yates 算法。
+
+### Fisher-Yates
+
+为什么叫 Fisher–Yates 呢？ 因为这个算法是由 Ronald Fisher 和 Frank Yates 首次提出的。
+
+话不多说，我们直接看 JavaScript 的实现：
+
+```javascript
+function shuffle(a) {
+  let j, x, i;
+  for (i=a.length; i; i--) {
+    j = Math.floor(Math.random() * i);
+    x = a[i-1];
+    a[i-1] = a[j];
+    a[j] = x;
+  }
+  return a;
+}
+```
+
+原理很简单，就是遍历数组元素，然后将当前元素与以后随机位置的元素进行交换，从代码中也可以看出，这样乱序的就会更加彻底。
+
+如果利用 ES6，代码还可以简化成：
+
+```javascript
+function shuffle(a) {
+  for (let i=a.length; i; i--) {
+    let j = Math.floor(Math.random() * i);
+    [a[i-1], a[j]] = [a[j], a[i-1]];
+  }
+  return a;
+}
+```
+
+
+
+<<<<<<< HEAD
 ## JavaScript专题之偏函数
 
 ### 定义
@@ -3295,6 +4445,8 @@ function addEvent(type, e1, fn) {
 
 
 
+=======
+>>>>>>> 00c58c76672eed7702569979234cf2a2cca89f8b
 
 
 
@@ -3535,6 +4687,7 @@ function unique(arr) {
 function unique(arr) {
   return [...new Set(arr)]
 }
+<<<<<<< HEAD
 
 //再简化
 let unique = (arr) => [...new Set(arr)];
@@ -3602,12 +4755,69 @@ var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), 
 
 
 
+=======
+>>>>>>> 00c58c76672eed7702569979234cf2a2cca89f8b
 
-### API
+//再简化
+let unique = (arr) => [...new Set(arr)];
+```
 
 
 
-### 优化
+#### ES6-Map
+
+```javascript
+function unique(arr) {
+  let seen = new Map();
+  return arr.filter((item) => !seen.has(item) && seen.set(a, 1));
+}
+```
+
+我们可以看到，去重方法从原始的 14 行代码到 ES6 的 1 行代码，其实也说明了 JavaScript 这门语言在不停的进步，相信以后的开发也会越来越高效。(通过案例得出结论,信服)
+
+
+
+### 特殊类型的比较
+
+```javascript
+let str1 = '1';
+let str2 = new String('1');
+
+str1 == str2; //true
+str1 === str2; //false
+
+null == null; //true
+null === null; //true
+
+undefined == undefined //true
+undefined === undefined; //true
+
+NaN == NaN; //false
+NaN === NaN; //false
+
+/a/ == /a/; //false
+/a/ === /a/; //false
+
+{} == {}; //false
+{} === {}; //false
+```
+
+那么，对于这样一个数组
+
+```javascript 
+var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), new String('1'), /a/, /a/, NaN, NaN];
+```
+
+我特地整理了一个列表，我们重点关注下对象和 NaN 的去重情况：
+
+| 方法               | 结果                                                         | 说明                              |
+| ------------------ | ------------------------------------------------------------ | --------------------------------- |
+| for循环            | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
+| indexOf            | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
+| sort               | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 也不去重 |
+| filter+indexOf     | [1, "1", null, undefined, String, String, /a/, /a/]          | 对象不去重 NaN 会被忽略掉         |
+| 优化后的键值对方法 | [1, "1", null, undefined, String, /a/, NaN]                  | 全部去重                          |
+| Set                | [1, "1", null, undefined, String, String, /a/, /a/, NaN]     | 对象不去重 NaN 去重               |
 
 
 
@@ -3828,6 +5038,8 @@ function debounce(func, wait, immediate) {
 
 ## 节流函数
 
+> [JavaScript专题之跟着 underscore 学节流 · Issue #26 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/26)
+
 ### 原理
 
 如果你持续触发事件，每隔一段时间，只执行一次事件。
@@ -3836,3 +5048,154 @@ function debounce(func, wait, immediate) {
 我们用 leading 代表首次是否执行，trailing 代表结束后是否再执行一次。
 
 关于节流的实现，有两种主流的实现方式，一种是使用时间戳，一种是设置定时器。
+
+
+
+### 时间戳方案
+
+使用时间戳，当触发事件的时候，我们取出当前的时间戳，然后减去之前的时间戳(最一开始值设为 0 )，如果大于设置的时间周期，就执行函数，然后更新时间戳为当前的时间戳，如果小于，就不执行。
+
+```javascript
+//第一版
+
+function throttle(func, wait) {
+  let context, args;
+  let previous = 0;
+  return function() {
+    let now = +new Date();
+    context = this;
+    args = arguments;
+    
+   	if (now - previous > wait) {
+      func.apply(context, args);
+      previous = now;
+    } 
+  }
+}
+```
+
+
+
+### 定时器方案
+
+当触发事件的时候，我们设置一个定时器，再触发事件的时候，如果定时器存在，就不执行，直到定时器执行，然后执行函数，清空定时器，这样就可以设置下个定时器。
+
+```javascript
+function throttle(func, wait) {
+  let timeout,
+      previous = 0;
+  
+  return function() {
+    context = this;
+    args = arguments;
+    if (!timeout) {
+      timeout = setTimeout(function() {
+        timeout = null;
+        func.apply(context, args)
+      }, wait)
+    }
+  }
+}
+```
+
+
+
+所以比较两个方法：
+
+1. 第一种事件会立刻执行，第二种事件会在 n 秒后第一次执行
+2. 第一种事件停止触发后没有办法再执行事件，第二种事件停止触发后依然会再执行一次事件
+
+
+
+
+
+### 时间戳+定时器方案
+
+鼠标移入能立刻执行，停止触发的时候还能再执行一次！
+
+```javascript
+function throttle(func, wait) {
+  let timeout, context, args, result;
+  let previous = 0;
+  
+  let later = function() {
+    previous = +new Date();
+    timeout = null;
+    func.apply(context, args)
+  };
+  
+  let throttled = function() {
+    let now = +new Date();
+    //下次触发 func 剩余的时间
+    let remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    
+    //如果没有剩余时间了或者你改了系统时间
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      previous = now;
+      func.apply(context, args);
+    } else if (!timeout) {
+      timeout = setTimeout(later, remaining);
+    }
+  };
+  
+  return throttled;
+}
+```
+
+
+
+### 优化
+
+我有时也希望无头有尾，或者有头无尾，这个咋办？
+
+那我们设置个 options 作为第三个参数，然后根据传的值判断到底哪种效果，我们约定:
+
+leading：false 表示禁用第一次执行
+trailing: false 表示禁用停止触发的回调
+
+```javascript
+```
+
+
+
+### 取消
+
+在 debounce 的实现中，我们加了一个 cancel 方法，throttle 我们也加个 cancel 方法：
+
+```javascript
+// 第五版 非完整代码，完整代码请查看最后的演示代码链接
+...
+throttled.cancel = function() {
+    clearTimeout(timeout);
+    previous = 0;
+    timeout = null;
+}
+...
+```
+
+
+
+### 注意
+
+我们要注意 underscore 的实现中有这样一个问题：
+
+那就是 `leading：false` 和 `trailing: false` 不能同时设置。
+
+如果同时设置的话，比如当你将鼠标移出的时候，因为 trailing 设置为 false，停止触发的时候不会设置定时器，所以只要再过了设置的时间，再移入的话，就会立刻执行，就违反了 leading: false，bug 就出来了，所以，这个 throttle 只有三种用法：
+
+```javascript
+container.onmousemove = throttle(getUserAction, 1000);
+container.onmousemove = throttle(getUserAction, 1000, {
+    leading: false
+});
+container.onmousemove = throttle(getUserAction, 1000, {
+    trailing: false
+});
+```
+
