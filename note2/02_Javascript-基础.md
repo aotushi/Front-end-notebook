@@ -1,4 +1,21 @@
+## 标准文档/资源
+
+JavaScript标准:
+
+* 正式版: Ecma-international.org(Publications and standards >>> standards >>> ECMA262)
+* 最新草稿版: tc39.github.io/ecma262(tc39.es/ecma262)
+
+文档网站
+
+* developer.mozilla.org
+* whatwg.org
+* w3.org
+
+
+
 ## JS 3大组成部分
+
+
 
 * ECMAScript  (JS标准)
 * DOM  (Document Object Model 文档对象模型)
