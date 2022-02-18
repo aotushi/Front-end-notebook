@@ -372,9 +372,9 @@ console.log(b.x); //{n:2}
 #### 4点区别
 
 * 1.let声明的变量有块作用域,var声明的变量没有
-* 2.let不能在初始化前访问变量 var可以
+* 2.var声明的变量会提升,let声明的不会
 * 3.var声明的全局变量会添加到window对象中; let或const不能覆盖全局变量只能遮蔽它
-* 4.let不能重复声明变量 var可以
+* 4.let不能重复声明变量 var可以.(var声明,let再次声明也不行)
 
 常量声明const、类声明class在块级作用域上的特性与let声明是类似的
 
@@ -566,6 +566,8 @@ if(condition) {
 
 #### 3. 循环中的块作用域绑定
 
+##### 3.0 简介
+
 ```javascript
 for (var i=0; i<10; i++) {
   process(item[i]);
@@ -573,6 +575,7 @@ for (var i=0; i<10; i++) {
 
 //这里仍然可以访问变量i
 console.log(i); //10
+
 ```
 
 在默认拥有块级作用域的其他语言中，这个示例也可以正常运行，并且变量i只在for循环中才能访问到。而在JavaScript中，<u>由于var声明得到了提升，变量i在循环结束后仍可访问</u>。如果换用let声明变量就能得到想要的结果
@@ -603,6 +606,15 @@ for (var i=0; i<10; i++) {
 funcs.forEach(function(func) {
   func();   //输出10次数字10
 })
+
+//another version
+var func = []
+for (var i=0; i<3; i++) {
+  func[i] = function() {
+    console.log(i);
+  }
+}
+func[0](); //3
 ```
 
 你预期的结果可能是输出数字0～9，但它却一连串输出了10次数字10。这是因为循环里的每次迭代同时共享着变量i，循环内部创建的函数全都保留了对相同变量的引用。循环结束时变量i的值为10，所以每次调用console.log(i)时就会输出数字10。
@@ -645,11 +657,7 @@ for (let i=0; i<10; i++) {
 funcs.forEach(function(func) {
   func(); //输出0-9
 })
-```
-
-这段循环与之前那段结合了var和IIFE的循环的运行结果相同，但相比之下更为简洁。每次循环的时候let声明都会创建一个新变量i，并将其初始化为i的当前值，所以循环内部创建的每个函数都能得到属于它们自己的i的副本。对于for-in循环和for-of循环来说也是一样的
-
-```javascript
+//
 let funcs = [];
 let obj = {
   a: true,
@@ -668,9 +676,68 @@ funcs.forEach(function(func) {
 })
 ```
 
-Note:
+这段循环与之前那段结合了var和IIFE的循环的运行结果相同，但相比之下更为简洁。
 
-> let声明在循环内部的行为是标准中专门定义的，它不一定与let的不提升特性相关，理解这一点至关重要。事实上，早期的let实现不包含这一行为，它是后来加入的
+<span style="text-decoration: underline wavy blue;">每次循环的时候let声明都会创建一个新变量i，并将其初始化为i的当前值，所以循环内部创建的每个函数都能得到属于它们自己的i的副本。对于for-in循环和for-of循环来说也是一样的</span>
+
+[问题](https://github.com/mqyqingfeng/Blog/issues/82#:~:text=%E5%A6%82%E6%9E%9C%E8%A6%81%E8%BF%BD%E7%A9%B6%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%EF%BC%8C%E5%B0%B1%E8%A6%81%E6%8A%9B%E5%BC%83%E6%8E%89%E4%B9%8B%E5%89%8D%E6%89%80%E8%AE%B2%E7%9A%84%E8%BF%99%E4%BA%9B%E7%89%B9%E6%80%A7%EF%BC%81%E8%BF%99%E6%98%AF%E5%9B%A0%E4%B8%BA%20let%20%E5%A3%B0%E6%98%8E%E5%9C%A8%E5%BE%AA%E7%8E%AF%E5%86%85%E9%83%A8%E7%9A%84%E8%A1%8C%E4%B8%BA%E6%98%AF%E6%A0%87%E5%87%86%E4%B8%AD%E4%B8%93%E9%97%A8%E5%AE%9A%E4%B9%89%E7%9A%84%EF%BC%8C%E4%B8%8D%E4%B8%80%E5%AE%9A%E5%B0%B1%E4%B8%8E%20let%20%E7%9A%84%E4%B8%8D%E6%8F%90%E5%8D%87%E7%89%B9%E6%80%A7%E6%9C%89%E5%85%B3%EF%BC%8C%E5%85%B6%E5%AE%9E%EF%BC%8C%E5%9C%A8%E6%97%A9%E6%9C%9F%E7%9A%84%20let%20%E5%AE%9E%E7%8E%B0%E4%B8%AD%E5%B0%B1%E4%B8%8D%E5%8C%85%E5%90%AB%E8%BF%99%E4%B8%80%E8%A1%8C%E4%B8%BA%E3%80%82):
+
+* 如果不能重复声明,在循环第二次的时候,应该报错
+* 即使因为某种原因重复声明不报错,一遍遍迭代最终值还应该是3
+* 有种说法是for循环设置循环变量的那部分是一个单独的作用域
+
+比如:
+
+```javascript
+for (let i=0; i<3; i++) {
+  let i = 'abc';
+  console.log(i);
+}
+//abc
+//abc
+//abc
+
+
+这个例子是对的.如果我们把let改成var呢?
+for (var i=0; i<3; i++) {
+  var i = 'abc';
+  console.log(i);
+}
+//abc
+```
+
+为什么结果就不一样了呢，如果有单独的作用域，结果应该是相同的呀……
+
+如果要追究这个问题，就要抛弃掉之前所讲的这些特性！这是因为 let 声明在循环内部的行为是标准中专门定义的，不一定就与 let 的不提升特性有关，其实，在早期的 let 实现中就不包含这一行为。
+
+我们查看[ ECMAScript 规范第 13.7.4.7 节](http://www.ecma-international.org/ecma-262/6.0/#sec-for-statement-runtime-semantics-labelledevaluation):  还看不懂????
+
+![](https://camo.githubusercontent.com/b1b019f0cf27a4e36b315d9761594077554533a3dfb31812986969f33cc67ed4/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f4553362f6c65742f6c65742d65636d612e706e67)
+
+在 for 循环中使用 let 和 var，底层会使用不同的处理方式。
+
+使用let的时候: 在 `for (let i = 0; i < 3; i++)` 中，即圆括号之内建立一个隐藏的作用域，这就可以解释为什么上面案例打印了3此'abc'.
+
+然后**<span style="color: red">每次迭代循环时都创建一个新变量,并以之前迭代中同名变量的值将其初始化</span>**.如下面案例所示代码和伪代码:
+
+```javascript
+var funcs = [];
+for (let i=0; i<3; i++) {
+  funcs[i] = function() {
+    console.log(i);
+  }
+}
+
+funcs[0](); //0
+
+
+//伪代码
+(let i=0) { funcs[0] = function() {console.log(i)}; }
+(let i=1) { funcs[0] = function() {console.log(i)}; }
+(let i=2) { funcs[0] = function() {console.log(i)}; }
+```
+
+当执行伪代码函数的时候,根据词法作用域就可以找到正确的值,其实你也可以理解为let声明模仿了闭包的做法来简化循环过程.
 
 
 
@@ -723,6 +790,11 @@ funcs.forEach(function(func) {
 ```
 
 
+
+##### 3.2 最佳实践
+
+* 开发中默认使用let而不是var,对于需要写保护的变量使用const
+* 另一种做法: 默认使用const, 只有当确实需要改变变量的值的时候才使用let.
 
 #### 4. 全局块作用域绑定
 
@@ -2734,6 +2806,20 @@ String方法是是谁身上的，无论是Object还是Function，都是返回的
 instanceof运算符判断一个对象是否为另一个对象的实例
 
 #### 小于运算符(<)
+
+##### Desc
+
+the operands are compared using the  [Abstract Relational Comparison](https://tc39.es/ecma262/#sec-abstract-relational-comparison) algorithm, which is roughly summarized below:
+
+* First, objects are converted to primitive using <span style="text-decoration: underline  double blue">Symbol.ToPrimitive</span> with the hint parameter be 'number'.
+* If both values are strings, they are compared as strings, based on the values of the Unicode code points the contain.
+* Otherwise JavaScript attempts to convert non-numeric types to numeric values:
+  * Boolean values `true` and `false` are converted to 1 and 0 respectively.
+  * `null` is converted to 0.
+  * `undefined` is converted to `NaN`
+  * Strings are converted based on the values they contain, and are converted as `NaN` if they do not contain numeric values.
+* If either values is `NaN`, the opeator returns `false`.
+* Otherwise the values are compared as numeric values.
 
 #### 大于运算符(>)
 
@@ -12092,9 +12178,22 @@ console.log(obj.length); //2
 
 **`unshift()`** 方法将一个或多个元素添加到数组的**开头**，并返回该数组的**新长度**(该方法修改原有数组**)**。
 
+**Syntax**
+
+```javascript
+unshift(element0)
+unshift(element0, element1, ...,elementN)
+```
+
+**Return value**
+
+this new length property of the object upon which the method was called.
+
+
+
 **描述**
 
-`unshift` 方法会在调用它的类数组对象的开始位置插入给定的参数。
+`unshift` 方法会在调用它的<u>类数组对象</u>的开始位置插入给定的参数。 (数组, arguments对象)
 
 `unshift` 特意被设计成具有通用性；这个方法能够通过 [`call`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call) 或 [`apply`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) 方法作用于类数组对象上。不过对于没有 length 属性的对象，调用该方法可能没有任何意义。
 
@@ -17144,23 +17243,18 @@ console.log(msg); //Multiline   string
 <u>如果想输出为新的一行，需要手动加入换行符</u>：
 
 ```javascript
-let msg = 'Multiline \n\
-string';
+let msg = 'Multiline\n\string';
+let msg2 = 'Mutiline \n\ string'
 
-console.log(msg); //multiline
-									//string
+console.log(msg);
 ```
 
 在ECMAScript 6之前的版本中，通常都依靠数组或字符串拼接的方法来创建多行字符串，例如： ????
 
 ```javascript
-let msg = [
-  'Multiline ',
-  'string'
-].join('\n');
+let msg = [ 'Multiline ','string'].join('\n');
 
-let msg = 'Multiline \n' +
-    'string';
+let msg = 'Multiline \n' + 'string';
 ```
 
 
@@ -17169,13 +17263,21 @@ let msg = 'Multiline \n' +
 
 ECMAScript 6的模板字面量的语法简单，其极大地简化了多行字符串的创建过程。如果你需要在字符串中添加新的一行，只需在代码中直接换行，此处的换行将同步出现在结果中。
 
+注意:
+
+* 转换为字符串后,换行符当做一个字符长度.
+* 一个空格当做一个字符长度
+
 ```javascript
 let msg = `multiline
 string`;
 
-console.log(msg); // 'multiline
-									// string'
+console.log(msg); 
 console.log(msg.length); 16
+
+let msg2 = `multiline
+  string`;
+console.log(msg2.length); //18 字符串长度+换行符长度(1)+空格长度
 ```
 
 在反撇号中的所有空白符都属于字符串的一部分，所以千万要小心缩进。
@@ -17211,13 +17313,16 @@ console.log(msg.length); //16
 
 #### 字符串占位符
 
-在一个模板字面量中，你可以把任何合法的JavaScript表达式嵌入到占位符中并将其作为字符串的一部分输出到结果中。
+占位符由一个左侧的${和右侧的}符号组成，中间可以包含:
 
-占位符由一个左侧的${和右侧的}符号组成，中间可以包含任意的JavaScript表达式。举个占位符最简单的例子，你可以直接将一个本地变量嵌入到输出的字符串中.
+* 变量
+* 任意的JavaScript表达式
+* 运算式
+* 函数调用
+* 模板字面量
+* 其他
 
-[插图]模板字面量可以访问作用域中所有可访问的变量，无论在严格模式还是非严格模式下，尝试嵌入一个未定义的变量总是会抛出错误。
-
-可以嵌入除变量外的其他内容，如运算式、函数调用，等等。就像这样：
+模板字面量可以访问作用域中所有可访问的变量，无论在严格模式还是非严格模式下，尝试嵌入一个未定义的变量总是会抛出错误。
 
 ```javascript
 let count = 10,
@@ -17238,67 +17343,135 @@ let name = 'Nicholas',
 console.log(msg); //Hello, my name is Nicholas
 ```
 
+嵌套模板字面量
+
+```javascript
+let arr = [{value:1}, {value:2}];
+let message = `
+  <ul>
+    ${
+      arr.map(item => {
+        return `
+        <li>${item.value}</li>    
+        `
+          })
+    }
+  </ul>
+`
+
+console.log(message);
+<ul>
+  <li>1</li>
+,
+  <li>2</li>
+</ul>
+```
+
+打印结果中出现逗号是因为, 当占位符大括号中的值不是字符串时,会将其转换为字符串.比如数组[1,2,3]将被转换为1,2,3, 逗号就这样产生了. 要解决也很简单,使用join()方法.
+
+```javascript
+let arr = [{value:1}, {value:2}];
+let message = `
+  <ul>
+    ${
+      arr.map(item => {
+        return `
+        <li>${item.value}</li>    
+        `
+          }).join('')
+    }
+  </ul>
+`;
+console.log(message);
+```
+
+
+
+
+
 #### 标签模板!!
 
-模板字面量真正的威力来自于标签模板，每个模板标签都可以执行模板字面量上的转换并返回最终的字符串值。标签指的是在模板字面量第一个反撇号（`）前方标注的字符串.
+模板字符串可以紧跟在一个函数名后面,该函数将被调用来处理这个模板字符串.
+
+标签指的是在模板字面量第一个反撇号（`）前方标注的函数名的字符串. 每个函数名都可以执行模板字面量上的转换并返回最终的字符串值。
+
+举个例子:
 
 ```javascript
-let msg = tag`Hello world`;  //在这个例子中的模板标签是tag
+let x= 'HI', y = 'kevin';
+var res = msg`${x}, I am ${y}`;
+console.log(res);
 ```
 
-标签可以是一个函数，调用时传入加工过的模板字面量各部分数据，但必须结合每个部分来创建结果。**第一个参数是一个数组，包含JavaScript解释过后的字面量字符串，它之后的所有参数都是每一个占位符的解释值。**
-
-标签函数通常使用不定参数特性来定义占位符，从而简化数据处理的过程，就像这样：
+我们可以自定义msg函数来处理返回的字符串:
 
 ```javascript
-function tag(literals, ...substitutions) {
-  //返回一个字符串
+//literals 文字
+//注意这个例子中 literals 的第一个元素和最后一个元素都是空字符串
+function msg(literals, value1, value2) {
+  console.log(literals);//['', ', I am ', '', raw: Array(3)]
+  console.log(value1); //HI
+  console.log(value2); //kevin
 }
 ```
 
-```javascript
-let count = 10,
-    price = .25,
-    msg = passthru`${count} items cost $${(count * price).toFixed(2)}.`;
-```
-
-如果你有一个名为passthru()的函数，那么作为一个模板字面量标签，它会接受3个参数：首先是一个literals数组，包含以下元素：
-
-* 第一个占位符前的空字符串（""）
-* 第一、二个占位符之间的字符串（" items cost $"）
-* 第二个占位符后的字符串（"."）
-
-下一个参数是变量count的解释值，传参为10，它也成为了substitutions数组里的第一个元素；最后一个参数是(count * price).toFixed(2)的解释值，传参为"2.50"，它是substitutions数组里的第二个元素。
-
-注意，literals里的第一个元素是一个空字符串，这确保了literals[0]总是字符串的始端，就像literals[literals.length - 1]总是字符串的结尾一样。substitutions的数量总比literals少一个，这也意味着表达式substitutions.length === literals.length - 1的结果总为true。
-
-通过这种模式，我们可以将literals和substitutions两个数组交织在一起重组结果字符串。先取出literals中的首个元素，再取出substitution中的首个元素，然后交替继续取出每一个元素，直到字符串拼接完成。于是可以通过从两个数组中交替取值的方式模拟模板字面量的默认行为，就像这样：
+利用这些参数将其拼合回去:
 
 ```javascript
-function passthru(literal, ...substitution) {
+function msg(literals, ...values) {
   let result = '';
-  //根据substitution的数量来确定循环的执行次数
-  for (let i=0; i<substitution; i++) {
+  for (let i=0; i<values.length; i++) {
     result += literals[i];
-    result += substitution[i];
+    result += values[i];
   }
-  
-  //合并最后一个literal
   result += literals[literals.length - 1];
-  
   return result;
 }
-
-let count = 10,
-    price = 25,
-    message = passthru`${count} items cost $${(count * price).toFixed(2)}.`;
-
-console.log(message); //10 items cost $2.50.
 ```
 
-这个示例定义了一个passthru标签，模拟模板字面量的默认行为，展示了一次转换过程。此处的小窍门是使用substitutions.length来为循环计数，使用literals.length常常会越界。这段代码可以正常运行，在ECMAScript 6中已经详尽地定义了literals和substitutions二者间的关系。
+也可以这样写:
 
-数组substitutions里包含的值不一定是字符串，就像之前的示例一样，如果一个表达式求值后得到一个数值，那么传入的就是这个数值。至于这些值怎么在结果中输出，就是标签（Tag）的职责了。
+```javascript
+let x= 'HI', y = 'kevin';
+var res = msg`${x}, I am ${y}`;
+function msg(literals, ...values) {
+  return literals.reduce((acc, crt, idx) => {
+    let value = values[idx - 1];
+    return acc + value + crt;
+  })
+}
+```
+
+
+
+#### 模板字符串使用案例
+
+##### oneline
+
+出于可读性或者其他原因，我希望书写的时候是换行的，但是最终输出的字符是在一行，这就需要借助模板标签来实现了，我们尝试写一个这样的函数：
+
+```javascript
+let message = `
+	Hi,
+	Daisy!
+	I am
+	Kevin.
+`;
+```
+
+
+
+```javascript
+//第一版
+
+
+```
+
+
+
+
+
+
 
 #### 模板字面量中使用原始值
 
