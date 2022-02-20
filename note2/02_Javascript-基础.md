@@ -17389,11 +17389,65 @@ console.log(message);
 
 
 
-#### 标签模板!!
+#### 标签模板!! / 模板字面量标签函数
 
 模板字符串可以紧跟在一个函数名后面,该函数将被调用来处理这个模板字符串.
 
-标签指的是在模板字面量第一个反撇号（`）前方标注的函数名的字符串. 每个函数名都可以执行模板字面量上的转换并返回最终的字符串值。
+标签指的是在模板字面量第一个反撇号（`）前方标注的<u>函数名的字符串</u>. 每个函数名都可以执行模板字面量上的转换并返回最终的字符串值。
+
+**标签函数**
+
+> 标签函数本身是一个常规函数,通过前缀到模板字面量来应用自定义行为.
+>
+> 标签函数接收的参数依次是: 原始字符串数组和对每个表达式求值的结果.
+>
+> 函数的返回值是对模板字面量求值得到的字符串.
+
+举个例子:
+
+```javascript
+let a = 6,
+    b = 9;
+
+function tag(literals, ...expressions) {
+  console.log(literals, expressions);
+}
+
+let res = tag`${a} + ${b} = ${a+b}`;
+
+//['', ' + ', '=', '']
+//[6,9]
+```
+
+对于有n个插值的模板字面量,传给标签函数的表达式参数的个数始终是n,而传给标签函数的第一个参数所包含的字符串个数则始终是n+1.
+
+因此,如果你想把这些字符串和对表达式求值的结果拼接起来作为默认返回的字符串,可以这样做:
+
+```javascript
+let a = 6,
+    b = 9;
+
+function tag(literals, ...experssions) {
+  return literals[0] + expressions.map((e, i) => `${e}${literals[i+1]}`).join('');
+}  //literals[0] 可以省略
+
+function tag(literals, ...values) {
+	return literals.reduce((acc, crt, idx) => {
+    let value = values[idx - 1];
+    return acc + value + crt;
+  })
+}
+
+let untaggleRes = `${a} + ${b} = ${a + b}`;
+let taggleRes = tag`${a} + ${b} = ${a + b}`;
+
+console.log(untaggleRes);
+console.log(taggleRes); //
+```
+
+
+
+
 
 举个例子:
 
