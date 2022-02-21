@@ -8715,6 +8715,58 @@ function sum(num1, num2) {
 >
 > 来源: https://juejin.cn/post/6844903488304971789
 
+##### 使用原因
+
+来个例子:
+
+```javascript
+function identify() {
+  return this.name.toUpperCase();
+}
+
+function speak() {
+  let greeting = "Hello, I'm " + identify.call(this);
+  console.log(greeting);
+}
+
+let me = {
+  name: 'Kyle'
+};
+
+let you = {
+  name: 'Reader'
+};
+
+identify.call(me); //KYLE
+identify.call(you); //READER
+
+speak.call(me); //Hello, I'm KYLE
+speak.call(you); //Hello, I'm READER
+```
+
+这段代码可以在不同的上下文对象（me和you）中重复使用函数identify()和speak()，不用针对每个对象编写不同版本的函数。如果不使用this，那就需要给identify()和speak()显式传入一个上下文对象。
+
+```javascript
+function identify(context) {
+  return context.name.toUpperCase();
+}
+
+function speak(context) {
+  let greeting = "Hello, I'm " + identify(context);
+  console.log(greeting);
+}
+```
+
+所以综上所述,使用this的原因有:
+
+* 显示传递上下文对象会让代码越来越混乱
+
+* 调用函数时不用显示传递上下文对象, this隐式传递一个对象引用,API简洁且易于复用
+
+  
+
+
+
 **this的不同指向**
 
 * 以`函数`形式调用,非严格模式下指向`window`,严格模式为`undefined`
