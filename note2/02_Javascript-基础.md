@@ -4285,6 +4285,8 @@ for (let i in obj) {
 for (variable of iterable) {
   statement
 }
+
+//变量没有被声明也可以正常迭代,没有报错
 ```
 
 `varibale` 每一次迭代中被声明成变量的每个不同属性的值. 变量可以被`const`, `let`, 或 `var`声明.
@@ -4475,7 +4477,7 @@ for (const value of iterable) {
 ##### Difference between `for...of` and `for...in`
 
 * `for...in`语句迭代一个对象的可枚举属性
-* `for...of`语句迭代可迭代对象定义的要迭代的值上迭代 (The `for...of` statement iterates over values that the [iterable object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators#iterables) defines to be iterated over.)
+* `for...of`语句迭代可迭代对象定义的要迭代的值 (The `for...of` statement iterates over values that the [iterable object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators#iterables) defines to be iterated over.)
 
 以下的案例展示了两者在数组上的不同
 
@@ -8580,11 +8582,11 @@ console.log(factorial(5)); //0
 
 
 
-**callee实例**
+**arguments.callee实例**
 
 > [实现一个函数 where，它返回它被调用的时候所在的函数的名字](https://www.zhihu.com/question/37904806/answer/488668791)
 
-写一个函数,实现调用这个函数的函数的名称
+写一个函数,实现调用这个函数的函数的名称  ????????
 
 ```javascript
 //非严格模式下
@@ -8945,6 +8947,12 @@ function inner() {
 ```
 
 <u>在严格模式下访问arguments.callee 会报错</u>。ECMAScript 5 也定义了arguments.caller，但在严格模式下访问它会报错，在非严格模式下则始终是undefined。这是为了分清arguments.caller和函数的caller 而故意为之的。而作为对这门语言的安全防护，这些改动也让第三方代码无法检测同一上下文中运行的其他代码。严格模式下还有一个限制，就是不能给函数的caller 属性赋值，否则会导致错误。
+
+**实践**
+
+> 既不是标准,也不会称为标准.  不要在生产环境中使用
+
+
 
 #### new.target
 
@@ -10372,6 +10380,24 @@ ECMAScript 6 新增了使用胖箭头（=>）语法定义函数表达式的能�
 * **不支持`arguments`对象**. 箭头函数没有arguments绑定，所以你必须通过命名参数和不定参数这两种形式访问函数的参数。
 * **不支持重复的命名参数**. 无论在严格还是非严格模式下，箭头函数都不支持重复的命名参数；而在传统函数的规定中，只有在严格模式下才不能有重复的命名参数。
 * 箭头函数同样也有一个name属性,这与其他函数的规则不同.  空字符串
+
+
+
+```javascript
+//访问箭头函数的参数 替代普通函数arguments方法
+let nums = (...nums) => nums;
+
+//利用箭头函数简化立即执行函数(自执行函数)
+(() => {
+  console.log(1);
+})()
+//但是注意,使用以下这种写法会报错:
+(()=>{
+  console.log(1);
+}())
+```
+
+
 
 #### 2. 差异的原因
 
@@ -17517,9 +17543,278 @@ let message = `
 
 ```javascript
 //第一版
+//在控制台中打印输出结果: '\n\tHi,\n\tDaisy!\n\tI am\n\tKevin.\n'
+function onLine(literals, ...expressions) {
+  let result = literals.reduce((acc, crt, i) => {
+    let expression = expressions[i - 1];
+    return acc + experssion + crt;
+  });
+  
+  result = result.replace(/(\s+)/g, ' ');
+  result = result.trim();
+  
+  return result;
+}
+```
 
+实现原理很简单，拼合回去然后将多个空白符如换行符、空格等替换成一个空格。
+
+使用如下:
+
+```javascript
+let message = oneLine `
+    Hi,
+    Daisy!
+    I am
+    Kevin.
+`;
+console.log(message); // Hi, Daisy! I am Kevin.
+```
+
+存在的问题,如果字符间就包括多个空格呢？举个例子：
+
+```javascript
+let message = oneLine`
+  Preserve eg sentences.  Double
+  spaces within input lines.
+`;
+```
+
+如果使用这种匹配方式，`sentences.` 与 `Double` 之间的两个空格也会被替换成一个空格。
+
+我们可以再优化一下，我们想要的效果是将每行前面的多个空格替换成一个空格，其实应该匹配的是换行符以及换行符后面的多个空格，然后将其替换成一个空格，我们可以将正则改成：
+
+```javascript
+result = result.replace(/(\n\s*)/g, ' ');
+```
+
+最终代码如下:
+
+```javascript
+//onLine第二版
+function onLine(literals, ...values) {
+  let result = literals.reduce((acc, crt, i) => {
+    let value = vlaues[i - 1];
+    return acc + value + crt;
+  });
+  
+  result = result.replace(/(\n\s*)/g, ' ');
+  result = result.trim();
+  
+  return result;
+}
+```
+
+
+
+##### stripIndents
+
+假设有这样一段 HTML：
 
 ```
+let html = `
+	<span>1<span>
+	<span>2<span>
+		<span>3<span>
+`;
+```
+
+为了保持可读性，我希望最终输入的样式为：
+
+```
+<span>1<span>
+<span>2<span>
+<span>3<span>
+```
+
+其实就是匹配每行前面的空格，然后将其替换为空字符串。
+
+```javascript
+//stripIndents第一版
+
+function stripIndents(literals, ...values) {
+  let result = literals.reduce((acc, crt, i) => {
+    value = values[i - 1];
+    return acc + value + crt;
+  });
+  
+  result = result.replace(/\n[^\S\n]*/g, '\n');
+  result = result.trim();
+  
+  return result;
+}
+```
+
+正则表达式解析:
+
+`\S` 表示匹配一个非空白字符
+
+`[^\S\n]` 表示匹配`非空白字符`和`换行符`之外的字符，其实也就是空白字符去除换行符
+
+`\n[^\S\n]*` 表示匹配换行符以及换行符后的多个不包含换行符的空白字符
+
+`replace(/\n[^\S\n]*/g, '\n')` 表示将一个换行符以及换行符后的多个不包含换行符的空白字符替换成一个换行符，其实也就是将换行符后面的空白字符消掉的意思
+
+其实吧，不用写的这么麻烦，我们还可以这样写：
+
+```javascript
+result = result.replace(/^[\S\n]+/gm, '');
+```
+
+m 标志用于指定多行输入字符串时应该被视为多个行，而且如果使用 m 标志，^ 和 $ 匹配的开始或结束是输入字符串中的每一行，而不是整个字符串的开始或结束。
+
+[^\S\n] 表示匹配空白字符去除换行符
+
+^[^\S\n]+ 表示匹配以`去除换行符的空白字符`为开头的一个或者多个字符
+
+result.replace(/^\[^\S\n]+/gm, '') 表示将每行开头一个或多个`去除换行符的空白字符`替换成空字符串，也同样达到了目的。
+
+最终代码如下:
+
+```javascript
+stripIndents 第二版
+function stripIndents(literals, ...values) {
+  let result = literals.reduce((acc, crt, i) => {
+    let value = values[i - 1];
+    return acc + value + crt;
+  });
+  
+  result = result.replace(/^[^\S\n]+/gm, '');
+  result = result.trim();
+  
+  return result;
+}
+```
+
+
+
+##### stripIndent
+
+这次的 stripIndent 相比上面一节的标题少了一个字母 s，而我们想要实现的功能是：
+
+```
+let html = `
+	<ul>
+		<li>1</li>
+		<li>2</li>
+		<li>3</li>
+	<ul>
+`;
+```
+
+[![string](https://camo.githubusercontent.com/7ee386fa1cfce6724c62cc46379edb4251bfafed2717c11eee8c62a82af251c0/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f4553362f737472696e672f737472696e67352e706e67)](https://camo.githubusercontent.com/7ee386fa1cfce6724c62cc46379edb4251bfafed2717c11eee8c62a82af251c0/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f4553362f737472696e672f737472696e67352e706e67)
+
+其实也就是去除第一行的换行以及每一行的部分缩进。
+
+这个实现就稍微麻烦了一点，因为我们要计算出每一行到底要去除多少个空白字符。
+
+实现的思路如下：
+
+1. 使用 match 函数，匹配每一行的空白字符，得到一个包含每一行空白字符的数组
+2. 数组遍历比较，得到最小的空白字符长度
+3. 构建一个正则表达式，然后每一行都替换掉最小长度的空白字符
+
+实现的代码如下：
+
+```javascript
+let html = `
+	<ul>
+		<li>1</li>
+		<li>2</li>
+		<li>3</li>
+	<ul>
+`;
+
+function stripIndent(literals, ...values) {
+  let result = literals.reduce((acc, crt, i) => {
+    let value = values[i-1];
+    returna acc + value + crt;
+  });
+  
+  const match = result.match(/^[^\S\n]*(?=\S)/gm);
+  console.log(match); //Array[] [ "    ", "        ", "        ", "        ", "    " ]
+  
+  
+  const indent = match && Math.min(...match.map(el => el.length));
+  console.log(indent); //4
+  
+  if (indent) {
+    const regexp = new RegExp(`^.{${indent}}`, 'gm');
+    console.log(regexp); //  /^.{4}/gm
+    
+    result = result.replace(regexp, '');
+  }
+  
+  result = result.trim();
+  
+  return result;
+}
+
+```
+
+精简的代码如下：
+
+```javascript
+function stripIndent(literals, ...values) {
+  let result = literals.reduce((acc, crt, i) => {
+    let value = values[i - 1];
+    return acc + value + crt;
+  });
+  
+  const match = result.match(/^[^\S\n]*(?=\S)/gm);
+  const indent = match && Math.min(...match.map(el => el.length));
+  
+  if (indent) {
+    const regexp = new RegExp(`^.{${indent}}`, 'gm');
+    result = result.replace(regexp, '');
+    
+    result = result.trim();
+    
+    return result;
+  }
+}
+```
+
+
+
+##### includeArrays
+
+前面我们讲到为了避免 ${} 表达式中返回一个数组，自动转换会导致多个逗号的问题，需要每次都将数组最后再 join('') 一下，再看一遍例子：
+
+```javascript
+let arr = [{value: 1}, {value: 2}];
+let message = `
+	<ul>
+		${arr.map((item) => {
+			return `
+				<li>${item.value}</li>
+			`
+		}).join('')}
+	</ul>
+`;
+console.log(message);
+```
+
+利用标签模板，我们可以轻松的解决这个问题：
+
+```javascript
+function includeArrays(literals, ...values) {
+  let result = literals.reduce((acc, crt, i) => {
+    let value = values[i-1];
+    
+    if (Array.isArray(value)) {
+      value = value.join('');
+    }
+    
+    return acc + value + crt;
+  });
+  
+  result = result.trim();
+  return result;
+}
+```
+
+
 
 
 

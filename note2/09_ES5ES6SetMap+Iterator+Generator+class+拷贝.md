@@ -1209,6 +1209,135 @@ Symbol('aa') === Symbol('aa') //false
 
 
 
+#### 1.1 特点
+
+**1. Symbol 值通过 Symbol 函数生成，使用 typeof，结果为 "symbol"**
+
+```javascript
+let s = Symbol();
+console.log(typeof s); //'symbol'
+```
+
+**2. Symbol 函数前不能使用 new 命令，否则会报错。这是因为生成的 Symbol 是一个原始类型的值，不是对象。**
+
+**3. instanceof 的结果为 false**
+
+```javascript
+let s = Symbol('foo');
+console.log(s instanceof Symbol); //false
+```
+
+**4. Symbol 函数可以接受一个字符串作为参数，表示对 Symbol 实例的描述，主要是为了在控制台显示，或者转为字符串时，比较容易区分。**
+
+```javascript
+let s1 = Symbol('foo');
+console.log(s1); //Symbol(foo)
+```
+
+**5. 如果 Symbol 的参数是一个对象，就会调用该对象的 toString 方法，将其转为字符串，然后才生成一个 Symbol 值。**
+
+```javascript
+const obj = {
+  toString() {
+    return 'abc';
+  }
+};
+const sym = Symbol(obj);
+console.log(sym); // Symbol(abc)
+```
+
+**6. Symbol 函数的参数只是表示对当前 Symbol 值的描述，相同参数的 Symbol 函数的返回值是不相等的。**
+
+```javascript
+// 没有参数的情况
+var s1 = Symbol();
+var s2 = Symbol();
+
+console.log(s1 === s2); // false
+
+// 有参数的情况
+var s1 = Symbol('foo');
+var s2 = Symbol('foo');
+
+console.log(s1 === s2); // false
+```
+
+**7. Symbol 值不能与其他类型的值进行运算，会报错。**
+
+```javascript
+var sym = Symbol('My symbol');
+
+console.log("your symbol is " + sym); // TypeError: can't convert symbol to string
+```
+
+**8. Symbol 值可以显式转为字符串。**
+
+```javascript
+var sym = Symbol('My symbol');
+
+console.log(String(sym)); // 'Symbol(My symbol)'
+console.log(sym.toString()); // 'Symbol(My symbol)'
+```
+
+**9. Symbol 值可以作为标识符，用于对象的属性名，可以保证不会出现同名的属性。**
+
+```javascript
+let mySymbol = Symbol();
+
+//第一种写法
+let a = {};
+a[mySymbol] = 'Hello';
+
+//第二种写法
+let a = {
+  [mySymbol]: 'Hello'
+};
+
+//第三种写法
+let a = {};
+Object.defineProperty(a, mySymbol, {value: 'Hello'})
+
+// 以上写法都得到同样结果
+console.log(a[mySymbol]); // "Hello!"
+```
+
+**10. Symbol 作为属性名，该属性不会出现在 for...in、for...of 循环中，也不会被 Object.keys()、Object.getOwnPropertyNames()、JSON.stringify() 返回。但是，它也不是私有属性，有一个 Object.getOwnPropertySymbols 方法，可以获取指定对象的所有 Symbol 属性名。**
+
+```javascript
+var obj = {};
+var a = Symbol('a');
+var b = Symbol('b');
+
+obj[a] = 'Hello';
+obj[b] = 'World';
+
+var objectSymbols = Object.getOwnPropertySymbols(obj);
+
+console.log(objectSymbols);
+// [Symbol(a), Symbol(b)]
+```
+
+**11. 如果我们希望使用同一个 Symbol 值，可以使用 Symbol.for。它接受一个字符串作为参数，然后搜索有没有以该参数作为名称的 Symbol 值。如果有，就返回这个 Symbol 值，否则就新建并返回一个以该字符串为名称的 Symbol 值。**
+
+```javascript
+var s1 = Symbol.for('foo');
+var s2 = Symbol.for('foo');
+
+console.log(s1 === s2); // true
+```
+
+**12. Symbol.keyFor 方法返回一个已登记的 Symbol 类型值的 key。**
+
+```javascript
+var s1 = Symbol.for("foo");
+console.log(Symbol.keyFor(s1)); // "foo"
+
+var s2 = Symbol("foo");
+console.log(Symbol.keyFor(s2) ); // undefined
+```
+
+
+
 
 
 ### 2. 创建Symbol
@@ -1281,7 +1410,7 @@ console.log(teypof symbol); //'symbol'
 
 
 
-### 3. Symbol的使用方法
+### 3. Symbol的使用场景
 
 使用场景包括: 
 
@@ -1315,7 +1444,7 @@ console.log(person[lastName]); //'Zakas'
 
 
 
-### 3. Symbol共享体系
+### 4. Symbol共享体系
 
 #### 0. 背景
 
@@ -1417,7 +1546,7 @@ let uid = Symbol.for('uid'),
 
 Symbol与JavaScript中的非空值类似，其等价布尔值为true
 
-### 5. Symbol属性检索
+### 6. Symbol属性检索
 
 Object.keys()方法和Object.getOwnPropertyNames()方法可以检索对象中所有的属性名：前一个方法返回所有可枚举的属性名；后一个方法不考虑属性的可枚举性一律返回。然而为了保持ECMAScript 5函数的原有功能，这两个方法都不支持Symbol属性，而是在ECMAScript 6中添加一个**Object.getOwnPropertySymbols()**方法来检索对象中的Symbol属性。
 
@@ -1489,13 +1618,13 @@ game[methodDown]();
 
 
 
-### 6. Symbol属性 ??
+### 7. Symbol属性 ??
 
 
 
 
 
-### 7. 其他
+### 8. 其他
 
 #### 1. Symbol内置属性
 
@@ -1554,11 +1683,15 @@ https://www.zhihu.com/question/316717095/answer/628772556
 
 
 
-### 迭代器
+## 迭代器
 
-在JS中是一种特殊的方法
+### 定义
 
-迭代器(Iterator)是一种接口, 为各种不同的数据结构提供统一的访问机制.==任何数据结构==只要部署iterator接口,就可以完成遍历操作.
+>  迭代器，其实就是一个具有 next() 方法的对象，每次调用 next() 都会返回一个结果对象，该结果对象有两个属性，value 表示当前的值，done 表示遍历是否结束。
+
+
+
+**迭代器(Iterator)**是一种接口, 为各种不同的数据结构提供统一的访问机制.==任何数据结构==只要部署iterator接口,就可以完成遍历操作.
 
 1.ES6创造了一种新的遍历命令for...of循环, 
 
@@ -1566,55 +1699,83 @@ https://www.zhihu.com/question/316717095/answer/628772556
 
 ==需要自定义遍历数据的时候, 要想到迭代器==
 
+**ES5实现迭代器功能**
+
+```javascript
+function createIterator(items) {
+  let i=0;
+  return {
+    next:function() {
+      let done = i>= items.length;
+      let value = !done ? items[i++] : undefined;
+      
+      return {
+        done: done,
+        value: value
+      }
+    }
+  }
+}
+
+//iterator是一个迭代器对象
+let iterator = createIterator([1,2,3]);
+
+console.log(iterator.next()); // { done: false, value: 1 }
+console.log(iterator.next()); // { done: false, value: 2 }
+console.log(iterator.next()); // { done: false, value: 3 }
+console.log(iterator.next()); // { done: true, value: undefined }
+```
+
+
+
 
 
 ### for...of
 
-**`for...of`语句**在[可迭代对象](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)（包括 [`Array`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)，[`Map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map)，[`Set`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Set)，[`String`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String)，[`TypedArray`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)，[arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions_and_function_scope/arguments) 对象等等）上创建一个迭代循环，调用自定义迭代钩子，并为每个不同属性的值执行语句
+除了迭代器之外，我们还需要一个可以遍历迭代器对象的方式，ES6 提供了 for of 语句，我们直接用 for of 遍历一下我们上节生成的遍历器对象试试：
 
-```js
-//语法
-for(variable of iterable){
-  //statements
-}
-variable 在每次迭代中,将不同属性的值分配给变量
-iterable 被迭代枚举其属性的对象
-```
+```javascript
+let iterator = createIterator([1,2,3]);
 
-迭代Array
-
-```js
-let iterable = [10,20,30];
-for(const value of iterable){
-  value += 1;
+for(let value of iterator) {
   console.log(value);
-}//11 21 31
-
-如果你不想修改语句块中的变量 , 也可以使用const代替let
-```
-
-迭代string
-
-```js
-let iterable = 'boo';
-for(let value of iterable){
-  console.log(value);
-}//'b' 'o' 'o'
-```
-
-迭代Map
-
-```js
-let iterable = new Map([["a", 1], ["b", 2], ["c", 3]]);
-
-for (let entry of iterable) {
-  console.log(entry);
 }
-// ["a", 1]
-// ["b", 2]
-// ["c", 3]
+```
 
-for (let [key, value] of iterable) {
+结果报错 `TypeError: iterator is not iterable`，表明我们生成的 iterator 对象并不是 iterable(可遍历的)。
+
+那什么才是可遍历的呢？
+
+其实一种数据结构只要部署了 Iterator 接口，我们就称这种数据结构是“可遍历的”（iterable）。
+
+<u>ES6 规定，默认的 Iterator 接口部署在数据结构的 Symbol.iterator 属性</u>，或者说，一个数据结构只要具有 Symbol.iterator 属性，就可以认为是"可遍历的"（iterable）。
+
+举个例子:
+
+```javascript
+const obj = {
+    value: 1
+};
+
+for (value of obj) {
+    console.log(value);
+}
+
+// TypeError: iterator is not iterable
+```
+
+我们直接 for of 遍历一个对象，会报错，然而如果我们给该对象添加 Symbol.iterator 属性：
+
+```javascript
+const obj = {
+  value: 1
+};
+
+obj[Symbol.iterator] = function() {
+  return createIterator([1,2,3]);
+}
+
+for (value of obj) {
   console.log(value);
 }
 // 1
@@ -1622,9 +1783,82 @@ for (let [key, value] of iterable) {
 // 3
 ```
 
+我们也可以发现 for of 遍历的其实是对象的 Symbol.iterator 属性。
 
 
-关闭迭代器
+
+#### 默认可遍历对象
+
+ ES6 默认部署了 Symbol.iterator 属性，当然我们也可以手动修改这个属性：
+
+```javascript
+var colors = ["red", "green", "blue"];
+
+colors[Symbol.iterator] = function() {
+    return createIterator([1, 2, 3]);
+};
+
+for (let color of colors) {
+    console.log(color);
+}
+
+// 1
+// 2
+// 3
+```
+
+
+
+#### 使用范围
+
+* 数组
+* Set
+* Map
+* 类数组对象(arguments, DOM NodeList对象)
+* Generator对象
+* 字符串
+
+
+
+#### 模拟实现for...of
+
+模拟实现 for of 也比较简单，基本就是通过 Symbol.iterator 属性获取迭代器对象，然后使用 while 遍历一下：
+
+```javascript
+function forOf(obj, cb) {
+  let iterable, result;
+  if (typeof obj[Symbol.iterator] !== 'function') {
+    throw new TypeError(obj + 'is not iterator')
+  }
+  if (typeof cb !== 'function') {
+    throw new TypeError('cb must be callable')
+  }
+  iterable = obj[Symbol.iterator]();
+  result = iterable.next();
+  while(!result.done) {
+    cb(result.value);
+    result = iterable.next();
+  }
+}
+```
+
+
+
+### 内建迭代器
+
+ES6 为数组、Map、Set 集合内建了以下三种迭代器：
+
+1.entries()返回一个遍历器对象,用来遍历[键名,键值]组成的数组.对于数组,键名就是索引.
+
+2.keys() 返回一个遍历器对象,用来遍历所有的键名.
+
+3.values()返回一个遍历器对象,用来遍历所有的键值.
+
+
+
+
+
+### 关闭迭代器
 
 对于`for...of`的循环，可以由`break`, `throw continue `  或`return`终止。在这些情况下，迭代器关闭。
 
@@ -1632,7 +1866,7 @@ for (let [key, value] of iterable) {
 
 
 
-#### 迭代器工作原理
+### 迭代器工作原理
 
 ```js
 1.创建一个指针对象, 指向当前数据结构的起始位置
