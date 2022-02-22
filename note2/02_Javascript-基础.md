@@ -9256,7 +9256,7 @@ obj2.foo.call(obj1); //2
 
 2.new绑定和隐式绑定
 
-new绑定优先级大于隐式绑定
+new绑定优先级 > 隐式绑定
 
 ```javascript
 function foo(sth) {
@@ -9280,6 +9280,34 @@ let bar = new obj1.foo(4);
 console.log(obj1.a);//
 console.log(bar.a);//4
 ```
+
+可以看到new绑定比隐式绑定优先级高. new绑定和隐式绑定在同一个地方上
+
+3.new绑定和显示绑定
+
+因为new和call/apply无法一起使用,因此无法通过new foo.call(obj1)来直接进行测试.但是可以使用硬绑定来测试它俩的优先级.
+
+硬绑定: Function.prototype.bind()会创建一个新的包装函数,这个函数会忽略它当前的this绑定(无论绑定的对象是什么),并把我们提供的对象绑定到this上.
+
+来个例子:
+
+```javascript
+function foo(sth) {
+  this.a = sth;
+}
+
+let obj1 = {};
+
+let bar = foo.bind(obj1);
+bar(2);
+console.log(obj1.a); //2
+
+let baz = new bar(3);
+console.log(obj1.a); //2
+console.log(baz.a); //3
+```
+
+
 
 
 
@@ -10180,7 +10208,7 @@ apply()
 
 **define**
 
-> 创建一个新韩淑,在bind()被调用时,这个新函数的`this`被指定位`bind()`的第一个参数,而其余参数将作为新函数的参数,供调用时使用.
+> 创建一个新函数,在bind()被调用时,这个新函数的`this`被指定位`bind()`的第一个参数,而其余参数将作为新函数的参数,供调用时使用.
 
 **syntax**
 
