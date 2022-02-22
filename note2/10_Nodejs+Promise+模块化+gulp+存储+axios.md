@@ -4086,44 +4086,149 @@ $.get('./server',{}, function(data){}) //ajax
 
 #### 介绍
 
-> Promise相当于异步操作结果的占位符，它不会去订阅一个事件，也不会传递一个回调函数给目标函数，而是让函数返回一个Promise
+> Promise 是异步编程的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。
+>
+> 所谓`Promise`，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。
+
+**Promise对象有两个特点:**
+
+* 对象的状态不受影响
+  * Promise对象代表一个异步操作,有3种状态: pending,fulfilled,rejected
+  * 只有异步操作的结果,可以决定当前是哪一种状态,任何其他操作均无效.
+* 一旦状态改变,就不回再发生变化.
+  * Promise状态改变,只有两种可能.从pending->fulfilled或从pending->rejected
+  * 如果状态已改变(称为resolved,已定型).再对Promise对象添加回调,也会立即得到这个结果.
+
+**Promise的缺点:**
+
+* 无法取消Promise,一旦建立就会立即执行,无法中途取消.
+* 如果不设置回调,Promise内部抛出的错误,不会反应到外部.
+* 当处于pending状态时,无法得知目前进展到哪一步(刚开始还是即将完成)
+
+
+
+
+
+#### 基本用法
+
+ES6 规定，`Promise`对象是一个构造函数，用来生成`Promise`实例。
+
+**创建一个Promise实例:**
 
 ```javascript
-//readFile承诺将来在未来的某个时刻完成
-let promise = readFile('example.txt');
-
-//readFile()不会立即开始读取文件，函数会先返回一个表示异步读取操作的Promise对象，未来对这个对象的操作完全取决于Promise的生命周期。
+const promise = new Promise(function(resolve, reject) {
+  //some code
+  
+  if (/*异步操作成功*/) {
+    resolve(value);
+  } else {
+    reject(error);
+  }
+})
 ```
 
+`Promise`构造函数接受一个函数作为参数，该函数的两个参数分别是`resolve`和`reject`。它们是两个函数，由 JavaScript 引擎提供，不用自己部署。
 
+`resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
 
-```
-- 抽象表达:
- 1.Promise是一门新的技术(ES6规范)
- 2.Promise是JS中进行异步编程的新解决方案. 旧方案是单纯使用回调函数
-- 具体表达:
- 1.从语法上来说,Promise是一个构造函数
- 2.从功能上来说,Promise对象用来封装一个异步操作并可以获取其成功/失败的结果值.
- 
-- 异步操作有哪些?
-定时器, 文件操作fs,数据库的操作,ajax请求回调
-```
+`reject`函数的作用是，将`Promise`对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
 
-#### Promise构造函数
+**then方法**
+
+`Promise`实例生成以后，可以用`then`方法分别指定`resolved`状态和`rejected`状态的回调函数。
 
 ```javascript
-Promise(executor){}
-
-1.executor函数: 执行器(resolve, reject)=>{}
-2.resolve函数: 内部定义成功时,调用的函数 value=>{}
-3.reject函数: 内部定义失败时, 调用的函数 reason=>{}
-
-说明:executor会在promise内部立即同步调用,异步操作在执行器中执行
-
-1. Promise 的实例化接收一个 函数类型的参数( 『执行器函数』 )
-2. resolve和 reject 两个形参类型都是 函数.
-3. 执行器函数是一个同步的回调函数
+promise.then(function(value) {
+  //...
+}, function(error) {
+  //...
+})
 ```
+
+`then`方法可以接受两个回调函数作为参数。第一个回调函数是`Promise`对象的状态变为`resolved`时调用，第二个回调函数是`Promise`对象的状态变为`rejected`时调用。这两个函数都是可选的，不一定要提供。它们都接受`Promise`对象传出的值作为参数。
+
+**实例**
+
+1.Promise新建后就会立即执行
+
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  resolve();
+});
+
+promise.then(function() {
+  console.log('resolved');
+})
+
+console.log('Hi');
+
+//Hi
+//Promise
+//resolved
+```
+
+上面代码中，Promise 新建后立即执行，所以首先输出的是`Promise`。然后，`then`方法指定的回调函数，将在当前脚本所有同步任务执行完才会执行，所以`resolved`最后输出。
+
+2.异步加载图片
+
+```javascript
+function loadImageAsync(url) {
+  return new Promise(function(resolve, reject) {
+    const igm = new Image();
+    
+    img.onload = function() {
+      resolve(img);
+    };
+    
+    img.onerror = function() {
+      reject(new Error('could not load image at ' + url));
+    }
+    
+    img.src = url;
+  })
+}
+```
+
+上面代码中，使用`Promise`包装了一个图片加载的异步操作。如果加载成功，就调用`resolve`方法，否则就调用`reject`方法。
+
+3.实现Ajax操作
+
+```javascript
+cosnt getJSON = function(url) {
+  const promise = new Promise(function(resolve, reject) {
+    const handler = function() {
+      if (this.readyState !== 4) {
+        return;
+      }
+      if (this.status === 200) {
+        resolve(this.response);
+      } else {
+        reject(new Error(this.statusText));
+      }
+    };
+    
+    const client = new XMLHttpRequest();
+    client.open('GET'url);
+    client.onreadystatechange = handler;
+    client.responseType = 'json';
+    client.setRequestHeader('Accept', 'application/json');
+    client.send();
+  });
+  
+  return promise;
+}
+
+getJSON('/posts.json').then(function(json){
+  console.log('content: ' + json);
+}, function(error) {
+  console.log('出错了', error);
+})
+```
+
+
+
+
 
 
 

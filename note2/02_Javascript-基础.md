@@ -8707,13 +8707,13 @@ function sum(num1, num2) {
 
 **定义**
 
-<u>this是在执行上下文创建时确定的一个在执行过程中不可更改的变量.</u>
+* this是函数调用时创建执行上下文的一个属性,会在函数执行的过程中用到.
 
-> 所谓**执行上下文**，就是JavaScript引擎在执行一段代码之前将代码内部会用到的一些**变量**、**函数**、**this**提前声明然后保存在变量对象中的过程。这个'代码片段'包括：**全局代码**(script标签内部的代码)、**函数内部代码**、**eval内部代码**。而我们所熟知的作用域链也会在保存在这里，以一个类数组的形式存储在对应函数的[[Scopes]]属性中。
->
-> this只在函数调用阶段确定，也就是执行上下文创建的阶段进行赋值，保存在变量对象中。这个特性也导致了this的多变性:🙂即当函数在不同的调用方式下都可能会导致this的值不同
->
-> 来源: https://juejin.cn/post/6844903488304971789
+* this是在运行时进行绑定的,并不是在编写时绑定,它的上下文取决于函数调用时的各种条件.
+
+* this是在函数被调用时发生的绑定,它的指向取决于函数在哪里被调用.
+
+当一个函数被调用时，会创建一个活动记录（有时候也称为执行上下文）。这个记录会包含函数在哪里被调用（调用栈）、函数的调用方式、传入的参数等信息。this就是这个记录的一个属性，会在函数执行的过程中用到。
 
 ##### 使用原因
 
@@ -8757,7 +8757,7 @@ function speak(context) {
 }
 ```
 
-所以综上所述,使用this的原因有:
+**所以综上所述,使用this的原因有:**
 
 * 显示传递上下文对象会让代码越来越混乱
 
@@ -8765,9 +8765,533 @@ function speak(context) {
 
   
 
+##### 使用场景
+
+<u>指向自身</u>
+
+* 变量(词法标识符)
+  * 如果要从函数内部引用它自身,只使用this是不够的.一般来说你需要通过一个指向函数对象的词法标识符(变量)来引用它.
+* arguments.callee
+  * 已经被弃用和批判
+  * 引用当前正在运行的函数对象
+  * 唯一一种可以从匿名函数内部引用自身的方法
+  * 更好的方式是避免使用匿名函数,至少在需要自引用时使用具名函数(表达式)
 
 
-**this的不同指向**
+
+实例
+
+获取函数的调用次数
+
+1.词法作用域
+
+```javascript
+function foo(num) {
+  console.log('foo: ' + num);
+  
+  data.count++;
+}
+
+let data = { count: 0};
+
+let i;
+for(i=0;i<10;i++) {
+  if (i>5) {
+    foo(i);
+  }
+}
+
+//foo被调用了多少次
+console.log(data.count);
+```
+
+2.变量
+
+```javascript
+function foo(num) {
+  console.log('foo: ' + num);
+  
+  foo.count++;
+}
+
+foo.count = 0;
+let i;
+for(i=0;i<10;i++) {
+  if(i>5) {
+    foo(i);
+  }
+}
+
+//foo被调用的次数
+console.log(foo.count);
+```
+
+3.arguments.callee
+
+```javascript
+//好像无法输出匿名函数的调用次数
+
+setTimeout((num) => {
+  arguments.callee
+}, 100)
+```
+
+4.this
+
+```javascript
+function foo(num) {
+  console.log('foo: ' + num);
+  
+  this.count++;
+}
+
+foo.count = 0;
+let i;
+for(i=0;i<10;i++) {
+  if(i>5) {
+    foo.call(foo, i)
+  }
+}
+
+//foo被调用的次数
+console.log(count);
+```
+
+
+
+##### 调用位置
+
+调用位置就是函数在代码中被调用的位置（而不是声明的位置）。
+
+因为某些编程模式可能会隐藏真正的调用位置。最重要的是要分析调用栈（就是为了到达当前执行位置所调用的所有函数）。我们关心的调用位置就在当前正在执行的函数的前一个调用中。
+
+查看调用栈的方法
+
+1. 把调用栈想象成一个函数调用链，就像我们在前面代码段的注释中所写的一样。但是这种方法非常麻烦并且容易出错。
+2. 浏览器内置的开发者工具
+   1. 函数第一行代码 设置断点
+   2. 第一行前插入 debugger; 语句
+
+调用栈中第二个元素，这就是真正的调用位置。 ????
+
+
+
+##### 绑定规则
+
+> 来源: 你不知道的JavaScript(上卷)
+
+函数的执行过程中调用位置如何决定this的绑定对象。
+
+* 默认绑定,
+* 隐式绑定,
+* 显示绑定,
+* new绑定
+
+
+
+###### 1.默认绑定
+
+最常用的函数调用类型：独立函数调用。可以把这条规则看作是无法应用其他规则时的默认规则。
+
+```JavaScript
+function foo() {
+  console.log(this.a);
+}
+
+var a = 2;
+foo(); //2
+```
+
+通过分析调用位置来看看foo()是如何调用的。在代码中，foo()直接使用不带任何修饰的函数引用进行调用的，因此只能使用默认绑定，无法应用其他规则。
+
+注意事项:
+
+如果使用严格模式(strict mode), 则不能将全局对象用于默认绑定, this会被绑定到undefined.
+
+<u>虽然this的绑定规则完全取决于调用位置,但是只有foo()运行在非strict mode下时,默认绑定才能绑定到全局对象; 在严格模式下调用foo()则不影响默认绑定.</u>
+
+```JavaScript
+function foo() {
+  'use strict'
+  console.log(this.a);
+}
+
+var a = 2;
+foo(); //TypeError: this is undefined
+```
+
+
+
+###### 2.隐式绑定
+
+调用位置是否有上下文对象,或者说是否被某个对象**拥有或包含**,不过这种说法可能会造成一些误导.
+
+```JavaScript
+function foo() {
+  console.log(this.a);
+}
+
+var obj = {
+  a: 2,
+  foo: foo
+};
+
+obj.foo(); //2
+```
+
+<span style="text-decoration:underline wavy blue">无论是直接在obj中定义还是先定义函数再添加为引用属性,这个函数严格来说都不属于obj对象.</span>
+
+因为JavaScript是基于函数作用域的(ES6中增加了块作用域),JavaScript中的对象没有作用域的概念.
+
+比如全局代码:
+
+```JavaScript
+var num = 9;
+var obj = {
+  a:2,
+  fn:function(){}
+}
+```
+
+函数fn的作用域是全局对象,你可以在fn中访问num,但是不能访问到a, 也就是说函数fn的作用域链上并不包含obj对象, 如果要访问a,只能在fn里使用this.a来访问,并且对函数fn的调用方式是obj.fn()
+
+Note:
+
+* 当函数引用有上下文对象时,隐式绑定规则会把函数调用中的this绑定到这个上下文对象.
+* 对象属性引用连中只有上一层或者说最后一层在调用位置中起作用.
+
+```JavaScript
+function foo() {
+  console.log(this.a);
+}
+
+var obj2 = {
+  a:42,
+  foo:foo
+};
+
+var obj1 = {
+  a: 2,
+  obj2: obj2
+};
+
+obj1.obj2.foo(); //42
+```
+
+
+
+**隐式丢失**
+
+一个最常见的this绑定问题就是被隐式绑定的函数会丢失绑定对象，也就是说它会应用默认绑定，从而把this绑定到全局对象或者undefined上，取决于是否是严格模式。
+
+* 将对象.方法赋值给变量,调用这个变量
+* 参数传递.将函数通过参数传递进函数.
+* 把函数传入语言内置的函数
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+var obj = {
+  a:2,
+  foo:foo
+};
+
+var bar = obj.foo;
+
+var a = 'oops, global!';
+
+bar(); //'oops, global!'
+```
+
+虽然bar是obj.foo的一个引用，但是实际上，它引用的是foo函数本身，因此此时的bar()其实是一个不带任何修饰的函数调用，因此应用了默认绑定。
+
+另一种情况: 传入回调函数; 也会存在调用回调函数的函数修改this的情况
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+function doFoo(fn) {
+  fn();
+}
+
+var obj = {
+  a:2,
+  foo:foo
+};
+
+var a = 'oops, global!';
+
+doFoo(obj.foo); //'oops, global!'
+```
+
+参数传递其实就是一种**隐式赋值**，因此我们传入函数时也会被隐式赋值，所以结果和上一个例子一样。
+
+把函数传入语言内置的函数.
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+var obj = {
+  a: 2,
+  foo: foo
+};
+
+var a = 'oops, global!';
+
+setTimeout(obj.foo, 100); //'oops, global!'
+```
+
+javascript内置的setTimeout()函数实现和下面的伪代码类似:
+
+```javascript
+function setTimeout(fn, delay) {
+  //等待delay毫秒
+  fn();
+}
+```
+
+注意:
+
+无论是哪种情况，this的改变都是意想不到的，实际上你无法控制回调函数的执行方式，因此就没有办法控制调用位置以得到期望的绑定。之后我们会介绍如何通过<u>固定this</u>来修复这个问题。
+
+
+
+###### 3.显示绑定
+
+分析隐式绑定时，我们必须在一个对象内部包含一个指向函数的属性，并通过这个属性间接引用函数，从而把this间接（隐式）绑定到这个对象上。
+
+那么如果我们不想在对象内部包含函数引用，而想在某个对象上强制调用函数，该怎么做呢？
+
+显示绑定: 使用call()/apply()
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+var obj = {
+  a: 2
+};
+
+foo.call(obj); //2
+
+
+function foo() {
+  console.log(this.a);
+}
+
+var obj = {
+  a:2
+};
+
+foo.call(obj);
+```
+
+通过foo.call(), 我们可以在调用foo时强制把它的this绑定到obj上.
+
+如果你传入了一个原始值（字符串类型、布尔类型或者数字类型）来当作this的绑定对象，这个原始值会被转换成它的对象形式（也就是new String(..)、new Boolean(..)或者newNumber(..)）。这通常被称为**“装箱”**。(**拆箱**: 将对象转化成基本数据类型)
+
+
+
+Note:
+
+显示绑定仍然无法解决之前提出的问题. 但是有几种方法可以解决.
+
+1.硬绑定
+
+显示绑定的一个变种
+
+我们创建了函数bar()，并在它的内部手动调用了foo.call(obj)，因此强制把foo的this绑定到了obj。无论之后如何调用函数bar，它总会手动在obj上调用foo。这种绑定是一种显式的强制绑定，因此我们称之为硬绑定。
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+var obj = {
+  a: 2
+};
+
+var bar = function() {
+  foo.call(obj);
+};
+
+bar(); //2
+setTimeout(bar, 100); //2
+```
+
+硬绑定应用场景:
+
+1.创建一个包裹函数,负责接收参数并返回值.
+
+```javascript
+function foo(sth) {
+  console.log(this.a, sth);
+  return this.a + sth;
+}
+
+let obj = {
+  a: 2
+};
+
+let bar = function() {
+  return foo.apply(obj, arguments);
+};
+
+let b = bar(3);//2 3
+console.log(b); //5
+```
+
+2.创建一个可以重复使用的辅助函数
+
+```javascript
+function foo(sth) {
+  console.log(this.a , sth);
+  return this.a + sth;
+}
+
+//简单的绑定函数
+function bind(fn, obj) {
+  return function() {
+    return fn.apply(obj, arguments);
+  };
+}
+
+let obj = {
+  a: 2
+};
+
+let bar = bind(foo, obj);
+
+let b = bar(3); //2 3
+console.log(b); //5
+```
+
+由于硬绑定是一种非常常用的模式，所以ES5提供了内置的方法Function.prototype.bind.
+
+bind(..)会返回一个硬编码的新函数，它会把你指定的参数设置为this的上下文并调用原始函数。
+
+
+
+2.API调用的'上下文'
+
+第三方库的许多函数，以及JavaScript语言和宿主环境中许多新的内置函数，都提供了一个可选的参数，通常被称为“上下文”（context），其作用和bind(..)一样，确保你的回调函数使用指定的this。
+
+举个例子:
+
+```javascript
+function foo(el) {
+  console.log(el, this.id);
+}
+
+
+var obj = {
+  id: 'awesome'
+}
+
+//调用foo()时把this绑定到obj
+[1,2,3].forEach(foo, obj);
+```
+
+
+
+###### 4.new绑定
+
+
+
+使用new来调用函数,或者说发生构造函数调用时,会自动执行下面的操作:
+
+1. 内存中新建一个对象
+2. 将新建对象的隐式原型[[prototype]]指针赋值为构造函数的原型prototype
+3. 这个新对象会绑定到函数调用的this
+4. 如果函数返回非空对象,则返回;否则,返回新建对象.
+
+```javascript
+//构造函数篇 模拟实现new操作符
+
+function newOp() {
+  let obj = {};
+  let Constructor = [].shift.call(arguments);
+  obj.__proto__ = Constructor.prototype;
+  let result = Constructor.apply(obj, arguments);
+  return typeof result === 'object' ? result : obj;
+}
+```
+
+
+
+##### 绑定优先级
+
+1.隐式绑定和显示绑定哪个优先级高?
+
+显示绑定>隐式绑定
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+let obj1 = {
+  a: 2,
+  foo: foo
+};
+
+let obj2 = {
+  a: 3,
+  foo: foo
+};
+
+obj1.foo(); //2
+obj2.foo(); //3
+
+obj1.foo.call(obj2); //3
+obj2.foo.call(obj1); //2
+```
+
+2.new绑定和隐式绑定
+
+new绑定优先级大于隐式绑定
+
+```javascript
+function foo(sth) {
+  this.a = sth;
+}
+
+let obj1 = {
+  foo: foo
+};
+
+let obj2 = {};
+
+
+obj.foo(2);
+console.log(obj1.a); //2
+
+obj1.foo.call(obj2, 3);
+console.log(obj2.a); //3
+
+let bar = new obj1.foo(4);
+console.log(obj1.a);//
+console.log(bar.a);//4
+```
+
+
+
+
+
+
+
+
+
+
+
+##### **this的不同指向**
 
 * 以`函数`形式调用,非严格模式下指向`window`,严格模式为`undefined`
 * 以`方法`形式调用,this指向调用方法的`对象`
@@ -8778,7 +9302,7 @@ function speak(context) {
 
 
 
-**改变this指向的几种方式**
+##### **改变this指向的几种方式**
 
 * 箭头函数
 * 函数内部赋值`_this=this`
@@ -8787,11 +9311,11 @@ function speak(context) {
 
 
 
-**箭头函数中的this详解**
+##### **箭头函数中的this详解**
 
 
 
-**实例**
+##### **实例**
 
 以函数形式调用
 
