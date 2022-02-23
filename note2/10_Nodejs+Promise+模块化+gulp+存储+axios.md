@@ -3926,18 +3926,14 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
-### 1.2 Promise原因
+### 1.2 Promise使用原因
 
-```html
-1.指定回调函数的方式更加灵活
- 1.1 旧的:必须在启动异步任务前指定
- 1.2 promise:启动异步任务->返回promise对象->给promise对象绑定回调函数(甚至可以在异步任务结束后指定多个)
-2.支持链式调用,可以解决回调地域的问题
- 2.1回调地域:回调函数嵌套调用,外部回调函数异步执行的结果是嵌套的回调执行的条件
- 2.2回调地狱缺点:不便于阅读;不便于处理异常
- 2.3解决方案:promise链式调用
- 2.4终极解决方案:async/await
-```
+* 指定回调函数的方式更加灵活
+  * 旧的:必须在启动异步任务前指定
+  * promise:启动异步任务->返回promise对象->给promise对象绑定回调函数(甚至可以在异步任务结束后指定多个)
+* 支持链式调用,解决回调地域的问题
+  * 回调地域:回调函数嵌套调用,外部回调函数异步执行的结果是嵌套的回调执行的条件
+  * 终极解决方案:async/await
 
 
 
@@ -4225,6 +4221,101 @@ getJSON('/posts.json').then(function(json){
   console.log('出错了', error);
 })
 ```
+
+上面代码中，`getJSON`是对 XMLHttpRequest 对象的封装，用于发出一个针对 JSON 数据的 HTTP 请求，并且返回一个`Promise`对象。需要注意的是，在`getJSON`内部，`resolve`函数和`reject`函数调用时，都带有参数。
+
+如果调用`resolve`函数和`reject`函数时带有参数，那么它们的参数会被传递给回调函数。`reject`函数的参数通常是`Error`对象的实例，表示抛出的错误；`resolve`函数的参数除了正常的值以外，还可能是另一个 Promise 实例
+
+
+
+**resolve()函数可以是另一个Promise实例**
+
+```javascript
+const p1 = new Promise((resulve, reject) => {
+  //...
+});
+
+const p2 = new Promise((resolve, reject) => {
+  //..
+  resolve(p1);
+})
+```
+
+代码说明:
+
+1.`p2`的`resolve`方法将`p1`作为参数,即一个异步操作的结果是返回另一个异步操作
+
+2.`p1`的状态传递给了`p2`, 也就是`p1`的状态决定了p2`的状态.
+
+3.如果`p1`的状态是`pending`，那么`p2`的回调函数就会等待`p1`的状态改变；
+
+4.如果`p1`的状态已经是`resolved`或者`rejected`，那么`p2`的回调函数将会立刻执行。
+
+```javascript
+const p1 = new Promise(function(resolve, reject) {
+  setTimeout(() => reject(new Error('fail')), 3000)
+})
+
+const p2 = new Promise(function(resolve, reject) {
+  setTImeout(() => resolve(p1), 1000)
+})
+
+p2
+	.then(result => console.log(result))
+	.catch(error => console.log(error))
+```
+
+代码说明:
+
+* 由于`p2`返回的是另一个 Promise，导致`p2`自己的状态无效了，由`p1`的状态决定`p2`的状态。
+* 后面的`then`语句都变成针对后者（`p1`）。又过了 2 秒，`p1`变为`rejected`，导致触发`catch`方法指定的回调函数。
+
+
+
+**调用resolve() 或 reject() 并不会终结Promise的参数函数的执行**
+
+```javascript
+new Promise((resolve, reject) => {
+  resolve(1);
+  console.log(2);
+}).then(r => {
+  console.log(r);
+});
+// 2
+// 1
+```
+
+代码说明及最佳实践:
+
+* 立即 resolved 的 Promise 是在本轮事件循环的末尾执行，总是晚于本轮循环的同步任务。
+* 一般来说,调用`resolve`或`reject`以后，Promise 的使命就完成了，后继操作应该放到`then`方法里面，而不应该直接写在`resolve`或`reject`的后面.
+* 最好在他们前面加上return
+
+
+
+### Promise API
+
+#### Promise.prototype.then()
+
+Promise实例具有then方法,也就是说,then方法是定义在原型对象上的.
+
+**作用**: 为Promise实例添加状态改变时的回调函数.
+
+**参数**: then方法的第一个参数是resolved状态的回调函数,第二个参数是rejected状态的回调函数,都是可选的.
+
+**返回值**: then方法返回一个新的Promise实例(注意,不是原来的Promise实例). 因此可以采用链式写法, 即then方法后再调用一个then方法.
+
+前一个回调函数，有可能返回的还是一个`Promise`对象（即有异步操作），这时后一个回调函数，就会等待该`Promise`对象的状态发生变化，才会被调用。
+
+
+
+
+
+#### Promise.prototype.catch()
+
+
+
+
 
 
 

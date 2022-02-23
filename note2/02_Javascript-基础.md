@@ -8765,98 +8765,6 @@ function speak(context) {
 
   
 
-##### 使用场景
-
-<u>指向自身</u>
-
-* 变量(词法标识符)
-  * 如果要从函数内部引用它自身,只使用this是不够的.一般来说你需要通过一个指向函数对象的词法标识符(变量)来引用它.
-* arguments.callee
-  * 已经被弃用和批判
-  * 引用当前正在运行的函数对象
-  * 唯一一种可以从匿名函数内部引用自身的方法
-  * 更好的方式是避免使用匿名函数,至少在需要自引用时使用具名函数(表达式)
-
-
-
-实例
-
-获取函数的调用次数
-
-1.词法作用域
-
-```javascript
-function foo(num) {
-  console.log('foo: ' + num);
-  
-  data.count++;
-}
-
-let data = { count: 0};
-
-let i;
-for(i=0;i<10;i++) {
-  if (i>5) {
-    foo(i);
-  }
-}
-
-//foo被调用了多少次
-console.log(data.count);
-```
-
-2.变量
-
-```javascript
-function foo(num) {
-  console.log('foo: ' + num);
-  
-  foo.count++;
-}
-
-foo.count = 0;
-let i;
-for(i=0;i<10;i++) {
-  if(i>5) {
-    foo(i);
-  }
-}
-
-//foo被调用的次数
-console.log(foo.count);
-```
-
-3.arguments.callee
-
-```javascript
-//好像无法输出匿名函数的调用次数
-
-setTimeout((num) => {
-  arguments.callee
-}, 100)
-```
-
-4.this
-
-```javascript
-function foo(num) {
-  console.log('foo: ' + num);
-  
-  this.count++;
-}
-
-foo.count = 0;
-let i;
-for(i=0;i<10;i++) {
-  if(i>5) {
-    foo.call(foo, i)
-  }
-}
-
-//foo被调用的次数
-console.log(count);
-```
-
 
 
 ##### 调用位置
@@ -8876,7 +8784,7 @@ console.log(count);
 
 
 
-##### 绑定规则
+##### this绑定规则
 
 > 来源: 你不知道的JavaScript(上卷)
 
@@ -9056,9 +8964,9 @@ function setTimeout(fn, delay) {
 }
 ```
 
-注意:
+问题:
 
-无论是哪种情况，this的改变都是意想不到的，实际上你无法控制回调函数的执行方式，因此就没有办法控制调用位置以得到期望的绑定。之后我们会介绍如何通过<u>固定this</u>来修复这个问题。
+无论是哪种情况，this的改变都是意想不到的，实际上你无法控制回调函数的执行方式，因此就<u>没有办法控制调用位置以得到期望的绑定</u>。之后我们会介绍如何通过<u>固定this</u>来修复这个问题。
 
 
 
@@ -9256,7 +9164,7 @@ obj2.foo.call(obj1); //2
 
 2.new绑定和隐式绑定
 
-new绑定优先级 > 隐式绑定
+new绑定 > 隐式绑定
 
 ```javascript
 function foo(sth) {
@@ -9285,11 +9193,13 @@ console.log(bar.a);//4
 
 3.new绑定和显示绑定
 
+new绑定 > 显示绑定
+
 因为new和call/apply无法一起使用,因此无法通过new foo.call(obj1)来直接进行测试.但是可以使用硬绑定来测试它俩的优先级.
 
 硬绑定: Function.prototype.bind()会创建一个新的包装函数,这个函数会忽略它当前的this绑定(无论绑定的对象是什么),并把我们提供的对象绑定到this上.
 
-来个例子:
+来个例子: ????
 
 ```javascript
 function foo(sth) {
@@ -9307,15 +9217,18 @@ console.log(obj1.a); //2
 console.log(baz.a); //3
 ```
 
+bar被硬绑定到obj1上,但是new bar(3)并没有像我们预计的把obj1.a修改为3.相反, new修改了硬绑定(到obj1的)调用bar()中的this.
 
 
 
 
 
+##### 判断this
 
-
-
-
+1. 函数是否在new中调用(new绑定)? 如果是, this绑定到新创建的对象
+2. 函数是否通过call, apply(显示绑定)或者硬绑定调用? 如果是的话, this绑定的是指定的对象.
+3. 函数在某个上下文对象中调用(隐式绑定), this绑定的是那个上下文对象
+4. 如果都不是的话,使用默认绑定,但在严格模式下,会绑定到undefined,否则绑定到全局对象.
 
 
 
@@ -9339,7 +9252,128 @@ console.log(baz.a); //3
 
 
 
-##### **箭头函数中的this详解**
+##### this绑定例外
+
+1.被忽略的this
+
+> 如果把null或undefined作为this的绑定对象传入call, apply, bind, 这些值在调用时会被忽略,实际应用的默认绑定规则.
+
+什么情况下传入null?
+
+一种常见的做法是使用apply()来展开一个数组,并当做参数传入一个函数.类似地, bind()可以对参数进行柯里化,这种方法有时很有用:
+
+```javascript
+function foo(a, b) {
+  console.log('a: ' + a +', b:' + b);
+}
+
+//把数组展开成参数
+foo.apply(null, [2,3]); //a:2, b:3
+
+//使用bind()进行柯里化
+var bar = foo.bind(null, 2);
+bar(3); //a:2, b:3
+```
+
+这两种方法都需要传入一个参数当作this的绑定对象。如果函数并不关心this的话，你仍然需要传入一个占位值，这时null可能是一个不错的选择，就像代码所示的那样。
+
+注意: ES6中使用扩展运算符来代替apply来展开数组.
+
+存在的问题及解决方法:
+
+如果某个函数确实使用了this（比如第三方库中的一个函数），那默认绑定规则会把this绑定到全局对象（在浏览器中这个对象是window），这将导致不可预计的后果（比如修改全局对象）。
+
+更安全的this
+
+一种“更安全”的做法是传入一个特殊的对象，把this绑定到这个对象不会对你的程序产生任何副作用。在这里可以使用空对象.
+
+```javascript
+let ∅ = Object.create(null);
+```
+
+无论你叫它什么，在JavaScript中创建一个空对象最简单的方法都是Object.create(null)（详细介绍请看第5章）。Object.create(null)和{}很像，但是并不会创建Object.prototype这个委托，所以它比{}“更空”.
+
+```javascript
+function foo(a, b) {
+  console.log('a: ' + a +', b:' + b);
+}
+
+//DMZ对象
+let ∅ = Object.create(null);
+
+//把数组展开成参数
+foo.apply(∅, [2,3]); //a:2, b:3
+
+//使用bind()进行柯里化
+var bar = foo.bind(null, 2);
+bar(3); //a:2, b:3
+```
+
+
+
+2.间接引用
+
+另一个需要注意的是，你有可能（有意或者无意地）创建一个函数的“间接引用”，在这种情况下，调用这个函数会应用默认绑定规则。
+
+间接引用最容易在赋值时发生:
+
+```javascript
+function foo() {
+  console.log(this.a);
+}
+
+let a = 2;
+let o = {a:3, foo:foo};
+let p = {a:4};
+
+o.foo(); //3
+(p.foo = o.foo)(); //2
+```
+
+赋值表达式p.foo = o.foo的返回值是目标函数的引用，因此调用位置是foo()而不是p.foo()或者o.foo()。根据我们之前说过的，这里会应用默认绑定。
+
+Note:
+
+对于默认绑定来说，决定this绑定对象的并不是调用位置是否处于严格模式，而是函数体是否处于严格模式。如果函数体处于严格模式，this会被绑定到undefined，否则this会被绑定到全局对象。
+
+3.软绑定 ????!!!!
+
+硬绑定这种方式可以把this强制绑定到指定的对象（除了使用new时），防止函数调用应用默认绑定规则。问题在于，硬绑定会大大降低函数的灵活性，使用硬绑定之后就无法使用隐式绑定或者显式绑定来修改this。
+
+如果可以给默认绑定指定一个全局对象和undefined以外的值，那就可以实现和硬绑定相同的效果，同时保留隐式绑定或者显式绑定修改this的能力。
+
+可以通过一种被称为软绑定的方法来实现我们想要的效果：
+
+```javascript
+if (!Function.prototype.softBind) {
+  Function.prototype.softBind = function(obj) {
+    let fn = this;
+    
+    //捕获所有curried函数
+    let curried = [].slice.call(arguments, 1);
+    let bound = function() {
+      return fn.apply(!this||this===(window||global) ? obj : this, curried.concat.apply(curried, arguments));
+    };
+    
+    bound.prototype = Object.create(fn.prototype);
+    
+    return bound;
+  }
+}
+```
+
+除了软绑定之外，softBind(..)的其他原理和ES5内置的bind(..)类似。它会对指定的函数进行封装，首先检查调用时的this，如果this绑定到全局对象或者undefined，那就把指定的默认对象obj绑定到this，否则不会修改this。此外，这段代码还支持可选的柯里化（详情请查看之前和bind(..)相关的介绍）。
+
+```javascript
+```
+
+
+
+##### 箭头函数的this
+
+箭头函数并不是使用function关键字定义的,而是使用被称为'胖箭头'的操作符`=>`定义的. 箭头函数不使用this的四种标准规则,而是根据外层(函数或全局)作用域来决定this.
+
+
 
 
 
@@ -9348,7 +9382,7 @@ console.log(baz.a); //3
 以函数形式调用
 
 ```javascript
-let a = 1000,
+var a = 1000,
     obj = {
       a: 1,
       b: this.a + 1
@@ -9362,7 +9396,7 @@ function fun() {
   return obj.c;
 }
 
-console.log(func()); //
+console.log(fun()); //
 console.log(obj.b); //
 
 ```
@@ -9381,7 +9415,6 @@ var foo = {
 var a = foo. bar. baz;
 foo.bar.baz(); //2
 a();  //0
-
 简化:
 foo = {x:1, bar:{}}
 bar = {x:2, baz:f}
@@ -9392,7 +9425,7 @@ baz : f
 
 ```
 
- 
+
 
 以对象方法形式调用
 
@@ -9409,123 +9442,6 @@ console.log(t());//
 ```
 
 
-
-以构造函数形式调用
-
-```js
-来源: https://segmentfault.com/a/1190000002640298
-
-- prototype this
- - 以构造函数形式调用时,this指向新建的实例化对象.
-=====================================================
-function Thing(){
-    console.log(this.foo);
-}
-Thing.prototype.foo = 'bar';
-
-var thing = new Thing();
-console.log(thing.foo);
-//'bar'
-=======================================================
-构造函数创建多个实例,实例会共享prototype值. 实例
-function Thing(){}
-Thing.prototype.foo = 'bar';
-Thing.prototype.logFoo = function(){
-    console.log(this.foo);
-}
-Thing.prototype.setFoo = function(newFoo){
-    this.foo = newFoo;
-}
-
-var thing1 = new Thing();
-var thing2 = new Thing();
-
-thing1.logFoo();//bar
-thing2.logFoo();//bar
-
-thing1.setFoo('foo');
-thing1.logFoo();//foo 为thing1添加了新属性  {foo: "foo"}
-thing2.logFoo();//bar
-
-=======================================================
-函数创建的实例会共享函数的prototype属性的值.如果给这个函数的prototype赋值一个Array,所有的实例都会共享这个Array.除非你在这个实例里重写了这个Array,这种情况下,函数的prototype的Array就会被隐藏掉.
-function Thing(){}
-Thing.prototype.things = [];
-var thing1 = new Thing();
-var thing2 = new Thing();
-thing1.things.push('foo');
-console.log(thing2.things);//['foo']
-
-=======================================================
-多个函数链接
-function Thing1(){}
-Thing1.prototype.foo = 'bar';
-function Thing2(){}
-Thing2.prototype = new Thing1();
-
-var thing = new Thing2();
-console.log(thing.foo); //bar
-
-=========================================================
-原型链
-functtion Thing1(){}
-Thing1.prototype.foo = 'bar';
-function.Thing2(){
-    this.foo = 'foo';
-}
-Thing2.prototype = new Thing1();
-function Thing3(){}
-Thing3.prototype = new Thing2();
-
-var thing = new Thing3();
-console.log(thing.foo);//foo
-
-==========================================================
-
-function Thing1(){}    
-Thing1.prototype.foo = 'bar';
-Thing1.prototype.logFoo = function(){
-    console.log(this.foo);
-}
-function Thing2(){
-    this.foo = 'foo';
-}
-Thing2.prototype = new Thing1();
-
-var thing = new Thing2();
-thing.logFoo();//foo
-
-
-======================================================
-嵌套函数
-function Thing(){}
-Thing.prototype.foo = 'bar';
-Thing.prototype.logFoo = function(){
-    var info = 'attempting to log this.foo:';
-    function doIt(){
-        console.log(info, this.foo);
-    }
-    doIt();
-}
-
-var thing = new Thing();
-thing.logFoo();//undefined 
-
-====================================================
-function Thing(){}    
-Thing.prototype.foo = 'bar';
-Thing.prototype.logFoo = function(){
-    console.log(this.foo);
-};
-function doIt(method){
-    method();
-}
-
-var thing = new Thing();
-thing.logFoo();//bar
-doIt(thing.logFoo);//undefined
-
-```
 
 
 
@@ -10409,7 +10325,7 @@ Function.prototype.myBind = function(cxt) {
   let fNOP = function() {};
   let fbound = function() {
     let argsInner = [].slice.call(arguments);
-    return cxt.apply(this instanceof fNOP ? this : cxt, argsOut.concat(argsInner));
+    return fn.apply(this instanceof fNOP ? this : cxt, argsOut.concat(argsInner));
   }
   fNOP.prototype = this.prototype;
   fbound.prototype = new fNOP();
@@ -11432,66 +11348,6 @@ test();//预解析, 变量提升.  函数内的局部变量a,被赋值100.以函
 
 
 
-### 预定义函数
-
-#### eval()
-
-`eval()`方法会对一串字符串形式的JavaScript代码字符求值
-
-#### isFinite()
-
-#### isNaN()
-
-#### parseFloat()
-
-#### parseInt()
-
-**parseInt(string, radix)**  解析一个字符串并返回指定基数的十进制整数， `radix` 是2-36之间的整数，表示被解析字符串的基数。
-
-**语法**
-
-```js
-parseInt(string, radix);
-
-string 
-要被解析的值。如果参数不是一个字符串，则将其转换为字符串(使用  ToString 抽象操作)。字符串开头的空白符将会被忽略。
-
-radix 可选
-从 2 到 36，表示字符串的基数。例如指定 16 表示被解析值是十六进制数。请注意，10不是默认值.
-
-```
-
-
-
-**返回值**
-
-整数或NaN
-
-```js
-返回NaN的情况
-1. radix小于2或大于36
-2. 第一个非空字符串不能转换为数字
-
-```
-
-
-
-**案例**
-
-```js
-['1','2','3'].map(parseInt)
-
-//[1,undefined,undefined]
-```
-
-
-
-
-
-
-
-
-
 ### 函数作用域
 
 - 在函数内定义的变量不能在函数之外的任何地方访问 || 一个函数可以访问定义在其范围内的任何变量和函数
@@ -11673,6 +11529,74 @@ function fn(a){
 fn(33);
 console.log(a); // 10
 ```
+
+
+
+
+
+
+
+
+
+
+
+### 预定义函数
+
+#### eval()
+
+`eval()`方法会对一串字符串形式的JavaScript代码字符求值
+
+#### isFinite()
+
+#### isNaN()
+
+#### parseFloat()
+
+#### parseInt()
+
+**parseInt(string, radix)**  解析一个字符串并返回指定基数的十进制整数， `radix` 是2-36之间的整数，表示被解析字符串的基数。
+
+**语法**
+
+```js
+parseInt(string, radix);
+
+string 
+要被解析的值。如果参数不是一个字符串，则将其转换为字符串(使用  ToString 抽象操作)。字符串开头的空白符将会被忽略。
+
+radix 可选
+从 2 到 36，表示字符串的基数。例如指定 16 表示被解析值是十六进制数。请注意，10不是默认值.
+
+```
+
+
+
+**返回值**
+
+整数或NaN
+
+```js
+返回NaN的情况
+1. radix小于2或大于36
+2. 第一个非空字符串不能转换为数字
+
+```
+
+
+
+**案例**
+
+```js
+['1','2','3'].map(parseInt)
+
+//[1,undefined,undefined]
+```
+
+
+
+
+
+
 
 
 
@@ -12111,6 +12035,112 @@ function factorial(n, p = 1) {
 ```
 
 当你写递归函数的时候，记得使用尾递归优化的特性，如果递归函数的计算量足够大，则尾递归优化可以大幅提升程序的性能。
+
+
+
+## 函数使用实例
+
+### 获取函数的调用次数
+
+指向自身
+
+* 变量(词法标识符)
+  * 如果要从函数内部引用它自身,只使用this是不够的.一般来说你需要通过一个指向函数对象的词法标识符(变量)来引用它.
+* arguments.callee
+  * 已经被弃用和批判
+  * 引用当前正在运行的函数对象
+  * 唯一一种可以从匿名函数内部引用自身的方法
+  * 更好的方式是避免使用匿名函数,至少在需要自引用时使用具名函数(表达式)
+
+
+
+实例
+
+获取函数的调用次数
+
+1.词法作用域
+
+```javascript
+function foo(num) {
+  console.log('foo: ' + num);
+  
+  data.count++;
+}
+
+let data = { count: 0};
+
+let i;
+for(i=0;i<10;i++) {
+  if (i>5) {
+    foo(i);
+  }
+}
+
+//foo被调用了多少次
+console.log(data.count);
+```
+
+2.变量
+
+```javascript
+function foo(num) {
+  console.log('foo: ' + num);
+  
+  foo.count++;
+}
+
+foo.count = 0;
+let i;
+for(i=0;i<10;i++) {
+  if(i>5) {
+    foo(i);
+  }
+}
+
+//foo被调用的次数
+console.log(foo.count);
+```
+
+3.arguments.callee
+
+```javascript
+//好像无法输出匿名函数的调用次数
+
+setTimeout((num) => {
+  arguments.callee
+}, 100)
+```
+
+4.this
+
+```javascript
+function foo(num) {
+  console.log('foo: ' + num);
+  
+  this.count++;
+}
+
+foo.count = 0;
+let i;
+for(i=0;i<10;i++) {
+  if(i>5) {
+    foo.call(foo, i)
+  }
+}
+
+//foo被调用的次数
+console.log(count);
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
