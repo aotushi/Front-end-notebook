@@ -13,6 +13,38 @@ JavaScript标准:
 
 
 
+## 知识体系
+
+脑图
+
+[].map.call($0.querySelectorAll('code'), e => e.innerText).join('/n')
+
+
+
+
+
+
+
+
+
+
+
+## 前端进阶之路
+
+### 职业规划
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## JS 3大组成部分
 
 
@@ -12038,9 +12070,9 @@ function factorial(n, p = 1) {
 
 
 
-## 函数使用实例
+### 函数使用实例
 
-### 获取函数的调用次数
+#### 获取函数的调用次数
 
 指向自身
 
@@ -12645,14 +12677,57 @@ let c = [];
 
 
 
-### 判断数组的6种方式
+### 判断数组的7种方式
 
-* 原型链1 obj.\_\_proto\_\_  === Array.prototype    
-* 原型链2 constructor  arr.constructor === Array
-* 原型链3 instanceof()  arr instanceof Array
-* 数组方法 Array.prototype.isPrototypeOf(obj)
-* 数组方法 Array.isArray()
-* 对象方法 Object.prototype.toString.call()
+**概览**
+
+* [].\_\_proto\_\_ === Array.prototype
+* [] instanceof Array
+* [].constructor === Array
+* Array.prototype.isPrototypeOf([])
+* Object.getPrototypeOf([]) === Array.prototype
+* Object.prototype.toString.call([]).slice(8, -1)
+* Array.isArray([])
+
+#### 原型链方法
+
+**instanceof**
+
+```javascript
+arr instanceof Array
+```
+
+**\_\_proto\_\_**
+
+```javascript
+arr.__proto === Array.prototype;
+
+Array.prototype.isPrototypeOf(arr);
+
+Object.getPrototypeOf(arr) === Array.prototype;
+
+[].constructor === Array;
+```
+
+
+
+#### 数组和对象方法
+
+**Array.isArray()**
+
+```javascript
+Array.isArray([]);
+```
+
+**Object.prototype.toString()**
+
+```javascript
+Object.prototype.toString.call([]) === '[object Array]'
+
+Object.prototype.toString.call([]).slice(8, -1);
+```
+
+
 
 ```js
 1.instacneof
@@ -15249,6 +15324,54 @@ function flatDepth(arr) {
 
 ```
 
+##### **方法实现**
+
+> https://juejin.cn/post/6844904025993773063#heading-14
+>
+> 写的非常好,读起来很流畅,思路清晰. 抄一遍
+
+Array.prototype.flat()特点:
+
+* 用于将数组'拉平',变为一维数组.该方法返回一个新数组,对原数据没有影响
+* 不传参时,默认'拉平'一层; 可以传入一个整数,标识想要'拉平'的层数.
+* 传入`<=0`的整数数组将返回原数组,不'拉平'
+* `Infinity`关键字作为参数时,无论多少层嵌套,都会转为一维数组.
+* 如果原数组有空位, 此方法会跳过空位
+
+1.实现思路
+
+在数组中找到是数组类型的元素,然后将它们展开.
+
+* 第一个要解决的就是遍历数组元素
+* 第二个要解决的是判断元素是否为数组
+* 第三个要解决的将数组的元素展开一层
+
+2.遍历数组的方案
+
+包括不限于下面几种:
+
+* for循环
+* for...of 
+* for...in
+* forEach()
+* entries()
+* values()
+* keys()
+* reduce()
+* map()
+
+3.判断元素是否为数组的方案 7种
+
+* [] instanceof Array
+* [].\_\_proto\_\_ === Array.prototype
+* [].constructor === Array
+* Array.prototype.isPrototypeOf([])
+* Object.getPrototypeOf([]) === Array.prototype
+* Object.prototype.toString.call([]).slice(8, -1)
+* Array.isArray([])
+
+说明:
+
 
 
 
@@ -16540,6 +16663,18 @@ alert(str.name);
 //str是没有name属性的,但是运行却没有报错
 //str是基本数据类型,临时把字符串转换成对象,然后调用属性的属性和方法,加完属性就销毁了.alert输出的是另一个对象的属性,然后销毁.
 ```
+
+
+
+原始值在某种情况下被转换成它的对象形式(new String(), new Number(), new Boolean()),这通常称为"装箱".
+
+把基本数据类型转换为对应的引用类型的操作称为"装箱"
+
+把引用类型转换为基本的数据类型称为"拆箱"
+
+
+
+
 
 
 

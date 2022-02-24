@@ -4100,6 +4100,18 @@ $.get('./server',{}, function(data){}) //ajax
 * 无法取消Promise,一旦建立就会立即执行,无法中途取消.
 * 如果不设置回调,Promise内部抛出的错误,不会反应到外部.
 * 当处于pending状态时,无法得知目前进展到哪一步(刚开始还是即将完成)
+* 单一值. 
+
+Promise只能有一个完成值或拒绝原因,而在实际使用中,往往需要传递多个值,一般做法是构造一个对象或数组,然后再传递,then中获得这个值后,又会进行取值赋值的操作,每次封装和解封会让代码变的笨重. 建议使用ES6的解构赋值.
+
+```javascript
+Promise.all([Promise.resolve(1), Promise.resolve(2)])
+.then(([x, y]) => {
+  console.log(x, y);
+})
+```
+
+
 
 
 
@@ -4313,9 +4325,358 @@ Promise实例具有then方法,也就是说,then方法是定义在原型对象上
 
 #### Promise.prototype.catch()
 
+Promise.prototype.catch()是then(null, rejection)或then(undefined, rejection)的别名,用于指定发生错误时的回调函数.
+
+```javascript
+const promise = new Promise(function(resolve, reject) {
+  throw new Error('test');
+});
+
+promise.catch(function(err) {
+  console.log(error);
+});
+
+//Error: test
+```
+
+上面代码中，`promise`抛出一个错误，就被`catch()`方法指定的回调函数捕获。注意，上面的写法与下面两种写法是等价的。
+
+```javascript
+//写法一
+
+const promise = new Promise(function(resolve, reject) {
+  try {
+    throw new Error('test');
+  } catch(e) {
+    reject(e);
+  }
+});
+
+promise.catch(function(error) {
+  console.log(error);
+});
+
+//写法二
+const promise = new Promise(function(resolve, reject) {
+  reject(new Error('test'));
+});
+
+promise.catch(function(error) {
+  console.log(error);
+})
+```
+
+比较上面两种写法，可以发现<u>`reject()`方法的作用，等同于抛出错误。</u>
+
+如果Promise状态已经变成resolved, 再抛出错误是无效的.
+
+```javascript
+const promise = new Promise(function(resolve, reject) {
+  resolve('ok');
+  throw new Error('test');
+});
+
+promise
+	.then(function(value) { console.log(value) })
+	.catch(function(error) { console.log(error) });
+```
+
+上面代码中，Promise 在`resolve`语句后面，再抛出错误，不会被捕获，等于没有抛出。因为 Promise 的状态一旦改变，就永久保持该状态，不会再变了。
+
+Promise 对象的错误具有“冒泡”性质，会一直向后传递，直到被捕获为止。也就是说，错误总是会被下一个`catch`语句捕获。
+
+```javascript
+getJSON('/post/1.json').then(function(post) {
+  return getJSON(post.commentURL);
+}).then(function(comments) {
+  // some code
+}).catch(function(error) {
+  // 处理前面三个Promise产生的错误
+});
+```
+
+上面代码中，一共有三个 Promise 对象：一个由`getJSON()`产生，两个由`then()`产生。它们之中任何一个抛出的错误，都会被最后一个`catch()`捕获。
+
+一般来说，<u>不要在`then()`方法里面定义 Reject 状态的回调函数（即`then`的第二个参数）</u>，总是使用`catch`方法。
+
+```javascript
+//bad
+promise
+	.then(function(data) {
+  //success
+}, function(err) {
+  //error
+});
+
+//good
+promise
+	.then(function(data) {
+  	//success
+	})
+	.catch(function(err) {
+  	//error
+	});
+```
+
+上面代码中，第二种写法要好于第一种写法，理由是第二种写法可以捕获前面`then`方法执行中的错误，也更接近同步的写法（`try/catch`）。因此，建议总是使用`catch()`方法，而不使用`then()`方法的第二个参数。
 
 
 
+**与try/catch比较**
+
+跟传统的`try/catch`代码块不同的是，如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。
+
+```javascript
+const someAsyncThing = function() {
+  return new Promise(function(resolve, reject) {
+    //下面一行会报错,因为x没有声明
+    resolve(x + 2);
+  });
+};
+
+someAsyncThing().then(function() {
+  console.log('everything is great');
+});
+
+setTimeout(() => { console.log(123) }, 2000);
+//Uncaught (in promise) ReferenceError: x is not defined
+//123
+```
+
+上面代码中，`someAsyncThing()`函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示`ReferenceError: x is not defined`，但是不会退出进程、终止脚本执行，2 秒之后还是会输出`123`。这就是说，<u>Promise 内部的错误不会影响到 Promise 外部的代码，通俗的说法就是“Promise 会吃掉错误”。</u>
+
+再比如:
+
+```javascript
+const promise = new Promise(function(resolve, reject) {
+  resolve('ok');
+  setTimeout(function() {throw new Error('tset')}, 0)
+});
+promise.then(function(value) { console.log(value) });
+
+//ok
+//Uncaught Error: test
+```
+
+上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。
+
+一般建议, Promise 对象后面要跟`catch()`方法，这样可以处理 Promise 内部发生的错误。`catch()`方法返回的还是一个 Promise 对象，因此后面还可以接着调用`then()`方法。
+
+```javascript
+const someAsyncThing = function() {
+  return new Promise(function(resolve, reject) {
+    //下面一行代码会报错,因为x没有声明
+    resolve(x + 2);
+  });
+};
+
+someAsyncThing()
+.catch(function(error) {
+  console.log('oh, no', error);
+})
+.then(function() {
+  console.log('carry on');
+});
+
+// oh no, [RefferenceError: x is not defined]
+// carry on
+```
+
+上面代码运行完`catch()`方法指定的回调函数，会接着运行后面那个`then()`方法指定的回调函数。如果没有报错，则会跳过`catch()`方法。
+
+```javascript
+Promise.resolve()
+.catch(function(error) {
+  console.log('oh no', error);
+})
+.then(function() {
+  console.log('carry on');
+});
+// carry on
+```
+
+catch方法之中还能再抛出错误
+
+```javascript
+const someAsyncThing = function() {
+  return new Promise(function(resolve, reject) {
+    // 下面一行会报错，因为x没有声明
+    resolve(x + 2);
+  });
+};
+
+someAsyncThing().then(function() {
+  return someOtherAsyncThing();
+}).catch(function(error) {
+  console.log('oh no', error);
+  // 下面一行会报错，因为 y 没有声明
+  y + 2;
+}).then(function() {
+  console.log('carry on');
+});
+// oh no [ReferenceError: x is not defined]
+```
+
+上面代码中，`catch()`方法抛出一个错误，因为后面没有别的`catch()`方法了，导致这个错误不会被捕获，也不会传递到外层。如果改写一下，结果就不一样了。
+
+```javascript
+someAsyncThing().then(function() {
+  return someOtherAsyncThing();
+}).catch(function(error) {
+  console.log('oh no', error);
+  // 下面一行会报错，因为y没有声明
+  y + 2;
+}).catch(function(error) {
+  console.log('carry on', error);
+});
+// oh no [ReferenceError: x is not defined]
+// carry on [ReferenceError: y is not defined]
+```
+
+第二个`catch()`方法用来捕获前一个`catch()`方法抛出的错误。
+
+
+
+#### Promise.prototype.finally()
+
+`finally()`方法用于指定不管 Promise 对象最后状态如何，都会执行的操作。该方法是 ES2018 引入标准的。
+
+```javascript
+promise
+.then(result => {})
+.catch(error => {})
+.finally(() => {});
+```
+
+上面代码中，不管`promise`最后的状态，在执行完`then`或`catch`指定的回调函数以后，都会执行`finally`方法指定的回调函数。
+
+`finally`方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。
+
+`finally`本质上是`then`方法的特例。
+
+```javascript
+promise
+.finally(() => {
+  //语句
+})
+
+//等同于
+promise
+.then(result => {
+  //语句
+  return result;
+}),
+  error => {
+  //语句
+  throw error;
+}
+```
+
+上面代码中，如果不使用`finally`方法，同样的语句需要为成功和失败两种情况各写一次。有了`finally`方法，则只需要写一次。
+
+它的实现也很简单。
+
+ ```javascript
+ Promise.prototype.finally = function(callback) {
+   let P = this.constructor;
+   return this.then(
+   	value => P.resolve(callback)).then(() =>vlaue),
+     reason => P.resolve(callback()).then(() =>{ throw reason })
+   );
+ };
+ ```
+
+上面代码中，不管前面的 Promise 是`fulfilled`还是`rejected`，都会执行回调函数`callback`。
+
+从上面的实现还可以看到，`finally`方法总是会返回原来的值。
+
+```javascript
+// resolve 的值是 undefined
+Promise.resolve(2).then(() => {}, () => {})
+
+// resolve 的值是 2
+Promise.resolve(2).finally(() => {})
+
+// reject 的值是 undefined
+Promise.reject(3).then(() => {}, () => {})
+
+// reject 的值是 3
+Promise.reject(3).finally(() => {})
+```
+
+
+
+#### Promise.all()
+
+`Promise.all()`方法用于将多个 Promise 实例，包装成一个新的 Promise 实例。
+
+```javascript
+const p = Promise.all([p1, p2, p3]);
+```
+
+`Promise.all()`方法接受一个数组作为参数，`p1`、`p2`、`p3`都是 Promise 实例，如果不是，就会先调用`Promise.resolve`方法，将参数转为 Promise 实例，再进一步处理。
+
+另外，`Promise.all()`方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例。
+
+`p`的状态由`p1`、`p2`、`p3`决定，分成两种情况。
+
+（1）只有`p1`、`p2`、`p3`的状态都变成`fulfilled`，`p`的状态才会变成`fulfilled`，此时`p1`、`p2`、`p3`的返回值组成一个数组，传递给`p`的回调函数。
+
+（2）只要`p1`、`p2`、`p3`之中有一个被`rejected`，`p`的状态就变成`rejected`，此时第一个被`reject`的实例的返回值，会传递给`p`的回调函数。
+
+```javascript
+const promises = [2,3,5,7,11,13].map((id) => getJSON('/post/' + id + '.json'));
+
+Promise.all(promises).then(function(posts) {
+  //..
+}).catch(function(reason) {
+  //...
+})
+```
+
+上面代码中，`promises`是包含 6 个 Promise 实例的数组，只有这 6 个实例的状态都变成`fulfilled`，或者其中有一个变为`rejected`，才会调用`Promise.all`方法后面的回调函数。
+
+注意，如果作为参数的 Promise 实例，自己定义了`catch`方法，那么它一旦被`rejected`，并不会触发`Promise.all()`的`catch`方法。
+
+```javascript
+const p1 = new Promise((resolve, reject) => {
+  resolve('hello');
+})
+	.then(result => result)
+	.catch(e => e);
+
+const p2 = new Promise((resolve, reject) => {
+  throw new Error('报错了');
+})
+	.then(result => result)
+	.catch(e => e);
+
+Promise.all([p1, p2])
+	.then(result => console.log(result));
+
+// ["hello", Error: 报错了]
+```
+
+上面代码中，`p1`会`resolved`，`p2`首先会`rejected`，但是`p2`有自己的`catch`方法，该方法返回的是一个新的 Promise 实例，`p2`指向的实际上是这个实例。该实例执行完`catch`方法后，也会变成`resolved`，导致`Promise.all()`方法参数里面的两个实例都会`resolved`，因此会调用`then`方法指定的回调函数，而不会调用`catch`方法指定的回调函数。
+
+如果`p2`没有自己的`catch`方法，就会调用`Promise.all()`的`catch`方法。
+
+```javascript
+const p1 = new Promise((resolve, reject) => {
+  resolve('hello');
+})
+.then(result => result);
+
+const p2 = new Promise((resolve, reject) => {
+  throw new Error('报错了');
+})
+.then(result => result);
+
+Promise.all([p1, p2])
+.then(result => console.log(result))
+.catch(e => console.log(e));
+// Error: 报错了
+```
 
 
 
