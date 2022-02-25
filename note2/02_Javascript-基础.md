@@ -13582,6 +13582,11 @@ var nums = num1.concat(num2, num3);
 
 console.log(nums);
 // results in [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+
+let arr = [1,2,3];
+let res = arr.concat(4,5,[6,7],8,{a: 9});
+console.log(res); //[1,2,3,4,5,6,7,8,{a:9}]
 ```
 
 连接对象
@@ -15371,6 +15376,66 @@ Array.prototype.flat()特点:
 * Array.isArray([])
 
 说明:
+
+* `instanceof` 操作符是假定只有一种全局环境,如果网页中包含多个框架,多个全局环境,如果你从一个框架向另一个框架传入一个数组,那么传入的数组与在第二个框架中原生创建的数组分别具有各自不同的构造函数.(所以在这种情况下不准确)
+* typeof 操作符对数组类型返回object
+
+4.将数组元素展开一层的方法
+
+* 扩展运算符 + concat
+* concat+apply
+* toString + split
+
+扩展运算符+concat
+
+concat()方法用来合并两个或多个数组,在拼接过程中加上扩展运算符会展开一层数组.
+
+concat+apply
+
+主要是利用apply在绑定作用域时,传入的第二个参数是一个数组或类数组对象,其中的数组元素将作为单独的参数传给函数. 也就是在调用apply函数的过程中,会将传入的数组一个个传入到要执行的函数中,相当对数组进行了一层展开.
+
+toString+split
+
+如果数组中的元素都是数字的话,是可行的.但是不推荐,因为操作字符串是危险的.
+
+```javascript
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }];
+
+//1
+[].concat(...arr)
+
+//2
+[].concat.apply([], arr)
+
+//3
+arr.toString().split(',')
+arr.toString().split(',').map(v => parseInt(v));
+```
+
+准备工作都已经完成,第一版flat方法实现:
+
+```javascript
+//concat + 递归
+
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }];
+
+function myFlat(arr) {
+  if (!Array.isArray(arr)) {
+    return alert('参数需要是一个数组');
+  }
+  
+  let newArr = [];
+  arr.forEach(v => {
+    if (Array.isArray(v)) {
+      newArr = newArr.concat(myFlat(v));
+    } else {
+      newArr.push(v);
+    }
+  })
+  
+  return newArr;
+}
+```
 
 
 
