@@ -15,7 +15,9 @@ JavaScript标准:
 
 ## 知识体系
 
-脑图
+![](http://naotu.baidu.com/file/c709489342dc43b9c7e6ca18bbfb58a8?token=5e7f3ab4e6b5866e)
+
+
 
 [].map.call($0.querySelectorAll('code'), e => e.innerText).join('/n')
 
