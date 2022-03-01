@@ -31,7 +31,7 @@ JavaScript标准:
 
 
 
-## 前端进阶之路
+##        
 
 ### 职业规划
 
@@ -16079,7 +16079,7 @@ reduce+includes/indexOf + concat/push
 //reduce方法
 let arr = [1,2,3,4,4,1]
 let newArr = arr.reduce((prev,current)=>{
-  if(!prev.includes(current)){
+  if(!prev.includes(current)){   //写繁琐了,没有必要
     return prev.push(current)
   }else{
     return prev;
@@ -16218,7 +16218,7 @@ function unique2(arr) {
   let slow = 1,
       fast = 1;
   
-  while(right < arr.length) {
+  while(fast < arr.length) {
     if (arr[fast - 1] !== arr[fast]) {
       arr[slow++] = arr[fast];
     }
