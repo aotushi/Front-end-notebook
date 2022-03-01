@@ -15,7 +15,9 @@ JavaScript标准:
 
 ## 知识体系
 
-脑图
+![](http://naotu.baidu.com/file/c709489342dc43b9c7e6ca18bbfb58a8?token=5e7f3ab4e6b5866e)
+
+
 
 [].map.call($0.querySelectorAll('code'), e => e.innerText).join('/n')
 
@@ -673,7 +675,7 @@ for (var i=0; i<10; i++) {
 
 
 
-##### 3.1.2 循环中的let声明
+##### 3.1.2 for循环中的let声明
 
 let声明模仿上述示例中IIFE所做的一切来简化循环过程，每次迭代循环都会创建一个新变量，并以之前迭代中同名变量的值将其初始化。这意味着你彻底删除IIFE之后仍可得到预期中的结果
 
@@ -15999,11 +16001,14 @@ for (let i=0; i<arr.length; i++) {
 
 
 ```javascript
+//https://juejin.cn/post/6844903482093387783
+//如果 array[i] 的值跟 res[j] 的值相等，就跳出循环，如果都不等于，说明元素是唯一的，这时候 j 的值就会等于 res 的长度，根据这个特点进行判断，将值添加进 res。
+
 function unique(array) {
   let res = [];
   for (let i=0; i<array.length; i++) {
     for (let j=0; j<res.length; j++) {
-      if (arr[i] === arr[j]) {
+      if (arr[i] === res[j]) {
         break;
       }
     }
@@ -16021,8 +16026,9 @@ function unique(array) {
 
 ```javascript
 let res = [];
+let j = 0;
 for (let i=0; i<arr.length; i++) {
-  for (let j=0; j<res.length; j++) {
+  for (; j<res.length; j++) {
     if (arr[i] === res[j]) {
       break;
     }
@@ -16103,6 +16109,80 @@ let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index
 filter+sort()
 
 ```javascript
+//https://juejin.cn/post/6844903482093387783#:~:text=%E5%8F%AF%E4%BB%A5%E6%9F%A5%E7%9C%8B%20Github%E3%80%82-,filter,-ES5%20%E6%8F%90%E4%BE%9B%E4%BA%86
+
+//先将要去重的数组使用 sort 方法排序后，相同的值就会被排在一起，然后我们就可以只判断当前元素与上一个元素是否相同，相同就说明重复，不相同就添加进 res
+
+//first version 如果我们对一个已经排好序的数组去重,效率高于使用indexOf
+function unique(arr) {
+  let res = [];
+  let sortedArray = array.concat().sort();
+  let seen;
+  
+  for (let i=0, len=arr.length; i<len; i++) {
+    //如果是第一个元素或者相邻的元素不同
+    if (!i || seen !== sortedArray[i]) {
+      res.push(sortedArray[i]);
+    }
+    seen = sortedArray[i];
+  }
+  
+  return res;
+}
+
+//second version  unique API
+function unique(arr, isSorted) {
+  let res = [],
+      seen = [];
+  
+  for (let i=0, len = arr.length; i<len; i++) {
+    let value = arr[i];
+    
+    if (isSorted) {
+      if (!i || seen !== value) {
+        res.push(value);
+      }
+      seen = value;
+    } else if (res.indexOf(value) === -1) {
+      res.push(value);
+    }
+  }
+  return res;
+}
+
+//last version unique API 优化
+//新需求: 字母的大小写视为一致,保留一个即可.虽然我们可以先将数组中的所有字母转成小写,然后再传入unique函数.但是有没有方法可以省略处理数组的这一边循环,直接在去重的循环中做?
+
+function unique(arr, isSorted, iteratee) {
+  let res = [],
+      seen = [];
+  
+  for (let i=0, len=arr.length; i<len; i++) {
+    let value = arr[i];
+    let computed = iteratee ? iteratee(value, i, arr) : value;
+    
+    if (isSorted) {
+      if (!i || seen !== value) {
+        res.push(value);
+      }
+      seen = value;
+    } else if (iteratee) {
+      if (seen.indexOf(computed) === -1) {
+        seen.push(computed);
+        res.push(value);
+      }
+    } else if (res.indexOf(value) === -1) {
+      res.push(value);
+    }
+  }
+  return res;
+}
+
+
+
+
+
+//ES6
 arr.concat().sort().filter((item, idx, arr) => !idx || item !== arr[idx - 1])
 ```
 
