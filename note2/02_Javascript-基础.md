@@ -12468,6 +12468,17 @@ Array.from(arrayLike[, mapFn[, thisArg]]
 
 **实例**
 
+可迭代对象
+
+```javascript
+Array.from(Array(1000).keys())
+
+Array(1000).keys() 返回一个可迭代对象
+
+```
+
+
+
 string生成数组
 
 ```javascript
@@ -15470,6 +15481,10 @@ var denseKeys = [...arr.keys()];
 console.log(sparseKeys); // ['0', '2']
 console.log(denseKeys);  // [0, 1, 2]
 ```
+
+**其他**
+
+这里要注意是的是和对象Object.keys()方法的比较,对象的方法返回的是一个数组.
 
 
 
