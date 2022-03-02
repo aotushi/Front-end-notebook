@@ -1076,7 +1076,9 @@ null?.someProp
 
   
 
-### 判断数据类型
+### JavaScript中类型判断
+
+> https://github.com/mqyqingfeng/Blog/issues/28
 
 ####   1.typeof
 
@@ -1272,7 +1274,7 @@ console.log(arr.toString()); //[object Array]
 
 
 
-##### 2.3 API
+#### 3 API
 
 >  写个 type 函数帮助我们以后识别各种类型的值
 
@@ -1331,6 +1333,59 @@ let isArray = Array.isArray || (obj) => type(obj) === 'array';
 这个 type 函数抄的 jQuery，[点击查看 type 源码](https://github.com/jquery/jquery/blob/ac9e3016645078e1e42120822cfb2076151c8cbe/src/core.js#L269)。
 
 
+
+#### 4.API2
+
+> 在上篇[《JavaScript专题之类型判断(上)》](https://github.com/mqyqingfeng/Blog/issues/28)中，我们抄袭 jQuery 写了一个 type 函数，可以检测出常见的数据类型，然而在开发中还有更加复杂的判断，比如 plainObject、空对象、Window 对象等，这一篇就让我们接着抄袭 jQuery 去看一下这些类型的判断。
+
+##### plainObject
+
+> plainObject 来自于 jQuery，可以翻译成纯粹的对象，所谓"纯粹的对象"，就是该对象是通过 "{}" 或 "new Object" 创建的，该对象含有零个或者多个键值对。
+>
+> 之所以要判断是不是 plainObject，是为了跟其他的 JavaScript对象如 null，数组，宿主对象（documents）等作区分，因为这些用 typeof 都会返回object。
+>
+> jQuery提供了 isPlainObject 方法进行判断，先让我们看看使用的效果：
+
+```javascript
+function Person(name) {
+  this.name = name;
+}
+
+console.log($.isPlainObject({})); //true
+
+console.log($.isPlainObject(new Object)) // true
+
+console.log($.isPlainObject(Object.create(null))); // true
+
+console.log($.isPlainObject(Object.assign({a: 1}, {b: 2}))); // true
+
+console.log($.isPlainObject(new Person('yayu'))); // false
+
+console.log($.isPlainObject(Object.create({}))); // false
+```
+
+由此我们可以看到，除了 {} 和 new Object 创建的之外，jQuery 认为一个没有原型的对象也是一个纯粹的对象。
+
+ 3.0 版本下的 isPlainObject，我们直接看源码：
+
+```javascript
+let type2class = {};
+
+//相当于Object.prtotype.toString
+let toString = type2class.toString;
+
+//相当于Object.prototype.hasOwnProperty
+let hasOwn = class2type.hasOwnProeprty;
+
+function isPlainObject(obj) {
+  let proto, Ctor;
+  
+  //排序明显不是obj的以及一些宿主对象如Window
+  if (!obj || toString.call(obj) !== "[object Object]") {
+    return false;
+  }
+}
+```
 
 
 
@@ -5197,6 +5252,20 @@ obj[xx] 最终极端的obj['username']===obj.username
 -- 语法:
 对象.属性名 = 属性值
 对象['属性名'] = 属性值;
+```
+
+
+
+#### 注意事项
+
+1.**对象的可计算属性括号可以放表达式**
+
+```javascript
+let obj = {},a = 13;
+
+obj[typeof 1 + a] = true; //注意这里的类型转换和先后顺序
+
+console.log(obj);//{'number13': true}
 ```
 
 
@@ -15356,7 +15425,7 @@ Array.prototype.flat()特点:
 * `Infinity`关键字作为参数时,无论多少层嵌套,都会转为一维数组.
 * 如果原数组有空位, 此方法会跳过空位
 
-1.实现思路
+1.实现思路（简洁顺畅，要的就是这个感觉）
 
 在数组中找到是数组类型的元素,然后将它们展开.
 
@@ -15932,24 +16001,21 @@ let result = str.split('').reduce((acc, cur, idx) => {
 
 
 
-#### 数组去重的6种方法
+#### 数组去重的 ? 种方法
 
 * **双for循环**
   * splice
   * 新数组
-
 * **for循环**
   * indexOf
   * includes
-
 * **reduce**
   * includes+(push/concat)
-
 * **filter**
   * indexOf
   * sort
-
 * **sort()**+快慢指针
+* Object键值对
 * **ES6**
   * Set
   * Map
@@ -16231,12 +16297,47 @@ function unique2(arr) {
 
 
 
+Object键值对
+
+这种方法是利用一个空的 Object 对象，我们把数组的值存成 Object 的 key 值，比如 Object[value1] = true，在判断另一个值的时候，如果 Object[value2]存在的话，就说明该值是重复的。示例代码如下：
+
+```javascript
+let arr = [1, 2, 1, 1, '1'];
+
+//存在的问题,对象的key都会转成字符串,可使用 typeof item + item 拼成字符串作为 key 值来避免这个问题
+function uniqueByObject(arr) {
+  let obj = {};
+  return arr.filter((v, idx, arr) => obj[v] ? false : obj[v]=true); 
+}
+
+//对象的可计算属性方括号 可以放表达式  :))))
+function uniqueByObject(arr) {
+  let obj = {};
+  return arr.filter(v => obj[typeof v + v] ? false : obj[typeof v + v]=true);
+}
+
+//上面的方法依然存在问题,无法正确区分出两个对象,使用JSON.stringify()将对象序列化
+funtion unique(arr) {
+  let obj = {};
+  return arr.filter(v => obj[typeof v + JSON.stringify(v)] ? false : obj[typeof v + JSON.stringify(v)]);
+}
+
+//依然存在的问题: JSON.stringify对正则的结果都是{}.所以这个方法并不适用于处理正则表达式去重。
+console.log(JSON.stringify(/a/)); //{}
+console.log(JSON.stringify(/b/)); //{}
+
+
+```
+
+
+
+
+
 ES6-Set去重
 
 ```javascript
 function unique() {
   return Array.from(new Set([].concat.apply([], arguments)));
-<<<<<<< HEAD
 }
 
 function unique(arr) {
@@ -16250,25 +16351,6 @@ function unique(arr) {
 
 //再简化
 let unique = (arr) => [...new Set(arr)];
-
-
-=======
-}
-
-function unique(arr) {
-  return Array.from(new Set(arr));
-}
-
-//简化
-function unique(arr) {
-  return [...new Set(arr)];
-}
-
-//再简化
-let unique = (arr) => [...new Set(arr)];
-
-
->>>>>>> 00c58c76672eed7702569979234cf2a2cca89f8b
 ```
 
 
@@ -16291,7 +16373,7 @@ function unique(arr) {
 
 function unique2(arr) {  //太聪明了真是. 来自JS专题之数组去重
   let map = new Map();
-  return arr.filter((item) => !map.has(item) && map.set(a, 1));
+  return arr.filter((item) => !map.has(item) && map.set(item, 1));
 }
 ```
 
@@ -16299,22 +16381,47 @@ function unique2(arr) {  //太聪明了真是. 来自JS专题之数组去重
 
 #### 数组去重的方法存在的问题
 
+> https://github.com/mqyqingfeng/Blog/issues/27
+
 对于这样一个数组使用以上的去重方法:
 
 ```javascript
 var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), new String('1'), /a/, /a/, NaN, NaN];
 ```
 
+我们重点关注下对象和 NaN 的去重情况：
 
+| 方法                  | 结果                                                         | 说明                              |
+| --------------------- | ------------------------------------------------------------ | --------------------------------- |
+| for循环(双for+新数组) | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
+| indexOf               | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
+| sort                  | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 也不去重 |
+| filter+indexOf        | [1, "1", null, undefined, String, String, /a/, /a/]          | 对象不去重 NaN 会被忽略掉         |
+| filter+sort           | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 不去重   |
+| 优化后的键值对方法    | [1, "1", null, undefined, String, /a/, NaN]                  | 全部去重                          |
+| Set                   | [1, "1", null, undefined, String, String, /a/, /a/, NaN]     | 对象不去重 NaN 去重               |
 
-| 方法               | 结果 | 说明 |
-| ------------------ | ---- | ---- |
-| for循环            |      |      |
-| for循环+ indexOf   |      |      |
-| for循环 + includes |      |      |
-|                    |      |      |
+这里再次声明一下，键值对方法不能去重正则表达式。
 
+想了解为什么会出现以上的结果，看两个 demo 便能明白：
 
+```javascript
+//demo1
+let arr = [1,2,NaN];
+arr.indexOf(NaN); //-1
+```
+
+<span style="color: blue;">indexOf 底层还是使用 === 进行判断，因为 NaN === NaN的结果为 false，所以使用 indexOf 查找不到 NaN 元素</span>
+
+```javascript
+//demo2
+function unique(arr) {
+  return Array.from(new Set(arr));
+}
+console.log(unique([NaN, NaN])); //[NaN]
+```
+
+<span style="color: blue;">Set 认为尽管 NaN === NaN 为 false，但是这两个元素是重复的。</span>
 
 
 
