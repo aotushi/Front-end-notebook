@@ -15501,6 +15501,135 @@ arr.toString().split(',').map(v => parseInt(v));
 
 const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }];
 
+function flat(arr) {
+  let res = [];
+  arr.forEach(item => {
+    if (Array.isArray(item)) {
+      res = res.concat(arguments.callee(item)); //递归
+      //或使用扩展运算符
+      //res.push(...arguments.callee(item))
+    } else {
+      res.push(item);
+    }
+  });
+  return res;
+}
+```
+
+
+
+```javascript
+//用reduce实现flat函数
+
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }]
+
+const flat = arr => {
+  return arr.reduce((acc, crt) => {
+    return acc.concat(Array.isArray(crt) ? flat(crt) : crt)
+  }, [])
+};
+
+// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "弹铁蛋同学" }];
+```
+
+
+
+```javascript
+//用栈的思想实现flat函数
+
+function flat(arr) {
+  let res = [];
+  let stack = [].concat(arr); //将数组元素拷贝至栈,直接赋值会改变原数组
+  //如果栈不为空,则循环遍历
+  while (stack.length !== 0) {
+    const val = stack.pop();
+    if (Array.isArray(val)) {
+      stack.push(...val); //如果是数组再次入栈,并且展开了一层
+    } else {
+      res.unshift(val); //如果不是数组就将其取出来放入结果数组
+    }
+  }
+  return res;
+}
+```
+
+
+
+```javascript
+//通过传入整数参数控制拉平层数 !!!!
+function flat(arr, num=1) {
+ return num > 0
+  ? arr.reduce((pre, cur) => {
+   pre.concat(Array.isArray(cur) ? flat(cur, num-1) : cur)
+ }, [])
+  : arr.slice();
+}
+```
+
+
+
+```javascript
+//使用Generator 实现 flat
+
+function* flat(arr,num) {
+  if (num === undefined) num = 1;
+  for (const item of arr) {
+    if (Array.isArray(item) && num > 0) {
+      yield* flat(item, num-1);
+    } else {
+      yield item;
+    }
+  }
+}
+
+// 调用 Generator 函数后，该函数并不执行，返回的也不是函数运行结果，而是一个指向内部状态的指针对象。
+// 也就是遍历器对象（Iterator Object）。所以我们要用一次扩展运算符得到结果
+[...flat(arr, Infinity)]    
+// [1, 2, 3, 4, 1, 2, 3, 1, 2, 3, 1, 2, 3, 5, "string", { name: "弹铁蛋同学" }];
+
+作者：弹铁蛋同学
+链接：https://juejin.cn/post/6844904025993773063
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+```
+
+
+
+```javascript
+//在原型链上重写 flat 函数
+Array.prototype.flat = function(num=1) {
+  if (!Number(num) || Number(num) < 0) {
+    return this;
+  }
+  let arr = this.concat(); 
+  while(num > 0) {
+    if (arr.some(x => Array.isArray(x))) {
+      arr = [].concat.apply([], arr);
+    } else {
+      break; //数组中没有数组元素并且不管num是否依旧大于0, 停止循环
+    }
+    num--;
+  }
+  return arr;
+}
+```
+
+
+
+```javascript
+//考虑数组空位的情况
+// flat 函数执行是会跳过空位的。ES5 大多数数组方法对空位的处理都会选择跳过空位包括：forEach(), filter(), reduce(), every() 和 some() 都会跳过空位。
+
+
+```
+
+
+
+```javascript
+//concat + 递归
+
+const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }];
+
 function myFlat(arr) {
   if (!Array.isArray(arr)) {
     return alert('参数需要是一个数组');
