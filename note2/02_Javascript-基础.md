@@ -1384,7 +1384,36 @@ function isPlainObject(obj) {
   if (!obj || toString.call(obj) !== "[object Object]") {
     return false;
   }
+  
+   /**
+     * getPrototypeOf es5 方法，获取 obj 的原型
+     * 以 new Object 创建的对象为例的话
+     * obj.__proto__ === Object.prototype
+     */
+  proto = Object.getPrototypeOf(obj);
+  
+  //没有原型的对象是纯粹的,Object.create(null)就在这里返回true
+  if (!proto) {
+    return true;
+  }
+  
+  /**
+     * 以下判断通过 new Object 方式创建的对象
+     * 判断 proto 是否有 constructor 属性，如果有就让 Ctor 的值为 proto.constructor
+     * 如果是 Object 函数创建的对象，Ctor 在这里就等于 Object 构造函数
+     */
+  Ctor = hasOwn.call(proto, 'constructor') && proto.constructor;
+  
+  //在这里判断 Ctor 构造函数是不是 Object 构造函数，用于区分自定义构造函数和 Object 构造函数
+  return typeof Ctor === 'function' && hasOwn.toString.call(Ctor) === hasOwn.toString.call(Object);
 }
+```
+
+注意: 我们判断Ctor构造函数是不是Object构造函数,用的是hasOwn.toString.call(Ctor).这个方法可不是Object.prototype.toString.我们可以通过在函数添加打印来查看:
+
+```javascript
+console.log(hasOwn.toString.call(Ctor)); //function Object() { [native code] }
+console.log(Object.prototype.toString.call(Ctor)); //[object Object]
 ```
 
 
@@ -7133,6 +7162,41 @@ if (Object.hasOwn(foo, 'prop')) {
 
 
 
+#### Object.prototype.toString()
+
+**Syntax**
+
+```javascript
+toString()
+```
+
+
+
+**Return value**
+
+A string representing the object
+
+**Desc**
+
+An object's toString() method is most commonly invoked whne that object undergoes...
+
+* explicit [type conversion](https://developer.mozilla.org/en-US/docs/Glossary/Type_Conversion) to a string(for example, String(myObject))
+* implicit  [type coercion](https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion) into a string(for example, myObject + 'hello world')
+
+> Note: This assumes the object does not have a custom implementation of `Symbol.toPrimitive`. If it des, that method will take priority and be called instaed of `toString()`
+
+While not as common, the method can be invoked directly(for example, myObject.toString())
+
+By default toString() returns "[object Type]", where Type is the object type.
+
+```javascript
+const o = new Object().toString(); //o is "[object Object]"
+```
+
+This method is inherited by every object descended from Object, but can be overridden by erther the author or built-in descendant objects (for example, `Number.prototype.toString()`)
+
+> Note:
+
 ### 8.对象属性枚举for-in
 
 #### 0. ES5和ES6属性枚举的区别
@@ -12272,7 +12336,9 @@ console.log(count);
 
 
 
-#### 1. 空元素empty和undefined的区别
+#### 1. 空位empty和undefined的区别
+
+> https://juejin.cn/post/6844904025993773063#heading-14
 
 **介绍**
 
@@ -12280,9 +12346,32 @@ console.log(count);
 
 **ES5和ES6的不同表现**
 
-ES6 之前的方法则会忽略这个空位，但具体的行为也会因方法而异.
+**ES5 对空位的处理，就非常不一致，大多数情况下会忽略空位。**
 
-ES6 则是明确将空位转为`undefined`，包括`Array.from`、`Array.of`,  扩展运算符、`copyWithin()`、`fill()`、`entries()`、`keys()`、`values()`、`find()`和`findIndex()`
+* `forEach()`, `filter()`, `reduce()`, `every()` 和 `some()` 都会跳过空位。
+
+* `map()` 会跳过空位，但会保留这个值。
+
+* `join()` 和 `toString()` 会将空位视为 `undefined`，而 `undefined` 和 `null` 会被处理成空字符串。
+
+
+
+
+**ES6 则是明确将空位转为`undefined`**，
+
+* `entries()`、`keys()`、`values()`、`find()`和 `findIndex()` 会将空位处理成 `undefined`。
+
+* `for...of` 循环会遍历空位。
+
+* `fill()` 会将空位视为正常的数组位置。
+
+* `copyWithin()` 会连空位一起拷贝。
+
+* 扩展运算符（`...`）也会将空位转为 `undefined`。
+
+* `Array.from` 方法会将数组的空位，转为 `undefined`。
+
+
 
 ```javascript
 //ES5 的方法则会忽略这个空位，但具体的行为也会因方法而异：
@@ -15620,10 +15709,40 @@ Array.prototype.flat = function(num=1) {
 //考虑数组空位的情况
 // flat 函数执行是会跳过空位的。ES5 大多数数组方法对空位的处理都会选择跳过空位包括：forEach(), filter(), reduce(), every() 和 some() 都会跳过空位。
 
+//reduce+递归
+function flat(num=1) {
+  if (!Number(num) || Num(num)<0) {
+    return this;
+  }
+  let arr = [].concat(this);
+  return num > 0
+  	? arr.reduce((pre, cur) => pre.concat(Array.isArray(cur) ? cur.flat(--num): cur),[])
+  	: arr.slice();
+}
+const arr = [1,[3,4],,,];
+arr.flat(); //[1,3,4]
+
+
+//forEach+递归
+function flat(num=1) {
+  if (!Number(num) || Number(num) < 0) {
+    return this;
+  }
+  let arr = [];
+  this.forEach(item => {
+    if (Array.isArray(item)) {
+      arr = arr.concat(item.flat(--num));
+    } else {
+      arr.push(item);
+    }
+  });
+  return arr;
+};
+
 
 ```
 
-
+扩展阅读: **由于空位的处理规则非常不统一，所以建议避免出现空位。** 见数组中的相关知识点.
 
 ```javascript
 //concat + 递归
