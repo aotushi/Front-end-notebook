@@ -7197,6 +7197,44 @@ This method is inherited by every object descended from Object, but can be overr
 
 > Note:
 
+**Parameters**
+
+* Be default `toString()` takes no parameters.
+* however,objects that inherit from `Object` may override it with their own implementation that do take parameters. For example, the `toString()` methods implemented by `Number` and `BigInt` take an optional `radix`  parameter.
+
+**Examples**
+
+Overriding the default toString method.
+
+* the `toString()` function you create must return a primitive.
+* If it returns an object and the method is called implicitly<sup>含蓄的暗中的</sup>(i.e. during type conversion or coercion), then its result will be ignored 
+  * and the value of a related method   `valueOf()`, will be used instead, 
+  * or a `TypeError` will be thrown if none of these methods return a primitive.
+
+```javascript
+//varify the upside conclusion
+let obj = {
+  toString() {return {} },
+  valueOf() {return 1}
+};
+String(obj); //'1'
+obj + 'a'; //'1a'
+```
+
+
+
+Using toString() to detect object class
+
+`toString()` can be used with every object and (by default) allows you to get its class.
+
+
+
+
+
+
+
+
+
 ### 8.对象属性枚举for-in
 
 #### 0. ES5和ES6属性枚举的区别
