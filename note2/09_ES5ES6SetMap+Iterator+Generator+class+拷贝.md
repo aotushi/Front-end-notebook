@@ -2440,6 +2440,52 @@ let result = [...new Set(arr)].filter(item => !(new Set(arr2)).has(item));
 
 
 
+### 8.实现Set方法
+
+```javascript
+//https://juejin.cn/post/7033275515880341512#:~:text=%F0%9F%9B%AB%20ES6%E7%AF%87-,%E5%AE%9E%E7%8E%B0set,-class%20Set%20%7B%0A%20%20constructor
+
+class Set {
+  constructor() {
+    this.items = {};
+    this.size = 0;
+  }
+  has(ele) {
+    return ele in this.items;
+  }
+  
+  add(ele) {
+    if (!this.has(ele)) {
+      this.items[ele] = ele;
+      this.size++;
+    }
+    return this;
+  }
+  delete(ele) {
+    if (this.has(ele)) {
+      delete this.items[ele];
+      this.size--;
+    }
+    return this;
+  }
+  
+  clear() {
+    this.items = [];
+    this.size = 0;
+  }
+  
+  values() {
+    let values = [];
+    for (let key in this.items) {
+      if (this.items.hasOwnProperty(key)) {
+        values.push(key);
+      }
+    }
+    return values;
+  }
+}
+```
+
 
 
 
@@ -2693,6 +2739,72 @@ let Person = (function() {
 相对Map集合而言，Weak Map集合对用户的可见度更低，其不支持通过forEach()方法、size属性及clear()方法来管理集合中的元素。如果你非常需要这些特性，那么Map集合是一个更好的选择，只是一定要留意内存的使用情况。
 
 当然，如果你只想使用非对象作为键名，那么普通的Map集合是你唯一的选择。
+
+
+
+### 4. 实现Map
+
+```javascript
+//https://juejin.cn/post/7033275515880341512#:~:text=%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81-,%E5%AE%9E%E7%8E%B0%20map,-function%20defaultToString(key
+function defaultToString(key) {
+  if (key === null) {
+    return 'NULL';
+  } else if (key === undefined) {
+    return 'UNDEFINED';
+  } else if (Object.prototype.toString.call(key) === '[object Object]' || Object.prototype.toString.call(key) === '[object Array]') {
+    return JSON.stringify(key);
+  }
+  return key.toString();
+}
+
+class Map {
+  constructor() {
+    this.items = [];
+    this.size = 0;
+  }
+  
+  set(key, value) {
+    if (!this.has(key)) {
+      this.items[defaultToString(key)] = value;
+      this.size++;
+    }
+    return this;
+  }
+  
+  get(key) {
+    return this.items[defaultToString(key)];
+  }
+  
+  has(key) {
+    return this.items[defaultToString(key)] !== undefined;
+  }
+  
+  delete(key) {
+    if (this.has(key)) {
+      delete this.items[key];
+      this.size--;
+    }
+    return this;
+  }
+  
+  clear() {
+    this.items = [];
+    this.size = 0;
+  }
+  
+  values() {
+    let values = [];
+    for (let key in this.items) {
+      if (this.has(key)) {
+        values.push(key);
+      }
+    }
+    return values;
+  }
+}
+```
+
+
 
 
 

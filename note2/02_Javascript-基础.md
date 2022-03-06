@@ -2923,13 +2923,133 @@ String方法是是谁身上的，无论是Object还是Function，都是返回的
 
 instanceof运算符判断一个对象是否为另一个对象的实例
 
+the `instanceof` operator tests to see if <u>the `prototype` of a constructor</u> appears anywhere in <u>the prototype chain</u> of <u>an object</u>. The return value is a boolean value.
+
+**Syntax**
+
+```javascript
+object instanceof constructor
+```
+
+**Desc**
+
+the `instanceof` operator tests the presence of `constructor.prototype` in `objdct`'s prototype chain.
+
+> Note that the value of an `instanceof` test can change based on changes to the `prototype` property of constructors.
+>
+> It can also be changed by changing an object's prototype using `Object.setPrototypeOf`.  
+>
+> It is also possible using the non-standard `__proto__` property.
+
+```javascript
+function Fn() {};
+function Fn2() {};
+
+let a = new Fn();
+let b = new Fn();
+
+a instanceof Fn;
+Object.setPrototypeOf(a, Fn2);
+a instanceof Fn; //false
+```
+
+
+
+**`instanceof` and mulptiple context(e.g. frames or windows)**
+
+
+
+
+
+**Examples**
+
+<u>Using instanceof with String</u>
+
+```javascript
+let literalString = 'This is a literal string';
+let stringObject = new String('String created with constructor');
+
+literalString instanceof String; //false
+stringObject instanceof String; //true
+
+literalString instanceof Object; //false
+stringObject instanceof Object; //true
+
+stringObject instanceof Date; //false
+```
+
+<u>Using instanceof with Date</u>
+
+```javascript
+let myDate = new Date();
+
+myDate instanceof Date; //true
+myDate instanceof Object; //true
+myDate instanceof String; //false
+```
+
+<u>Object created using Object.create()</u>
+
+```javascript
+function Shape() {}
+function Rectangle() {
+  Shape.call(this);
+}
+
+Rectangle.prototype = Object.create(Shape.prototype);
+Rectangle.prototype.constructor = Rectangle;
+
+let rect = new Rectangle();
+
+rect instanceof Object; //true
+rect instanceof Shape; //true
+rect instanceof Rectangle; //true
+rcct instanceof String; //false
+
+let literalObject = {};
+let nullObject = Object.create(null);
+nullObject.name = 'My object';
+
+literalObject instanceof Object; //true
+({}) instanceof Object; //true
+nullObject instanceof Object; //false  prototype is end of prototype chain(null)
+```
+
+
+
+**重写instanceof**
+
+```javascript
+//https://juejin.cn/post/7033275515880341512#:~:text=%F0%9F%A6%89%20%E5%85%B6%E4%BB%96-,Instanceof,-%E8%80%83%E5%AF%9F%E9%A2%91%E7%8E%87%3A%20(%E2%AD%90%E2%AD%90%E2%AD%90%E2%AD%90)
+
+
+function instance_of(Case, Constructor) {
+  //基本数据类型返回false
+  //兼容一下函数对象
+  if (typeof(Case) !== 'object' && typeof(Case) !== 'function' || Case === 'null') {
+    return false;
+  }
+  let CaseProto = Object.getPrototypeOf(Case);
+  while(true) {
+    if (CaseProto == null) return false;
+    //找到相同的原型
+    if (CaseProto === Constructor.prototype) return true;
+    CaseProto = Object.getPrototypeOf(CaseProto);
+  }
+}
+```
+
+
+
+
+
 #### 小于运算符(<)
 
 ##### Desc
 
 the operands are compared using the  [Abstract Relational Comparison](https://tc39.es/ecma262/#sec-abstract-relational-comparison) algorithm, which is roughly summarized below:
 
-* First, objects are converted to primitive using <span style="text-decoration: underline  double blue">Symbol.ToPrimitive</span> with the hint parameter be 'number'.
+* First, objects are converted to primitive using <span style="text-decoration: underline  double blue">**Symbol.ToPrimitive**</span> with the hint parameter be 'number'.
 * If both values are strings, they are compared as strings, based on the values of the Unicode code points the contain.
 * Otherwise JavaScript attempts to convert non-numeric types to numeric values:
   * Boolean values `true` and `false` are converted to 1 and 0 respectively.
@@ -7183,7 +7303,7 @@ An object's toString() method is most commonly invoked whne that object undergoe
 * explicit [type conversion](https://developer.mozilla.org/en-US/docs/Glossary/Type_Conversion) to a string(for example, String(myObject))
 * implicit  [type coercion](https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion) into a string(for example, myObject + 'hello world')
 
-> Note: This assumes the object does not have a custom implementation of `Symbol.toPrimitive`. If it des, that method will take priority and be called instaed of `toString()`
+> Note: This assumes the object does not have a custom implementation of <span style="color:red;">**`Symbol.toPrimitive`**</span>. If it does, that method will take priority and be called instaed of `toString()`
 
 While not as common, the method can be invoked directly(for example, myObject.toString())
 
@@ -7191,11 +7311,19 @@ By default toString() returns "[object Type]", where Type is the object type.
 
 ```javascript
 const o = new Object().toString(); //o is "[object Object]"
+
+//Symbol.toPrimitive
+let obj = {
+  toString() {return 1},
+  [Symbol.toPrimitive]() {return 2}
+};
+obj + '1' //'21'
+String(obj); //'2'
 ```
 
 This method is inherited by every object descended from Object, but can be overridden by erther the author or built-in descendant objects (for example, `Number.prototype.toString()`)
 
-> Note:
+
 
 **Parameters**
 
@@ -7204,11 +7332,11 @@ This method is inherited by every object descended from Object, but can be overr
 
 **Examples**
 
-Overriding the default toString method.
+<u>Overriding the default toString method.</u>
 
 * the `toString()` function you create must return a primitive.
 * If it returns an object and the method is called implicitly<sup>含蓄的暗中的</sup>(i.e. during type conversion or coercion), then its result will be ignored 
-  * and the value of a related method   `valueOf()`, will be used instead, 
+  * and the value of a related method  <span style="color: red;"> **`valueOf()`**</span>, will be used instead, 
   * or a `TypeError` will be thrown if none of these methods return a primitive.
 
 ```javascript
@@ -7223,9 +7351,38 @@ obj + 'a'; //'1a'
 
 
 
-Using toString() to detect object class
+<u>Using toString() to detect object class</u>
 
 `toString()` can be used with every object and (by default) allows you to get its class.
+
+* To use the base `Object.prototype.toString()` with an object that has had it overridden, you need to call [`Function.prototype.call()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call) or [`Function.prototype.apply()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply) on it, passing the object you want to inspect as the first parameter (called `thisArg`).
+
+```javascript
+const toString = Object.prototype.toString;
+
+toString.call(new Date); //[object Date]
+toString.call(new String); //[object String]
+toString.call(Math); //[object Math]
+
+//since JavaScript 1.8.5
+toString.call(undefined) //[object Undefined]
+toString.call(null); //[object Null]
+```
+
+
+
+* Using `toString()` in this way is unreliable; objects can change the behavior of `Object.prototype.toString()`by defining a <span style="color: red;">**`Symbol.toStringTag`** </span>property, leading to unexpected results.
+
+```javascript
+const myDate = new Date();
+Object.prototype.toString.call(myDate); //[object Date]
+
+myDate[Symbol.toSTringTag] = 'myDate';
+Object.prototype.toString.call(myDate); //[object myDate]
+
+Date.prototype[Symbol.toStringTag] = 'prototype polluted';
+Object.prototype.toString.call(new Date()); //[object prototype polluted]
+```
 
 
 
@@ -11906,7 +12063,7 @@ function creatPerson(name, age, gender){
 >
 > 2.将新对象内部的[[prototype]]的指针赋值为构造函数的prototype属性
 >
-> 3.更新构造函数内的this为这个对象Constructor.apply(obj), 并执行构造函数内部的代码,
+> 3.更新构造函数内的this(Constructor.apply(obj))为这个对象, 并执行构造函数内部的代码,
 >
 > 4.返回值: 如果构造函数返回非空对象,则返回该对象; 否则,返回刚创建的新对象.
 
@@ -15574,7 +15731,7 @@ Array.prototype.flat()特点:
 * reduce()
 * map()
 
-3.判断元素是否为数组的方案 7种
+3.判断元素是否为数组的方案 <span style="color:red;">**7**</span> 种
 
 * [] instanceof Array
 * [].\_\_proto\_\_ === Array.prototype
