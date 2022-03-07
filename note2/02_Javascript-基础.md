@@ -2747,6 +2747,8 @@ a ??= b; // 等同于 a ?? (a = b);
 
 #### 相等运算符(==)
 
+相等操作符比较两个值是否相等，在比较前将两个被比较的值转换为相同类型。在转换后（等式的一边或两边都可能被转换），最终的比较方式等同于全等操作符 === 的比较方式。 相等操作符满足交换律。
+
 **规则**
 
 相等运算符（`==`和`!=`）使用[抽象相等比较算法](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3)比较两个操作数。
@@ -2797,7 +2799,17 @@ ECMA文档定义没有直接指出原因,但从下面这句话可以看出原因
 
 这也是`null == undefined` 返回`true`的原因(它们两个都没有任何值,此点没有相应解释). 应该注意`null===undefined`返回`false`, 因为这是两种类型.
 
+**相等操作符对于不同类型的值,如图**
 
+| 被比较值 B |           |           |         |                       |                               |                                 |                                 |
+| :--------- | --------- | --------- | ------- | --------------------- | ----------------------------- | ------------------------------- | ------------------------------- |
+|            |           | Undefined | Null    | Number                | String                        | Boolean                         | Object                          |
+| 被比较值 A | Undefined | `true`    | `true`  | `false`               | `false`                       | `false`                         | `IsFalsy(B)`                    |
+|            | Null      | `true`    | `true`  | `false`               | `false`                       | `false`                         | `IsFalsy(B)`                    |
+|            | Number    | `false`   | `false` | `A === B`             | `A === ToNumber(B)`           | `A=== ToNumber(B)`              | `A== ToPrimitive(B)`            |
+|            | String    | `false`   | `false` | `ToNumber(A) === B`   | `A === B`                     | `ToNumber(A) === ToNumber(B)`   | `ToPrimitive(B) == A`           |
+|            | Boolean   | `false`   | `false` | `ToNumber(A) === B`   | `ToNumber(A) === ToNumber(B)` | `A === B`                       | `ToNumber(A) == ToPrimitive(B)` |
+|            | Object    | `false`   | `false` | `ToPrimitive(A) == B` | `ToPrimitive(A) == B`         | `ToPrimitive(A) == ToNumber(B)` | `A === B`                       |
 
 
 
@@ -2805,30 +2817,22 @@ ECMA文档定义没有直接指出原因,但从下面这句话可以看出原因
 
 #### 全等运算符(===)
 
-* 如果两个值全等,返回true,否则返回false
+**判断规则: **
 
-* 全等不会进行自动的类型转换,如果比较的两个值类型不同,直接返回false
+* 全等操作符比较两个值是否相等，两个被比较的值在比较前都不进行隐式转换。
 
-* null和undefined相等,但是不全等
+* 如果两个被比较的值具有不同的类型，这两个值是不全等的。
 
-* NaN不和任何值相等,包括它自己
+* 如果两个被比较的值类型相同，值也相同，并且都不是 number 类型时，两个值全等。*
+* 如果两个值都是 number 类型，当两个都不是 NaN，并且数值相同，或是两个值分别为 +0 和 -0 时，两个值被认为是全等的。
 
-  * 可以通过 isNaN()函数来检查一个值是否是NaN,返回的是布尔值
+在日常中使用全等操作符几乎总是正确的选择。对于除了数值之外的值，全等操作符使用明确的语义进行比较：一个值只与自身全等。
 
-```javascript
-+0 === -0; //true
-NaN === NaN //false
-```
+对于数值，全等操作符使用略加修改的语义来处理两个特殊情况：
 
-**如何判断两个参数相等**
+第一个情况是，浮点数 0 是不分正负的。区分 +0 和 -0 在解决一些特定的数学问题时是必要的，但是大部分情况下我们并不用关心。全等操作符认为这两个值是全等的。
 
-> https://github.com/mqyqingfeng/Blog/issues/41
-
-见04_Javascript-高级中的'如何判断两个参数相等'
-
-  
-
-  
+第二个情况是，浮点数包含了 NaN 值，用来表示某些定义不明确的数学问题的解，例如：正无穷加负无穷。全等操作符认为 NaN 与其他任何值都不全等，包括它自己。（**等式 `(x !== x)` 成立的唯一情况是 x 的值为 NaN）**
 
 
 
@@ -3017,7 +3021,7 @@ nullObject instanceof Object; //false  prototype is end of prototype chain(null)
 
 
 
-**重写instanceof**
+**重写instanceof** //0306
 
 ```javascript
 //https://juejin.cn/post/7033275515880341512#:~:text=%F0%9F%A6%89%20%E5%85%B6%E4%BB%96-,Instanceof,-%E8%80%83%E5%AF%9F%E9%A2%91%E7%8E%87%3A%20(%E2%AD%90%E2%AD%90%E2%AD%90%E2%AD%90)
@@ -3107,7 +3111,145 @@ result = 'blskdjf' < 'a'; //false  如果第一位b的Unicode编码大于a的,�
 
 
 
+### 4.1 JS相等性判断及实例应用
+
+####   如何判断两个参数相等
+
+> https://github.com/mqyqingfeng/Blog/issues/41
+
+见04_Javascript-高级中的'如何判断两个参数相等'
+
   
+
+  
+
+#### JavaScript中的相等性判断
+
+看到好的文章就情不自禁的抄写一遍...
+
+> https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Equality_comparisons_and_sameness#%E4%B8%A5%E6%A0%BC%E7%9B%B8%E7%AD%89
+
+ES2015中有四种相等算法:
+
+* 抽象(非严格)相等比较(==)
+* 严格相等比较(===): 用于`Array.prototype.indexOf`, `Array.prototype.lastIndexOf`,和 `case-matching`.(也就是Switch语句)
+* [同值零](https://262.ecma-international.org/6.0/#sec-samevaluezero): 用于`$TypedArray%` 和 `ArrayBuffer` 构造函数,以及`Map`和`Set`操作,  并将用于 ES2016/ES7 中的`String.prototype.includes`
+* [同值](https://262.ecma-international.org/6.0/#sec-samevalue): 用于所有其他地方.
+
+<u>Note: SameValueZero differs froms SameValue only in its treatment of `+0` and `-0`.</u>
+
+JavaScript提供3种不同的值比较操作:
+
+* 严格相等比较(也被称作'strict equality', 'identity', 'triple equals'), 使用`===`
+* 抽象相等比较('loose equality', 'double equals'), 使用`==`
+* `Object.is` (ECMAScript2015/ES6新特性)
+
+简而言之，在比较两件事情时，双等号将执行类型转换; 三等号将进行相同的比较，而不进行类型转换 (如果类型不同, 只是总会返回 false ); 而Object.is的行为方式与三等号相同，但是对于NaN和-0和+0进行特殊处理，所以最后两个不相同，而Object.is（NaN，NaN）将为 `true`
+
+
+
+##### 同值相等
+
+同值相等解决了最后一个用例：确定两个值是否在任何情况下功能上是相同的。（这个用例演示了[里氏替换原则](http://zh.wikipedia.org/zh-cn/里氏替换原则)的实例。）当试图对不可变（immutable）属性修改时发生出现的情况：
+
+```javascript
+// 向 Nmuber 构造函数添加一个不可变的属性 NEGATIVE_ZERO
+Object.defineProperty(Number, "NEGATIVE_ZERO",
+                      { value: -0, writable: false, configurable: false, enumerable: false });
+
+function attemptMutation(v)
+{
+  Object.defineProperty(Number, "NEGATIVE_ZERO", { value: v });
+}
+```
+
+`Object.defineProperty` 在试图修改不可变属性时，如果这个属性确实被修改了则会抛出异常，反之什么都不会发生。例如如果 v 是 -0 ，那么没有发生任何变化，所以也不会抛出任何异常。但如果 v 是 +0 ，则会抛出异常。不可变属性和新设定的值使用 same-value 相等比较。
+
+同值相等由 [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is) 方法提供。
+
+
+
+##### 零值相等
+
+与同值相等类似，不过会认为 +0 与 -0 相等。
+
+
+
+##### javascript中的判等
+
+| x                   | y                   | `==`    | `===`   | `Object.is` |
+| :------------------ | :------------------ | :------ | :------ | :---------- |
+| `undefined`         | `undefined`         | `true`  | `true`  | `true`      |
+| `null`              | `null`              | `true`  | `true`  | `true`      |
+| `true`              | `true`              | `true`  | `true`  | `true`      |
+| `false`             | `false`             | `true`  | `true`  | `true`      |
+| `"foo"`             | `"foo"`             | `true`  | `true`  | `true`      |
+| `0`                 | `0`                 | `true`  | `true`  | `true`      |
+| `+0`                | `-0`                | `true`  | `true`  | `false`     |
+| `0`                 | `false`             | `true`  | `false` | `false`     |
+| `""`                | `false`             | `true`  | `false` | `false`     |
+| `""`                | `0`                 | `true`  | `false` | `false`     |
+| `"0"`               | `0`                 | `true`  | `false` | `false`     |
+| `"17"`              | `17`                | `true`  | `false` | `false`     |
+| `[1,2]`             | `"1,2"`             | `true`  | `false` | `false`     |
+| `new String("foo")` | `"foo"`             | `true`  | `false` | `false`     |
+| `null`              | `undefined`         | `true`  | `false` | `false`     |
+| `null`              | `false`             | `false` | `false` | `false`     |
+| `undefined`         | `false`             | `false` | `false` | `false`     |
+| `{ foo: "bar" }`    | `{ foo: "bar" }`    | `false` | `false` | `false`     |
+| `new String("foo")` | `new String("foo")` | `false` | `false` | `false`     |
+| `0`                 | `null`              | `false` | `false` | `false`     |
+| `0`                 | `NaN`               | `false` | `false` | `false`     |
+| `"foo"`             | `NaN`               | `false` | `false` | `false`     |
+| `NaN`               | `NaN`               | `false` | `false` | `true`      |
+
+
+
+##### 使用实践
+
+总的来说，除了对待[`NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN)的方式，[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)唯一让人感兴趣的，是当你需要一些元编程方案时，它对待0的特殊方式，特别是关于属性描述器，即你的工作需要去镜像[`Object.defineProperty`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)的一些特性时。
+
+如果你的工作不需要这些，那你应该避免使用[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)，使用[`===`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comparison_Operators)来代替。
+
+即使你需要比较两个[`NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN)使其结果为`true`，总的来说编写使用[`NaN`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN) 检查的特例函数(用旧版本ECMAScript的[`isNaN方法`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isNaN))也会比想出一些计算方法让[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)不影响不同符号的0的比较更容易些。
+
+这里是一个会区别对待-0和+0的内置方法和操作符不完全列表：
+
+
+
+<u>一元负(`-`)</u>
+
+对`0一元负操作得到``-0`。但表达式的抽象化可能在你没有意识到得情况下导致-0延续传播。例如当考虑下例时:
+
+```javascript
+let stoppingForce = Obj.mas * -obj.velocity;
+```
+
+
+
+<u>Math.atan2, Math.ceil, Math.pow, Math.round</u>
+
+即使传入的参数中没有-0，这些方法的返回值都有可能是-0。例如当用 [`Math.pow`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/pow)计算`-Infinity`的任何负奇指数的幂都会得到`-0`
+
+
+
+<u>Math.floor, Math.max, Math.min, Math.sin, Math.square, Math.tan</u>
+
+当传入参数中有-0时，这些方法也可能返回-0。例如， `Math.min(-0, +0)` 得出 `-0`。
+
+
+
+<u>`~`, `<<`, `>>`</u>    //20220307
+
+这些操作符内部都使用了ToInt32算法。因为内部32位整数类型只有一个0（没有符号区别），-0的符号在反操作后并不会保留下来。例如`Object.is(~~(-0), -0)`和`Object.is(-0 << 2 >> 2, -0)` `都会得到false`.
+
+在未考虑0的符号的情况下依赖于[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)`是危险的。当然，如果本意就是区分-0和+0的话，`[`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)`能按照期望完成工作。`
+
+
+
+
+
+
 
 ### 5.条件运算符(三元, 三目)
 
@@ -3827,6 +3969,38 @@ if(!isNaN(i)){
 * 如果if的条件表达式不是一个布尔值,它会将其先转换为布尔值然后判断
 
 
+
+if语句条件判断:
+
+> https://dorey.github.io/JavaScript-Equality-Table/
+
+A standard IF statement. If(*value*) {/*- green -*/} else { /*- white -*/ }
+
+Note: This row does not match up with any of the rows in the other table.
+
+| value                               | result | statement                                 |
+| ----------------------------------- | ------ | ----------------------------------------- |
+| true                                | √      | if (true) { /* executes */ }              |
+| false                               |        | if (false) { /* does not execute */ }     |
+| 1                                   | √      | if (1) { /* executes */ }                 |
+| 0                                   |        | if (0) { /* does not execute */ }         |
+| -1                                  | √      | if (-1) { /* executes */ }                |
+| "true"                              | √      | if ("true") { /* executes */ }            |
+| "false"                             | √      | if ("false") { /* executes */ }           |
+| "1"                                 | √      | if ("1") { /* executes */ }               |
+| "0"                                 | √      | if ("0") { /* executes */ }               |
+| "-1"                                | √      | if ("-1") { /* executes */ }              |
+| ""                                  |        | if ("") { /* does not execute */ }        |
+| null                                |        | if (null) { /* does not execute */ }      |
+| undefined                           |        | if (undefined) { /* does not execute */ } |
+| Infinity                            | √      | if (Infinity) { /* executes */ }          |
+| -Infinity                           | √      | if (-Infinity) { /* executes */ }         |
+| []                                  | √      | if ([]) { /* executes */ }                |
+| {}                                  | √      | if ({}) { /* executes */ }                |
+| [[]]                                | √      | if ([[]]) { /* executes */ }              |
+| [0]                                 | √      | if ([0]) { /* executes */ }               |
+| [1]                                 | √      | if ([1]) { /* executes */ }               |
+| <span style="color:red;">NaN</span> |        | if (NaN) { /* does not execute */ }       |
 
 
 
@@ -16699,7 +16873,7 @@ arr.concat().sort().filter((item, idx, arr) => !idx || item !== arr[idx - 1])
 
 
 
-sort()排序+快慢指针
+sort()排序+快慢指针 不好理解.
 
 ```javascript
 //https://juejin.cn/post/6844904202162929671
@@ -16737,6 +16911,64 @@ function unique2(arr) {
   return arr;
 }
 ```
+
+
+
+sort排序后去重
+
+先将要去重的数组使用 sort 方法排序后，相同的值就会被排在一起，然后我们就可以只判断当前元素与上一个元素是否相同，相同就说明重复，不相同就添加进 res.
+
+* 对一个已经排好序的的数组去重,这种方法效率肯定是高于indexOf
+* sort()排序有漏洞, 并不适用于特殊类型的排序. !!!!???
+
+```javascript
+//冴羽博客 https://github.com/mqyqingfeng/Blog/issues/27
+
+function unique(arr) {
+  let res = [];
+  let sortedArr = arr.concat().sort();
+  let seen;
+  
+  for (let i=0; i<sortedArr.length; i++) {
+    //如果第一个元素或相邻的元素不相同
+    if (!i || seen !== sortedArr[i]) {
+    	res.push(sortedArr[i]) ;
+    }
+    seen = sortedArr[i];
+  }
+  return res;
+}
+```
+
+API1(sort排序+indexOf)
+
+根据一个参数isSorted判断传入的数组是否已经排序,如果为true,我们就判断相邻元素是否相同;如果为false,就使用indexOf判断.
+
+```javascript
+function unique(arr, isSorted) {
+  let res = [];
+  let seen = [];
+  
+  for (let i=0; i<arr.length; i++) {
+    let value = arr[i];
+    if (isSorted) {
+      if (!i || seen !== value) {
+        res.push(value);
+      }
+      seen = value;
+    } else if (res.indexOf(value) === -1) {
+      res.push(value);
+    }
+  }
+  return res;
+}
+```
+
+
+
+
+
+
 
 
 
@@ -19505,7 +19737,7 @@ isFinite(NaN);       // false
 isFinite(-Infinity); // false
 
 isFinite(0);         // true
-isFinite(2e64);      // true, 在更强壮的Number.isFinite(null)中将会得到false
+isFinite(null);      // true, 在更强壮的Number.isFinite(null)中将会得到false
 
 
 isFinite("0");       // true, 在更强壮的Number.isFinite('0')中将会得到false
@@ -19812,8 +20044,72 @@ function readNumber() {
 
 计算机中如何将小数转换成二进制?
 
-* 整数部分 除2取余数，若商不为0则继续对它除2，当商为0时则将所有余数逆序排列；
-* 小数部分 乘2取整数部分，若小数不为0则继续乘2，直至小数部分为0将取出的整数位正序排列。若小数部分无法为零，根据有效位数要求取得相应数值，位数后一位0舍1入进行取舍）
+十进制小数转换成二进制小数采用**乘2取整, 顺序排列**
+
+* 用2乘十进制小数,可以得到积,将积的整数部分取出,再用2乘余下的小数 部分，又得到一个积，再将积的整数部分取出，如此进行，直到积中的小数部分为零，或者达到所要求的精度为止。
+* 把取出的整数部分按顺序排列起来，先取的整数作为二进制小数的高位有效位，后取的整数作为低位有效位。
+
+```javascript
+//digital 0.68
+
+0.68 * 2 = 1.36 //1
+0.36 * 2 = 0.72 //0
+0.72 * 2 = 1.44 //1
+0.44 * 2 = 0.88 //0
+0.88 * 2 = 1.76 //1
+0.76 * 2 = 1.52 //1
+0.52 * 2 = 1.04 //1
+0.04 * 2 = 0.08 //0
+0.08 * 2 = 0.16 //0
+0.16 * 2 = 0.32 //0
+0.32 * 2 = 0.64 //0
+0.64 * 2 = 1.28 //1
+0.28 * 2 = 0.56 //0
+0.56 * 2 = 1.12 //1
+0.12 * 2 = 0.24 //0
+0.24 * 2 = 0.48 //0
+0.48 * 2 = 0.96 //0
+0.96 * 2 = 1.92 //1
+0.92 * 2 = 1.84 //1
+0.84 * 2 = 1.68 //1
+0.68 * 2 = 1.36 //1
+0.36 * 2 = 0.72 //0
+0.72 * 2 = 1.44 //1
+0.44 * 2 = 0.88 //0
+0.88 * 2 = 1.76 //1
+0.76 * 2 = 1.52 //1
+0.52 * 2 = 1.04 //1
+0.04 * 2 = 0.08 //0
+0.08 * 2 = 0.16 //0
+0.16 * 2 = 0.32 //0
+0.32 * 2 = 0.64 //0
+0.64 * 2 = 1.28 //1
+0.28 * 2 = 0.56 //0
+0.56 * 2 = 1.12 //1
+0.12 * 2 = 0.24 //0
+0.24 * 2 = 0.48 //0
+0.48 * 2 = 0.96 //0
+0.96 * 2 = 1.92 //1
+0.92 * 2 = 1.84 //1
+0.84 * 2 = 1.68 //1
+0.68 * 2 = 1.36 //1
+0.36 * 2 = 0.72 //0
+0.72 * 2 = 1.44 //1
+0.44 * 2 = 0.88 //0
+0.88 * 2 = 1.76 //1
+0.76 * 2 = 1.52 //1---
+0.52 * 2 = 1.04 //1
+0.04 * 2 = 0.08 //0
+0.08 * 2 = 0.16 //0
+0.16 * 2 = 0.32 //0
+0.32 * 2 = 0.64 //0
+0.64 * 2 = 1.28 //1
+0.28 * 2 = 0.56 //0
+0.56 * 2 = 1.12 //1
+0.12 * 2 = 0.24 //0
+```
+
+
 
 ```javascript
 //如果将0.1转换成二进制后,发现无法精确标识0.1
