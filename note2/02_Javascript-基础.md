@@ -16643,7 +16643,10 @@ let result = str.split('').reduce((acc, cur, idx) => {
 * **filter**
   * indexOf
   * sort
-* **sort()**+快慢指针
+* **sort()**
+  * 排序后去重
+  * 快慢指针
+
 * Object键值对
 * **ES6**
   * Set
@@ -16797,6 +16800,9 @@ let arr = [1,2,2,4,null,null].filter((item,index,arr)=>arr.indexOf(item)===index
 //存在的问题: 
 1.arr.indexOf(NaN)的结果是-1,所以会忽略NaN这个值.
 2.对象不去重
+
+//排序后
+arr.concat().sort().filter((item,idx,arr) => !idx || item !==arr[idx-1]);
 ```
 
 
@@ -16806,125 +16812,9 @@ filter+sort()
 ```javascript
 //https://juejin.cn/post/6844903482093387783#:~:text=%E5%8F%AF%E4%BB%A5%E6%9F%A5%E7%9C%8B%20Github%E3%80%82-,filter,-ES5%20%E6%8F%90%E4%BE%9B%E4%BA%86
 
-//先将要去重的数组使用 sort 方法排序后，相同的值就会被排在一起，然后我们就可以只判断当前元素与上一个元素是否相同，相同就说明重复，不相同就添加进 res
-
-//first version 如果我们对一个已经排好序的数组去重,效率高于使用indexOf
-function unique(arr) {
-  let res = [];
-  let sortedArray = array.concat().sort();
-  let seen;
-  
-  for (let i=0, len=arr.length; i<len; i++) {
-    //如果是第一个元素或者相邻的元素不同
-    if (!i || seen !== sortedArray[i]) {
-      res.push(sortedArray[i]);
-    }
-    seen = sortedArray[i];
-  }
-  
-  return res;
-}
-
-//second version  unique API
-function unique(arr, isSorted) {
-  let res = [],
-      seen = [];
-  
-  for (let i=0, len = arr.length; i<len; i++) {
-    let value = arr[i];
-    
-    if (isSorted) {
-      if (!i || seen !== value) {
-        res.push(value);
-      }
-      seen = value;
-    } else if (res.indexOf(value) === -1) {
-      res.push(value);
-    }
-  }
-  return res;
-}
-
-//last version unique API 优化
-//新需求: 字母的大小写视为一致,保留一个即可.虽然我们可以先将数组中的所有字母转成小写,然后再传入unique函数.但是有没有方法可以省略处理数组的这一边循环,直接在去重的循环中做?
-
-function unique(arr, isSorted, iteratee) {
-  let res = [],
-      seen = [];
-  
-  for (let i=0, len=arr.length; i<len; i++) {
-    let value = arr[i];
-    let computed = iteratee ? iteratee(value, i, arr) : value;
-    
-    if (isSorted) {
-      if (!i || seen !== value) {
-        res.push(value);
-      }
-      seen = value;
-    } else if (iteratee) {
-      if (seen.indexOf(computed) === -1) {
-        seen.push(computed);
-        res.push(value);
-      }
-    } else if (res.indexOf(value) === -1) {
-      res.push(value);
-    }
-  }
-  return res;
-}
-
-
-
-
-
 //ES6
 arr.concat().sort().filter((item, idx, arr) => !idx || item !== arr[idx - 1])
 ```
-
-
-
-
-
-sort()排序+快慢指针 不好理解.
-
-```javascript
-//https://juejin.cn/post/6844904202162929671
-
-function unique(arr) {
-  arr.sort((a, b) => a - b);
-  let left = 0,
-      right = 1;
-  
-  while(right < arr.length) {
-    if (arr[left] === arr[right]) {
-      right++;
-    } else {
-      arr[left + 1] = arr[right];
-      left++;
-      right++;
-    }
-  }
-  return arr.slice(0, left+1);
-}
-
-//https://juejin.cn/post/7033275515880341512
-function unique2(arr) {
-  arr.sort((a, b) => a - b);
-  let slow = 1,
-      fast = 1;
-  
-  while(fast < arr.length) {
-    if (arr[fast - 1] !== arr[fast]) {
-      arr[slow++] = arr[fast];
-    }
-    ++fast;
-  }
-  arr.length = slow;
-  return arr;
-}
-```
-
-
 
 sort排序后去重
 
@@ -17020,10 +16910,10 @@ isSorted：表示函数传入的数组是否已排过序，如果为 true，将�
 
 iteratee：传入一个函数，可以对每个元素进行重新的计算，然后根据处理的结果进行去重
 
-至此，我们已经仿照着 underscore 的思路写了一个 unique 函数，具体可以查看 [Github](https://github.com/jashkenas/underscore/blob/master/underscore.js#L1772)
+至此，我们已经仿照着 underscore 的思路写了一个 unique 函数，具体可以查看 [Github](https://github.com/jashkenas/underscore/blob/master/underscore.js#L1722)
 
 ```javascript
-
+//https://github.com/jashkenas/underscore/blob/master/underscore.js#L1722
 
 function uniq(arr, isSorted, iteratee, context) {
   if (!isBoolean(isSorted)) {
@@ -17031,6 +16921,71 @@ function uniq(arr, isSorted, iteratee, context) {
     iteratee = isSorted;
     isSorted = false;
   }
+  if (iteratee!= null) iteratee = cb(iteratee, context);
+  let result = [];
+  let seen = [];
+  for (let i=0,length=getLength(arr); i<length; i++) {
+    let value = arr[i],
+        computed = iteratee ? iteratee(value, i, arr) : value;
+    
+    if (isSorted && !iteratee) {
+      if (!i || seen !== computed) {
+        result.push(value);
+      }
+      seen = computed;
+    } else if (iteratee) {
+      if (!contains(seen, computed)) {
+        seen.push(computed);
+        result.push(value);
+      }
+    } else if (!contains(result, value)) {
+      result.push(value);
+    }
+  }
+  return result;
+}
+```
+
+
+
+
+
+sort()排序+快慢指针 不好理解.
+
+```javascript
+//https://juejin.cn/post/6844904202162929671
+
+function unique(arr) {
+  arr.sort((a, b) => a - b);
+  let left = 0,
+      right = 1;
+  
+  while(right < arr.length) {
+    if (arr[left] === arr[right]) {
+      right++;
+    } else {
+      arr[left + 1] = arr[right];
+      left++;
+      right++;
+    }
+  }
+  return arr.slice(0, left+1);
+}
+
+//https://juejin.cn/post/7033275515880341512
+function unique2(arr) {
+  arr.sort((a, b) => a - b);
+  let slow = 1,
+      fast = 1;
+  
+  while(fast < arr.length) {
+    if (arr[fast - 1] !== arr[fast]) {
+      arr[slow++] = arr[fast];
+    }
+    ++fast;
+  }
+  arr.length = slow;
+  return arr;
 }
 ```
 
@@ -17044,36 +16999,39 @@ function uniq(arr, isSorted, iteratee, context) {
 
 
 
+
+
 Object键值对
+
+> 键值对方法不能去重正则表达式
 
 这种方法是利用一个空的 Object 对象，我们把数组的值存成 Object 的 key 值，比如 Object[value1] = true，在判断另一个值的时候，如果 Object[value2]存在的话，就说明该值是重复的。示例代码如下：
 
 ```javascript
-let arr = [1, 2, 1, 1, '1'];
+arr.filter((item,idx,arr) => obj.hasOwnProperty(item) ? false : (obj[item] = item));
+```
 
-//存在的问题,对象的key都会转成字符串,可使用 typeof item + item 拼成字符串作为 key 值来避免这个问题
-function uniqueByObject(arr) {
-  let obj = {};
-  return arr.filter((v, idx, arr) => obj[v] ? false : obj[v]=true); 
-}
+因为 1 和 '1' 是不同的，但是这种方法会判断为同一个值，这是因为对象的键值只能是字符串，所以我们可以使用 `typeof item + item` 拼成字符串作为 key 值来避免这个问题
 
+```javascript
 //对象的可计算属性方括号 可以放表达式  :))))
-function uniqueByObject(arr) {
-  let obj = {};
-  return arr.filter(v => obj[typeof v + v] ? false : obj[typeof v + v]=true);
-}
 
-//上面的方法依然存在问题,无法正确区分出两个对象,使用JSON.stringify()将对象序列化
-funtion unique(arr) {
-  let obj = {};
-  return arr.filter(v => obj[typeof v + JSON.stringify(v)] ? false : obj[typeof v + JSON.stringify(v)]);
-}
+arr.filter((item,idx,arr) => obj.hasOwnProperty(typeof item + item) ? false : (obj[typeof item + item] = true));
 
-//依然存在的问题: JSON.stringify对正则的结果都是{}.所以这个方法并不适用于处理正则表达式去重。
+```
+
+上面的方法依然存在问题,无法正确区分出两个对象,使用JSON.stringify()将对象序列化
+
+```javascript
+arr.filter(v => obj.hasOwnProperty(v) ? false : (obj[typeof v + JSON.stringify(v)] = true));
+
+```
+
+依然存在的问题: 考虑到 `JSON.stringify` 任何一个正则表达式的结果都是 `{}`，所以这个方法并不适用于处理正则表达式去重。(引用[勘误](https://github.com/mqyqingfeng/Blog/issues/212) )
+
+```javascript
 console.log(JSON.stringify(/a/)); //{}
 console.log(JSON.stringify(/b/)); //{}
-
-
 ```
 
 
@@ -17129,6 +17087,33 @@ function unique2(arr) {  //太聪明了真是. 来自JS专题之数组去重
 #### 数组去重的方法存在的问题
 
 > https://github.com/mqyqingfeng/Blog/issues/27
+
+**特殊类型的比较**
+
+```javascript
+let str1 = '1';
+let str2 = new String('1');
+
+str1 == str2; //true
+str1 === str2; //false
+
+null == null; //true
+null === null; //true
+
+undefined == undefined //true
+undefined === undefined; //true
+
+NaN == NaN; //false
+NaN === NaN; //false
+
+/a/ == /a/; //false
+/a/ === /a/; //false
+
+{} == {}; //false
+{} === {}; //false
+```
+
+
 
 对于这样一个数组使用以上的去重方法:
 
