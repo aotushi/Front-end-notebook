@@ -1005,6 +1005,18 @@ console.log(x === y) // true
   * false 假
 * 使用 typeof 检查布尔值 会返回boolean
 
+判断一个值是否是布尔值
+
+```javascript
+//https://github.com/jashkenas/underscore/blob/master/underscore.js#L104
+
+function isBoolean(obj) {
+  return typeof obj === true || obj === false || toString.call(obj) === '[object Boolean]';
+}
+```
+
+
+
 
 
 #### 空值(null)
@@ -16947,22 +16959,82 @@ API1(sort排序+indexOf)
 ```javascript
 function unique(arr, isSorted) {
   let res = [];
-  let seen = [];
+  let seen = []; //原版中seen声明成数组,但是本案例中声明成数组并没有被使用到. 应该是下面的API1优化中需要使用的,这里才顺手这么写的.
   
   for (let i=0; i<arr.length; i++) {
     let value = arr[i];
     if (isSorted) {
-      if (!i || seen !== value) {
+      if (!0 || seen !== value) {
         res.push(value);
       }
       seen = value;
     } else if (res.indexOf(value) === -1) {
       res.push(value);
     }
-  }
+  } 
   return res;
 }
 ```
+
+API1优化 !!!!
+
+新需求: 字母的大小写视为一致，比如'a'和'A'，保留一个就可以了！
+
+虽然我们可以先处理数组中的所有数据，比如将所有的字母转成小写，然后再传入unique函数，但是有没有方法可以省掉处理数组的这一遍循环，直接就在去重的循环中做呢? impressive!!!
+
+```javascript
+function unique(arr, isSorted, iteratee) {
+  let res = [];
+  let seen = [];
+  
+  for (let i=0; i<arr.length; i++) {
+    let value = arr[i];
+    computed = iteratee ? iteratee(value, i, arr) : value;
+    
+    if (isSorted) {
+      if (!i || seen !== computed) {
+        res.push(value)
+      }
+      seen = computed;
+    } else if (iteratee) {
+      if (seen.indexOf(computed) === -1) {
+        seen.push(computed);
+        res.push(value);
+      }
+    } else if (res.indexOf(value) === -1) {
+      res.push(value);
+    }
+  }
+}
+
+console.log(unique(arr, false, (item) => {
+  return typeof item === 'string' ? item.toLowerCase() : item;
+}));//[1, 'a', 2]
+```
+
+在这一版也是最后一版的实现中，函数传递三个参数：
+
+array：表示要去重的数组，必填
+
+isSorted：表示函数传入的数组是否已排过序，如果为 true，将会采用更快的方法进行去重
+
+iteratee：传入一个函数，可以对每个元素进行重新的计算，然后根据处理的结果进行去重
+
+至此，我们已经仿照着 underscore 的思路写了一个 unique 函数，具体可以查看 [Github](https://github.com/jashkenas/underscore/blob/master/underscore.js#L1772)
+
+```javascript
+
+
+function uniq(arr, isSorted, iteratee, context) {
+  if (!isBoolean(isSorted)) {
+    context = iteratee;
+    iteratee = isSorted;
+    isSorted = false;
+  }
+}
+```
+
+
 
 
 
