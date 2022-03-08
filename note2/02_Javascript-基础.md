@@ -4147,36 +4147,121 @@ switch (num) {
 
 
 
-#### break和continue
+#### break
 
-概要
+> the break statement terminates the current loop, switch or [label](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/label) statement and transfers programe control to the statement following the terminated statement.(将程序控制权转移到终止语句之后的语句)
 
-```JavaScript
-- break
-* break可以用来结束 switch和循环语句,不能用在if语句中
-* break一旦执行,循环会立即结束
-* break会离它最近的循环起作用
 
-- continue
-* continue用来跳过当次循环
+
+
+
+**Syntax**
+
+> break [label]
+
+label <span style="border:1px solid black; border-radius:25px;">  optional  </span>
+
+> Identifier associated with the label of the statement. If the statement is not a loop or switch, this is required.
+
+**Desc**
+
+* the break statement includes an optional label that allows the program to break out of a labeled statement(脱离带标签的语句)
+* the break statement needs to be nested within the referenced label(需要嵌套在引用的标签中). The labeled statement can be any block statement(标记的语句可以是任何块语句); it does not have to be preceded by a loop statement(它前面不必是一个循环语句).
+* A break statement, with or without a following label, cannot be used within the body of a function that is itself nested within the current loop, switch, or label statement that the break statement intended to break out of.(无论是否有后面的label, break语句都不能在函数的主体中使用,因为该函数本身嵌套在当前的循环,switch或label语句中,而break语句是为了脱离这些语句)
+
+**examples**
+
+<u>break in while loop</u>
+
+```javascript
+function testBreak(x) {
+  let i = 0;
+  
+  while(i<6) {
+    if (i==3) {
+      break;
+    }
+    i += 1;
+  }
+  return i * x;
+}
+```
+
+<u>break in switch statements</u>
+
+```javascript 
+const foold = 'sushi';
+
+switch(food) {
+  case 'sushi':
+   console.log('sxxx');
+   break;
+  case 'pizza':
+    console.log('xxx');
+    break;
+  default:
+    console.log('xxx');
+    break;
+}
+```
+
+<u>break in labeled blocks</u>
+
+```javascript
+outer_block: {
+  inner_block: {
+    console.log('1');
+    break outer_block;
+    console.log(':-('')');
+  }
+  console.log('2');
+}
+```
+
+<u>break in labeled blocks that throw</u>
+
+
+
+<u>break within functions</u>
+
+```javascript
+function testBreak(x) {
+  let i = 0;
+  
+  while(i < 6) {
+    if (i===3) {
+      (function() {
+        break;
+      })();
+    }
+    i += 1;
+  }
+  return i * x;
+}
+testBreak(1); //SyntaxError: Illegal break statement
+
+block_1: {
+  console.log('1');
+  (function() {
+    break block_1; //SyntaxError: Undefined label 'block_1';
+  })();
+}
 ```
 
 
 
 
 
-continue案例
+概要
 
 ```JavaScript
-for(let i=0; i<5; i++){
-    console.log('外层循环: ',i)
-    for(let j=0; j<5; j++){
-        if(j==2){
-            continue;
-        }
-        console.log('\t内层循环: ',j)
-    }
-}
+- break
+* break可以用来结束 switch和循环语句,不能用在if语句中,除非是if外有循环语句
+* break一旦执行,循环会立即结束
+* break会离它最近的循环起作用
+
+- continue
+* continue用来跳过当次循环
 ```
 
 break案例
@@ -4189,6 +4274,28 @@ for(i=0; i<5; i++){
             break;            //break不能用在if语句中,但是可以用在for循环里.
         }
         console.log('\t内层循环: ',j);
+    }
+}
+```
+
+
+
+
+
+
+
+#### continue
+
+continue案例
+
+```JavaScript
+for(let i=0; i<5; i++){
+    console.log('外层循环: ',i)
+    for(let j=0; j<5; j++){
+        if(j==2){
+            continue;
+        }
+        console.log('\t内层循环: ',j)
     }
 }
 ```
@@ -5780,7 +5887,7 @@ console.log(bigNum.toString()); //10100
 
 **Examples**
 
-1.overriding the default toString method
+<u>1.Overriding the default toString method</u>
 
 You can create a function to be called in place of the default `toString()` method. The `toString()` method takes no arguments and should return a string. The `toString()` method you create can be any value you want, but it will be most useful if it carries information about the object.
 
@@ -5820,7 +5927,7 @@ With the preceding code in place, any time `toString()` is used in a `Dog` conte
 
 
 
-2.Using toString() to detect object class
+<u>2.Using toString() to detect object class</u>
 
 `toString()` can be used with every object and (by default) allows you to get its class.
 
@@ -5849,6 +5956,14 @@ Object.prototype.toString.call(myDate);     // [object myDate]
 
 Date.prototype[Symbol.toStringTag] = 'prototype polluted';
 Object.prototype.toString.call(new Date()); // [object prototype polluted]
+```
+
+Note:
+
+```javascript
+toString.call(true); //[object Boolean]
+
+'toString' in window' //true
 ```
 
 
@@ -13785,7 +13900,7 @@ for循环和for-in, for...of能正确响应break、continue和return语句，但
 
 
 
-#### toString
+#### Array.prototype.toString
 
 `**toString()**` 返回一个字符串，表示指定的数组及其元素
 
@@ -13799,7 +13914,7 @@ Array.prototype.toString()
 
 
 
-#### forEach
+#### Array.prototype.forEach
 
 **syntax**
 
@@ -13835,7 +13950,7 @@ Array.prototype.myForEach = function(callback) {
 
 
 
-#### slice-截取
+#### Array.prototype.slice-截取
 
 **定义**
 
@@ -13948,7 +14063,7 @@ Array.prototype.mySlice = function(start, end) {
 
 
 
-#### splice-删除 替换 新增
+#### Array.prototype.splice-删除 替换 新增
 
 **定义**
 
@@ -14093,7 +14208,7 @@ function moveElements(startIndex, delCount, array, addCount) {
 
 
 
-#### concat()
+#### Array.prototype.concat()
 
 **定义**
 
@@ -14194,7 +14309,7 @@ Array.prototype.concat=function(){
 
 
 
-#### indexOf()
+#### Array.prototype.indexOf()
 
 **定义**
 
@@ -14329,7 +14444,7 @@ Array.prototype.indexOf=function(item,index){
 
 
 
-#### lastIndexOf()
+#### Array.prototype.lastIndexOf()
 
 **定义**
 
@@ -14440,7 +14555,7 @@ let filterArr = arr.filter((item, index) => arr.indexOf(item) === arr.lastIndexO
 
 
 
-#### join()
+#### Array.prototype.join()
 
 **定义**
 
@@ -14504,7 +14619,7 @@ let result = arr.join()
 
   
 
-#### reverse()
+#### Array.prototype.reverse()
 
 **定义**
 
@@ -14580,7 +14695,7 @@ console.log(a); // {0: 3, 1: 2, 2: 1, length: 3}
 
 
 
-####   sort()
+####   Array.prototype.sort()
 
 **定义**
 
@@ -14786,7 +14901,7 @@ students.sort((firstItem, secondItem) => firstItem.grade - secondItem.grade);
 
 
 
-#### map()
+#### Array.prototype.map()
 
 **定义**
 
@@ -14913,7 +15028,7 @@ console.log(filterNumbers); //[1,2,3,undefined]
 
 
 
-#### filter()
+#### Array.prototype.filter()
 
 **定义**
 
@@ -15014,7 +15129,7 @@ console.log('Number of Invalid Entries = ', invalidEntries);
 
 
 
-#### reduce()
+#### Array.prototype.reduce()
 
 **定义**
 
@@ -15410,7 +15525,7 @@ if (!Array.prototype.mapUsingReduce) {
 
 
 
-#### some
+#### Array.prototype.some
 
 **定义**
 
