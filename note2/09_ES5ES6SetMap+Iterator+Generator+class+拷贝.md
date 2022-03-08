@@ -5102,6 +5102,7 @@ function clone(target, map = new WeakMap()) {
 #### 3-A3.手写递归
 
 ```javascript
+
 //完整版
 
 
@@ -5256,6 +5257,12 @@ const target = {
 ```
 
 
+
+#### 3-A4 另一种方案
+
+```javascript
+////https://juejin.cn/post/6844903986479251464#:~:text=%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81-,%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B8%89%E7%AF%87%3A%20%E8%83%BD%E4%B8%8D%E8%83%BD%E5%86%99%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%9A%84%E6%B7%B1%E6%8B%B7%E8%B4%9D%EF%BC%9F,-%E4%B8%8A%E4%B8%80%E7%AF%87%E5%B7%B2%E7%BB%8F
+```
 
 
 

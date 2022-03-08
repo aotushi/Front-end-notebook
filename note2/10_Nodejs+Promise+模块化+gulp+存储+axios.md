@@ -3133,7 +3133,7 @@ xhr.onreadystatechange=function(){
     
 ==================服务端==========================    
 //发送的数据需要先转换为JSON字符串
- data={name:'尚硅谷',pos:['北京', '上海', '深圳', '武汉']};
+ data={name:'sss',pos:['北京', '上海', '深圳', '武汉']};
  let str=JSON.stringify(data);
  response.send(str)   ;
     
@@ -3182,6 +3182,33 @@ console.log(xhr.response)
         xhr.abort();// 第一,xhr更改声明类型,const-->let;第二,将xhr声明在全局中
     }
 </script>    
+```
+
+
+
+
+
+### 实现Ajax
+
+```javascript
+//https://juejin.cn/post/7033275515880341512#:~:text=%E8%80%83%E5%AF%9F%E9%A2%91%E7%8E%87%3A%20(%E2%AD%90%E2%AD%90%E2%AD%90)-,%E5%AE%9E%E7%8E%B0ajax,-function%20ajax(%7B%0A%20%20%20%20url
+
+function ajax({url=null, method='GET', dataType='JSON', async=true}) {
+  return new Promise({resolve, reject} => {
+    let xhr = new XMLHttpRequest();
+    xhr.open(method, url, async);
+    xhr.responseType = dataType;
+    xhr.onreadystatechange = () => {
+      if (!/^[23]\d{2}$/.test(xhr.status)) return;
+      if (xhr.readyState === 4) {
+        let res = xhr.responseText;
+        resolve(result);
+      }
+    }
+    xhr.onerror = err => reject(err);
+    xhr.send();
+  })
+}
 ```
 
 
@@ -3348,8 +3375,6 @@ app.all('/jquery-server', (request, response)=>{
 	}, 3000)
 })
 ```
-
-
 
 
 
@@ -6569,82 +6594,6 @@ Axios 是一个基于 promise 的 HTTP 库，可以用在浏览器和 node.js �
 6.取消请求
 7.自动转换 JSON 数据
 8.客户端支持防御 XSRF
-
-```
-
-
-
-#### axios的浏览器使用
-
-```html
-//http://www.axios-js.com/zh-cn/docs/#%E8%AF%B7%E6%B1%82%E9%85%8D%E7%BD%AE
-// jQuery无法在post时向URL中传参 axios可以
-<button id='btn'>
-    点击发送ajax
-</button>
-<script>
-   let btn=document.getElementById('btn');
-   btn.onclick=function(){
-   //axios发送ajax  axios返回一个promise
-   axios({
-       //请求的类型 默认
-       method:'GET',
-       //请求的URL
-       url:,
-       //自定义请求头
-       headers:{
-       		a:100,
-       		b:200
-   		},
-       //URL参数 
-       params:{
-         c:300,
-         d:400
-       }  
-   }).then(response=>{
-       //response的结果{} 包括:status statusText headers data响应体(如果响应体为JSON,自动转为字符串)
-       	console.log(response);  //输出的结果是axios返回promise对象成功的结果
-   	  })    
-   } 
-</script>    
-    
-```
-
-
-
-```js
-//get请求
-
-axios.get('/user?Id=123')
-axios.get('/user', {params:{Id:123}})
-
-//post请求
-axios.post('/user', {firstName:'xx', lastName:'xxx'})
-
-//axios API
-axios(config)
-
-axios({
-    method:'get',
-    url:'/user/123',
-    data:{
-        firstName:'xx',
-        lastName:'xxx'
-    }
-})
-
-axios(url[,config])
-//发送get请求,默认的方法
-axios('/user/123')
-```
-
-
-
-
-
-#### axios在nodejs中使用
-
-```js
 
 ```
 

@@ -829,3 +829,15 @@ foo = new RegExp("bar", "g");
 alert(foo.toString());         // 显示 "/bar/g"
 ```
 
+
+
+### 7.应用案例
+
+#### 1.实现千分位分隔符
+
+ ```javascript
+ let str = '1000000000000000000',
+     reg = /(?=(\B\d{3})+$)/g;
+ str.replace(reg, ','); //'1,000,000,000,000,000,000'
+ ```
+

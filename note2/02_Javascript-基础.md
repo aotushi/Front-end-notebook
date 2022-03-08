@@ -6433,6 +6433,9 @@ if (typeof Object.create !== 'function') {
 **如何实现Object.create()方法**
 
 ```javascript
+//https://juejin.cn/post/7033275515880341512#:~:text=%E5%8F%82%E8%80%83%E4%BB%A3%E7%A0%81-,%E5%AE%9E%E7%8E%B0object.create,-function%20newCreate(proto
+
+
 function newCreate(proto, propertiesObject) {
   if (typeof proto !== 'object' && typeof proto !== 'function') {
     throw TypeError('object prototype may only be an Object')
