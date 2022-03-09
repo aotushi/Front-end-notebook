@@ -5261,12 +5261,174 @@ const target = {
 #### 3-A4 另一种方案
 
 ```javascript
-////https://juejin.cn/post/6844903986479251464#:~:text=%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81-,%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B8%89%E7%AF%87%3A%20%E8%83%BD%E4%B8%8D%E8%83%BD%E5%86%99%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%9A%84%E6%B7%B1%E6%8B%B7%E8%B4%9D%EF%BC%9F,-%E4%B8%8A%E4%B8%80%E7%AF%87%E5%B7%B2%E7%BB%8F
+//https://juejin.cn/post/6844903986479251464#:~:text=%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81-,%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B8%89%E7%AF%87%3A%20%E8%83%BD%E4%B8%8D%E8%83%BD%E5%86%99%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%9A%84%E6%B7%B1%E6%8B%B7%E8%B4%9D%EF%BC%9F,-%E4%B8%8A%E4%B8%80%E7%AF%87%E5%B7%B2%E7%BB%8F
+
+```
+
+##### A4-1 简易版及问题
+
+```javascript
+JSON.parse(JSON.stringify())
+```
+
+**问题:**
+
+1.无法解决 循环引用 的问题.
+
+```javascript
+const a = {val: 2};
+a.target = a;
+```
+
+拷贝a会出现系统栈溢出，因为出现了`无限递归`的情况。
+
+2.无法拷贝一些`特殊的对象`，诸如 RegExp, Date, Set, Map等。
+
+3.无法拷贝函数
+
+##### A4-2 简易版
+
+```javascript
+const deepClone = (target) => {
+  if (typeof target === 'object' || target !== null) {
+    const cloneTarget = Array.isArray(target) ? [] : {};
+    for (let key in target) {
+      if (target.hasOwnProperty(key)) {
+        cloneTarget[key] = deepClone(target[key]);
+      }
+    }
+    return cloneTarget;
+  } else {
+    return target;
+  }
+}
+```
+
+
+
+##### A4-3 解决循环引用
+
+```js
+let obj = {val : 100};
+obj.target = obj;
+
+deepClone(obj);//报错: RangeError: Maximum call stack size exceeded
+复制代码
+```
+
+这就是循环引用。我们怎么来解决这个问题呢？
+
+创建一个Map。记录下已经拷贝过的对象，如果说已经拷贝过，那直接返回它行了。
+
+```javascript
+const isObject = (target) => (typeof target === 'object' || typeof target === 'function') && typeof target !== null;
+
+const deepClone = (target, map=new Map()) => {
+  if (map.get(target)) {
+    return target;
+  }
+  
+  if (isObject(target)) {
+    map.set(target, true);
+    const cloneTarget = Array.isArray(target) ? [] : {};
+    for (let key in target) {
+      if (target.hasOwnProperty(key)) {
+        cloneTarget[key] = deepClone(target[key], map);
+      }
+    }
+    return cloneTarget;
+  } else {
+    return target;
+  }
+}
+```
+
+测试:
+
+```javascript
+const a = {value: 2};
+a.target = a;
+
+let newA = deepClone(a);
+console.log(newA); //{value: 2, target: [circular]}
+```
+
+有一个潜在的坑, 就是map 上的 key 和 map 构成了`强引用关系`，这是相当危险的。
+
+> 在计算机程序设计中，弱引用与强引用相对，
+>
+> 被弱引用的对象可以在`任何时候被回收`，而对于强引用来说，只要这个强引用还在，那么对象`无法被回收`
+
+通过WeakMap解决.
+
+```javascript
+const deepClone = (target, map = new WeakMap()) => {
+  //...
+}
+```
+
+
+
+##### A4-4 特殊拷贝对象
+
+对于特殊的对象，我们使用以下方式来鉴别:
+
+```javascript
+Object.prototype.toString.call(obj);
+
+//可遍历对象的结果
+["object Map"]
+["object Set"]
+["object Array"]
+["object Object"]
+["object Arguments"]
+```
+
+
+
+```javascript
+const getType = Object.prototype.toString;
+
+const canTraverse = {
+  '[object Map]': true,
+  '[object Set]': true,
+  '[object Array]': true,
+  '[object Object]': true,
+  '[object Arguments]': true,
+};
+
+const deepClone = (target, map = new WeakMap()) => {
+  if (!isObject(target)) return target;
+  let type = getType.call(target);
+  if (!canTraverse[type]) {
+    //处理不能遍历对象
+    return;
+  } else {
+    // 这波操作相当关键,可以保证对象的原型不丢失
+    let ctor = target.constructor;
+    cloneTarget = new ctor();
+  }
+  
+  if (map.get(target)) {
+    return target;
+  }
+  map.set(target, true);
+  
+  if (type === mapTag) {
+    
+  }
+};
 ```
 
 
 
 
+
+
+
+
+
+##### A4-5 xx
 
 #### 3-B1 直接赋值
 
