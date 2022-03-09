@@ -9482,7 +9482,7 @@ foo(); //2
 
 如果使用严格模式(strict mode), 则不能将全局对象用于默认绑定, this会被绑定到undefined.
 
-<u>虽然this的绑定规则完全取决于调用位置,但是只有foo()运行在非strict mode下时,默认绑定才能绑定到全局对象; 在严格模式下调用foo()则不影响默认绑定.</u>
+<u>虽然<span style="color:red;">this的绑定规则完全取决于调用位置</span>,但是只有foo()运行在非strict mode下时,默认绑定才能绑定到全局对象; 在严格模式下调用foo()则不影响默认绑定.</u>
 
 ```JavaScript
 function foo() {
