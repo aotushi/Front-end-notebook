@@ -5832,7 +5832,7 @@ obj.sayHello(); //运行alert函数
 
 
 
-#### 3. toString()
+#### 3. Object.prototype.toString()
 
 **Define**
 
@@ -5968,11 +5968,11 @@ toString.call(true); //[object Boolean]
 
 
 
-#### 4. valueOf()
+#### 4. Object.prototype.valueOf()
 
 **Define**
 
-> this method returns the primite value of the specified object
+> this method returns the **primite value** of the specified object
 
 **Syntax**
 
@@ -10352,7 +10352,7 @@ prototype 是保存引用类型所有实例方法的地方，这意味着toStrin
 
 
 
-#### **方法-call()**
+#### **Function.prototype.call()**
 
 **define**
 
@@ -10509,13 +10509,30 @@ Function.prototype.myCall = function(thisArg) {
 }
 ```
 
+**注意事项** ????
+
+```javascript
+如果这么写:
+let getType = Object.prototype.toString.call;
+
+问题:
+1.getType的类型是什么  function 
+2.getType可以通过加小括号来调用吗? 报错,显示getType不是一个函数
+
+原因:
+getType.name; //call
+
+```
 
 
-#### **方法-apply()**
+
+
+
+#### **Function.prototype.apply()**
 
 **define**
 
-> the method calls a function with a given `this` value, and `arguments` provided as an array(or an array-like object)
+> the method calls a function with a given `this` value, and `arguments` provided as an array(or an <u>array-like object</u>)
 
 **syntax**
 
@@ -12417,7 +12434,8 @@ function createObject(ctor) {
 function newOperator() {
   let obj = {};
   Constructor = [].shift.call(arguments);
-  obj.__proto__ = Constructor.prototype;
+  obj.__proto__ = Constructor.prototype; 
+  //let obj = Object.create(Constructor.prototype);
   let result = Constructor.apply(obj, arguments);
   return typeof result === 'object' ? result : obj;
 }
