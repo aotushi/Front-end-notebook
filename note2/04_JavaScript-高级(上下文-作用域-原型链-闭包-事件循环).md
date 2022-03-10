@@ -4521,6 +4521,49 @@ var addEvent = (function(){
 
 如果是复杂的回调函数或是 ajax 请求呢? 假设 1 秒触发了 60 次，每个回调就必须在 1000 / 60 = 16.67ms 内完成，否则就会有卡顿出现。
 
+来个例子:
+
+index.html文件:
+
+```html
+<!doctype html>
+<html>
+	<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='x-ua-compatible' content='IE=edge, chrome=1'>
+    <title>debounce</title>
+    <style>
+      #container{
+        width:100%; height:200px;line-height:200px;text-align:center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='container'></div>
+    <script src='debounce.js'></script>
+  </body>
+</html>
+```
+
+
+
+JS文件:
+
+```javascript
+let count = 1;
+let container = document.getElementById('container');
+
+function getUserAction() {
+  container.innerHTML = count++;
+}
+
+container.onmousemove = getUserAction;
+```
+
+
+
+
+
 为了解决这个问题，一般有两种解决方案：
 
 1. debounce 防抖
@@ -4541,6 +4584,18 @@ function debounce (func, wait) {
   }
 }
 ```
+
+如果我们要使用它，以最一开始的例子为例：
+
+```
+container.onmousemove = debounce(getUserAction, 1000);
+```
+
+现在随你怎么移动，反正你移动完 1000ms 内不再触发，我才执行事件。从 165 次降低成了 1 次!.看看使用效果：
+
+![1](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/1.13oxbw7r57ng.gif)
+
+
 
 **存在的问题**
 
@@ -4598,7 +4653,7 @@ function getUserAction(e) {
 
 如果我们不使用debounce函数, 这里会打印MouseEvent对象, 如图所示:
 
-![](https://camo.githubusercontent.com/7cc0af80b9b8ac3805eec37a66f381b8054759b59899c3cdd1a16b6406115a0d/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f6465626f756e63652f6576656e742e706e67)
+![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/image.b4rj2g2gg3c.webp)
 
 
 
@@ -4637,6 +4692,7 @@ function debounce(func, wait, immediate) {
     
     if (timeout) clearTimeout(timeout);
     if (immediate) {
+      console.log('timeId', timeId); //第一次为undefined 以后均为null
       //如果已经执行, 不再执行
       let callNow = !timeout;
       timeout = setTimeout(function() { timeout = null }, wait);
@@ -4652,7 +4708,9 @@ function debounce(func, wait, immediate) {
 
 这个函数需要常回来看看 ,理解的并不好.
 
+效果如图:
 
+![68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f6465626f756e63652f6465626f756e63652d342e676966](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f6465626f756e63652f6465626f756e63652d342e676966.2lfn802pm700.gif)
 
 ### 第五版(返回值) ????
 
@@ -4717,7 +4775,7 @@ function debounce(func, wait, immediate) {
 
 
 
-## 节流函数
+## 节流函数(未完成)
 
 > [JavaScript专题之跟着 underscore 学节流 · Issue #26 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/26)
 
@@ -4755,6 +4813,16 @@ function throttle(func, wait) {
 }
 ```
 
+例子依然是用讲 debounce 中的例子，如果你要使用：
+
+```javascript
+container.onmousemove = throttle(getUserAction, 1000);
+```
+
+效果如图:
+
+![tt](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/tt.k0kq8gr42u8.gif)
+
 
 
 ### 定时器方案
@@ -4778,6 +4846,12 @@ function throttle(func, wait) {
   }
 }
 ```
+
+为了让效果更加明显，我们设置 wait 的时间为 3s，效果演示如下：
+
+![ttt](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/ttt.4dx160w341e0.gif)
+
+我们可以看到：当鼠标移入的时候，事件不会立刻执行，晃了 3s 后终于执行了一次，此后每 3s 执行一次，当数字显示为 3 的时候，立刻移出鼠标，相当于大约 9.2s 的时候停止触发，但是依然会在第 12s 的时候执行一次事件。
 
 
 
