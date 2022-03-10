@@ -5670,6 +5670,116 @@ Object {enumearble: false, configurable: false, get:function, set:function}
 
 
 
+### 3.1 对象具体属性
+
+#### Object.prototype.constructor
+
+> 返回创建实例对象的`Object`构造函数的引用. 注意, 此属性的值是对函数本身的引用,而不是一个包含函数名称的字符串. 
+>
+> 对原始类型来说, 如`1`,`true`和`"test"`, 该值只可读. ????
+
+```javascript
+console.log(1['constructor']); //f Number() { [native code] }
+true['constructor'] = 1
+console.log(true['constructor']); //f Boolean() { [native code] }
+
+
+let obj = {};
+obj.constructor = 2;
+console.log(obj.constructor); //2
+```
+
+
+
+**Des**
+
+* all objects (with the execption of objects created with `Object.create(null)` )will have a `constructor` property.
+* Objects created without the explicit use of a constructor function (such as object- and array-literals) will have a `constructor` property that points to the Fundamental Object type for that object.
+
+```javascript
+let o = {};
+o.constructor === Object //true
+
+let o = new Object;
+o.constructor === Object //true
+
+let a = [];
+a.constructor === Array; //true
+
+let a = new Array;
+a.constructor === Array; //true
+
+let n = new Number(3);
+n.constructor === Number //true
+```
+
+
+
+**Examples**
+
+<u>Displaying the constructor of an object</u>
+
+
+
+<u>Changing the constructor of an object</u>
+
+One can assign the `constructor` property for any value except `null` and `undefined` since those don't have a corresponding constructor function (like `String`, `Number`, `Boolean` etc,), but values which are primitives won't keep the change (with no exception thrown).
+
+This is due to the same mechanism, which allows one to set any property on primitive values (except `null` and `undefined`) with no effect.
+
+Namely whenever one uses such a primitive as an object an instance of the corresponding constructor is created and discarded right after the statement was executed.
+
+```javascript
+let val = null;
+val.constructor = 1; //TypeError: val is null
+
+val = 'abc';
+val.constructor = Number; //
+val.constructor === String //true
+
+val.foo = 'bar'; //an implicit instance of String ('abc') was created and assigned the prop foo
+
+val.foo === undefined; //true, since a new instance of String('abc') was created for this comparison, which doesn't have the foo property.
+```
+
+So basically one can change the value of the `constructor` property for anything, except the primitives mentioned above, <span style="color:red;">**note that changing the `constructor` property does not affect the instanceof operator**</span>:
+
+```javascript
+let a = [];
+a.constructor = String;
+a.constructor === String; //true
+
+a instanceof String; //false
+a instanceof Array; //true
+
+a = new Foo();
+a.constructor = 'bar';
+a.constructor === 'bar'; //true
+
+
+//etc.
+```
+
+
+
+If the object is sealed/frozen then the change has no effect and no exception is thrown:
+
+```javascript
+let a = Object.seal({});
+
+a.constructor = Number;
+a.constructor === Number; //false
+
+```
+
+
+
+<u>Changing the constructor of a function</u>
+
+
+
+
+
 
 
 ### 4.读取/添加对象属性
