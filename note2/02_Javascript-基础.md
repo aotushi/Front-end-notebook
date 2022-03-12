@@ -17298,7 +17298,7 @@ arr.filter((item,idx,arr) => obj.hasOwnProperty(typeof item + item) ? false : (o
 
 ```javascript
 arr.filter(v => obj.hasOwnProperty(v) ? false : (obj[typeof v + JSON.stringify(v)] = true));
-
+//test
 ```
 
 依然存在的问题: 考虑到 `JSON.stringify` 任何一个正则表达式的结果都是 `{}`，所以这个方法并不适用于处理正则表达式去重。(引用[勘误](https://github.com/mqyqingfeng/Blog/issues/212) )
