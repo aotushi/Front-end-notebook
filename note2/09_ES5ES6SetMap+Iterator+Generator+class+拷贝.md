@@ -3636,7 +3636,7 @@ run(function *() {
 
 ## class 类
 
-在ECMAScript 6中引入了类的特性。ECMAScript 6中的类与其他语言中的还是不太一样，其语法的设计实际上借鉴了JavaScript的动态性
+在ECMAScript 6中引入了类的特性。ECMAScript 6中的类与其他语言中的还是不太一样，其语法的设计实际上借鉴了<u>JavaScript的动态性</u> ???
 
 ### ECMAScript 5中的近类结构:
 

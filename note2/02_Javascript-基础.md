@@ -5762,6 +5762,21 @@ a.constructor === 'bar'; //true
 
 
 
+```javascript
+//标红那句话不理解.
+
+//1. instanceOf 的作用: 一个构造函数的原型是否出现在一个对象原型链上的任意位置
+
+//2.a.constructor = String; 也就是说实例a的隐式原型的值为构造函数的显式原型: a.constructor.prototype
+
+//3.instanceof操作符获取原型使用的是 Object.getPrototypeOf(instance); 不确定,看人家实现是这么写的
+	Object.getPrototypeOf(a); //数组的原型
+
+//4. 所以更改构造函数原型不会影响instanceof操作符
+```
+
+
+
 If the object is sealed/frozen then the change has no effect and no exception is thrown:
 
 ```javascript
@@ -10583,6 +10598,8 @@ display.call(); //can't read the property of 'sData' of undefined
 
 **实现call()方法**
 
+> 想法: 不用管细枝末节,实现主要功能,再对参数进行判断
+
 ```javascript
 Function.prototype.myCall = function() {
   let thisArg = arguments[0] || globalThis;
@@ -10616,6 +10633,16 @@ Function.prototype.myCall = function(thisArg) {
   const result = eval('thisArg.func(' + args + ')');
   delete thisArg.func;
   return result;
+}
+
+
+Function.prototype.myCall = function() {
+  let obj = [].shift.call(arguments) || globalThis;
+  obj.tempFn = this
+  
+  let res = obj.tempFn(...(...arguments));
+  delete obj.tempFn;
+  return res;
 }
 ```
 
@@ -16199,7 +16226,7 @@ toString+split
 ```javascript
 const arr = [1, 2, 3, 4, [1, 2, 3, [1, 2, 3, [1, 2, 3]]], 5, "string", { name: "弹铁蛋同学" }];
 
-//1
+//1 其实这里加不加扩展运算符都是可以 都会展开最外一层
 [].concat(...arr)
 
 //2
@@ -16951,7 +16978,7 @@ for (let i=0; i<arr.length; i++) {
 function unique(array) {
   let res = [];
   for (let i=0; i<array.length; i++) {
-    for (let j=0; j<res.length; j++) {
+    for (let j=0; j<=res.length; j++) { //dumbass 这里肯定是需要小于等于的
       if (arr[i] === res[j]) {
         break;
       }
@@ -17249,11 +17276,12 @@ function unique2(arr) {
 
 Object键值对
 
-> 键值对方法不能去重正则表达式
+> 存在的问题: 键值对方法不能去重正则表达式
 
 这种方法是利用一个空的 Object 对象，我们把数组的值存成 Object 的 key 值，比如 Object[value1] = true，在判断另一个值的时候，如果 Object[value2]存在的话，就说明该值是重复的。示例代码如下：
 
 ```javascript
+let obj = {};
 arr.filter((item,idx,arr) => obj.hasOwnProperty(item) ? false : (obj[item] = item));
 ```
 
@@ -17918,6 +17946,27 @@ alert(str.name);
 把引用类型转换为基本的数据类型称为"拆箱"
 
 
+
+### 深拷贝处理包装类
+
+在深拷贝方案中,可以使用它自身的构造函数来实现拷贝.例如:
+
+```javascript
+let ctor = target.constructor;
+cloneTarget = new ctor(target)
+```
+
+存在的问题:
+
+布尔对象`new Boolean(new Boolean(false))`的结果是`Boolean {true}`
+
+解决方法:
+
+```javascript
+//布尔,数值和字符串使用valueOf方法
+
+new Object(Boolean.prototype.valueOf.call(target));
+```
 
 
 

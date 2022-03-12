@@ -5667,6 +5667,78 @@ p.then((value)=>{
 
 
 
+实现链式调用
+
+> [第 16 题：实现链式调用 · Issue #22 · lgwebdream/FE-Interview (github.com)](https://github.com/lgwebdream/FE-Interview/issues/22)
+
+核心就是在于调用完的方法将自身实例返回
+
+```javascript
+funciton Class1() {
+  console.log('初始化');
+}
+
+Class1.prototype.method = function (param) {
+  console.log(param);
+  return this;
+}
+
+let c1 = new Class1();
+
+c1.method('第一次调用').method('第二次调用').method('第三次调用');
+//初始化
+//第一次调用
+//第二次调用
+//第三次调用
+
+```
+
+
+
+```javascript
+//示例2
+let obj = {
+  a: function() {
+    console.log('a');
+    return this;
+  },
+  b: function() {
+    console.log('b');
+    return this;
+  }
+};
+
+obj.a().b();
+```
+
+
+
+```javascript
+//示例3  未完成
+
+class Math {
+  constructor(value) {
+    this.hasInit = true;
+    this.value = value;
+    if (!value) {
+      this.value = 0;
+      this.hasInit = false;
+    }
+  }
+  
+  add() {
+    let args = [...arguments];
+    let initValue = this.hasInit ? this.value : args.shift();
+    const value = args.reduce((prev, curv) => prev + curv, initValue);
+    return new Math(value);
+  }
+}
+```
+
+
+
+
+
 ### 10.自定义实现
 
 #### 自定义Promise
