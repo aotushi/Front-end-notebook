@@ -16978,7 +16978,7 @@ for (let i=0; i<arr.length; i++) {
 function unique(array) {
   let res = [];
   for (let i=0; i<array.length; i++) {
-    for (let j=0; j<=res.length; j++) { //dumbass 这里肯定是需要小于等于的
+    for (let j=0; j<res.length; j++) {
       if (arr[i] === res[j]) {
         break;
       }
@@ -16989,6 +16989,40 @@ function unique(array) {
     }
   }
 }
+
+//以上代码是存在问题的, 原代码是使用的var声明的变量,所以比较 j 和 res.length 的时候不会报错,let则会.
+//如果使用let声明变量, j就需要添加在内层for循环之中,而且判断条件应该更改
+
+function unique(arr) {
+  let res = [];
+  for (let i=0,len=arr.length;i<len;i++) {
+    for (let j=0,len=res.length; j<=len; j++) {
+      if (arr[i] === res[j]) {
+        break;
+      }
+      
+      if (res.length === j) {
+        res.push(arr[i])
+      }
+    }
+  }
+  return res;
+}
+
+//不用函数的时候同样
+let res = [];
+for (let i=0,len=arr.length;i<len; i++) {
+  for (let j=0,len=res.length;j<=len;j++) {
+    if (arr[i] === res[j]) {
+      break;
+    }
+    
+    if (res.length === j) {
+      res.push(arr[i]);
+    }
+  }
+}
+console.log(res);
 ```
 
 
@@ -17009,6 +17043,8 @@ for (let i=0; i<arr.length; i++) {
     res.push(arr[i]);
   }
 }
+
+//以上代码是错误的. 原因很简单,j为0的时候,res.length也为0,内循环中代码不会执行.所以执行所有的外循环,if判断永远为true, 所以res的里面的值和arr里面的一样.  哎,惭愧...
 ```
 
 
@@ -17308,6 +17344,20 @@ console.log(JSON.stringify(/a/)); //{}
 console.log(JSON.stringify(/b/)); //{}
 ```
 
+改进: Map键值对
+
+> 使用Map映射是否会解决呢?
+
+```javascript
+let map = new Map();
+let arr = [1,2,3,'1',/a/, {a:1},/a/, ];
+
+let res = arr.filter((item,idx,arr) => map.has(item) ? false : map.set(item, true));
+
+//优化
+let res = arr.filter((item,idx,arr) => !map.has(item) && map.set(item, true));
+```
+
 
 
 
@@ -17395,17 +17445,42 @@ NaN === NaN; //false
 var array = [1, 1, '1', '1', null, null, undefined, undefined, new String('1'), new String('1'), /a/, /a/, NaN, NaN];
 ```
 
+```javascript
+var str1 = '1';
+var str2 = new String('1');
+
+console.log(str1 == str2); // true
+console.log(str1 === str2); // false
+
+console.log(null == null); // true
+console.log(null === null); // true
+
+console.log(undefined == undefined); // true
+console.log(undefined === undefined); // true
+
+console.log(NaN == NaN); // false
+console.log(NaN === NaN); // false
+
+console.log(/a/ == /a/); // false
+console.log(/a/ === /a/); // false
+
+console.log({} == {}); // false
+console.log({} === {}); // false
+```
+
+
+
 我们重点关注下对象和 NaN 的去重情况：
 
-| 方法                  | 结果                                                         | 说明                              |
-| --------------------- | ------------------------------------------------------------ | --------------------------------- |
-| for循环(双for+新数组) | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
-| indexOf               | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                 |
-| sort                  | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 也不去重 |
-| filter+indexOf        | [1, "1", null, undefined, String, String, /a/, /a/]          | 对象不去重 NaN 会被忽略掉         |
-| filter+sort           | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 不去重   |
-| 优化后的键值对方法    | [1, "1", null, undefined, String, /a/, NaN]                  | 全部去重                          |
-| Set                   | [1, "1", null, undefined, String, String, /a/, /a/, NaN]     | 对象不去重 NaN 去重               |
+| 方法                                                         | 结果                                                         | 说明                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------- |
+| for循环(双for+新数组)                                        | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                       |
+| indexOf(作者用的是新数组+for循环+indexOf方法)                | [1, "1", null, undefined, String, String, /a/, /a/, NaN, NaN] | 对象和 NaN 不去重                       |
+| sort<br />结论是数字1不去重,没有勘误.不知道是哪个数字1,是包装类的吗? | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 <br />数字 1 也不去重 |
+| filter+indexOf                                               | [1, "1", null, undefined, String, String, /a/, /a/]          | 对象不去重 NaN 会被忽略掉               |
+| filter+sort                                                  | [/a/, /a/, "1", 1, String, 1, String, NaN, NaN, null, undefined] | 对象和 NaN 不去重 数字 1 不去重         |
+| 优化后的键值对方法                                           | [1, "1", null, undefined, String, /a/, NaN]                  | 全部去重                                |
+| Set                                                          | [1, "1", null, undefined, String, String, /a/, /a/, NaN]     | 对象不去重 NaN 去重                     |
 
 这里再次声明一下，键值对方法不能去重正则表达式。
 
