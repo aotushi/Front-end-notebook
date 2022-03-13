@@ -17095,6 +17095,7 @@ let newArr = arr.reduce((prev,current)=>{
 
 let arr=[1,2,2,4,null,null].reduce(prev,current)=>{
   return prev.includes(current)?prev:prev.concat(current)
+         //!prev.includes(current)&&prev.push(current)
 ,[]}
 ```
 
