@@ -4162,7 +4162,7 @@ const promise = new Promise(function(resolve, reject) {
 
 `Promise`构造函数接受一个函数作为参数，该函数的两个参数分别是`resolve`和`reject`。它们是两个函数，由 JavaScript 引擎提供，不用自己部署。
 
-`resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
+`resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 fulfilled），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
 
 `reject`函数的作用是，将`Promise`对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
 
@@ -4564,6 +4564,8 @@ someAsyncThing().then(function() {
 
 #### Promise.prototype.finally()
 
+
+
 `finally()`方法用于指定不管 Promise 对象最后状态如何，都会执行的操作。该方法是 ES2018 引入标准的。
 
 ```javascript
@@ -4605,7 +4607,7 @@ promise
  Promise.prototype.finally = function(callback) {
    let P = this.constructor;
    return this.then(
-   	value => P.resolve(callback)).then(() =>vlaue),
+   	value => P.resolve(callback()).then(() =>vlaue),
      reason => P.resolve(callback()).then(() =>{ throw reason })
    );
  };
@@ -4613,7 +4615,7 @@ promise
 
 上面代码中，不管前面的 Promise 是`fulfilled`还是`rejected`，都会执行回调函数`callback`。
 
-从上面的实现还可以看到，`finally`方法总是会返回原来的值。
+从上面的实现还可以看到，`finally`方法总是会返回原来的值。????
 
 ```javascript
 // resolve 的值是 undefined
