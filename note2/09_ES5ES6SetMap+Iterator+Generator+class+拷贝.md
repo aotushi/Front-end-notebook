@@ -5262,6 +5262,13 @@ const target = {
 
 ```javascript
 ////https://juejin.cn/post/6844903986479251464#:~:text=%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81-,%E7%AC%AC%E4%BA%8C%E5%8D%81%E4%B8%89%E7%AF%87%3A%20%E8%83%BD%E4%B8%8D%E8%83%BD%E5%86%99%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%9A%84%E6%B7%B1%E6%8B%B7%E8%B4%9D%EF%BC%9F,-%E4%B8%8A%E4%B8%80%E7%AF%87%E5%B7%B2%E7%BB%8F
+
+
+//存在的问题:
+
+问题: new Boolean( new Boolean(false) ) 的结果是 Boolean {true}
+解决: new Boolean( new Boolean(false).valueOf()); //Boolean {false}
+其他: 不推荐,ES6后不推荐使用[new 基本类型()]这样的语法
 ```
 
 
@@ -5374,6 +5381,93 @@ const deepClone = (target, map = new WeakMap()) {
     }
   }
   return cloneTarget;
+}
+```
+
+
+
+```javascript
+
+let isObject = target => typeof target === 'object' || typeof target === 'function' && typeof target !== null;
+
+let getType = obj => Object.prototype.toString.call(obj);
+
+const canTraverse = {
+  '[object Map]': true,
+  '[object Set]': true,
+  '[object Array]': true,
+  '[object Object]': true,
+  '[object Arguments]': true,
+};
+
+const booleanTag = '[object Boolean]';
+const stringTag = '[object String]';
+const numberTag = '[objectc Number]';
+const errorTag = '[object Error]';
+const dateTag = '[object Date]';
+const funcTag = '[object Function]';
+const regexpTag = '[object RegExp]';
+const symbolTag = '[object Symbol]';
+
+
+const handleRegExp = target => {
+  const {source, flags} = target;
+  return new target.constructor(source, flags);
+}
+
+const handleFunc = func = {
+  if (!target.prototype) return func;
+  const bodyReg = /(?={)(.|\n)+(?=})/m;
+  const paramReg = /(?=\().+(?=\)\s+{)/;
+  const funcString = func.toString();
+
+	const body = bodyReg.exec(funcString);
+	const param = paramReg.exec(funcString);
+
+	if (!body) return null;
+	if (param) {
+    const paramArr = param[0].split(',');
+    return new Function(...paramArr, body[0]);
+  } else {
+    return new Function(body[0]);
+  }
+}
+
+function handleNotTraverse(target, type) {
+  let ctor = target.constructor();
+  switch (type) {
+    case booleanTag:
+      return new Object(Boolean.prototype.valueOf.call(target));
+    case numberTag:
+      return new Object(Number.prototype.valueOf.call(target));
+    case stringTag:
+      return new Object(String.prototype.valueOf.call(target));
+    case errorTag:
+    case dateTag:
+      return new ctor(target);
+    case regexpTag:
+      return handleRegExp(target);
+    case funcTag:
+      return handleFunc(target);
+    default:
+      return new ctor(target);
+  }
+}
+
+function deepClone(target ,map=new WeakMap()) {
+  if (!isObject) return target;
+  let type = getType(target);
+  let cloneTarget;
+  
+  if (!canTraverse[type]) {
+    //处理不能遍历的对象
+    return handleNotTraverse(target, type);
+  } else {
+    let ctor = target.constructor;
+    cloneTarget = new ctor();
+  }
+  
+  
 }
 ```
 
