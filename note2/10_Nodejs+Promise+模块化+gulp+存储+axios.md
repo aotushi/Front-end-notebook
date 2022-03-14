@@ -4208,7 +4208,7 @@ console.log('Hi');
 ```javascript
 function loadImageAsync(url) {
   return new Promise(function(resolve, reject) {
-    const igm = new Image();
+    const img = new Image();
     
     img.onload = function() {
       resolve(img);
@@ -4282,7 +4282,7 @@ const p2 = new Promise((resolve, reject) => {
 
 1.`p2`的`resolve`方法将`p1`作为参数,即一个异步操作的结果是返回另一个异步操作
 
-2.`p1`的状态传递给了`p2`, 也就是`p1`的状态决定了p2`的状态.
+2.`p1`的状态传递给了`p2`, 也就是`p1`的状态决定了`p2`的状态.
 
 3.如果`p1`的状态是`pending`，那么`p2`的回调函数就会等待`p1`的状态改变；
 
