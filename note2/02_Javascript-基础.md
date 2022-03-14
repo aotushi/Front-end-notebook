@@ -5122,7 +5122,30 @@ for (let [key, value] of Object.entries({a: 1, b: 2})) {
 
 ## 对象
 
-### 0. 对象的类别
+### 描述
+
+在JavaScript中，几乎所有的对象都是`Object`类型的实例，它们都会从`Object.prototype`继承属性和方法，虽然大部分属性都会被覆盖（shadowed）或者说被重写了（overridden）。 除此之外，`Object` 还可以被故意的创建，但是这个对象并不是一个“真正的对象”（例如：通过 `Object.create(null)`），或者通过一些手段改变对象，使其不再是一个“真正的对象”（比如说: `Object.setPrototypeOf`）。
+
+`Object` 构造函数为给定的参数创建一个包装类对象（object wrapper），具体有以下情况：
+
+* 如果给定值是 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，将会创建并返回一个空对象
+* 如果传进去的是一个基本类型的值，则会构造其包装类型的对象
+* 如果给定值是一个已经存在的对象，则会返回这个已经存在的值（相同地址）。
+
+当以非构造函数形式被调用时， `Object` 和 `new Object()`表现一致。
+
+
+
+### 语法
+
+```javascript
+new Object()
+new Object(value) //value 任意值
+```
+
+
+
+### 0.4 对象的类别
 
 ECMAScript 6规范清晰定义了每一个类别的对象
 
@@ -5133,7 +5156,7 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 
 
-### 0.1 类数组对象
+### 0.5 类数组对象
 
 #### 定义
 
@@ -5171,11 +5194,13 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 * [].splice.call(arrayLike, 0)
 
-* [].concat.apply(arrayLike, [])
+* [].concat.apply([], arrayLike)
 
 * Array.from(arrayLike)
 
 * [...arrayLike]
+
+* for循环+push
 
   
 
@@ -5197,7 +5222,13 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 
 
-### 2.创建对象几种种方法
+### 2.对象初始化
+
+#### 1 对象初始化的几种方式
+
+* `new Object()`   //`Object()`行为等同于`new Object()`
+* `Object.create()`
+* 字面量
 
 创建对象的方式及优缺点
 
@@ -5209,6 +5240,132 @@ let obj = Object.create(null);
 
 
 ```
+
+#### 2 描述
+
+> 对象初始化是一个描述对象初始化过程的表达式. 对象初始化是由一组描述对象的属性组成.
+>
+> 属性的值可以是原始类型,也可以是其他对象
+
+
+
+
+
+#### 6. 方法定义
+
+> 对象属性也可以是一个[函数](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions)、[getter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)、[setter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set)方法。
+
+```javascript
+var o = {
+  property: function([parameters]) {},
+  get property() {},
+  set property(value) {}
+}
+
+//ES2015引入简短写法, 'function'关键字可以省略
+
+//shorthand method names(ES6)
+let o = {
+  property([parameters]) {},
+  get property() {},
+  set property(value) {}
+}
+```
+
+ECMAScript 2015 提供了一种简明地定义以生成器函数作为值的属性的方法。
+
+```javascript
+var o = {
+  * generator() {
+    //
+  }
+}
+
+//ES5中可以这样写(需要注意的是 ES5 没有生成器)
+var o = {
+  generatorMehtod: function *() {
+    //
+  }
+}
+```
+
+
+
+#### 7. 计算属性名
+
+见15.可计算属性名
+
+#### 8. 扩展属性
+
+ECMAScript 提案（第3阶段）的[剩余/扩展属性](https://github.com/tc39/proposal-object-rest-spread)将[扩展](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)属性添加到对象文字。它将自己提供的对象的枚举属性复制到一个新的对象上。
+
+使用比[`Object.assign()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)更短的语法，可以轻松克隆（不包括原型）或合并对象。
+
+```javascript
+```
+
+**注意**:  `Object.assign()`会触发`setter`,而展开操作符不会.
+
+
+
+#### 9. 变更原型
+
+定义属性为`__proto__: 值` 或 `"__proto__": 值 `不会创建一个名称为`__proto__`的属性. 相反, 如果提供的值是一个对象或`null`, 会更改创建对象的`[[prototype]]`的值. (<span style="color:red; font-weight: bold;">如果这个值不是一个对象或`null`,这个对象不会发生变化</span>)
+
+```javascript
+let obj1 = {};
+console.log(Object.getPrototypeOf(obj1) === Object.prototype); //true
+
+let obj2 = {__proto__: null};
+console.log(Object.getPrototypeOf(obj2) === null); //true
+
+let protoObj = {};
+let obj3 = {'__proto__': protoObj};
+console.log(Object.getPrototypeOf(obj3) === protoObj);//true
+
+let obj4 = {__proto__ : 'not an object or null'};
+console.log(Object.getPrototypeOf(obj4) === Object.prototype); //true
+console.log(!obj4.hasOwnProperty('__proto__')); //true
+```
+
+对象中只允许一次原型变更,多次变更会报语法错误.
+
+不用冒号的属性定义不会原型变更.
+
+> Property definitions that do not use 'colon' notation are not prototype mutations. They are property definitions that behave identically to similar definitions using any other name.
+
+不使用冒号标记的属性定义,不会变更对象的原型;而是和其他具有不同名字的属性一样是普通属性定义.
+
+```javascript
+let __proto__ = 'variable';
+
+let obj1 = {__proto__};
+console.log(Object.getPropertyOf(obj1) === Object.prototype); //true
+console.log(obj1.hasOwnProperty('__proto__')); //true
+console.log(obj1.__proto__ === 'variable'); //true
+
+let obj2 = {__proto__() {return 'hello'}};
+console.log(obj2.__proto__() === 'hello'); //true
+
+let obj3 = { ['__prot' + 'o__']: 17};
+console.log(obj3.__proto__ === 17); //true
+```
+
+
+
+#### 10. 对象字面量表示法与JSON
+
+对象字面量表示法和**J**ava**S**cript **O**bject **N**otation是不同的. 不同点有:
+
+- JSON 只允许`"property": value` syntax形式的属性定义。属性名必须用双引号括起来。且属性定义不允许使用简便写法。
+- JSON中，属性的值仅允许字符串，数字，数组，`true`，`false`，`null`或其他（JSON）对象。 
+- JSON中，不允许将值设置为函数。
+-  [`Date`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date) 等对象，经[`JSON.parse()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)处理后，会变成字符串。
+- [`JSON.parse()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) 不会处理计算的属性名，会当做错误抛出。
+
+
+
+### 创建对象的模式 ????
 
 #### 1.工厂模式
 
@@ -6591,6 +6748,49 @@ function newCreate(proto, propertiesObject) {
 
 
 #### Object.assign()
+
+**介绍**
+
+> 用于将所有可枚举属性的值从一个或多个源对象分配到目标对象. 它将返回目标对象.
+
+**语法**
+
+```javascript
+Object.assign(target, ...sources);
+```
+
+**参数**
+
+`target`  目标对象
+
+`sources` 源对象
+
+**返回值**
+
+目标对象
+
+**描述**
+
+* 源对象中的属性会覆盖目标对象中有相同属性的键(key).同样,后面源对象的属性也会覆盖前面相同的属性.
+* 此方法只拷贝源对象自身可枚举<span style="color: blue;"><sup>enumerable</sup></span>的属性到目标对象.
+* 方法在源对象上使用`[[Get]]`,在目标对象上使用`[[Set]]`,所以它会调用[getters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) 和 [setters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/set). 
+* 所以,这个方法分配属性,而不仅仅是复制或定义新的属性
+* 如果合并的源对象中包含getters,那么合并新属性到原型上是不适合的.(Therefore it assign properties, versus copying or defining new properties.)
+* <span style="span:hover{color:red;}">为了将属性定义(包括其可枚举性)复制到原型, 应使用`Object.getOwnPropertyDescriptor()` 代替`Object.defineProperty()`.</span>
+* `String` 和 `Symbol` 属性会被拷贝.
+* 为了预防错误,,例如,一个属性是不可写的,会出现一个类型错误,如果在报错之前添加了任意属性那么`target`对象会改变.
+
+> Note:
+>
+> Object.assign() does not throw on `null` or `undefined` source
+>
+> 不会抛出`null`或`undefined`源
+
+
+
+
+
+
 
 **ES5实现ES6Object.assign()功能**
 

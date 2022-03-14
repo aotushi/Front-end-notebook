@@ -4282,7 +4282,7 @@ const p2 = new Promise((resolve, reject) => {
 
 1.`p2`的`resolve`方法将`p1`作为参数,即一个异步操作的结果是返回另一个异步操作
 
-2.`p1`的状态传递给了`p2`, 也就是`p1`的状态决定了p2`的状态.
+2.`p1`的状态传递给了`p2`, 也就是<span style="color:red; font-weight:bold;">`p1`的状态决定了`p2`的状态</span>.
 
 3.如果`p1`的状态是`pending`，那么`p2`的回调函数就会等待`p1`的状态改变；
 
@@ -4294,7 +4294,7 @@ const p1 = new Promise(function(resolve, reject) {
 })
 
 const p2 = new Promise(function(resolve, reject) {
-  setTImeout(() => resolve(p1), 1000)
+  setTimeout(() => resolve(p1), 1000)
 })
 
 p2
@@ -4340,7 +4340,7 @@ Promise实例具有then方法,也就是说,then方法是定义在原型对象上
 
 **参数**: then方法的第一个参数是resolved状态的回调函数,第二个参数是rejected状态的回调函数,都是可选的.
 
-**返回值**: then方法返回一个新的Promise实例(注意,不是原来的Promise实例). 因此可以采用链式写法, 即then方法后再调用一个then方法.
+**返回值**: **then方法返回一个新的Promise实例**(注意,不是原来的Promise实例). 因此可以采用链式写法, 即then方法后再调用一个then方法.
 
 前一个回调函数，有可能返回的还是一个`Promise`对象（即有异步操作），这时后一个回调函数，就会等待该`Promise`对象的状态发生变化，才会被调用。
 
