@@ -10640,7 +10640,7 @@ Function.prototype.myCall = function() {
   let obj = [].shift.call(arguments) || globalThis;
   obj.tempFn = this
   
-  let res = obj.tempFn(...(...arguments));
+  let res = obj.tempFn(...[...arguments]);
   delete obj.tempFn;
   return res;
 }
