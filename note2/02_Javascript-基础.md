@@ -5310,7 +5310,7 @@ ECMAScript 提案（第3阶段）的[剩余/扩展属性](https://github.com/tc3
 
 #### 9. 变更原型
 
-定义属性为`__proto__: 值` 或 `"__proto__": 值 `不会创建一个名称为`__proto__`的属性. 相反, 如果提供的值是一个对象或`null`, 会更改创建对象的`[[prototype]]`的值. (<span style="color:red; font-weight: bold;">如果这个值不是一个对象或`null`,这个对象不会发生变化</span>)
+定义属性为`__proto__: 值` 或 `"__proto__": 值 `<span style="color: red;">不会创建</span>一个名称为`__proto__`的属性. 相反, 如果提供的值是一个对象或`null`, 会更改创建对象的`[[prototype]]`的值. (<span style="color:red; font-weight: bold;">如果这个值不是一个对象或`null`,这个对象不会发生变化</span>)
 
 ```javascript
 let obj1 = {};
@@ -16146,9 +16146,21 @@ arr.some(callback(element[, index[, array]])[, thisArg])
 
 * 执行 `callback` 时使用的 `this` 值
 
+我们来看下this的几种情况:
+
+```javascript
+//thisArg存在, callback参数中即使没有传递也可以访问 当然是没有call
+[1].some(function () {console.log(this), [1,2,3]) //[1,2,3]
+
+//
+```
+
+
+
 **返回值**
 
-数组中有至少一个元素通过回调函数的测试就会返回**`true`**；所有元素都没有通过回调函数的测试返回值才会为false。
+* 数组中有至少一个元素通过回调函数的测试就会返回**`true`**；所有元素都没有通过回调函数的测试返回值才会为false。
+* 如果是空数组,返回false
 
 **描述**
 
@@ -16241,9 +16253,25 @@ arr.every(callback(element[, index[, array]])[, thisArg])
 
 * 执行 `callback` 时使用的 `this` 值
 
+我们来看一下传递的这个this值
+
+```javascript
+//箭头函数形式+非严格模式下 这个值是window
+[].every(() => console.log(this), 1); //在Chrome中打印的是window对象
+
+[].every(function() {console.log(this)}, 1); // Number {1} 包装类
+```
+
+
+
+
+
 **返回值**
 
-如果回调函数的每一次返回都为 [truthy](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy) 值，返回 `**true**` ，否则返回 `**false**`
+* 如果回调函数的每一次返回都为 [truthy](https://developer.mozilla.org/zh-CN/docs/Glossary/Truthy) 值，返回 `**true**` ，否则返回 `**false**`
+* 如果是<span style="color:blue;">**空数组**</span>调用, 函数即使有内容也返回`true`
+
+
 
 **描述**
 
