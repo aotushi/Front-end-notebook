@@ -6788,6 +6788,228 @@ Object.assign(target, ...sources);
 
 
 
+**Polyfill**
+
+这个Polyfill不支持symbol属性,由于ES5中本来就不存在symbols
+
+```javascript
+if (typeof Object.assign !== 'function') {
+  Object.defineProperty(Object, 'assign', {
+    value: function assign(target, varArgs) {
+      'use strict'
+      if (target === null || target === undefined) {
+        throw new TypeError('Cannot convert undefined or null to object')
+      }
+      
+      let to = Object(target);
+      
+      for (let i=1; i<arguments.length; i++) {
+        let nextSource = arguments[i];
+        
+        if (nextSource !== null && nextSource !== undefined) { //why? 使用 或 不行吗
+          for (let nextKey in nextSource) {
+            if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) { //nextSource.hasOwnProperty
+              to[nextKey] = nextSource[nextKey];
+            }
+          }
+        }
+      }
+      
+      return to;
+    },
+    writable: true,
+    configurable: true
+  })
+}
+```
+
+
+
+**实例**
+
+<u>Cloning an object</u>
+
+```javascript
+const obj = {a: 1};
+const copy = Object.assign({}, obj);
+console.log(copy); //{a: 1}
+```
+
+
+
+<u>Warning for Deep Clone</u>
+
+For [deep cloning](https://developer.mozilla.org/en-US/docs/Glossary/Deep_copy), we need to use alternatives, because `Object.assign()` copies property values.
+
+If the source value is a reference to an object, it only copies the reference value.
+
+```javascript
+function test() {
+  'use strict';
+
+  let obj1 = { a: 0 , b: { c: 0}};
+  let obj2 = Object.assign({}, obj1);
+  console.log(JSON.stringify(obj2)); // { "a": 0, "b": { "c": 0}}
+
+  obj1.a = 1;
+  console.log(JSON.stringify(obj1)); // { "a": 1, "b": { "c": 0}}
+  console.log(JSON.stringify(obj2)); // { "a": 0, "b": { "c": 0}}
+
+  obj2.a = 2;
+  console.log(JSON.stringify(obj1)); // { "a": 1, "b": { "c": 0}}
+  console.log(JSON.stringify(obj2)); // { "a": 2, "b": { "c": 0}}
+
+  obj2.b.c = 3;
+  console.log(JSON.stringify(obj1)); // { "a": 1, "b": { "c": 3}}
+  console.log(JSON.stringify(obj2)); // { "a": 2, "b": { "c": 3}}
+
+  // Deep Clone
+  obj1 = { a: 0 , b: { c: 0}};
+  let obj3 = JSON.parse(JSON.stringify(obj1));
+  obj1.a = 4;
+  obj1.b.c = 4;
+  console.log(JSON.stringify(obj3)); // { "a": 0, "b": { "c": 0}}
+}
+
+test();
+```
+
+
+
+<u>Merging object</u>
+
+```javascript
+const o1 = { a: 1 };
+const o2 = { b: 2 };
+const o3 = { c: 3 };
+
+const obj = Object.assign(o1, o2, o3);
+console.log(obj); // { a: 1, b: 2, c: 3 }
+console.log(o1);  // { a: 1, b: 2, c: 3 }, target object itself is changed.
+```
+
+<u>Merging objects with same properties</u>
+
+the properties are overwritten by other objects that have the same properties later in the parameters order.
+
+```javascript
+const o1 = { a: 1, b: 1, c: 1 };
+const o2 = { b: 2, c: 2 };
+const o3 = { c: 3 };
+
+const obj = Object.assign({}, o1, o2, o3);
+console.log(obj); // { a: 1, b: 2, c: 3 }
+```
+
+<u>Copying symbol-typed properties</u>
+
+```javascript
+const o1 = { a: 1 };
+const o2 = { [Symbol('foo')]: 2 };
+
+const obj = Object.assign({}, o1, o2);
+console.log(obj); // { a : 1, [Symbol("foo")]: 2 } (cf. bug 1207182 on Firefox)
+Object.getOwnPropertySymbols(obj); // [Symbol(foo)]
+```
+
+<u>Properties on the prototype chain and non-enumerable properties cannot be copied</u>
+
+```javascript
+const obj = Object.create({foo: 1}, {
+  bar: {
+    value: 2 //bar is a non-enumerable property
+  },
+  baz: {
+    value: 3,
+    enumerable: true //baz is an own enumerable property
+  }
+});
+
+const copy = Object.assign({}, obj);
+console.log(copy); //{baz: 3}
+```
+
+<u>Primitives will be wrapper to objects</u>
+
+> <span style="color:red;">Note, only string wrappers can have own enumerable properties.</span>
+
+```javascript
+const v1 = 'abc';
+const v2 = true;
+const v3 = 10;
+const v4 = Symbol('foo');
+
+const obj = Object.assign({}, v1, null, v2, undefined, v3, v4);
+// Primitives will be wrapped, null and undefined will be ignored.
+// Note, only string wrappers can have own enumerable properties.
+console.log(obj); // { "0": "a", "1": "b", "2": "c" }
+```
+
+<u>Exceptions will interrupt the ongoing copying task </u>
+
+```javascript
+const target = Object.defineProperty({}, 'foo', {
+  value: 1,
+  writable: true
+});
+
+Object.assign(target, {bar: 2}, {foo2: 3, foo: 3}, {baz: 4});
+//TypeError: 'foo' is read-only
+//the exception is thrown when assigning target.foo
+
+console.log(target.bar);  // 2, the first source was copied successfully.
+console.log(target.foo2); // 3, the first property of the second source was copied successfully.
+console.log(target.foo);  // 1, exception is thrown here.
+console.log(target.foo3); // undefined, assign method has finished, foo3 will not be copied.
+console.log(target.baz);  // undefined, the third source will not be copied either.
+```
+
+<u>Copying accessors</u> ????
+
+```javascript
+const obj = {
+  foo: 1,
+  get bar() {
+    return 2;
+  }
+};
+
+let copy = Object.assign({}, obj);
+console.log(copy); //{foo:1, bar: 2} //the value of copy.bar is obj.bar's getter's return value.
+
+//this is an assign function that copies full descriptors
+function completeAssign(target, ...sources) {
+  sources.forEach(source => {
+    let descriptors = Object.keys(source).reduce((descriptors, key) => {
+      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+      return descriptors;
+    }, {})
+    
+    //by default, Object.assign copies enumerable Symbols, too
+    Object.getOwnPropertySymbol(source).forEach(sym => {
+      let descriptor = Object.getOwnPropertyDescriptor(source, sym);
+      if (descriptor.enumerable) {
+        descriptors[sym] = descriptor;
+      }
+    });
+    Object.defineProperties(target, descriptors);
+  });
+  return target;
+}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9594,6 +9816,18 @@ const where = () => {
   let res = reg.exec(str) && reg.exec(str)
   return res && res[1];
 }
+```
+
+
+
+**类数组对象转换成数组的 ? 种方法**
+
+```javascript
+[].slice.call(arguments)
+[].splice.call(arguments, 0);
+[].concat.apply([], arguments);
+Array.from(arguments)
+[...arguments]
 ```
 
 
