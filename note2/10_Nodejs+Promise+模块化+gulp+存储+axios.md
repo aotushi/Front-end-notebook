@@ -4162,7 +4162,7 @@ const promise = new Promise(function(resolve, reject) {
 
 `Promise`构造函数接受一个函数作为参数，该函数的两个参数分别是`resolve`和`reject`。它们是两个函数，由 JavaScript 引擎提供，不用自己部署。
 
-`resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
+`resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 fulfilled），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
 
 `reject`函数的作用是，将`Promise`对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
 
@@ -4208,7 +4208,7 @@ console.log('Hi');
 ```javascript
 function loadImageAsync(url) {
   return new Promise(function(resolve, reject) {
-    const igm = new Image();
+    const img = new Image();
     
     img.onload = function() {
       resolve(img);
@@ -4282,7 +4282,11 @@ const p2 = new Promise((resolve, reject) => {
 
 1.`p2`的`resolve`方法将`p1`作为参数,即一个异步操作的结果是返回另一个异步操作
 
+<<<<<<< HEAD
 2.`p1`的状态传递给了`p2`, 也就是<span style="color:red; font-weight:bold;">`p1`的状态决定了`p2`的状态</span>.
+=======
+2.`p1`的状态传递给了`p2`, 也就是`p1`的状态决定了`p2`的状态.
+>>>>>>> 0d5f23b4d3cc0407c482b757314420ba502ddb38
 
 3.如果`p1`的状态是`pending`，那么`p2`的回调函数就会等待`p1`的状态改变；
 
@@ -4564,6 +4568,8 @@ someAsyncThing().then(function() {
 
 #### Promise.prototype.finally()
 
+
+
 `finally()`方法用于指定不管 Promise 对象最后状态如何，都会执行的操作。该方法是 ES2018 引入标准的。
 
 ```javascript
@@ -4605,7 +4611,7 @@ promise
  Promise.prototype.finally = function(callback) {
    let P = this.constructor;
    return this.then(
-   	value => P.resolve(callback)).then(() =>vlaue),
+   	value => P.resolve(callback()).then(() =>vlaue),
      reason => P.resolve(callback()).then(() =>{ throw reason })
    );
  };
@@ -4613,7 +4619,7 @@ promise
 
 上面代码中，不管前面的 Promise 是`fulfilled`还是`rejected`，都会执行回调函数`callback`。
 
-从上面的实现还可以看到，`finally`方法总是会返回原来的值。
+从上面的实现还可以看到，`finally`方法总是会返回原来的值。????
 
 ```javascript
 // resolve 的值是 undefined

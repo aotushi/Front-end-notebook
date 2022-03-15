@@ -2667,6 +2667,16 @@ function fun(){
 
 ## 事件循环机制Event Loop
 
+### 1.介绍
+
+
+
+### 2.可视化
+
+> [JS Visualizer 9000 (jsv9000.app)](https://www.jsv9000.app/)
+
+![Event Loop](https://wx1.sinaimg.cn/large/66fd066bgy1h05megk18vg224y1hge81.gif)
+
 来源:[知乎](https://zhuanlan.zhihu.com/p/33058983?utm_source=com.microsoft.todos&utm_medium=social&utm_oi=41541510889472)
 
 javascript从诞生之日起就是一门**单线程的非阻塞**的脚本语言。这是由其最初的用途来决定的：与浏览器交互。
@@ -2795,7 +2805,7 @@ Chrome, edge: 多进程
 
 
 
-#### 事件循环模型
+### 事件循环模型
 
 1.所有代码分类
 
