@@ -323,7 +323,7 @@ console.log("Number of vowels:", aliceExcerpt.match(regexpVowels).length);
 
 横向模糊指的是，一个正则可匹配的字符串的长度不是固定的，可以是多种情况的。
 
-实现的方法是:使用量词. 譬如 {m, n},表示连续出现最少m次, 最多n次.
+<span style="color:blue;">**实现的方法是:使用量词**</span>. 譬如 {m, n},表示连续出现最少m次, 最多n次.
 
 比如正则 `/ab{2, 5}c/` 表示匹配这样一个字符串: 第一个字符是'a', 接下来是2到5个字符'b',最后的字符是'c'.
 
@@ -337,7 +337,7 @@ console.log("Number of vowels:", aliceExcerpt.match(regexpVowels).length);
 
 纵向模糊指的是，一个正则匹配的字符串，具体到某一位字符时，它可以不是某个确定的字符，可以有多种可能。
 
-其实现方式是使用**字符组**. 譬如[abc], 表示该字符可以是字符'a','b','c'中的任何一个.
+<span style="color:blue;">**其实现方式是使用字符组**</span>. 譬如[abc], 表示该字符可以是字符'a','b','c'中的任何一个.
 
 比如 `/a[123]b/`可以匹配如下三种字符串: 'a1b', 'a2b', 'a3b'.
 
@@ -407,7 +407,7 @@ console.log("Number of vowels:", aliceExcerpt.match(regexpVowels).length);
 
 ### 3.量词
 
-量词也称重复。掌握 {m,n} 的准确含义后，只需要记住一些简写形式。
+<u>量词也称重复</u>。掌握 {m,n} 的准确含义后，只需要记住一些简写形式。
 
 #### 3.1 简写形式
 
@@ -484,7 +484,7 @@ console.log(str.match(regex));
 //['good', 'nice']
 ```
 
-<u>分支结构也是惰性的，即当前面的匹配上了，后面的就不再尝试了</u>
+<u>分支结构也是**惰性**的，即当前面的匹配上了，后面的就不再尝试了</u>
 
 注意: 比如用`/good|goodbye/`, 匹配'goodbye'字符串时, 结果是'good'
 
@@ -637,20 +637,82 @@ F:\
 
 > 盘符:\文件夹\文件夹\文件夹\
 
+其中匹配 "F:\"，需要使用<span style="color:blue; font-weight: bold;">` [a-zA-Z]:\\`</span>，其中盘符不区分大小写，注意 \ 字符需要转义。
 
+文件名或者文件夹名，不能包含一些特殊字符，此时我们需要排除字符组<span style="color:blue; font-weight: bold;"> `[^\\:*<>|"?\r\n/] `</span>来表示合法字符.
 
+另外它们的名字不能为空名，至少有一个字符，也就是要使用量词 `+`。因此匹配 `文件夹\`，可用<span style="color:blue; font-weight:bold;">`[^\\:*<>|"?\r\n/]+\\`</span>.
 
+另外 文件夹\，可以出现任意次。也就是 (<span style="color: blue; font-weight: bold;">`[^\\:*<>|"?\r\n/]+\\)*`</span>。其中括号表示其内部正则是一个整体.
+
+路径的最后一部分可以是 文件夹，没有 \，因此需要添加<span style="color:blue; font-weight: bold;">` ([^\\:*<>|"?\r\n/]+)?`</span>
+
+最后拼接成了一个看起来比较复杂的正则：
 
 ```javascript
-let regex = /[a-zA-Z]:\[^\:*<>|"?\r\n]+\/;
+let regex = /^[a-zA-Z]:\\([^\\:*<>|"?\r\n/]+\\)*([^\\:*<>|"?\r\n/]+)?$/;
 let str= 'F:\study\javascript\regex\regular expression.pdf';
 
-str.match(regex)
+console.log( regex.test("F:\\study\\javascript\\regex\\regular expression.pdf") );
+console.log( regex.test("F:\\study\\javascript\\regex\\") );
+console.log( regex.test("F:\\study\\javascript") );
+console.log( regex.test("F:\\") );
+// => true
+// => true
+// => true
+// => true
 ```
 
+其中，在JavaScript 中字符串要表示字符 \ 时，也需要转义。
+
+可视化形式:
+
+![正则文件路径](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/正则文件路径.5eyx9w1q2p40.webp)
 
 
 
+#### 5.5 匹配id
+
+要求从
+
+```javascript 
+<div id="container" class="main"></div>
+```
+
+提取出 <span style="color: red;">id="container"</span>
+
+开始的正则是:
+
+```javascript
+var regex = /id=".*"/
+var string = '<div id="container" class="main"></div>';
+console.log(string.match(regex)[0]);
+// => id="container" class="main"
+```
+
+其可视化形式是:
+
+![匹配id正则](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/匹配id正则.3p1eje2gj5q0.webp)
+
+因为 . 是通配符，本身就匹配双引号的，而量词 * 又是贪婪的，当遇到 container 后面双引号时，是不会停下来，会继续匹配，直到遇到最后一个双引号为止。
+
+解决之道,使用惰性匹配:
+
+```javascript
+var regex = /id=".*?"/
+var string = '<div id="container" class="main"></div>';
+console.log(string.match(regex)[0]);
+// => id="container"
+```
+
+当然，这样也会有个问题。<u>效率比较低</u>，因为其匹配原理会涉及到“回溯”这个概念（这里也只是顺便提一下，第四章会详细说明）。可以优化如下:
+
+```javascript
+var regex = /id="[^"]*"/
+var string = '<div id="container" class="main"></div>';
+console.log(string.match(regex)[0]);
+// => id="container"
+```
 
 
 
