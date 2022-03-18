@@ -716,9 +716,94 @@ console.log(string.match(regex)[0]);
 
 
 
+## 正则表达式位置匹配攻略
 
 
 
+### 1.什么是位置
+
+> 位置(锚)是相邻字符之间的位置. 比如,下图箭头所指的地方:
+
+![锚](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/锚.3cwiopgx95e0.webp)
+
+
+
+### 2.如何匹配位置
+
+在ES5中, 共有6个锚:
+
+<span style="color:red; font-weight:bold;"> ^ $ \b \B (?=p)  (?!p)</span>
+
+相应的可视化形式:
+
+![锚的可视化](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/锚的可视化.48azfnceyk60.webp)
+
+#### 2.1 ^ 和 $
+
+<span style="color:red; font-weight:bold;">^(脱字符)</span>匹配开头,在多行匹配中匹配行开头
+
+<span style="color:red; font-weight:bold;">$(美元符号)</span>匹配结尾, 在多行匹配中匹配行结尾
+
+比如我们把字符串的开头和结尾用 "#" 替换（<span style="color:blue; font-weight:bold;">位置可以替换成字符的！</span>）：
+
+```javascript
+let res = 'hello'.replace(/^|$/g, '#');  //管道符是惰性匹配
+cosnole.log(res); // '#hello#'
+```
+
+多行匹配模式（即有修饰符 m）时，二者是行的概念，这一点需要我们注意：
+
+```javascript
+let res = 'I\nlove\njavascript'.replace(/^|$/gm, '#');
+console.log(res);
+/*
+#I#
+#love#
+#javascript#
+*/
+```
+
+#### 2.2 \b 和 \B
+
+<span style="color:red; font-weight:bold;">\b</span> 是单词边界,具体就是`\w`与`\W`之间的位置,也包括`\w` 与 `^`之间的位置, 和`\w`与`$`之间的位置.
+
+比如考察文件名 "[JS] Lesson_01.mp4" 中的 \b，如下：
+
+```javascript
+let res = '[JS] Lesson_01.mp4'.replace(/\b/g, '#');
+console.log(res);
+//'[#JS#] #Lesson_01#.#mp4#'
+```
+
+解析:
+
+`\w`是字符组`[0-9a-zA-Z_]`的简写形式,即`\w`是字母数字或者下划线的中任何一个字
+符。
+
+而 `\W` 是排除字符组` [^0-9a-zA-Z_] `的简写形式，即 `\W` 是 `\w` 以外的任何一个字符。
+
+此时我们可以看看 "[#JS#] #Lesson_01#.#mp4#" 中的每一个井号:
+
+* 第 1 个，两边字符是 "[" 与 "J"，是 \W 与 \w 之间的位置。
+* 第 2 个，两边字符是 "S" 与 "]"，也就是 \w 与 \W 之间的位置。
+* 第 3 个，两边字符是空格与 "L"，也就是 \W 与 \w 之间的位置。
+* 第 4 个，两边字符是 "1" 与 "."，也就是 \w 与 \W 之间的位置。
+* 第 5 个，两边字符是 "." 与 "m"，也就是 \W 与 \w之间的位置。
+* 第 6 个，位于结尾，前面的字符 "4" 是 \w，即 \w 与 $ 之间的位置。
+
+
+
+<span style="color:red;font-weight:bold;">\B</span> 是`\b`的反面的意思,非单词边界.例如在字符串中所有位置中，扣掉 `\b`，剩下的都是 `\B `的,就是`\w` 与 `\w`、 `\W` 与 `\W`、`^ `与 `\W`，`\W` 与 `$` 之间的位置。
+
+
+
+
+
+### 3.位置的特性
+
+
+
+### 4.应用实例
 
 
 
