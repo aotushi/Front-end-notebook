@@ -4282,8 +4282,6 @@ const p2 = new Promise((resolve, reject) => {
 
 1.`p2`的`resolve`方法将`p1`作为参数,即一个异步操作的结果是返回另一个异步操作
 
-
-
 2.`p1`的状态传递给了`p2`, 也就是<span style="color:red; font-weight:bold;">`p1`的状态决定了`p2`的状态</span>.
 
 3.如果`p1`的状态是`pending`，那么`p2`的回调函数就会等待`p1`的状态改变；
@@ -4566,18 +4564,42 @@ someAsyncThing().then(function() {
 
 #### Promise.prototype.finally()
 
+the method returns a `Promise`. when the promises is finally either fulfilled or rejected, the specified callback function is executed. this provides a way for code to be run whether the promise was fulfilled successfully, or instead rejected.
 
+**Syntax**
 
-`finally()`方法用于指定不管 Promise 对象最后状态如何，都会执行的操作。该方法是 ES2018 引入标准的。
+```javascript 
+p.finally(onFinally)
 
-```javascript
-promise
-.then(result => {})
-.catch(error => {})
-.finally(() => {});
+p.finally(function() {
+  //settled
+})
 ```
 
-上面代码中，不管`promise`最后的状态，在执行完`then`或`catch`指定的回调函数以后，都会执行`finally`方法指定的回调函数。
+**parameters**
+
+`onFinally`
+
+* A function called when the `Promise` is settled.
+
+**Return values**
+
+> returns a `Promise` whose `finally` handler is set to the specified function, `onFinally`.
+
+**Desc**
+
+如果你想在 promise 执行完毕后无论其结果怎样都做一些处理或清理时，`finally()` 方法可能是有用的。
+
+`finally()` 虽然与 `.then(onFinally, onFinally)` 类似，它们不同的是：
+
+- 调用内联函数时，不需要多次声明该函数或为该函数创建一个变量保存它。
+- 由于无法知道`promise`的最终状态，所以`finally`的回调函数中不接收任何参数，它仅用于无论最终结果如何都要执行的情况。
+- 与`Promise.resolve(2).then(() => {}, () => {})` （resolved的结果为`undefined`）不同，`Promise.resolve(2).finally(() => {})` resolved的结果为 `2`。
+- 同样，`Promise.reject(3).then(() => {}, () => {})` (fulfilled的结果为`undefined`), `Promise.reject(3).finally(() => {})` rejected 的结果为 `3`。
+
+> Note:  在finally回调中 throw (货返回被闪退的promise) 将以 throw() 指定的原因拒绝新的promise.
+
+
 
 `finally`方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。
 
@@ -4632,6 +4654,23 @@ Promise.reject(3).then(() => {}, () => {})
 // reject 的值是 3
 Promise.reject(3).finally(() => {})
 ```
+
+**实现Promise.finally**
+
+```javascript
+Promise.prototoype.Finally = function(cb) {
+  return this.then(
+    (value) => {
+    	return Promise.resolve(cb()).then(() => value)
+  }, (err) => {
+    	return Promise.reject(cb()).then(() => throw err)
+  })
+}
+```
+
+
+
+
 
 
 
@@ -4708,6 +4747,30 @@ Promise.all([p1, p2])
 ```
 
 
+
+**实现Promise.all**
+
+```javascript
+//https://juejin.cn/post/7033275515880341512#:~:text=%E5%8F%82%E8%80%83%E4%BB%A3%E7%A0%81-,%E5%AE%9E%E7%8E%B0promise.all,-%E8%80%83%E5%AF%9F%E9%A2%91%E7%8E%87%3A%20(%E2%AD%90%E2%AD%90%E2%AD%90%E2%AD%90%E2%AD%90)
+
+function promisesAll(promises) {
+  return new Promise((resolve, reject) => {
+    if (!Array.isArray(promises)) {
+      throw new TypeError('promises must be an array');
+    }
+    
+    let resArr = [];
+    let count = 0;
+    promises.forEach((promise, idx) => {
+      promise.then(res => {
+        resArr[idx] = res;
+        count++;
+        count === promises.length && resolve(resArr);
+      }, err => { reject(err) });
+    })
+  })
+}
+```
 
 
 
@@ -4812,7 +4875,7 @@ promise.then(null, function(err) {
 
 ##### then() + catch()
 
-then()方法和catch()方法一起使用才能更好地处理异步操作结果。如果不给Promise添加拒绝处理程序，那所有失败就自动被忽略了，所以一定要添加拒绝处理程序，即使只在函数内部记录失败的结果也行。
+<u>then()方法和catch()方法一起使用才能更好地处理异步操作结果。</u>如果不给Promise添加拒绝处理程序，那所有失败就自动被忽略了，所以一定要添加拒绝处理程序，即使只在函数内部记录失败的结果也行。
 
 如果一个Promise处于已处理状态，在这之后添加到任务队列中的处理程序仍将执行。所以无论何时你都可以添加新的完成处理程序或拒绝处理程序，同时也可以保证这些处理程序能被调用。
 
@@ -4880,7 +4943,7 @@ Resolved
 
 #### 创建已处理的Promise
 
-创建未处理Promise的最好方法是使用Promise的构造函数，这是由于Promise执行器具有动态性.
+<u>创建未处理Promise的最好方法是使用Promise的构造函数</u>，这是由于Promise执行器具有动态性.
 
 但如果你想用Promise来表示一个已知值，则编排一个只是简单地给resolve()函数传值的任务并无实际意义，反倒是可以用以下两种方法根据特定的值来创建已解决Promise。
 
@@ -4992,8 +5055,6 @@ rejected.catch(function(value) {
   console.log(value);
 })
 ```
-
-任何时候都可以调用then()方法或catch()方法，无论Promise是否已解决这两个方法都可以正常运行，但这样就很难知道一个Promise何时被处理。在此示例中，Promise被立即拒绝，但是稍后才被处理。
 
 任何时候都可以调用then()方法或catch()方法，无论Promise是否已解决这两个方法都可以正常运行，但这样就很难知道一个Promise何时被处理。在此示例中，Promise被立即拒绝，但是稍后才被处理。
 
@@ -5407,14 +5468,15 @@ promise.success(function(value) {
 
 #### 如何改变promise的状态?
 
-```js
-//3种方式改变状态:
-(1)	resolve(value): 如果当前是pending就会变为fulfilled
-(2)	reject(reason): 如果当前是pending就会变为rejected
-(3)	抛出异常: 如果当前是pending就会变为rejected
+3种方式改变状态:
+
+* resolve(value): 如果当前是pending就会变为fulfilled
+* reject(reason): 如果当前是pending就会变为rejected
+* 抛出异常: 如果当前是pending就会变为rejected
+
 - 其他情况下的状态值都是pending.
 
-返回其他值
+```js
 let p = new Promise((resolve, reject) => {
     // resolve();
     // reject();
@@ -5459,31 +5521,34 @@ p.then(value => {
 
 #### 改变promise状态和指定回调函数(then)谁先谁后
 
-```js
-1.都有可能. 正常时先指定回调再改变状态
-2.先改变状态再指定回调的方法//同步
- 2.1 直接调用resolve()/reject()
- 2.2 延迟更长时间才调用then()
-    let p = new Promise((resolve, reject)=>{
-        setTimeout(()=>{resolve('ok')},1000);
-    })
-    setTimeout(()=>{p.then(value=>{console.log(value)})},3000)
- 
-3.先指定回调(先调用then方法)再改变状态//执行器种直接异步调用resolve()/reject()
-   let p = new Promise((resolve,reject) => {
-        setTimeout(function(){
-            resolve('ok')
-        },1000)
-     })
-     p.then(value => {
-         console.log(value);
-     })
+1.都有可能. 正常是先指定回调再改变状态
 
-4.什么时候得到数据?
-4.1 如果先指定的回调函数,当状态发生改变时,调用回调函数,得到数据
-4.2 如果先改变的状态,当指定回调函数时,回调函数就会调用,得到数据
+2.先改变状态再指定回调//同步
 
+* 直接调用resolve()/reject()
+* 延迟更长时间调用回调函数
+
+```javascript
+let p = new Promise((resolve, reject) => {
+  setTimeout(() => { resolve('ok'), 1000})
+});
+
+setTimeout(() => {p.then(val => console.log(val)), 3000});
 ```
+
+3.先指定回调函数再改变状态
+
+```javascript
+let p = new Promise((resolve, reject) => {
+  setTimeout(() => resolve('ok'), 1000);
+});
+p.then(val => console.log(val));
+```
+
+4.什么时候得到数据
+
+* 如果先指定的回调函数,当状态发生改变时调用回调,得到数据
+* 如果先改变的状态,当指定回调时候就会调用,得到数据
 
 
 
@@ -5491,17 +5556,15 @@ p.then(value => {
 
 #### promise.then()返回新的promise的结果状态由什么决定
 
-```js
-//then方法的返回结果是一个promise对象
-(1)	简单表达: 由then()指定的回调函数执行的结果决定(执行结果就是函数的返回值)
-(2)	详细表达:                                    
-①	如果抛出异常, 新promise变为rejected, reason为抛出的异常/throw抛出的值
-②	如果返回的是非promise的任意值, 新promise变为fulfilled(resolved) 值为返回值
-③	如果返回的是另一个新promise, 此promise的结果就会成为新promise的结果,其值也会为then方法的返回值.
+> then方法的返回结果是一个promise对象
+
+* 简单表达: 由then()指定的回调函数执行结果决定(<u>执行结果就是函数的返回值</u>)
+* 详细表达:                                    
+  * 如果抛出异常, 新promise变为rejected, reason为抛出的异常(throw抛出的值)
+  * 如果返回非promise的任意值, 新promise变为fulfilled, 其值为返回值
+  * 如果返回的是另一个新promise, 此promise的结果就会成为新promise的结果,其值也会为then方法的返回值.
 
 
-
-```
 
 
 
@@ -5509,35 +5572,12 @@ p.then(value => {
 
 #### promise如何串连多个操作任务?
 
-```js
-(1)	promise的then()返回一个新的promise, 可以开成then()的链式调用
-(2)	通过then的链式调用串连多个同步/异步任务
-
-let p = new Promise((resolve, reject) => {
-    reject('error');
-});
-
-p.then(value => {
-    console.log(value);
-}, reason => {
-    console.error(reason);
-}).then(value => {
-    console.log(111);
-    return new Promise((resolve, reject) => {
-        reject(333);
-    })
-}, reason => {
-    console.error(222);
-}).then(value => {
-    console.log(444);
-}, reason =>{
-    console.error(555);
-})
-```
+* promise的then()返回一个新的promise, 可以开成then()的链式调用
+* 通过then的链式调用串连多个同步/异步任务
 
 
 
-#### 链式调用实例-读取多个文件
+链式调用实例-读取多个文件
 
 ```js
 //合并1-3个HTML文件
@@ -5625,9 +5665,11 @@ mine();
 
 #### Promise异常穿透
 
+* 当使用promise的then链式调用时, 可以在最后指定失败的回调, 
+* 前面任何操作出了异常, 都会传到最后失败的回调中处理
+
 ```js
-(1)	当使用promise的then链式调用时, 可以在最后指定失败的回调, 
-(2)	前面任何操作出了异常, 都会传到最后失败的回调中处理
+
 
 
 new Promise((resolve, reject) => {
@@ -5647,12 +5689,11 @@ new Promise((resolve, reject) => {
 
 #### Promise中断链条
 
-```js
-//链式调用执行中断 执行打印1和2后停止执行
-//返回一个pending状态的promise对象 有且只有这一种方法
-//传一个错误的promise对象值,会被catch捕获,如果没有catch方法会报错
-//中断方法 return new Promise(()=>{})
+* 返回一个pending状态的promise对象 有且只有这一种方法
+* 传一个错误的promise对象值,会被catch捕获,如果没有catch方法会报错
+* 中断方法 return new Promise(()=>{})
 
+```js
 const p=new Promise((resolve, reject)=>{
     console.log(11);
     resolve();
@@ -5668,78 +5709,6 @@ p.then((value)=>{
     console.log(55);
 })
 ```
-
-
-
-实现链式调用
-
-> [第 16 题：实现链式调用 · Issue #22 · lgwebdream/FE-Interview (github.com)](https://github.com/lgwebdream/FE-Interview/issues/22)
-
-核心就是在于调用完的方法将自身实例返回
-
-```javascript
-funciton Class1() {
-  console.log('初始化');
-}
-
-Class1.prototype.method = function (param) {
-  console.log(param);
-  return this;
-}
-
-let c1 = new Class1();
-
-c1.method('第一次调用').method('第二次调用').method('第三次调用');
-//初始化
-//第一次调用
-//第二次调用
-//第三次调用
-
-```
-
-
-
-```javascript
-//示例2
-let obj = {
-  a: function() {
-    console.log('a');
-    return this;
-  },
-  b: function() {
-    console.log('b');
-    return this;
-  }
-};
-
-obj.a().b();
-```
-
-
-
-```javascript
-//示例3  未完成
-
-class Math {
-  constructor(value) {
-    this.hasInit = true;
-    this.value = value;
-    if (!value) {
-      this.value = 0;
-      this.hasInit = false;
-    }
-  }
-  
-  add() {
-    let args = [...arguments];
-    let initValue = this.hasInit ? this.value : args.shift();
-    const value = args.reduce((prev, curv) => prev + curv, initValue);
-    return new Math(value);
-  }
-}
-```
-
-
 
 
 
