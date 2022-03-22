@@ -3941,7 +3941,7 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
-## Promise
+## Promise emoji🌈🌈🌈
 
 ### 1.异步编程背景
 
@@ -4330,7 +4330,273 @@ new Promise((resolve, reject) => {
 
 
 
-### Promise API
+
+
+
+
+#### Promise生命周期
+
+**Promise相当于异步操作结果的占位符，它不会去订阅一个事件，也不会传递一个回调函数给目标函数，而是让函数返回一个Promise**
+
+```javascript
+//readFile承诺将在未来某个时刻完成
+let promise = readFile('example.txt');
+```
+
+在这段代码中，readFile()不会立即开始读取文件，函数会先返回一个表示异步读取操作的Promise对象，未来对这个对象的操作完全取决于Promise的生命周期。
+
+每个Promise都会经历一个短暂的生命周期：
+
+* 先是操作尚未完成，处于进行中状态(pening); 
+* 异步操作执行结束，变为已处理状态,Promise可能进入以下两个状态中的其中一个:
+
+  * **Fulfilled**  Promise异步操作成功完成
+  * **Rejected** 由于程序错误或其他原因，Promise异步操作未能成功完成
+
+总结：
+
+```javascript
+Promise必须为以下3种状态之一： 等待状态(pending),执行
+//https://juejin.cn/post/6844904063570542599
+```
+
+
+
+```html
+0.状态就是其对象上的属性, 
+1.promise对象的状态有3种:初始值pending 成功fulfilled(resolved,旧值)和失败rejected
+2.一个promise对象只能改变一次状态
+3.无论变为成功或失败,都会有一个结果数据
+4.成功的结果数据一般称为value,失败的结果数据一般称为reason
+
+let p = new Promise((resolve, reject)=>{})
+console.log(p);
+打印结果: 
+Promise {<pending>}
+    __proto__: Promise
+    [[PromiseState]]: "pending"
+    [[PromiseResult]]: undefined
+```
+
+##### [[PromiseState]]
+
+内部属性[[PromiseState]]被用来表示Promise的3种状态: 'pending', 'fulfilled', 'rejected'.这个属性不暴露在Promise对象上，所以不能以编程的方式检测Promise的状态，只有当Promise的状态改变时，通过then()方法来采取特定的行动。
+
+##### then()
+
+所有的Promise对象都有then方法,它接收两个参数: 第一个是Promise的状态变为fulfilled时要调用的函数,与异步操作相关的附加数据都会传递给这个完成函数（fulfillment function）；第二个是当Promise的状态变为rejected时要调用的函数，其与完成时调用的函数类似，所有与失败状态相关的附加数据都会传递给这个拒绝函数（rejection function）
+
+then()的两个参数都是可选的，所以可以按照任意组合的方式来监听Promise，执行完成或被拒绝都会被响应
+
+```javascript
+let promise = readFile('example.txt');
+
+promise.then(function(contents) {
+  //完成
+  console.log(contents);
+}, function(err) {
+  //拒绝
+  console.log(err.message);
+});
+
+promise.then(function(contents) {
+  //完成
+  console.log(contents);
+});
+
+promise.then(null, function(err) {
+  //拒绝
+  console.log(err.message);
+})
+```
+
+上面这3次then()调用操作的是同一个Promise。第一个同时监听了执行完成和执行被拒；第二个只监听了执行完成，错误时不报告；第三个只监听了执行被拒，成功时不报告。
+
+##### catch()
+
+catch()方法，相当于只给其传入拒绝处理程序的then()方法
+
+```javascript
+promise.catch(function(err) {
+  //拒绝
+  console.log(err.message);
+});
+
+//与以下调用相同
+promise.then(null, function(err) {
+  //拒绝
+  console.log(err.message);
+})
+```
+
+
+
+##### then() + catch()
+
+<u>then()方法和catch()方法一起使用才能更好地处理异步操作结果。</u>如果不给Promise添加拒绝处理程序，那所有失败就自动被忽略了，所以一定要添加拒绝处理程序，即使只在函数内部记录失败的结果也行。
+
+如果一个Promise处于已处理状态，在这之后添加到任务队列中的处理程序仍将执行。所以无论何时你都可以添加新的完成处理程序或拒绝处理程序，同时也可以保证这些处理程序能被调用。
+
+```javascript
+let promise = readFile('example.txt');
+
+//最初的完成处理程序
+promise.then(function(contents) {
+  console.log(contents);
+  
+  //现在又添加一个
+  promise.then(function(contents) {
+    console.log(contents);
+  })
+})
+```
+
+**注意**
+
+每次调用then()方法或catch()方法都会创建一个新任务，当Promise被解决（resolved）时执行。这些任务最终会被加入到一个为Promise量身定制的独立队列中，这个任务队列的具体细节对于理解如何使用Promise而言不重要，通常你只要理解任务队列是如何运作的就可以了。
+
+#### 创建未完成状态的Promise
+
+用Promise构造函数可以创建新的Promise,构造函数只接收一个参数: 包含初始化Promise代码的执行器(executor)函数. 执行器接受两个参数,分别是resolve()函数和reject()函数. 执行器成功完成时调用resolve()函数,反之失败则调用reject()函数. Promise的执行器会立即执行,然后才执行后续流程中的代码.
+
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  
+  resolve();
+});
+console.log('Hi');
+
+//输出的内容
+Promise
+Hi
+```
+
+在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。
+
+**任务编排**
+
+如果你曾经使用过setTimeout()或setInterval()函数，你应该熟悉这种名为**任务编排（job scheduling）**的过程。当编排任务时，会向任务队列中添加一个新任务，并明确指定将任务延后执行。
+
+**调用resolve()后会触发一个异步操作，传入then()和catch()方法的函数会被添加到任务队列中并异步执行**
+
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  
+  resolve();
+});
+
+promise.then(function() {
+  console.log('Resolved');
+});
+
+//输出结果
+Promsie
+Hi
+Resolved
+```
+
+**完成处理程序和拒绝处理程序总是在执行器完成后被添加到任务队列的末尾**
+
+#### 创建已处理的Promise
+
+<u>创建未处理Promise的最好方法是使用Promise的构造函数</u>，这是由于Promise执行器具有动态性.
+
+但如果你想用Promise来表示一个已知值，则编排一个只是简单地给resolve()函数传值的任务并无实际意义，反倒是可以用以下两种方法根据特定的值来创建已解决Promise。
+
+##### Promise.resolve()
+
+Promise.resolve()方法只接受一个参数并返回一个完成态的Promise，也就是说不会有任务编排的过程，而且<u>需要向Promise添加**一至多个完成处理程序**来获取值</u>。
+
+**概况**
+
+- resolve是Promise函数对象的方法 //Promise.resolve()
+- 将一个值转换为Promise对象,值可以是任意类型
+- Promise.resolve()可以看做是new Promise(resolve=>resolve())的简写,可以用于快速封装字面量对象或其他对象,将其封装成Promise实例.
+
+
+
+```javascript
+let p1 = Promise.resolve(new Promise(function(resolve, reject) {resolve()}));
+let p2 = Promise.resolve(new Promise(function(resolve, reject) {reject()}));
+
+console.log(p1); //Promise {<fulfilled>: undefined}
+console.log(p2); //Promise {<rejected>: undefined}
+```
+
+这段代码创建了一个已完成Promise，完成处理程序的形参value接受了传入值42，由于该Promise永远不会存在拒绝状态，因而该Promise的拒绝处理程序永远不会被调用。
+
+
+
+##### Promise.reject()
+
+可通过Promise.reject()方法来创建已拒绝Promise，它与Promise.resolve()很像，唯一的区别是创建出来的是拒绝态的Promise.
+
+无论内部promise的返回结果是成功还是失败,reject的返回结果永远都是失败
+
+```javascript
+let p1 = Promise.reject(new Promise(function(resolve, reject) {resolve()}));
+let p2 = Promise.reject(new Promise(function(resolve, reject) {reject()}));
+
+console.log(p1); //Promise {<rejected>: Promise}
+console.log(p2); //Promise {<rejected>: Promise}
+
+let p3 = Promise.reject(new Promise(function(resolve, reject) {resolve(42)}));
+console.log(p3); //Promise {<rejected>: Promise}
+```
+
+
+
+##### 返回Promise ???
+
+如果向Promise.resolve()方法或Promise.reject()方法传入一个Promise，那么这个Promise会被直接返回。
+
+```javascript
+let promise = Promise.resolve(new Promise(function() {}));
+console.log(promise); //Promise {<pending>}
+promise.then(function(value) {
+  console.log(value);  //不会执行 因为返回的未完成状态的promise
+});
+
+
+let promise2 = Promise.reject(new Promise(function() {}));
+console.log(promise2); //Promise{<rejected>: Promise}
+promise2.catch(function(value) {
+  console.log(value); // 会执行
+});
+```
+
+#### 执行器错误
+
+如果执行器内部抛出一个错误，则Promise的拒绝处理程序就会被调用.**每个执行器中都隐含一个try-catch块**，所以错误会被捕获并传入拒绝处理程序. 例如
+
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  throw new Error('Explosion');
+});
+
+promise.catch(function(error) {
+  console.log(error.message); //'Explosion'
+})
+
+//以上等价于
+let promise = new Promise(function(resolve, reject) {
+  try {
+    throw new Error('Explosion');
+  } catch(err) {
+    reject(err);
+  }
+});
+
+promise.catch(function(error) {
+  console.log(error.message); //Explosion
+})
+```
+
+为了简化这种常见的用例，执行器会捕获所有抛出的错误，但只有当拒绝处理程序存在时才会记录执行器中抛出的错误，否则错误会被忽略掉.
+
+### API
 
 #### Promise.prototype.then()
 
@@ -4777,268 +5043,6 @@ function promisesAll(promises) {
 
 
 
-
-#### Promise生命周期
-
-**Promise相当于异步操作结果的占位符，它不会去订阅一个事件，也不会传递一个回调函数给目标函数，而是让函数返回一个Promise**
-
-```javascript
-//readFile承诺将在未来某个时刻完成
-let promise = readFile('example.txt');
-```
-
-在这段代码中，readFile()不会立即开始读取文件，函数会先返回一个表示异步读取操作的Promise对象，未来对这个对象的操作完全取决于Promise的生命周期。
-
-每个Promise都会经历一个短暂的生命周期：
-
-* 先是操作尚未完成，处于进行中状态(pening); 
-* 异步操作执行结束，变为已处理状态,Promise可能进入以下两个状态中的其中一个:
-
-  * **Fulfilled**  Promise异步操作成功完成
-  * **Rejected** 由于程序错误或其他原因，Promise异步操作未能成功完成
-
-总结：
-
-```javascript
-Promise必须为以下3种状态之一： 等待状态(pending),执行
-//https://juejin.cn/post/6844904063570542599
-```
-
-
-
-```html
-0.状态就是其对象上的属性, 
-1.promise对象的状态有3种:初始值pending 成功fulfilled(resolved,旧值)和失败rejected
-2.一个promise对象只能改变一次状态
-3.无论变为成功或失败,都会有一个结果数据
-4.成功的结果数据一般称为value,失败的结果数据一般称为reason
-
-let p = new Promise((resolve, reject)=>{})
-console.log(p);
-打印结果: 
-Promise {<pending>}
-    __proto__: Promise
-    [[PromiseState]]: "pending"
-    [[PromiseResult]]: undefined
-```
-
-##### [[PromiseState]]
-
-内部属性[[PromiseState]]被用来表示Promise的3种状态: 'pending', 'fulfilled', 'rejected'.这个属性不暴露在Promise对象上，所以不能以编程的方式检测Promise的状态，只有当Promise的状态改变时，通过then()方法来采取特定的行动。
-
-##### then()
-
-所有的Promise对象都有then方法,它接收两个参数: 第一个是Promise的状态变为fulfilled时要调用的函数,与异步操作相关的附加数据都会传递给这个完成函数（fulfillment function）；第二个是当Promise的状态变为rejected时要调用的函数，其与完成时调用的函数类似，所有与失败状态相关的附加数据都会传递给这个拒绝函数（rejection function）
-
-then()的两个参数都是可选的，所以可以按照任意组合的方式来监听Promise，执行完成或被拒绝都会被响应
-
-```javascript
-let promise = readFile('example.txt');
-
-promise.then(function(contents) {
-  //完成
-  console.log(contents);
-}, function(err) {
-  //拒绝
-  console.log(err.message);
-});
-
-promise.then(function(contents) {
-  //完成
-  console.log(contents);
-});
-
-promise.then(null, function(err) {
-  //拒绝
-  console.log(err.message);
-})
-```
-
-上面这3次then()调用操作的是同一个Promise。第一个同时监听了执行完成和执行被拒；第二个只监听了执行完成，错误时不报告；第三个只监听了执行被拒，成功时不报告。
-
-##### catch()
-
-catch()方法，相当于只给其传入拒绝处理程序的then()方法
-
-```javascript
-promise.catch(function(err) {
-  //拒绝
-  console.log(err.message);
-});
-
-//与以下调用相同
-promise.then(null, function(err) {
-  //拒绝
-  console.log(err.message);
-})
-```
-
-
-
-##### then() + catch()
-
-<u>then()方法和catch()方法一起使用才能更好地处理异步操作结果。</u>如果不给Promise添加拒绝处理程序，那所有失败就自动被忽略了，所以一定要添加拒绝处理程序，即使只在函数内部记录失败的结果也行。
-
-如果一个Promise处于已处理状态，在这之后添加到任务队列中的处理程序仍将执行。所以无论何时你都可以添加新的完成处理程序或拒绝处理程序，同时也可以保证这些处理程序能被调用。
-
-```javascript
-let promise = readFile('example.txt');
-
-//最初的完成处理程序
-promise.then(function(contents) {
-  console.log(contents);
-  
-  //现在又添加一个
-  promise.then(function(contents) {
-    console.log(contents);
-  })
-})
-```
-
-**注意**
-
-每次调用then()方法或catch()方法都会创建一个新任务，当Promise被解决（resolved）时执行。这些任务最终会被加入到一个为Promise量身定制的独立队列中，这个任务队列的具体细节对于理解如何使用Promise而言不重要，通常你只要理解任务队列是如何运作的就可以了。
-
-#### 创建未完成状态的Promise
-
-用Promise构造函数可以创建新的Promise,构造函数只接收一个参数: 包含初始化Promise代码的执行器(executor)函数. 执行器接受两个参数,分别是resolve()函数和reject()函数. 执行器成功完成时调用resolve()函数,反之失败则调用reject()函数. Promise的执行器会立即执行,然后才执行后续流程中的代码.
-
-```javascript
-let promise = new Promise(function(resolve, reject) {
-  console.log('Promise');
-  
-  resolve();
-});
-console.log('Hi');
-
-//输出的内容
-Promise
-Hi
-```
-
-在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。
-
-**任务编排**
-
-如果你曾经使用过setTimeout()或setInterval()函数，你应该熟悉这种名为**任务编排（job scheduling）**的过程。当编排任务时，会向任务队列中添加一个新任务，并明确指定将任务延后执行。
-
-**调用resolve()后会触发一个异步操作，传入then()和catch()方法的函数会被添加到任务队列中并异步执行**
-
-```javascript
-let promise = new Promise(function(resolve, reject) {
-  console.log('Promise');
-  
-  resolve();
-});
-
-promise.then(function() {
-  console.log('Resolved');
-});
-
-//输出结果
-Promsie
-Hi
-Resolved
-```
-
-**完成处理程序和拒绝处理程序总是在执行器完成后被添加到任务队列的末尾**
-
-#### 创建已处理的Promise
-
-<u>创建未处理Promise的最好方法是使用Promise的构造函数</u>，这是由于Promise执行器具有动态性.
-
-但如果你想用Promise来表示一个已知值，则编排一个只是简单地给resolve()函数传值的任务并无实际意义，反倒是可以用以下两种方法根据特定的值来创建已解决Promise。
-
-##### Promise.resolve()
-
-Promise.resolve()方法只接受一个参数并返回一个完成态的Promise，也就是说不会有任务编排的过程，而且<u>需要向Promise添加**一至多个完成处理程序**来获取值</u>。
-
-**概况**
-
-- resolve是Promise函数对象的方法 //Promise.resolve()
-- 将一个值转换为Promise对象,值可以是任意类型
-- Promise.resolve()可以看做是new Promise(resolve=>resolve())的简写,可以用于快速封装字面量对象或其他对象,将其封装成Promise实例.
-
-
-
-```javascript
-let p1 = Promise.resolve(new Promise(function(resolve, reject) {resolve()}));
-let p2 = Promise.resolve(new Promise(function(resolve, reject) {reject()}));
-
-console.log(p1); //Promise {<fulfilled>: undefined}
-console.log(p2); //Promise {<rejected>: undefined}
-```
-
-这段代码创建了一个已完成Promise，完成处理程序的形参value接受了传入值42，由于该Promise永远不会存在拒绝状态，因而该Promise的拒绝处理程序永远不会被调用。
-
-
-
-##### Promise.reject()
-
-可通过Promise.reject()方法来创建已拒绝Promise，它与Promise.resolve()很像，唯一的区别是创建出来的是拒绝态的Promise.
-
-无论内部promise的返回结果是成功还是失败,reject的返回结果永远都是失败
-
-```javascript
-let p1 = Promise.reject(new Promise(function(resolve, reject) {resolve()}));
-let p2 = Promise.reject(new Promise(function(resolve, reject) {reject()}));
-
-console.log(p1); //Promise {<rejected>: Promise}
-console.log(p2); //Promise {<rejected>: Promise}
-
-let p3 = Promise.reject(new Promise(function(resolve, reject) {resolve(42)}));
-console.log(p3); //Promise {<rejected>: Promise}
-```
-
-
-
-##### 返回Promise ???
-
-如果向Promise.resolve()方法或Promise.reject()方法传入一个Promise，那么这个Promise会被直接返回。
-
-```javascript
-let promise = Promise.resolve(new Promise(function() {}));
-console.log(promise); //Promise {<pending>}
-promise.then(function(value) {
-  console.log(value);  //不会执行 因为返回的未完成状态的promise
-});
-
-
-let promise2 = Promise.reject(new Promise(function() {}));
-console.log(promise2); //Promise{<rejected>: Promise}
-promise2.catch(function(value) {
-  console.log(value); // 会执行
-});
-```
-
-#### 执行器错误
-
-如果执行器内部抛出一个错误，则Promise的拒绝处理程序就会被调用.**每个执行器中都隐含一个try-catch块**，所以错误会被捕获并传入拒绝处理程序. 例如
-
-```javascript
-let promise = new Promise(function(resolve, reject) {
-  throw new Error('Explosion');
-});
-
-promise.catch(function(error) {
-  console.log(error.message); //'Explosion'
-})
-
-//以上等价于
-let promise = new Promise(function(resolve, reject) {
-  try {
-    throw new Error('Explosion');
-  } catch(err) {
-    reject(err);
-  }
-});
-
-promise.catch(function(error) {
-  console.log(error.message); //Explosion
-})
-```
-
-为了简化这种常见的用例，执行器会捕获所有抛出的错误，但只有当拒绝处理程序存在时才会记录执行器中抛出的错误，否则错误会被忽略掉.
 
 ### 4.全局的Promise拒绝处理
 
