@@ -1536,13 +1536,15 @@ console.log(Boolean('')); //false
 
 而 `ToNumber` 则直接给了一个[对应的结果表](http://es5.github.io/#x9.3)。表如下：
 
+**内部规范方法 `ToNumber(value)` 结果对应表格:**
+
 | 参数类型  | 结果                                                         |
 | --------- | ------------------------------------------------------------ |
 | Undefined | NaN                                                          |
 | Null      | +0                                                           |
 | Boolean   | 如果参数是true,返回1.参数为false,返回0                       |
 | Number    | 返回与之相等的值                                             |
-| String    | 如果通过 Number 转换函数传入一个字符串，它会试图将其转换成一个整数或浮点数，而且会忽略所有前导的 0<br/>如果有一个字符不是数字，结果都会返回 NaN，<br/>鉴于这种严格的判断，我们一般还会使用更加灵活的 parseInt 和 parseFloat 进行转换。 |
+| String    | 如果通过 Number 转换函数传入一个字符串，它会试图将其转换成一个整数或浮点数，而且会忽略所有前导的 0<br/><br/>如果有一个字符不是数字，结果都会返回 NaN，<br/><br/>鉴于这种严格的判断，我们一般还会使用更加灵活的 parseInt 和 parseFloat 进行转换。 |
 
 
 
@@ -1588,7 +1590,7 @@ console.log(parseInt("0.1")) // 0
 
 我们使用 `String` 函数将类型转换成字符串类型，依然先看 [规范15.5.1.1](http://es5.github.io/#x15.5.1.1)中有关 `String` 函数的介绍：
 
-> Returns a String value (not a String object) computed by [ToString](http://es5.github.io/#x9.8)(*value*). If *value* is not supplied, the empty String `**""**` is returned.
+> Returns a String value (not a String object) computed by [ToString](http://es5.github.io/#x9.8)(*value*). If *value* is not supplied, the empty String `""` is returned.
 
 如果 `String` 函数不传参数，返回空字符串，如果有参数，调用 `ToString(value)`，而 `ToString` 也给了一个对应的结果表。
 
@@ -5128,8 +5130,8 @@ for (let [key, value] of Object.entries({a: 1, b: 2})) {
 
 `Object` 构造函数为给定的参数创建一个包装类对象（object wrapper），具体有以下情况：
 
-* 如果给定值是 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，将会创建并返回一个空对象
-* 如果传进去的是一个基本类型的值，则会构造其包装类型的对象
+* 如果给定值是 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，将会创建并返回一个<u>空对象</u>
+* 如果传进去的是一个基本类型的值，则会构造其<u>包装类型的对象</u>
 * 如果给定值是一个已经存在的对象，则会返回这个已经存在的值（相同地址）。
 
 当以非构造函数形式被调用时， `Object` 和 `new Object()`表现一致。
@@ -5145,7 +5147,7 @@ new Object(value) //value 任意值
 
 
 
-### 0.4 对象的类别
+### 对象的类别
 
 ECMAScript 6规范清晰定义了每一个类别的对象
 
@@ -5156,7 +5158,7 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 
 
-### 0.5 类数组对象
+### 类数组对象
 
 #### 定义
 
@@ -5188,7 +5190,7 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 
 
-#### 类数组转换成数组的5种方法
+#### 类数组转换成数组的 6 种方法
 
 * [].slice.call(arrayLike)
 
@@ -5224,7 +5226,7 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 ### 2.对象初始化
 
-#### 1 对象初始化的几种方式
+#### 2.1 对象初始化的 3 种方式
 
 * `new Object()`   //`Object()`行为等同于`new Object()`
 * `Object.create()`
@@ -5241,7 +5243,7 @@ let obj = Object.create(null);
 
 ```
 
-#### 2 描述
+#### 2.2 描述
 
 > 对象初始化是一个描述对象初始化过程的表达式. 对象初始化是由一组描述对象的属性组成.
 >

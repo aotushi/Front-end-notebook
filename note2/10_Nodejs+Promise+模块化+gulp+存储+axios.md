@@ -4585,6 +4585,8 @@ p.finally(function() {
 **Return values**
 
 > returns a `Promise` whose `finally` handler is set to the specified function, `onFinally`.
+>
+> 我觉的这句话说的非常模糊.
 
 **Desc**
 
