@@ -8345,6 +8345,12 @@ for(let i in newObj){
 
 ### 9.遍历对象的循环方式
 
+> 枚举 enumerable  可数的,可列举的,可枚举的
+>
+> 遍历 traverse
+>
+> 迭代 iterator
+
 ```js
 for循环 for..in    for..of  object.keys()
 
