@@ -408,7 +408,7 @@ console.log(b.x); //{n:2}
 * 1.let声明的变量有块作用域,var声明的变量没有
 * 2.var声明的变量会提升,let声明的不会
 * 3.var声明的全局变量会添加到window对象中; let或const不能覆盖全局变量只能遮蔽它
-* 4.let不能重复声明变量 var可以.(var声明,let再次声明也不行)
+* 4.let不能重复声明变量 var可以.(var先声明,let再次声明也不行)
 
 常量声明const、类声明class在块级作用域上的特性与let声明是类似的
 
@@ -5924,11 +5924,13 @@ a.constructor === 'bar'; //true
 ```javascript
 //标红那句话不理解.
 
+// 对象 instanceof 函数
+
 //1. instanceOf 的作用: 一个构造函数的原型是否出现在一个对象原型链上的任意位置
 
 //2.a.constructor = String; 也就是说实例a的隐式原型的值为构造函数的显式原型: a.constructor.prototype
 
-//3.instanceof操作符获取原型使用的是 Object.getPrototypeOf(instance); 不确定,看人家实现是这么写的
+//3.instanceof操作符获取原型使用的是 Object.getPrototypeOf(instance); (具体用的那种方法需要查, 从其方法实现中的代码获取的getPrototypeOf)
 	Object.getPrototypeOf(a); //数组的原型
 
 //4. 所以更改构造函数原型不会影响instanceof操作符
