@@ -5376,7 +5376,7 @@ const deepClone = (target, map = new WeakMap()) {
   }
   
   for (let key in target) {
-    if (target.hasOwnProperty(key)) {
+    if (target.hasOwnProperty(key)) { //原因?
       cloneTarget[key] = deepClone(target[key], map);
     }
   }

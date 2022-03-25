@@ -6031,95 +6031,210 @@ asyncFn().then(value => {
 
 
 
+## Async / await
+
+async/await 是以更舒适的方式使用promise的一种特殊语法.
 
 
 
+### async function
 
-## try catch
+#### 概述
 
-
-
-### try catch
-
-```js
-- 捕获错误 try...catch
-- 抛出错误 throw error
-
-* 语法固定 try...catch   try 尝试的意思  catch 捕获
-* 1. try catch捕获到错误之后, 后续代码可以继续执行
-* 2. catch 可以将错误信息捕获到. e 是一个对象, 有message和stack两个属性
-* 3. 抛出错误之后, 在后续的 try 里面的代码不会执行
-* 4. try 不能捕获语法错误. 其他三种类型错误可以捕获.
-* 5. 允许使用 throw 手动的抛出错误
-* 6. 抛出任意类型的数据
+async是一个关键字,用来描述函数: 即这个函数总是会返回一个promise. 其他值将自动被包装在一个 resolved的promise中.
 
 
 
+### await
 
+#### 概述
 
-- 运行流程
-1.try catch捕获到错误之后,后续代码是可以继续执行的
-2. catch可以将错误信息捕获到,e是一个对象,有message和stack两个属性
- 2.1 message: 发生错误的信息; stack:发生错误的位置,配合使用console.dir(e)
-3.抛出错误之后,在后续的try里的代码是不会执行的
-4.try不能捕获语法错误,其他三种类型错误可以捕获
-5.允许使用throw手动抛出错误
-   Throw new Error(‘xxx’)   catch(e) 
-6.抛出任意类型的数据
+* 只能在async函数内部使用. 关键字await让JavaScript引擎等待直到promise完成(settle)并返回结果.
 
+* await右侧的表达式一般为promise对象, 但也可以是其它的值
+* 如果表达式是promise对象, await返回的是promise成功的值.如果是失败的值,await会把promise的异常抛出,可以使用try..catch捕获错误.
+* 如果表达式是其它值, 直接将此值作为await的返回值
 
-- err对象的结构
-1.	message属性: 错误相关信息
-2.	stack属性: 函数调用栈记录信息 错误发生的位置信息
-```
+案例:
 
-
-
-```js
-try捕获到错误之后,把错误信息变成对象, 然后传递给catch
-try{
-    console.log(a);
-    console.log(111);//出错之后的代码不会执行
-}catch(e){
-    console.log(e);//结果是字符串
-    console.dir(e);//
+```Javascript
+async function f() {
+  let promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('don'), 1000)
+  });
+  
+  let result = await promise; //等待, 直到 promise resolve
+  
+  alert(result); //'done'
 }
-console.log('可继续执行'); 
+
+f();
+```
+
+这个函数在执行的时候，“暂停”在了 `(*)` 那一行，并在 promise settle 时，拿到 `result` 作为结果继续往下执行。所以上面这段代码在一秒后显示 “done!”。
+
+
+
+#### 总结
+
+* <span style="color:red; font-weight: bold;">`await` 实际上会暂停函数的执行</span>，直到 promise 状态变为 settled，然后以 promise 的结果继续执行。
+
+* 这个行为不会耗费任何 CPU 资源，因为 JavaScript 引擎可以同时处理其他任务：执行其他脚本，处理事件等。
+
+* 相比于 `promise.then`，它只是获取 promise 的结果的一个更优雅的语法。并且也更易于读写。
+
+#### 注意事项
+
+* 不能在普通函数中使用 `await`, 会报语法错误`Syntax error`
+* 现在浏览器在 modules 里 允许顶层 await
+* await 接收 `thenables`
+* Class 中的 async 方法
+
+<u>现在浏览器在 modules 里 允许顶层 await</u>
+
+>  在现代浏览器中，当我们处于一个 module 中时，那么在顶层使用 `await` 也是被允许的。我们将在 [模块 (Module) 简介](https://zh.javascript.info/modules-intro) 中详细学习 modules。
+
+```javascript
+// 我们假设此代码在 module 中的顶层运行
+let response = await fetch('/article/promise-chaining/user.json');
+let user = await response.json();
+
+console.log(user);
+```
+
+```javascript
+//polyfill: 包装到匿名的异步函数中。
+
+(async () => {
+  let response = await fetch('/article/promise-chaining/user.json');
+  let users = await response;
+})();
+
+```
+
+
+
+<u>await 接收 'thenables'</u>
+
+> 像 `promise.then` 那样，`await` 允许我们使用 thenable 对象（那些具有可调用的 `then` 方法的对象）。这里的想法是，第三方对象可能不是一个 promise，但却是 promise 兼容的：如果这些对象支持 `.then`，那么就可以对它们使用 `await`。
+
+```javascript
+class Thenable {
+  constructor (num) {
+    this.num = num;
+  }
+  
+  then(resolve, reject) {
+    alert(resolve);
+    setTimeout(() => resolve(this.num * 2), 1000);
+  }
+}
+
+
+async function f() {
+  let res = await new Thenable(1);
+  alert(res);
+}
+
+f();
+```
+
+
+
+<u>Class 中的 async 方法</u>
+
+要声明一个 class 中的 async 方法，只需在对应方法前面加上 `async` 即可：
+
+```javascript
+class Waiter {
+  async wait() {
+    return await Promise.resolve(1);
+  }
+}
+
+new Waiter()
+  .wait()
+  .then(alert); // 1（alert 等同于 result => alert(result)）
+```
+
+
+
+### Error 处理
+
+#### 概述
+
+如果一个 promise 正常 resolve，`await promise` 返回的就是其结果。但是如果 promise 被 reject，它将 throw 这个 error，就像在这一行有一个 `throw` 语句那样。
+
+```javascript
+//下面两段代码是一样的:
+
+async function f() {
+  await Promise.reject(new Error('whoops'));
+}
+
+
+async function f() {
+  throw new Error('whoops');
+}
+```
+
+
+
+#### 处理
+
+在真实开发中，promise 可能需要一点时间后才 reject。在这种情况下，在 `await` 抛出（throw）一个 error 之前会有一个延时。
+
+* 可以用 `try..catch` 来捕获上面提到的那个 error，与常规的 `throw` 使用的是一样的方式：
+* try 可以包装多行 await 代码
+* 没有使用`try...catch`,可以在函数调用后面添加`.catch` 来处理这个error
+
+```javascript
+//try...catch
+async function f() {
+  try {
+    let response = await fetch('http://no-such-url');
+  } catch (e) {
+    alert(e); //TypeError: failed to fetch
+  }
+}
+
+f();
+```
+
+
+
+```javascript
+//try 包含多行await
+
+async function f() {
+  try {
+    let response = await fetch('/no-user-here');
+    let user = await response.json();
+  } catch (e) {
+    //捕获 fetch 和 response.json 中的错误
+    alert(e);
+  }
+}
+
+f();
+```
+
+
+
+```javascript
+//使用.catch来处理
+
+async function f() {
+  let response = await fetch('http://no-such-url');
+}
+
+//f()变成一个rejected的promise
+f().catch(alert); // TypeError: failed to fetch
 ```
 
 
 
 
-
-## async函数
-
-```
-async是一个关键字,用来描述async函数的.
-1.函数的返回值为promise对象. 不看return. 返回的promise对象的成功和失败及结果,看return.
-
-2.promise对象的结果由async函数执行的返回值决定. 返回规则和then方法回调返回结果是一样的.
-  2.1 如果返回结果是非promise类型的值,则返回值是成功的promise
-  2.2 抛出一个错误, 函数的状态为失败状态rejected, 错误值为函数返回值.
-  2.3 如果返回结果是promise类型的值, 则promise的状态和值决定了这个函数的状态和返回值
-
-带 async 关键字的函数，它使得你的函数的返回值必定是 promise 对象
-也就是
-如果async关键字函数返回的不是promise，会自动用Promise.resolve()包装
-如果async关键字函数显式地返回promise，那就以你返回的promise为准
-
-```
-
-
-
-### await表达式
-
-```html
-1.	await右侧的表达式一般为promise对象, 但也可以是其它的值
-2.	如果表达式是promise对象, await返回的是promise成功的值.如果是失败的值,await会把promise的异常抛出,可以使用try..catch捕获错误.
-3.	如果表达式是其它值, 直接将此值作为await的返回值
-
-await...后面的代码相当于放到成功的回调中
-```
 
 
 
@@ -6362,6 +6477,66 @@ const __main = async function () {
 }
 __main();
 ```
+
+
+
+
+
+## try catch
+
+
+
+### try catch
+
+```js
+- 捕获错误 try...catch
+- 抛出错误 throw error
+
+* 语法固定 try...catch   try 尝试的意思  catch 捕获
+* 1. try catch捕获到错误之后, 后续代码可以继续执行
+* 2. catch 可以将错误信息捕获到. e 是一个对象, 有message和stack两个属性
+* 3. 抛出错误之后, 在后续的 try 里面的代码不会执行
+* 4. try 不能捕获语法错误. 其他三种类型错误可以捕获.
+* 5. 允许使用 throw 手动的抛出错误
+* 6. 抛出任意类型的数据
+
+
+
+
+
+- 运行流程
+1.try catch捕获到错误之后,后续代码是可以继续执行的
+2. catch可以将错误信息捕获到,e是一个对象,有message和stack两个属性
+ 2.1 message: 发生错误的信息; stack:发生错误的位置,配合使用console.dir(e)
+3.抛出错误之后,在后续的try里的代码是不会执行的
+4.try不能捕获语法错误,其他三种类型错误可以捕获
+5.允许使用throw手动抛出错误
+   Throw new Error(‘xxx’)   catch(e) 
+6.抛出任意类型的数据
+
+
+- err对象的结构
+1.	message属性: 错误相关信息
+2.	stack属性: 函数调用栈记录信息 错误发生的位置信息
+```
+
+
+
+```js
+try捕获到错误之后,把错误信息变成对象, 然后传递给catch
+try{
+    console.log(a);
+    console.log(111);//出错之后的代码不会执行
+}catch(e){
+    console.log(e);//结果是字符串
+    console.dir(e);//
+}
+console.log('可继续执行'); 
+```
+
+
+
+
 
 
 
