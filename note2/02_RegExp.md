@@ -939,9 +939,54 @@ console.log(result);
 此时我们需要修改正则，把里面的开头 ^ 和结尾 $，修改成 \b：
 
 ```javascript
-let res = /(?!^)(?=(\d{3})+$)(?!$)/.replace('12345768 123456789');
+let res = '12345768 123456789'.replace(/(?!\b)(?=(\d{3})+\b)/g, ',');
 console.log(res); //
+
+
 ```
+
+其中 (?!\b) 怎么理解呢？
+要求当前是一个位置，但不是 \b 前面的位置，其实 (?!\b) 说的就是 \B。
+
+其可视化形式是:
+
+![千分位正则](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/千分位正则.1p1541t3f128.webp)
+
+##### 4.2.5 格式化
+
+千分符表示法一个常见的应用就是货币格式化
+
+比如把下面的字符串:
+
+```javascript
+1888
+```
+
+格式化成:
+
+```javascript
+$ 1888.00
+```
+
+实现如下:
+
+```javascript
+function format(num) {
+  return num.toFixed(2).replace(/\B(?=(d{3})+\b)/g, ',').replace(/^/, '$$');
+}//在浏览器
+
+console.log(format(1888)); //'$ 1,888.00'
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
