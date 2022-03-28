@@ -386,6 +386,28 @@ JavaScript中有两种机制来实现这个目的.欺骗词法作用域会导致
 * eval()
 * with
 
+
+
+## JS中的作用域
+
+### 全局作用域
+
+
+
+### 函数作用域
+
+
+
+
+
+
+
+### 块作用域
+
+
+
+
+
 ## 词法作用域和动态作用域
 
 > https://github.com/mqyqingfeng/Blog/issues/3
