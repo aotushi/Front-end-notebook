@@ -5120,7 +5120,7 @@ for (let [key, value] of Object.entries({a: 1, b: 2})) {
 
 
 
-### 可枚举性
+### 可枚举性enumerable !!!!
 
 #### 概述
 
@@ -5131,6 +5131,120 @@ for (let [key, value] of Object.entries({a: 1, b: 2})) {
 * 属性的所有权是通过判断该属性是否直接属于某个对象决定的，而不是通过原型链继承的。
 
 一个对象的所有的属性可以一次性的获取到。有一些内置的方法可以用于判断、迭代/枚举以及获取对象的一个或一组属性，下表对这些方法进行了列举。
+
+#### Detection
+
+|                              | Own object                                                   | Own object and prototype chain   | Prototype chain only             |
+| ---------------------------- | ------------------------------------------------------------ | -------------------------------- | -------------------------------- |
+| Enumerable                   | propertyIsEnumerable<br />hasOwnProperty                     | Not available without extra code | Not available without extra code |
+| Nonenumerable                | hasOwnProperty<br /><br />filtered to exclude enumerable using<br />propertyIsEnumerable | Not available without extra code | Not available without extra code |
+| Enumerable and Nonenumerable | hasOwnProperty                                               | in                               | Not available without extra code |
+
+#### Retrieval(检索/取回)
+
+|                              | Own object                                                   | Own object and property chain    | Property chain only              |
+| ---------------------------- | ------------------------------------------------------------ | -------------------------------- | -------------------------------- |
+| Enumerable                   | Object.keys<br />getOwnPropertyNames<br />getOwnPropertySymbols | Not available without extra code | Not available without extra code |
+| Nonenumerable                | getOwnPropertyNames,<br />getOwnPropertySymbols => filtered to exclude enumerable using<br />propertyIsEnumerable | Not available without extra code | Not available without extra code |
+| Enumerable and Nonenumerable | getOwnPropertyNames<br />getOwnPropertySymbols               | Not available without extra code | Not available without extra code |
+
+
+
+#### Iteration
+
+|                              | Own object                                                   | Own object and property chain    | Property chain only              |
+| ---------------------------- | ------------------------------------------------------------ | -------------------------------- | -------------------------------- |
+| Enumerable                   | Object.keys<br />getOwnPropertyNames<br />getOwnPropertySymbols | for...in<br />(ecluding symbols) | Not available without extra code |
+| Nonenumerable                | getOwnPropertyNames<br />getOwnPropertySymbols => filtered to exclude enumerable using<br />propertyIsEnumerable | Not available without extra code | Not available without extra code |
+| Enumerable and Nonenumerable | getOwnPropertyNames<br />getOwnPropertySymbols               | Not available without extra code | Not available without extra code |
+
+
+
+#### Obtaining properties by enumerability/ownership
+
+按可枚举/所有权获取属性
+
+> Note that this is not the most efficient algorithm for all cases, but useful for a quick demonstration
+
+<u>1. detection can occur by</u>
+
+`SimplePropertyRetriver.theGetMethodYouWant(obj).indexOf(prop) > -1`
+
+
+
+<u>2. Iteration can occur by</u>
+
+`SimplePropertyRetriver.theGetMethodYouWant(obj).forEach(function(vlaue, prop) {})`;
+
+(or use `filter()`, `map()`, etc)
+
+```javascript
+var SimplePropertyRetriver = {
+  getOwnEnumerable: function(obj) {
+    return this._getPropertyNames(obj, true, false, this._enumerable);
+    // or could use for...in filtered with hasOwnProperty or just this: return Object.keys(obj)
+  },
+  getOwnNonenumerables: function(obj) {
+    return this._getPropertyNames(obj, true, false, this._notEnumerable);
+  },
+  getOwnEnumerablesAndNonenumerables: function(obj) {
+    return this._getPropertyNames(obj, true, false, this._enumerableAndNonenumerable);
+    //or jsut use: Object.getOwnPropertyNames(obj)
+  },
+  getPropertyEnumerables: function(obj) {
+    return this.getPropertyNames(obj, false, true, this._Enumerable);
+  },
+  getPropertyNonenumerables: function(obj) {
+    return this._getPropertyNames(obj, false, true, this._notEnumerabl)
+  },
+  getPropertyEnumerablesAndNonenumerables: function(obj) {
+    return this._getPropertyNmaes(obj, false, true, this._enumerableAndNotEnumerable);
+  },
+  //private static property checker callbacks
+  _enumerable: function(obj, prop) {
+    return obj.propertyIsEnumerable(prop);
+  },
+  _notEnumerable: function(obj, prop) {
+    return !obj.propertyIsEnumerable(prop);
+  },
+  _enumerableAndNotEnumerable: function(obj, prop) {
+    return true;
+  },
+  //Inspired by http://stackoverflow.com/a/8024294/271577
+  _getPropertyNames: function getAllPropertyNames(obj, iterateSelefBool, iteratePrototypeBool, includPropCB) {
+    var props = [];
+    do {
+      if (iterateSelfBool) {
+        Object.getOwnPropertyNames(obj).forEach(prop => {
+          if (props.indexOf(prop) === -1 && includePropCb(obj, prop)) {
+            props.push(prop);
+          }
+        })
+      }
+      if (!iteratePrototypeBool) {
+        break;
+      }
+      iterateSelfBool = true;
+    } while (obj = Object.getPropertyOf(obj));
+    return props;
+  }
+}
+```
+
+
+
+#### detection table
+
+| Enumerable                         | Nonenumerable | Symbols keys | Inherited Enumerable | Inherited Nonenumerable | Inherited Symbols keys |       |
+| :--------------------------------- | :------------ | :----------- | :------------------- | :---------------------- | :--------------------- | ----- |
+| `in`                               | true          | true         | true                 | true                    | true                   | true  |
+| `for..in`                          | true          | false        | false                | true                    | false                  | false |
+| `obj.hasOwnProperty`               | true          | true         | true                 | false                   | false                  | false |
+| `obj.propertyIsEnumerable`         | true          | false        | true                 | false                   | false                  | false |
+| `Object.keys`                      | true          | false        | false                | false                   | false                  | false |
+| `Object.getOwnPropertyNames`       | true          | true         | false                | false                   | false                  | false |
+| `Object.getOwnPropertyDescriptors` | true          | true         | true                 | false                   | false                  | false |
+| `Reflect.ownKeys()`                | true          | true         | true                 | false                   | false                  | false |
 
 
 
