@@ -141,9 +141,85 @@ ssh -T git@github.com
 
 
 
-#### 同一电脑存在多个 Git 账号
+#### 同一电脑配置多个Git公钥
 
 > [一些常用的 Git 进阶知识与技巧 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/431093836)
+
+
+
+
+
+[同一台电脑配置Gitee、Github 的 Git SSH公钥](https://blog.csdn.net/u010698107/article/details/113485131)
+
+1.清除git的全局设置
+
+```javascript
+//查看全局配置
+git config --global --list
+
+
+//删除全局用户名和邮箱
+git config --global --unset user.name
+git config --global --unset user.email
+```
+
+2.创建ssh key
+
+进入`.ssh`文件夹下, 生成key
+
+```javascript
+cd ~/.ssh
+ssh-keygen -t rsa -C "xxx@xxx.com" 
+//邮件地址为gitee或github使用的邮件地址
+```
+
+3.配置github秘钥
+
+```javascript
+ssh-keygen -t rsa -C "github使用的邮箱地址"
+
+//设置github的ssh key名称为id_rsa_github
+```
+
+4.配置gitee秘钥
+
+```javascript
+ssh-keygen -t rsa -C "gitee使用的邮箱地址"
+//设置gitee的ssh key保存名称为 id_rsa_gitee
+```
+
+5.向github和gitee添加公钥public key
+
+6.创建配置文件,解决ssh冲突
+
+6.1在`.ssh`文件夹下创建config文件
+
+6.2添加内容以区分两个ssh key
+
+```javascript
+cd ~/.ssh
+vim config
+
+#github
+Host github.com
+HostName github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_github
+
+#gitee
+Host gitee.com
+HostName gitee.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa_gitee
+```
+
+7.测试链接是否正常
+
+```javascript
+ssh -T git@github.com
+
+ssh -T git@gitee.com
+```
 
 
 
