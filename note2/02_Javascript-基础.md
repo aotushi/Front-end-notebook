@@ -5248,6 +5248,31 @@ var SimplePropertyRetriver = {
 
 
 
+### 可枚举性和可迭代对象🌈
+
+JavaScript数据遍历循环的两个属性: 可枚举属性和可迭代对象
+
+<span style="color:blue">基本上，在 JavaScript 中，所有可迭代对象都是可枚举对象，但并非所有可枚举对象都是可迭代对象。</span>
+
+可迭代的内置类型包括 Array、String、Set 和 Map 对象不可迭代，因为它没有指定 @iterator 方法。
+
+
+
+#### 可枚举属性
+
+可枚举属性总是出现在for...in循环中.
+
+可枚举对象:
+
+* 通过赋值运算符将属性赋值给对象,内部可枚举标志(enumerable)默认为true
+* 通过`Object.defineProperty添加的属性,其可枚举属性默认为false
+
+
+
+#### 可迭代对象
+
+如果一个对象定义了它的迭代行为(设置@iterator接口),那么它是可迭代的.
+
 
 
 ## 作用域
