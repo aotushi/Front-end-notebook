@@ -4385,6 +4385,77 @@ new Promise((resolve, reject) => {
 
 
 
+#### 实例loadScript
+
+实现上面的多个loadScript调用,按顺序次序加载脚本
+
+```javascript
+loadScript("/article/promise-chaining/one.js")
+  .then(function(script) {
+    return loadScript("/article/promise-chaining/two.js");
+  })
+  .then(function(script) {
+    return loadScript("/article/promise-chaining/three.js");
+  })
+  .then(function(script) {
+    // 使用在脚本中声明的函数
+    // 以证明脚本确实被加载完成了
+    one();
+    two();
+    three();
+  });
+```
+
+从技术上讲，我们可以向每个 `loadScript` 直接添加 `.then`，就像这样：
+
+```javascript
+loadScript("/article/promise-chaining/one.js").then(script1 => {
+  loadScript("/article/promise-chaining/two.js").then(script2 => {
+    loadScript("/article/promise-chaining/three.js").then(script3 => {
+      // 此函数可以访问变量 script1，script2 和 script3
+      one();
+      two();
+      three();
+    });
+  });
+});
+```
+
+这段代码做了相同的事儿：按顺序加载 3 个脚本。但它是“向右增长”的。所以会有和使用回调函数一样的问题。
+
+
+
+#### Thenables  ????
+
+then处理程序（handler）返回的不完全是一个 promise，而是返回的被称为 “thenable” 对象 — 一个具有方法 `.then` 的任意对象。它会被当做一个 promise 来对待。
+
+按照这个想法是，第三方库可以实现自己的“promise 兼容（promise-compatible）”对象。它们可以具有扩展的方法集，但也与原生的 promise 兼容，因为它们实现了 `.then` 方法。
+
+```javascript
+class Thenable {
+  constructor(num) {
+    this.num = num;
+  }
+  then(resolve, reject) {
+    alert(resolve);// function() { native code }
+    
+    setTimeout(() => resolve(this.num * 2), 1000)// (**)
+  }
+}
+
+new Promise(resolve => resolve(1))
+  .then(result => {
+    return new Thenable(result); // (*)
+  })
+  .then(alert); // 1000ms 后显示 2
+```
+
+
+
+
+
+
+
 
 
 ### 自Promise继承
