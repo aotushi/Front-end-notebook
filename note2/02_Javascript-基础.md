@@ -2366,7 +2366,11 @@ number.toString(36);
 
 
 
+### 数据类型-可迭代对象(iterable object)
 
+> [Iterable object（可迭代对象） (javascript.info)](https://zh.javascript.info/iterable)
+
+**可迭代（Iterable）** 对象是数组的泛化。这个概念是说任何对象都可以被定制为可在 `for..of` 循环中使用的对象。
 
 
 

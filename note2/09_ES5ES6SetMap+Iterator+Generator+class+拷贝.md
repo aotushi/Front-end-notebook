@@ -1685,17 +1685,98 @@ https://www.zhihu.com/question/316717095/answer/628772556
 
 ## 迭代器
 
-### 定义
+### 概述
 
->  迭代器，其实就是一个具有 next() 方法的对象，每次调用 next() 都会返回一个结果对象，该结果对象有两个属性，value 表示当前的值，done 表示遍历是否结束。
+在 JavaScript 中，**迭代器**是一个对象，它定义一个序列，并在终止时可能返回一个返回值。
+
+迭代器是通过使用 `next()` 方法实现 [Iterator protocol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterator_protocol) 的任何一个对象.
+
+一旦创建，迭代器对象可以通过重复调用next（）显式地迭代。 
+
+迭代一个迭代器被称为消耗了这个迭代器，因为它通常只能执行一次。 
 
 
 
-**迭代器(Iterator)**是一种接口, 为各种不同的数据结构提供统一的访问机制.==任何数据结构==只要部署iterator接口,就可以完成遍历操作.
+### 实现
 
-1.ES6创造了一种新的遍历命令for...of循环, 
+> [迭代器和生成器 - JavaScript | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Iterators_and_Generators#iterables)
 
-2.原生具备iterator接口的数据(可用for of遍历): Array Arguments Set Map String TypeArray NodeList
+它允许创建一个简单的范围迭代器，它定义了从开始（包括）到结束（独占）间隔步长的整数序列。 
+
+它的最终返回值是它创建的序列的大小，由变量iterationCount跟踪。
+
+```javascript
+function makeRangeIterator(start=0, end=Infinity, step=1) {
+  let nextIndex = start;
+  let iterationCount = 0;
+  
+  const rangeIterator = {
+    next: function() {
+      let result;
+      if (nextIndex < end) {
+        result = {value: nextIndex, done: false}
+        nextIndex += step;
+        iterationCount++;
+        return result;
+      }
+    }
+  }
+  
+  return rangeIterator;
+}
+```
+
+
+
+> > > > w未完
+
+
+
+### 迭代协议
+
+迭代协议具体分为两个协议：[可迭代协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols#可迭代协议)和[迭代器协议](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols#迭代器协议)。
+
+### 可迭代协议
+
+**可迭代协议**允许 JavaScript 对象定义或定制它们的迭代行为，例如，在一个 [`for..of`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/for...of) 结构中，哪些值可以被遍历到。
+
+#### Symbol.iterator / @@iterator
+
+要成为**可迭代**对象， 一个对象必须实现 `**@@iterator**` 方法。这意味着对象（或者它[原型链](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)上的某个对象）必须有一个键为 `@@iterator` 的属性，可通过常量 [`Symbol.iterator`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator) 访问该属性：
+
+| 属性                | 值                                                  |
+| ------------------- | --------------------------------------------------- |
+| `[Symbol.iterator]` | 一个无参数的函数,其返回值为一个符合迭代器协议的对象 |
+
+
+
+
+
+### 迭代器协议
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2.原生具备iterator接口的数据(可用for of遍历): 
+
+* Array 
+* Arguments 
+* Set 
+* Map 
+* String 
+* TypeArray 
+* NodeList
 
 ==需要自定义遍历数据的时候, 要想到迭代器==
 

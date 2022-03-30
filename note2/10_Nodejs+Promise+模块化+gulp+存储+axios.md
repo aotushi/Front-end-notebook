@@ -4458,6 +4458,91 @@ JavaScript 检查在 `(*)` 行中由 `.then` 处理程序（handler）返回的�
 
 #### 实例2-fetch
 
+使用 [fetch](https://zh.javascript.info/fetch) 方法从远程服务器加载用户信息,基本语法很简单:
+
+```javascript
+let promise = fetch(url);
+```
+
+执行这条语句，向 `url` 发出网络请求并返回一个 promise。
+
+当远程服务器返回 header（是在 **全部响应加载完成前**）时，该 promise 使用一个 `response` 对象来进行 resolve。
+
+向 GitHub 发送一个请求，加载用户个人资料并显示头像：
+
+```javascript
+fetch('article/promise-chaining/user.json')
+.then(response => response.json())
+.then(user => fetch(`https://api.github.com/users/${user.name}`))
+.then(response => response.json())
+.then(githubUser => {
+  let img = document.createElement('img');
+  img.src = githubUser.avatar_url;
+  img.className = 'promise-avatar-example';
+  document.body.append(img);
+  
+  setTimeout(() => img.remove(), 3000)
+})
+```
+
+这段代码存在的问题: 在头像显示结束并被移除 **之后** 做点什么？就目前而言是做不到的.
+
+解决: 使链可扩展，我们需要返回一个在头像显示结束时进行 resolve 的 promise。
+
+```javascript
+fetch('/article/promise-chaining/user.json')
+	.then(response => response.json())
+	.then(user => fetch(`https://api.github.com/users/${user.name}`))
+	.then(response => response.json())
+	.then(githUser => new Promise((reseolve, reject) => {
+      let img = document.createElement('img');
+      img.src = githubUser.avatar_url;
+      img.className = 'promise-avatar-example';
+      document.body.append(img);
+      
+      setTimeout(() => {
+        img.remove();
+        resolve(githubUser);
+      }, 3000)
+  }))
+  .then(githubUser => alert(`Finished showing ${githubUser.name}`))
+```
+
+拆分可重用的代码:
+
+```javascript
+function loadJson(url) {
+  return fetch(url).then(response => response.json())
+}
+
+function loadGithubUser(name) {
+  return loadJson(`https://api.github.com/users/${name}`);
+}
+
+function showAvatar(githubUser) {
+  return new Promise(function (resolve, reject) {
+    let img = document.createElement('img');
+    img.src = githubUser.avatar_url;
+    document.body.append(img);
+    
+    setTimeout(() => {
+      img.remove();
+      resolve(githubUser)
+    }, 3000)
+  });
+}
+
+//使用它们
+loadJson('/article/promise-chaining/user.json')
+	.then(user => loadGithubUser(user.name))
+	.then(showAvatar)
+	.then(githubUser => alert(`Finished showing ${githubUser.name}`))
+```
+
+
+
+
+
 
 
 
