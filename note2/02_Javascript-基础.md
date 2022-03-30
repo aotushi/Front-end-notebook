@@ -11838,7 +11838,63 @@ Function.prototype.myCall = function() {
 }
 ```
 
-**注意事项** ????
+
+
+```javascript
+//推荐使用ES6的扩展运算符来代替arguments   听别人说的,还没验证
+
+
+Function.prototype.myCall = function(...items) {
+  //items = JSON.parse(JSON.stringify(items));
+  let obj = items.shift()||globalThis;
+  let tmepFn = Symbol();
+  obj[tempFn] = this;
+  
+  let res = obj[tempFn](...items);
+  delete obj[tempFn];
+  
+  return res;
+}
+```
+
+
+
+**注意事项2**
+
+当打印添加临时属性的对象时,其结果会包含删除的临时属性,但展开后是没有删除属性的.
+
+同时Chrome会有提示信息: "the value was evaluated upon first expanding. It may have changed since then"
+
+英文提示即是原因,手动展开的过程其实做了<span style="color:blue">预计算</span>.
+
+参考链接:
+
+[CSDN](https://blog.csdn.net/yexudengzhidao/article/details/114657002)
+
+[stackoverflow](https://stackoverflow.com/questions/23429203/weird-behavior-with-objects-console-log)
+
+```javascript
+
+
+let obj = {};
+console.log(obj);
+console.log(obj.a);
+obj.a = 1;
+```
+
+打印结果为:
+
+为什么obj里明明有值,打印obj.a却是undefined
+
+![](https://img-blog.csdnimg.cn/20210311131318444.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lleHVkZW5nemhpZGFv,size_16,color_FFFFFF,t_70)
+
+
+
+
+
+
+
+**注意事项**2 ????
 
 ```javascript
 如果这么写:
@@ -12073,6 +12129,8 @@ Function.prototype.myApply = function(obj, arr) {
   return result;
 }
 
+
+
 Function.prototype.apply = function(obj, arr) {
   obj = toObject(obj);
   let tempFn = Symbol();
@@ -12082,6 +12140,8 @@ Function.prototype.apply = function(obj, arr) {
   return result;
   
 }
+
+//解决基本类型数据应被转换成对象
 function toObject(val) {
   const type = typeof val;
   //let result = val;
