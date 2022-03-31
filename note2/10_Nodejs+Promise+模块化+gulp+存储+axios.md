@@ -3474,9 +3474,9 @@ button.onclick = function(event) {
 
 
 
-##### **异步回调案例** 
+#### **异步回调案例** 
 
-在网页中加载脚本和模块
+##### 在网页中加载脚本和模块
 
 ```javascript
 //使用给定的src加载脚本
@@ -3545,9 +3545,9 @@ loadScript('https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.2.0/lodash.js', s
 
 
 
-**在回调中回调**
+##### **在回调中回调**
 
-我们如何依次加载两个脚本：第一个，然后是第二个？
+我们如何<span style="color:blue">依次加载两个脚本</span>：第一个，然后是第二个？
 
 自然的解决方案是将第二个 `loadScript` 调用放入回调中，如下所示：
 
@@ -3600,7 +3600,7 @@ loadScript('/my/script.js', function(error, script) {
 * `callback` 的第一个参数是为 error 而保留的。一旦出现 error，`callback(err)` 就会被调用。
 * 第二个参数（和下一个参数，如果需要的话）用于成功的结果。此时 `callback(null, result1, result2…)` 就会被调用。
 
-**厄运金字塔**(回调地狱)
+##### **厄运金字塔**(回调地狱)
 
 以上代码模式在多个异步行为中,代码层次变深,维护难度增加.尤其是我们使用的是可能包含了很多循环和条件语句的真实代码
 
@@ -3723,11 +3723,11 @@ let promise = new Promise(function (resolve, reject) {
 
 > 生产者代码, 歌手
 
-`Promise`构造函数接受一个函数作为参数，其被称为**executor**,当`new Proimse`被创建, executor会自动运行.(executor就是歌手)
+`Promise`构造函数接受一个函数作为参数，其被称为**executor**,当`new Proimse`被创建, executor会自动运行.   //(executor就是歌手)
 
 该函数的两个参数分别是`resolve`和`reject`。它们是两个函数，由 JavaScript 引擎提供，不用自己部署。
 
-当executor获得了结果,无论是早还是晚,它会调用以下回调之一:
+当executor获得了结果,无论是早还是晚,它应该调用以下回调之一:
 
 * resolve(value) -- 如果任务成功完成并带有结果value
 * reject(error) -- 如果出现了error, error即为error对象
@@ -4194,6 +4194,195 @@ promise.then(function() {
 Promsie
 Hi
 Resolved
+```
+
+
+
+#### 使用Promise进行错误处理
+
+当一个 promise 被 reject 时，控制权将移交至最近的 rejection 处理程序（handler）。
+
+##### 隐式try...catch
+
+Promise 的执行者（executor）和 promise 的处理程序（handler）周围有一个“隐式的 `try..catch`”。如果发生异常，它（译注：指异常）就会被捕获，并被视为 rejection 进行处理。
+
+下面两段代码工作上完全相同:
+
+```javascript
+//1
+new Promise((resolve, reject) => {
+  throw new Error('Whoops');
+}).catch(alert)
+```
+
+```javascript
+//2
+new Promise((resolve, reject) => {
+  reject(new Error('Whoops'));
+}).catch(alert);
+```
+
+**处理范围**
+
+* executor周围
+* executor函数的处理程序(then, catch)
+
+在 executor 周围的“隐式 `try..catch`”自动捕获了 error，并将其变为 rejected promise。
+
+如果我们在 `.then` 处理程序（handler）中 `throw`，这意味着 promise 被 rejected，因此控制权移交至最近的 error 处理程序（handler）
+
+```javascript
+new Promise((resolve, reject) => {
+  resolve('ok');
+}).then(res => {
+  throw new Error('whoops');
+}).catch(alert);//Error: Whoops!
+```
+
+
+
+如果是多个报错的话:
+
+只会处理从顺序上出现的第一个错误
+
+```javascript
+Promise.resolve(1)
+.then(() => a())
+.then(() => b())
+.catch(alert) //ReferenceError: a is not defined
+
+Promise.reject(1)
+.then(() => a())
+.then(() => b())
+.catch(alert) //1
+```
+
+**再次抛出**
+
+对于 promise 来说, 错误如果无法处理它，可以将其再次抛出,这也是可以的。
+
+在 `.catch` 中 `throw`，那么控制权就会被移交到下一个最近的 error 处理程序（handler）。如果我们处理该 error 并正常完成，那么它将继续到最近的成功的 `.then` 处理程序（handler）。
+
+catch 正常处理错误(返回除错误之外的其他值: promise或其他任意)
+
+```javascript
+//执行流: catch=>then
+new Promise((resolve, reject) => {
+  throw new Error("Whoops");
+}).catch((err) => alert('aaa'))
+.then(() => alert('success')); //success
+```
+
+catch 抛出错误
+
+```javascript
+//执行流 catch => catch
+
+new Promise((resolve, reject) => {
+  throw new Error('Whoops');
+})
+.catch(err => {throw err}) //必须只为{},否则识别不了throw
+.then()  //不走这一步,写不写没关系,最好写上
+.catch(alert); //弹出报错信息: Error: Whoops
+```
+
+
+
+**未处理的rejection**
+
+当一个error没有被处理会发生什么? 例如，我们忘了在链的尾端附加 `.catch`
+
+```javascript
+new Promise(function() {
+  noSuchFunction(); // 这里出现 error（没有这个函数）
+})
+  .then(() => {
+    // 一个或多个成功的 promise 处理程序（handler）
+  }); // 尾端没有 .catch！
+```
+
+如果出现 error:
+
+* promise 的状态将变为 “rejected”，
+* 然后执行应该跳转至最近的 rejection 处理程序（handler）。
+* 但上面这个例子中并没有这样的处理程序（handler）。因此 error 会“卡住（stuck）”。没有代码来处理它。
+
+
+
+对于在 promise 中未被处理的 rejection，JavaScript 引擎会跟踪此类 rejection，在这种情况下会生成一个全局的 error, 你可以在控制台（console）中看到。
+
+在浏览器中，我们可以使用 `unhandledrejection` 事件来捕获这类 error：
+
+```javascript
+
+
+window.addEventListener('unhandledrejection', function(event) {
+  // 这个事件对象有两个特殊的属性：
+  alert(event.promise); // [object Promise] - 生成该全局 error 的 promise
+  alert(event.reason); // Error: Whoops! - 未处理的 error 对象
+})
+
+Promise.reject(3);
+```
+
+其他文章: 
+
+> unhandledrejection 处理没有显式捕获Promise异常
+>
+> https://github.com/justjavac/the-front-end-knowledge-you-may-not-know/issues/7
+>
+> Chrome现在均无触发
+
+
+
+##### Fetch错误处理示例
+
+比较完善的fetch错误处理
+
+```javascript
+class HttpError extends Error {
+  constructor(response) {
+    super(`${response.status} for ${response.url}`);
+    this.name = 'HttpError';
+    this.response = response;
+  }
+}
+
+function loadJson(url) {
+  return fetch(url)
+  	.then(response => {
+    	if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new HttpError(response);
+      }
+  })
+}
+
+loadJson('no-such-user.json')
+.catch(alert); //HttpError: 404
+```
+
+
+
+从 GitHub 加载给定名称的用户。如果没有这个用户，它将告知用户填写正确的名称;
+
+拥有我们自己的错误处理类的好处是我们可以使用 `instanceof` 很容易地在错误处理代码中检查错误。
+
+```javascript
+function getGitHubUser() {
+  let name = prompt('enter a name?', 'iliakan');
+  
+  return loadJson(`https://api.github.com/users/${name}`)
+  .then(user => user)
+  .catch(err => {
+    if (err instanceof HttpError && err.response.status === 404) {
+      return getGitHubUser();
+    } else {
+      throw err;
+    }
+  })
+}
 ```
 
 
