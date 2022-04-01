@@ -3412,7 +3412,7 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
-## Promise🌈🌈🌈
+## Promise🌈
 
 ### 1.异步编程背景
 
@@ -5314,7 +5314,7 @@ Promise.all(request)
 #### 自定义Promise
 
 ```js
-
+https://juejin.cn/post/6994594642280857630
 ```
 
 
@@ -5974,6 +5974,94 @@ p.then((value)=>{
     console.log(55);
 })
 ```
+
+
+
+#### Promise+setTimeout+Async执行顺序
+
+> [setTimeout+Promise+Async输出顺序？很简单呀！ - 掘金 (juejin.cn)](https://juejin.cn/post/7016298598883131423)
+
+##### JS执行机制
+
+* 遇到 同步代码 直接执行
+* 遇到 异步代码 先放一边, 并将它的回调函数存起来,存的地方叫做 事件队列
+* 等所有同步代码都执行完, 再从事件队列中把存起来的所有 异步回调函数 拿出来按顺序执行
+
+
+
+##### 宏任务和微任务
+
+`事件队列`是用来存异步回调的，但是异步也分类型啊，异步任务分为`宏任务`和`微任务`，并且**微任务执行时机先于宏任务**
+
+| #                         | 浏览器 | Node |
+| ------------------------- | ------ | ---- |
+| **I/O**                   | ✅      | ✅    |
+| **setTimeout**            | ✅      | ✅    |
+| **setInterval**           | ✅      | ✅    |
+| **setImmediate**          | ❌      | ✅    |
+| **requestAnimationFrame** | ✅      | ❌    |
+
+##### 微任务
+
+| #                                        | 浏览器 | Node |
+| ---------------------------------------- | ------ | ---- |
+| **Promise.prototype.then catch finally** | ✅      | ✅    |
+| **process.nextTick**                     | ❌      | ✅    |
+| **MutationObserver**                     | ✅      | ❌    |
+
+##### 执行顺序
+
+![](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/df0c109150d34369913d7039a6f41370~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp?)
+
+
+
+##### 案例
+
+**步骤:**
+
+1.标记区分异步和同步
+
+2.异步中,标记区分宏任务和微任务
+
+3.分轮数,一轮一轮慢慢走
+
+```javascript
+console.log(1) //同步
+setTimeout(() => {
+  console.log(2) //异步: 宏任务 setTimeout1
+  Promise.resolve().then(() => { //异步: 微任务 then1
+    console.log(3)
+  })
+});
+console.log(4) //同步
+new Promise((resolve,reject) => {
+  console.log(5)//同步
+  resolve()
+}).then(() => {//异步 微任务 then2
+  console.log(6)
+  setTimeout(() => {//异步 宏任务 setTimeout2
+    console.log(7)
+  })
+})
+console.log(8) //宏任务
+
+```
+
+分轮:
+
+| 轮数   | 说明                    | 输出       | 产生                                        | 剩余                                                |
+| ------ | ----------------------- | ---------- | ------------------------------------------- | --------------------------------------------------- |
+| 第一轮 | 执行外层同步输出        | 1，4，5，8 | 宏任务：`setTimeout1` <br />微任务：`then2` | 宏任务：`setTimeout1` <br />微任务：`then2`         |
+| 第二轮 | 执行微任务`then2`       | 6          | 宏任务：`setTimeout2` 微任务：无            | 宏任务：`setTimeout1，setTimeout2` <br />微任务：无 |
+| 第三轮 | 执行宏任务`setTimeout1` | 2          | 宏任务：无 微任务：`then1`                  | 宏任务：`setTimeout2` 微任务：`then1`               |
+| 第四轮 | 执行微任务`then1`       | 3          | 宏任务：无 微任务：无                       | 宏任务：`setTimeout2` 微任务：无                    |
+| 第五轮 | 执行宏任务`setTimeout2` | 7          | 宏任务：无 微任务：无                       | 宏任务：无 微任务：无                               |
+
+
+
+
+
+
 
 
 
