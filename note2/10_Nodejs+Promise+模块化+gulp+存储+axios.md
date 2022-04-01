@@ -4736,7 +4736,7 @@ loadJson('/article/promise-chaining/user.json')
 
 
 
-### 自Promise继承
+### Promise继承
 
 Promise与其他内建类型一样，也可以作为基类派生其他类，所以你可以定义自己的Promise变量来扩展内建Promise的功能。例如，假设你想创建一个既支持then()方法和catch()方法又支持success()方法和failure()方法的Promise，则可以这样创建该Promise类型
 
@@ -4774,296 +4774,21 @@ promise.success(function(value) {
 
 
 
-### 8.基于Promise的异步任务执行
 
-```javascript
-待 
-```
 
 
 
 
 
 
-
-
-
-
-
-
-
-### 9.相关问题
-
-
-
-#### 创建未完成状态的Promise
-
-用Promise构造函数可以创建新的Promise,构造函数只接收一个参数: 包含初始化Promise代码的执行器(executor)函数. 执行器接受两个参数,分别是resolve()函数和reject()函数. 执行器成功完成时调用resolve()函数,反之失败则调用reject()函数. Promise的执行器会立即执行,然后才执行后续流程中的代码.
-
-```javascript
-let promise = new Promise(function(resolve, reject) {
-  console.log('Promise');
-  
-  resolve();
-});
-console.log('Hi');
-
-//输出的内容
-Promise
-Hi
-```
-
-在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。
-
-#### 如何改变promise的状态?
-
-3种方式改变状态:
-
-* resolve(value): 如果当前是pending就会变为fulfilled
-* reject(reason): 如果当前是pending就会变为rejected
-* 抛出异常: 如果当前是pending就会变为rejected
-
-- 其他情况下的状态值都是pending.
-
-```js
-let p = new Promise((resolve, reject) => {
-    // resolve();
-    // reject();
-    // throw '有点问题';  手动抛出错误
-    // console.log(a);   a没有定义,由执行环境去抛出错误
-});
-
-console.log(p);
-         
-         
-```
-
-
-
-#### 为Promise对象指定多个成功或失败的回调
-
-```js
-//当promise改变为对应状态时都会调用 多次调用then方法
-let p = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        reject('error');
-    }, 1000);
-});
-
-// //指定回调
-p.then(value => {
-    console.log(value);
-}, reason => {
-    console.error(reason);
-});
-
-p.then(value => {
-    alert(value);
-}, reason => {
-    alert(reason);
-});
-```
-
-
-
-
-
-#### 改变promise状态和指定回调函数(then)谁先谁后
-
-1.都有可能. 正常是先指定回调再改变状态
-
-2.先改变状态再指定回调//同步
-
-* 直接调用resolve()/reject()
-* 延迟更长时间调用回调函数
-
-```javascript
-let p = new Promise((resolve, reject) => {
-  setTimeout(() => { resolve('ok'), 1000})
-});
-
-setTimeout(() => {p.then(val => console.log(val)), 3000});
-```
-
-3.先指定回调函数再改变状态
-
-```javascript
-let p = new Promise((resolve, reject) => {
-  setTimeout(() => resolve('ok'), 1000);
-});
-p.then(val => console.log(val));
-```
-
-4.什么时候得到数据
-
-* 如果先指定的回调函数,当状态发生改变时调用回调,得到数据
-* 如果先改变的状态,当指定回调时候就会调用,得到数据
-
-
-
-
-
-#### promise.then()返回新的promise的结果状态由什么决定
-
-> then方法的返回结果是一个promise对象
-
-* 简单表达: 由then()指定的回调函数执行结果决定(<u>执行结果就是函数的返回值</u>)
-* 详细表达:                                    
-  * 如果抛出异常, 新promise变为rejected, reason为抛出的异常(throw抛出的值)
-  * 如果返回非promise的任意值, 新promise变为fulfilled, 其值为返回值
-  * 如果返回的是另一个新promise, 此promise的结果就会成为新promise的结果,其值也会为then方法的返回值.
-
-
-
-
-
-
-
-#### promise如何串连多个操作任务?
-
-* promise的then()返回一个新的promise, 可以开成then()的链式调用
-* 通过then的链式调用串连多个同步/异步任务
-
-
-
-链式调用实例-读取多个文件
-
-```js
-//合并1-3个HTML文件
-
-//普通写法 回调地狱
-const fs=require('fs');
-
-fs.readFile('./resource/1.html', (err, data)=>{
-    if(err) throw err;
-    fs.readFile('./resource/2.html', (err, data2)=>{
-        if(err) throw err;
-        fs.readFile('./resource/3.html', (err, data3)=>{
-            if(err) throw err;
-            console.log(data+data2+data3);//加号 自动转换成字符串
-        })
-    })
-})
-
-//promise
-const fs=require('fs');
-
-const p=new Promise((resolve, reject)=>{
-    fs.readFile('./resource/1.html', (err, data)=>{
-        if(err) reject(err);
-        resolve(data);
-    })
-});
-
-p.then(vlaue=>{
-    return new Promise((resolve, reject)=>{
-        fs.readFile('./resource/2.html', (err, data)=>{
-            if(err) reject(err);
-            resolve([value, data]);
-        })
-    })
-}).then(value=>{
-    return new Promise((resolve, reject)=>{
-        fs.readFile('./resource/3.html' (err, data)=>{
-            if(err) reject(err);
-            resolve([...value, data])
-        })
-    })
-}).then(vlaue=>{
-    console.log(value.join(''));
-}).catch((reaso n)=>{
-    console.log(reason);
-    fs.writeFileSync('./error.log', reason.path+'\r\n', {falg:'a'});//错误路径
-})
-
-//promisify
-const {promisify}=require('util');
-const mineReadFile=promisify(require('fs').readFile);
-const p1 = mineReadFile('./resource/1.html');
-const p2 = mineReadFile('./resource/2.html');
-const p3 = mineReadFile('./resource/3.html');
-
-const result=Promise.all([p1, p2, p3]);
-result.then(value=>{
-    console.log(value.join(''));
-}, reason=>{
-    console.log('读取失败');
-})
-
-
-//async和await
-const {promisify}=require('util');
-const readFile=promisify(require('fs').readFile);
-
-async function mine(){
-    const one = await readFile('./resource/1.html');
-    const two = await readFile('./resource/2.html');
-    const three = await readFile('./resource/3.html');
-    
-    return console.log(one+two+three);
-}
-
-mine();
-```
-
-
-
-
-
-
-
-#### Promise异常穿透
-
-* 当使用promise的then链式调用时, 可以在最后指定失败的回调, 
-* 前面任何操作出了异常, 都会传到最后失败的回调中处理
-
-```js
-
-
-
-new Promise((resolve, reject) => {
-    resolve('ok');
-    // reject('error'); 假如是失败promise,依然会向后执行到catch
-}).then(value => {
-    //console.log(value);// ok 
-    throw 'oh no'; //返回失败回调,向下执行,被catch获取
-}).then(value => {
-    console.log(value);// undefined
-}).catch(reason => {
-    console.error(reason);
-});
-```
-
-
-
-#### Promise中断链条
-
-* 返回一个pending状态的promise对象 有且只有这一种方法
-* 传一个错误的promise对象值,会被catch捕获,如果没有catch方法会报错
-* 中断方法 return new Promise(()=>{})
-
-```js
-const p=new Promise((resolve, reject)=>{
-    console.log(11);
-    resolve();
-});
-p.then((value)=>{
-    console.log(22);
-    return new Promise(()={});
-}).then((value)=>{
-    console.log(33);
-}).then((value)=>{
-    console.log(44);
-}).then((value)=>{
-    console.log(55);
-})
-```
 
 
 
 
 
 ## Promise API
+
+### 原型方法
 
 #### Promise.prototype.then()
 
@@ -5405,85 +5130,80 @@ Promise.prototoype.Finally = function(cb) {
 
 
 
-
+### 静态方法 6种
 
 
 
 #### Promise.all()
 
-`Promise.all()`方法用于将多个 Promise 实例，包装成一个新的 Promise 实例。
+##### 概述
+
+这个方法接收多个promise组成的可迭代的对象(Array, Set, Map, String), 返回一个输入的promises结果的数组的Promise实例.
+
+当所有输入的promise成功或输入可迭代对象不包含promise,返回的promise将会成功
+
+当任意输入的promise失败 或 非promise抛出错误, 返回的promise会立即失败,失败信息是第一个失败promise或错误
+
+返回的promise的两种状态原因
+
+* resolve
+  * 当所有输入的promises已经成功 resolved
+  * 可迭代对象不包含promises
+* reject
+  * 当任意一个输入的promise拒绝
+  * 非promise抛出一个错误
+
+
+
+##### Syntax
 
 ```javascript
-const p = Promise.all([p1, p2, p3]);
-```
-
-`Promise.all()`方法接受一个数组作为参数，`p1`、`p2`、`p3`都是 Promise 实例，如果不是，就会先调用`Promise.resolve`方法，将参数转为 Promise 实例，再进一步处理。
-
-另外，`Promise.all()`方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例。
-
-`p`的状态由`p1`、`p2`、`p3`决定，分成两种情况。
-
-（1）只有`p1`、`p2`、`p3`的状态都变成`fulfilled`，`p`的状态才会变成`fulfilled`，此时`p1`、`p2`、`p3`的返回值组成一个数组，传递给`p`的回调函数。
-
-（2）只要`p1`、`p2`、`p3`之中有一个被`rejected`，`p`的状态就变成`rejected`，此时第一个被`reject`的实例的返回值，会传递给`p`的回调函数。
-
-```javascript
-const promises = [2,3,5,7,11,13].map((id) => getJSON('/post/' + id + '.json'));
-
-Promise.all(promises).then(function(posts) {
-  //..
-}).catch(function(reason) {
-  //...
-})
-```
-
-上面代码中，`promises`是包含 6 个 Promise 实例的数组，只有这 6 个实例的状态都变成`fulfilled`，或者其中有一个变为`rejected`，才会调用`Promise.all`方法后面的回调函数。
-
-注意，如果作为参数的 Promise 实例，自己定义了`catch`方法，那么它一旦被`rejected`，并不会触发`Promise.all()`的`catch`方法。
-
-```javascript
-const p1 = new Promise((resolve, reject) => {
-  resolve('hello');
-})
-	.then(result => result)
-	.catch(e => e);
-
-const p2 = new Promise((resolve, reject) => {
-  throw new Error('报错了');
-})
-	.then(result => result)
-	.catch(e => e);
-
-Promise.all([p1, p2])
-	.then(result => console.log(result));
-
-// ["hello", Error: 报错了]
-```
-
-上面代码中，`p1`会`resolved`，`p2`首先会`rejected`，但是`p2`有自己的`catch`方法，该方法返回的是一个新的 Promise 实例，`p2`指向的实际上是这个实例。该实例执行完`catch`方法后，也会变成`resolved`，导致`Promise.all()`方法参数里面的两个实例都会`resolved`，因此会调用`then`方法指定的回调函数，而不会调用`catch`方法指定的回调函数。
-
-如果`p2`没有自己的`catch`方法，就会调用`Promise.all()`的`catch`方法。
-
-```javascript
-const p1 = new Promise((resolve, reject) => {
-  resolve('hello');
-})
-.then(result => result);
-
-const p2 = new Promise((resolve, reject) => {
-  throw new Error('报错了');
-})
-.then(result => result);
-
-Promise.all([p1, p2])
-.then(result => console.log(result))
-.catch(e => console.log(e));
-// Error: 报错了
+Promise.all(iterable)
 ```
 
 
 
-**实现Promise.all**
+##### Param
+
+`iterable`
+
+An [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol) object such as an [`Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array).
+
+##### Return value
+
+* An **already resovled**(已完成) Promise if the iterble passed is empty.(是同步完成的, 见下面)
+* An **asynchronously resolved**(异步已完成) Promise if the iterable passed contained no promises.
+* A **pending Promise** (处理中)in all other cases
+* This returned promise is then resolved/rejected asynchronously(as soon as the stack is empty) when all the promises in the given *iterable* have resolved, or if any of the promises reject.
+
+> 以上关于返回值的描述中:
+>
+> 已完成和异步已完成有什么区别吗???
+>
+> 'as soon as the stack is empty'  怎么理解呢?
+
+
+
+##### Desc
+
+* the method can be useful for aggregating the results of multiple promises.
+* it is typically used when there are multiple related asynchronous tasks that the overrall code relied on to work successfully - all of whom we want to fulfill before the code execution continues.
+* `Promise.all()` will reject immediatelly upon **any** of the input promises rejecting. In comparison, the promise returned by `Promise.allSettled()` will wait for all input promises to complete, regardless of whether or not one rejects.
+* the order of the promise array is preserved upon completion of this method.(描述不清晰, 返回promise数组的顺序和传入的顺序一样)
+
+##### Fulfillment
+
+* the returned promise is fulfilled(执行, 结束, 满足) with an array containing **all** the resolved values(including non-promise values) in the *iterable* passed as the argumetn:
+  * If an <span style="color:blue">**empty *iterable*** </span>is passed, then the promise returned by this method is <span style="color:blue">**fulfilled synchronously**</span>. The resolved values is an empty array.
+  * If a nonempty *iterable* is passed, and **all** of <u>the promises fulfill, or are not promsies</u>, then the promise returned by this method is **fulfilled asynchronously**
+
+##### Rejecttion
+
+If any of the passed-in promises reject, `Promise.all` asynchronously rejects with the value of the promises that rejected, whether or not other promise have resolved.
+
+
+
+##### **实现Promise.all**
 
 ```javascript
 //https://juejin.cn/post/7033275515880341512#:~:text=%E5%8F%82%E8%80%83%E4%BB%A3%E7%A0%81-,%E5%AE%9E%E7%8E%B0promise.all,-%E8%80%83%E5%AF%9F%E9%A2%91%E7%8E%87%3A%20(%E2%AD%90%E2%AD%90%E2%AD%90%E2%AD%90%E2%AD%90)
@@ -5506,6 +5226,82 @@ function promisesAll(promises) {
   })
 }
 ```
+
+
+
+##### 实例
+
+Promise.all的异步或同步
+
+异步:
+
+```javascript
+let resolvedpromisesArray = [Promise.resolve(33), Promise.resolve(44)];
+
+let p = Promise.all(resolvedpromisesArray);
+
+console.log(p);
+
+setTimeout(() => {
+  console.log('the stack is not empty');
+  console.log(p);
+})
+
+//Promise {<pending>}
+//2
+//the stack is not empty
+//Promise {<fulfilled>: Array(2)}
+```
+
+如果Promise.all() reject的话, 会有同样的打印顺序:
+
+```javascript
+let p = Promise.all([Promise.resolve(3), Promise.reject(4)]);
+
+console.log(p);
+setTimeout(() => {
+  console.log('the stack is not empty');
+  console.log(p);
+})
+//Promise {<pending>}
+//3
+//the stack is not empty
+//Promise {<rejected>: 4}
+```
+
+存储URL的数组,将一个任务数组映射成promise数组,然后将其包装到promise
+
+```javascript
+let urls = [
+  'https://api.github.com/users/iliakan',
+  'https://api.github.com/users/remy',
+  'https://api.github.com/users/jeresig'
+];
+
+let request = urls.map(url => fetch(url));
+
+Promise.all(request)
+	.then(responses => responses.forEach(
+		response => alert(`${response.url}: ${response.status}`)
+	))
+```
+
+一个更真实的示例，通过 GitHub 用户名来获取一个 GitHub 用户数组中用户的信息（我们也可以通过商品 id 来获取商品数组中的商品信息，逻辑都是一样的）：
+
+```javascript
+let names = ['iliakan', 'remy' ,'jeresig'];
+
+let request = names.map(name => fetch(`https://api.github.com/users/${name}`));
+
+Promise.all(request)
+	.then(responses => responses)
+	.then(responses => Promise.all(responses.map(r => r.json())))
+	.then(users => users.forEach(user => alert(user.name)))
+```
+
+
+
+#### Promise.allSettled
 
 
 
@@ -5537,7 +5333,7 @@ function promisesAll(promises) {
 
 
 
-### 11.Promise的使用案例
+## Promise的使用案例
 
 ```html
 <script>
@@ -5914,6 +5710,272 @@ asyncFn().then(value => {
   let data = value;
 })
 ```
+
+
+
+#### 创建未完成状态的Promise
+
+用Promise构造函数可以创建新的Promise,构造函数只接收一个参数: 包含初始化Promise代码的执行器(executor)函数. 执行器接受两个参数,分别是resolve()函数和reject()函数. 执行器成功完成时调用resolve()函数,反之失败则调用reject()函数. Promise的执行器会立即执行,然后才执行后续流程中的代码.
+
+```javascript
+let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  
+  resolve();
+});
+console.log('Hi');
+
+//输出的内容
+Promise
+Hi
+```
+
+在执行器中，无论是调用resolve()还是reject()，都会向任务队列中添加一个任务来解决这个Promise。
+
+#### 如何改变promise的状态?
+
+3种方式改变状态:
+
+* resolve(value): 如果当前是pending就会变为fulfilled
+* reject(reason): 如果当前是pending就会变为rejected
+* 抛出异常: 如果当前是pending就会变为rejected
+
+- 其他情况下的状态值都是pending.
+
+```js
+let p = new Promise((resolve, reject) => {
+    // resolve();
+    // reject();
+    // throw '有点问题';  手动抛出错误
+    // console.log(a);   a没有定义,由执行环境去抛出错误
+});
+
+console.log(p);
+         
+         
+```
+
+
+
+#### 为Promise对象指定多个成功或失败的回调
+
+```js
+//当promise改变为对应状态时都会调用 多次调用then方法
+let p = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        reject('error');
+    }, 1000);
+});
+
+// //指定回调
+p.then(value => {
+    console.log(value);
+}, reason => {
+    console.error(reason);
+});
+
+p.then(value => {
+    alert(value);
+}, reason => {
+    alert(reason);
+});
+```
+
+
+
+
+
+#### 改变promise状态和指定回调函数(then)谁先谁后
+
+1.都有可能. 正常是先指定回调再改变状态
+
+2.先改变状态再指定回调//同步
+
+* 直接调用resolve()/reject()
+* 延迟更长时间调用回调函数
+
+```javascript
+let p = new Promise((resolve, reject) => {
+  setTimeout(() => { resolve('ok'), 1000})
+});
+
+setTimeout(() => {p.then(val => console.log(val)), 3000});
+```
+
+3.先指定回调函数再改变状态
+
+```javascript
+let p = new Promise((resolve, reject) => {
+  setTimeout(() => resolve('ok'), 1000);
+});
+p.then(val => console.log(val));
+```
+
+4.什么时候得到数据
+
+* 如果先指定的回调函数,当状态发生改变时调用回调,得到数据
+* 如果先改变的状态,当指定回调时候就会调用,得到数据
+
+
+
+
+
+#### promise.then()返回新的promise的结果状态由什么决定
+
+> then方法的返回结果是一个promise对象
+
+* 简单表达: 由then()指定的回调函数执行结果决定(<u>执行结果就是函数的返回值</u>)
+* 详细表达:                                    
+  * 如果抛出异常, 新promise变为rejected, reason为抛出的异常(throw抛出的值)
+  * 如果返回非promise的任意值, 新promise变为fulfilled, 其值为返回值
+  * 如果返回的是另一个新promise, 此promise的结果就会成为新promise的结果,其值也会为then方法的返回值.
+
+
+
+
+
+
+
+#### promise如何串连多个操作任务?
+
+* promise的then()返回一个新的promise, 可以开成then()的链式调用
+* 通过then的链式调用串连多个同步/异步任务
+
+
+
+链式调用实例-读取多个文件
+
+```js
+//合并1-3个HTML文件
+
+//普通写法 回调地狱
+const fs=require('fs');
+
+fs.readFile('./resource/1.html', (err, data)=>{
+    if(err) throw err;
+    fs.readFile('./resource/2.html', (err, data2)=>{
+        if(err) throw err;
+        fs.readFile('./resource/3.html', (err, data3)=>{
+            if(err) throw err;
+            console.log(data+data2+data3);//加号 自动转换成字符串
+        })
+    })
+})
+
+//promise
+const fs=require('fs');
+
+const p=new Promise((resolve, reject)=>{
+    fs.readFile('./resource/1.html', (err, data)=>{
+        if(err) reject(err);
+        resolve(data);
+    })
+});
+
+p.then(vlaue=>{
+    return new Promise((resolve, reject)=>{
+        fs.readFile('./resource/2.html', (err, data)=>{
+            if(err) reject(err);
+            resolve([value, data]);
+        })
+    })
+}).then(value=>{
+    return new Promise((resolve, reject)=>{
+        fs.readFile('./resource/3.html' (err, data)=>{
+            if(err) reject(err);
+            resolve([...value, data])
+        })
+    })
+}).then(vlaue=>{
+    console.log(value.join(''));
+}).catch((reaso n)=>{
+    console.log(reason);
+    fs.writeFileSync('./error.log', reason.path+'\r\n', {falg:'a'});//错误路径
+})
+
+//promisify
+const {promisify}=require('util');
+const mineReadFile=promisify(require('fs').readFile);
+const p1 = mineReadFile('./resource/1.html');
+const p2 = mineReadFile('./resource/2.html');
+const p3 = mineReadFile('./resource/3.html');
+
+const result=Promise.all([p1, p2, p3]);
+result.then(value=>{
+    console.log(value.join(''));
+}, reason=>{
+    console.log('读取失败');
+})
+
+
+//async和await
+const {promisify}=require('util');
+const readFile=promisify(require('fs').readFile);
+
+async function mine(){
+    const one = await readFile('./resource/1.html');
+    const two = await readFile('./resource/2.html');
+    const three = await readFile('./resource/3.html');
+    
+    return console.log(one+two+three);
+}
+
+mine();
+```
+
+
+
+
+
+
+
+#### Promise异常穿透
+
+* 当使用promise的then链式调用时, 可以在最后指定失败的回调, 
+* 前面任何操作出了异常, 都会传到最后失败的回调中处理
+
+```js
+
+
+new Promise((resolve, reject) => {
+    resolve('ok');
+    // reject('error'); 假如是失败promise,依然会向后执行到catch
+}).then(value => {
+    //console.log(value);// ok 
+    throw 'oh no'; //返回失败回调,向下执行,被catch获取
+}).then(value => {
+    console.log(value);// undefined
+}).catch(reason => {
+    console.error(reason);
+});
+```
+
+
+
+#### Promise中断链条
+
+* 返回一个pending状态的promise对象 有且只有这一种方法
+* 传一个错误的promise对象值,会被catch捕获,如果没有catch方法会报错
+* 中断方法 return new Promise(()=>{})
+
+```js
+const p=new Promise((resolve, reject)=>{
+    console.log(11);
+    resolve();
+});
+p.then((value)=>{
+    console.log(22);
+    return new Promise(()={});
+}).then((value)=>{
+    console.log(33);
+}).then((value)=>{
+    console.log(44);
+}).then((value)=>{
+    console.log(55);
+})
+```
+
+
 
 
 
