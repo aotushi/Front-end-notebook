@@ -1,235 +1,3 @@
-### 预编译和执行
-
-
-
-程序的执行和代码的执行不是一回事.
-
-代码的执行需要环境:全局环境和函数环境  全局作用域就是全局环境的作用域
-
-```Markdown
-Chrome开发者工具
-call Stack 执行栈
-anonymous  全局执行上下文环境(window执行环境)
-scope 作用域链
-	Global 全局作用域
-	closure(闭包)
-	local(代表当前)
-```
-
-
-
-
-
-### 代码执行的两个阶段:
-
-```js
-- 代码预编译阶段
-- 代码执行阶段
-```
-
-**预编译阶段**是前置阶段,会由编译器将js代码编译成可执行的代码.
-
-**执行阶段**的主要任务是执行代码逻辑,执行上下文在这个阶段会全部创建完成.
-
-通过语法分析,确认语法无误后,便会在预编译阶段对javascript代码中的变量的内存空间进行分配,变量提升便是在此阶段完成的.
-
-#### 预编译(执行)注意细节:
-
-* 在预编译阶段进行变量声明
-* 在预编译阶段对变量声明进行提升,但是值为undefined
-* 在预编译阶段对所有非表达式的函数声明进行提升
-
-
-
-```js
-//函数声明的函数名与普通对象的变量名没有什么区别（高级编程第三版）。说明函数名可以被变量覆盖。
-
-function a(){}
-var a;
-console.log(a); //ƒ a(){}   var可以重复声明,如果没有赋值,依然指向第一次的声明.
-
-
-function a(){}
-var a = 10;
-console.log(a);//10
-
-简化:
-function a(){}
-var a;
-a = 10;
-console.log(a);
-变量a开始是函数a,但赋值是执行的.故打印的10.
-
-```
-
-
-
-```js
-//在javascript中，函数声明及var声明的变量会得到提升。但是函数声明会先于var声明的变量被提升。即便function写在后面
-var aa = 22;
-function aa(){alert(11)};
-console.log(aa); //函数声明先被提升了。而后面的var aa声明覆盖了aa函数，所以打印出来的是22. 函数声明的函数名与普通对象的变量名没有什么区别（高级编程第三版）。说明函数名可以被变量覆盖。
-
-上面的语句在浏览器解析的时候如下:
-function aa(){alert(11)};
-var aa;
-aa=22;
-console.log(aa); //22
-```
-
-
-
-```js
-js函数和变量的声明及执行顺序
-
-1.倒叙调用
-fn(); //2
-function fn(){alert(2)};
-
-2.声明式函数和表达式函数: 声明式函数可以被提升,表达式函数没有函数提升.
-fn(); //2
-function fn(){console.log(2)};
-fn2(); //Uncaught TypeError: fn2 is not a function
-var fn2 = function(){console.log(2)};
-
-```
-
-
-
-```js
-//变量的执行顺序
-1.js中全局var声明的为全局变量  函数体内var声明为局部变量（函数外部访问不到）但是，函数体内未用var声明的为全局变量（函数外部可以使用）
-
-function f(){
-    alert(a);
-    a = 3;
-}
-f(); //Uncaught ReferenceError: a is not defined
-
-2.函数内部再次声明赋值，会优先使用自己的变量
-var a = 1;
-function f(){
-    alert(a);
-    var a = 3;
-    alert(a);
-};
-f(); //undefined 3
-
-3.函数内部再次全局声明，会修改全局变量值
-var a = 1;
-function fn(){
-    alert(a);
-    a = 2;
-    alert(a);
-}
-fn(); //1 2
-
-4.函数内全局赋值一次，var声明一次    函数f()内还是会优先使用自己的变量
-var a = 1;
-function fn(){
-    console.log(a);
-    a = 2;
-    console.log(a);
-    var a = 3;
-    console.log(a);
-}
-fn(); //undefined 2 3
-console.log(a); //1
-
-5.案例
-var a,b;
-(function(){
-    console.log(a);   //undefined
-    console.log(b);   //undefined
-    var a=b=3;        //相当于var a=3,b=3 b是全局变量
-    console.log(a);   //3
-    console.log(b);   //3
-})();
-console.log(a);      //undefined
-console.log(b);      //3
-```
-
-
-
-```js
-//函数形参和函数内部声明的变量或内部定义的函数重名
-
-1.内部声明的变量未赋值,会被形参顶替
-function f(x){
-    console.log(x)
-    var x;
-    console.log(x)
-}
-f(3); //3 3
-2.内部声明的变量声明且赋值后,会覆盖之前的形参变量.
-function f(x){
-    console.log(x)
-    var x=4;
-    console.log(x)
-}
-f(3); //3 4
-
-3.内部声明的函数和形参重名(函数声明会被提升到第一行)
-function f(x){
-    console.log(x)
-    function x(){
-        console.log('我是函数')
-    };
-    console.log(x)
-}
-f(3); 
-//打印两次:
-ƒ x(){
-　　　　console.log("我是函数")
-　　}
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### 创建执行环境都要经历3件事:
-
-1.收集变量生成变量对象(预解析只是这个环节的一部分)
-
-2.确定this指向(确定执行者)
-
-3.确定当前环境的作用域链
-
-执行环境创建完, 再创建全局执行环境,入栈.
-
-
-
-
-
-
-
-### 执行上下文
-
-> 执行上下文就是当前代码的执行环境/作用域,和作用域链相辅相成. 直观上看,执行上下文包含了作用域链, 同时它们又像时一条河的上下游:有了作用域链,才会有执行上下文的一部分.
-
-
-
-执行上下文(执行上下文环境)//有两种: 全局环境 函数环境.  程序在解析和运行的时候所依赖和使用的环境: 全局执行上下文环境和函数执行上下文环境(全局环境和函数环境)
-
-
-
-### 执行上下文栈(执行栈,call Stack)
-
-程序为了管理执行上下文(确保程序的执行顺序)所创建的一个栈数据结构,被称作执行上下文栈.
-
-
-
 ## 作用域
 
 > 来自: 你不知道的JavaScript  笔记->再精简
@@ -351,8 +119,6 @@ JavaScript的编译过程:
 
 
 
-## 词法作用域
-
 ### 作用域的分类
 
 作用域共有两种主要的工作模型。
@@ -388,27 +154,7 @@ JavaScript中有两种机制来实现这个目的.欺骗词法作用域会导致
 
 
 
-## JS中的作用域
-
-### 全局作用域
-
-
-
-### 函数作用域
-
-
-
-
-
-
-
-### 块作用域
-
-
-
-
-
-## 词法作用域和动态作用域
+### 词法作用域和动态作用域
 
 > https://github.com/mqyqingfeng/Blog/issues/3
 
@@ -516,6 +262,109 @@ checkscope()();
 两段代码都会打印：`local scope`。
 
 原因也很简单，因为JavaScript采用的是词法作用域，函数的作用域基于函数创建的位置。
+
+
+
+
+
+## JS中的作用域
+
+### 全局作用域
+
+
+
+### 函数作用域
+
+#### 定义
+
+属于这个函数的全部变量都可以在整个函数的范围内使用及复用
+
+#### 隐藏变量和函数的好处
+
+* 最小暴露原则(最小限度暴露必要内容)
+* 避免同名标识符冲突
+  * 全局命名空间(全局仅声明唯一一个对象,属性放到对象里)
+  * 模块管理
+
+
+
+
+
+### 块作用域
+
+#### 概述
+
+块作用域是一个用来对之前的最小授权原则进行扩展的工具，将代码从在函数中隐藏信息扩展为在块中隐藏信息。
+
+#### JS中的块
+
+<u>with</u>
+
+用with从对象中创建出的作用域仅在with声明中而非外部作用域中有效。
+
+<u>try.catch</u>
+
+其中声明的变量仅在catch内部有效
+
+<u>let</u>
+
+let关键字可以将变量绑定到所在的任意作用域中（通常是{ .. }内部）。换句话说，let为其声明的变量<span style="color:blue;">隐式地劫持了所在的块作用域</span>
+
+
+
+#### 块作用域的作用
+
+<u>1.垃圾收集</u>
+
+让引擎清除地知道没有必要继续保存某些数据
+
+```javascript
+function process(data) {
+  //...
+}
+{ //在这个块中定义的内容完事可以销毁
+	var someReallyBigData = {};
+	process(someReallyBigData);
+}
+
+//
+```
+
+<u>2.let循环</u>
+
+<span style="color:blue">for循环头部的let不仅将i绑定到了for循环的块中，事实上它将其重新绑定到了循环的每一个迭代中，确保使用上一个循环迭代结束时的值重新进行赋值。</span>
+
+下面通过另一种方式来说明每次迭代时进行重新绑定的行为：
+
+```javascript
+{
+  let j;
+  for (j=0; j<10; j++) {
+    let i=j; //每个迭代重新绑定
+    console.log(i);
+  }
+}
+```
+
+<u>3.创建块作用域变量</u>
+
+可以用来创建块作用域变量，但其值是固定的（常量）。之后任何试图修改值的操作都会引起错误。
+
+
+
+#### 提升
+
+<span style="color:blue">函数声明和变量var声明都会被提升。函数会首先被提升，然后才是变量。</span>
+
+函数声明和变量声明相同, 变量声明会被覆盖;
+
+函数表达式不会进行提升,如果进行函数调用会抛出`TypeError`异常()(RHS,不合理操作报错)
+
+有多个相同函数声明,前面的会被最后的覆盖.
+
+
+
+
 
 
 
@@ -2364,380 +2213,6 @@ function prototype(child, parent) {
 
 
 ### ES6中类的继承
-
-
-
-
-
-## 闭包
-
-#### 闭包3大要素
-
-1. 函数存在嵌套关系
-
-2. 内部函数引用外部函数的局部变量
-
-3. 外部函数必须调用.  //内部函数作为外部函数的**返回值**, 或直接在外部函数中**调用**内部函数, 或将外部函数返回值(内部函数) 赋值给一个**参数**
-
-```html
-<script type="text/javascript">
-    function fn() {
-        var a = 0;
-        function fn1() {
-            a++;
-            console.log(a)
-        }
-        return fn1; //fn1() 这种形式也是可以的
-    }
-</script>    
-```
-
-#### 闭包数量
-
-究竟存在几套闭包, 取决于外部函数执行了几次
-
-
-
-#### 闭包是什么
-
-理解1: 闭包是嵌套的内部函数(不完整)
-
-理解2: 包含被引用变量(外部函数)的对象(不完整)
-
-理解3: 所谓的闭包是一个**引用关系**, 该引用关系存在于**内部函数**中,  引用的是外部函数的**变量对象**.
-
-
-
-#### 闭包常见形式
-
-1.将函数作为另一个函数的返回值
-
-2.将函数作为实参传递给另一个函数调用  //call
-
-3.使用闭包实现私有方法操作独立的私有属性
-
-
-
-#### 闭包的作用
-
-1.延长外部函数的生命周期
-
-2.让函数外部可以操作(读写)到函数内部的数据(变量/函数),通过闭包间接的操作
-
-3.注意： 浏览器为了性能后期将外部函数中不被内部函数使用的变量清除了
-
-
-
-#### 闭包生命周期
-
-1.产生: 在嵌套内部函数定义完时就产生了(不是在调用外部函数调用的时候)
-
-2.死亡: 在嵌套的内部函数成为垃圾对象时  //赋值null
-
-
-
-#### 闭包的缺点和解决
-
-内存泄露: 内存无法释放
-
-内存溢出: 内存被撑爆
-
-**解决方式**:  让闭包机制清楚, 必须删除外部函数调用的时候生成定义的那个对应的内部函数
-
-
-
-#### 实例1
-
-```HTML
-<script type="text/javascript">
-    function fn() {
-        var a = 0;
-        function fn1() {
-            a++;
-            console.log(a)
-        }    
-        return fn1; //fn1()效果等同于return fn1;
-    }
-    
-fn();//1  fn的第一次执行 和fn1的第一次执行 形成了闭包
-fn();//1  fn的第二次执行 和fn1的第二次执行 形成了闭包
-fn();//1
-    
-    
-var f = fn(); //将外部函数fn()执行返回值内部函数,赋值给了变量f. fn执行了一次,fn1执行了3次,因为fn1使用外部变量,所以外部函数fn没有在栈内创建新的执行环境. . 
-//堆里不存在嵌套关系    
-f();// 1  内部函数fn1执行, 外部函数没有消失.a++自增后的值,加给了fn函数中的变量a.
-f();// 2  fn中的变量a由1-->2
-f();// 3
-    
-# 闭包有几个,取决于外部函数执行了几次.  
-
-```
-
-
-
-
-
-#### 实例2面试题
-
-```js
-var name = 'The Window';
-var object = {
-	name: 'My Object',
-    getNameFunc: function(){   
-        return function(){
-            return this.name;
-        }
-    }
-}
-
-console.log(object.getNameFunc()()); //'The Window'
-解析:
-1.不存在闭包,因为内部函数没有引用外部函数的局部变量
-2.object.getNameFunc()是匿名函数,加括号是函数调用.一般函数调用,this是指window.
-```
-
-
-
-```js
-- 1115添加
-
-var name = 'The Window';
-var object = {
-    name: 'My Object',
-    getNameFunc: function(){
-        console.log(this);   //方法形式调用下的this {name: "My Object", getNameFunc: ƒ}
-        console.log(this.name);//'My Object'
-        return function(){
-            return this.name; //'函数形式调用下的this
-        }
-    }
-}
-
-console.log(object.getNameFunc()());//
-```
-
-
-
-
-
-```js
-var name2 = 'The Window';
-var object2 = {
-    name2: 'My Object',
-    getNameFunc: function(){
-        var that = this;   //写法: _this = this;向上找一级 __this = this; 向上找两级
-        return function(){
-            return that.name2;
-        };
-    }
-};
-console.log(object2.getNameFunc()());//'My Object'
-解析:
-1.存在闭包函数,内部函数引用了外部变量that,而它有保存了当前作用域中的this.谁调用它谁就是this,object2.getNameFunc()是用方法形式调用的,this就是调用方法的对象,就是object2.
-故, return that.name2就是使用了object2的name变量.
-```
-
-
-
-```js
-function fun(n, o){
-    console.log(o);
-    return{
-        fun:function(m){
-            return fun(m, n)
-        }
-    }
-}
-var a = fun(0)
-a.fun(1)  //0
-a.fun(2)  //0	
-a.fun(3)  //0
-解析:
-1. fun(0),形参o没有值.所以输出是undefined. 返回值是一个对象,赋值给a 
-2. a.fun(1), 调用的是对象的方法,执行的是function(m)函数. 返回值的函数是最外部的函数fun. m是1,n是0,m和n是实参,对象是没有作用域的,内部函数的变量n找外部函数的n,为0.
-3. a.fun(1) 执行,console输出0之后,又返回一个新的对象.但新的对象没有保存,也就是n=1, o=0的环境没有保存, 返回的对象和第二次调用fun()的环境,产生了闭包.没存对象,就是没有闭包.
-
-4.n=0, o=undefined 和a这个对象上的fun是闭包.
-fun(0)的执行环境和a的fun方法形成了闭包
-
-a=fun(0)是函数调用,函数调用创建自己的执行环境, 函数执行后返回一个对象,对象有一个方法, 这个方法对n有引用. 所以是闭包.
-    
-fun(0)的执行环境 a的fun方法 形成了闭包
-fun(1, 0)的执行环境 和新返回的对象中的fun方法形成了闭包.如果是var b = a.fun(1),那么b会和fn(1,0)形成闭包.因为没有保存,所以还是第一次执行环境.
-
-```
-
-
-
-
-
-```js
-function fun(n, o){
-    //0, unde
-    //1, 0
-    //2, 1
-    console.log(o);
-    return{
-        fun:function(m){
-            return fun(m, n)
-        }
-    }
-}
-var b = fun(0).fun(1).fun(2).fun(3)
-
-fun(0)输出的undefined,返回的是一个对象
-相当于obj1.fun(1).fun(2).fun(3)
-obj1.fun(1)执行,产生了一个新的函数环境,m是1,n是0.  返回了新的对象obj2
-obj2.fun(2).fun(3) obj2和1,0形成了闭包. m传入2,n是1. 
-obj3.fun(3) obj3和obj2.fun(2)环境形成了闭包,m传入3, n是2.
-```
-
-
-
-#### 实例3-知乎
-
-```HTML
-<script>
-	window.onload = function(){
-        var li = document.getElementByTagName('li');
-        for(var i=0; i<li.length; i++){
-            li[i].onclick = function(){
-                alert(i);//每次点击li标签都是5
-            }
-        }
-    }
-</script>
-</head>
-<body>
-    <ul>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
-        <li>4</li>
-        <li>5</li>
-    </ul>
-</body>
-for循环属于同步任务, 事件属于异步任务.
-异步代码.click事件的监听器函数被调用的时候,for循环早执行完了,这个时候i早已经变成了5.(代码为源文件中的先后顺序,不等于它被执行的顺序)
-
-
-
--  两种解决方案: 定义一个索引变量 / 使用let  / 使用立即执行函数?
-<script>
-	window.onload = function(){
-        var li = document.getElementsByTagName('li');
-        for(var i=0; i<li.length; i++){
-            li[i].index = i
-            li[i].onclick = function(){
-                console.log(this.index);
-            }
-        }
-    }
-</script>
-
-
-<script>
-	window.onload = function(){
-        var li = document.getElementsByTagName('li');
-        for(let i=0; i<li.length; i++){
-            li[i].onclick = function(){
-                console.log(i);
-            }
-        }
-    }
-</script>
-```
-
-
-
-
-
-```HTML
-<script>
-	window.onload = function(){
-        var li = document.getElementByTagName('li');
-        for(var i=0; i<li.length; i++){
-            li[i].onclick = (function(n){
-                return function(){
-                    alert(i);//
-                }
-            })(i);
-        }
-    }
-</script>
-</head>
-<body>
-    <ul>
-        <li>1</li>
-        <li>2</li>
-        <li>3</li>
-        <li>4</li>
-        <li>5</li>
-    </ul>
-</body>
-
-
-```
-
-
-
-```js
-for(var i=0; i<5; i++){
-    function a(){
-        console.log(i);
-    }
-}
-a();//输出一次5.
-//简化:执行顺序入手,for循环先执行了5次,再执行函数a的调用.当函数a调用的时候,i已经是5了,所以输出5.
-
-
-
-
-for(var i=0; i<5; i++){
-    console.log(i);
-}
-
-for(var i=0; i<5; i++){
-    (function(){
-        console.log(i);
-    })()
-} 0 1 2 3 4
-//立即执行函数
-```
-
-
-
-
-
-
-```js
--1116添加 1112例题
-
-for(var i=0; i<3; i++){
-    setTimeout(()=> console.log(i), 1); //3,3,3
-}
-
-for(let i=0; i<3; i++){
-    setTimeout(()=> console.log(i), 1);//0,1,2
-}
-
-for(var i=0; i<4; i++){
-    (function(){
-        setTimeout(function(){
-            console.log(i);
-        }, 300);
-    })(i)//i是实参, 但没有形参接收
-}
-//异步函数执行,先执行完for循环,再执行setTimeout函数,但每次setTimeout函数都会被保存(?).所以会向上找i的值,i是全局变量,最后一次是4.所以打印了4次4.
-
-for(let i=0; i<4; i++){
-    setTimeout(function(){
-        console.log(i);
-    },0)
-}
-//let有块作用域 ? 每个i的值会指向函数的地址?. 所以打印的是0,1,2,3.
-```
 
 
 
