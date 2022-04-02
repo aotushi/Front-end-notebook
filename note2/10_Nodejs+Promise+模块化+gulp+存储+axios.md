@@ -6059,11 +6059,237 @@ console.log(8) //宏任务
 
 
 
+```javascript
+new Promise((resolve,reject)=>{
+  console.log(1)  //同步
+  resolve()
+}).then(()=>{ //异步 then1
+  console.log(2)
+  new Promise((resolve,reject)=>{
+      console.log(3) //同步
+      resolve()
+  }).then(()=>{ //异步then2
+      console.log(4)
+  }).then(()=>{ //异步then3
+      console.log(5)
+  })
+}).then(()=>{ //异步then4
+  console.log(6)
+})
+```
+
+这里执行then1,产生微任务then2, then4的解释 ????
+
+
+
+| 轮数 | 说明             | 输出 | 产生                                 | 剩余                                 |
+| ---- | ---------------- | ---- | ------------------------------------ | ------------------------------------ |
+| 1    | 执行同步输出     | 1    | 宏任务: 无<br />微任务: then1        | 宏任务: 无<br />微任务: then1        |
+| 2    | 执行微任务then1  | 2,3  | 宏任务: 无<br />微任务: then2, then4 | 宏任务: 无<br />微任务: then2, then4 |
+| 3    | 执行then2, then4 | 4,6  | 宏任务: 无<br />微任务: then3        | 宏任务: 无<br />微任务: then3        |
+| 4    | 执行微任务then3  | 5    | 宏任务: 无<br />微任务: 无           | 宏任务: 无<br />微任务: 无           |
+
+```javascript
+
+setTimeout(() => {
+  console.log("0") //异步 宏任务 setTimeout1
+}, 0)
+
+new Promise((resolve,reject)=>{
+  console.log("1") //同步
+  resolve()
+}).then(()=>{ //异步 微任务 then1        
+  console.log("2")
+  new Promise((resolve,reject)=>{
+    console.log("3") //同步
+    resolve()
+  }).then(()=>{      //异步 微任务 then4
+    console.log("4")    
+  }).then(()=>{      //异步 微任务 then5
+    console.log("5")    
+  })
+}).then(()=>{       //异步 微任务 then6
+  console.log("6")
+})
+
+new Promise((resolve,reject)=>{
+  console.log("7")  //同步
+  resolve()
+}).then(()=>{       //异步 微任务 then8
+  console.log("8")
+})
+```
+
+| 轮数 | 说明                     | 输出  | 产生                                          | 剩余                                          |
+| ---- | ------------------------ | ----- | --------------------------------------------- | --------------------------------------------- |
+| 1    | 执行同步输出             | 1,7   | 宏任务: setTimeout1<br />微任务: then1, then8 | 宏任务: setTimeout1<br />微任务: then1, then8 |
+| 2    | 执行微任务: then1,then8  | 2,3,8 | 宏任务: setTimeout1<br />微任务: then4, then6 | 宏任务: setTimeout1<br />微任务: then4, then6 |
+| 3    | 执行微任务: then4, then6 | 4,6   | 宏任务: setTimeout1<br />微任务: then5        | 宏任务: setTimeout1<br />微任务: then5        |
+| 4    | 执行微任务: then5        | 5     | 宏任务: setTimeout1<br />微任务: 无           | 宏任务: setTimeout1<br />微任务: 0            |
+| 5    | 执行宏任务               | 0     | 宏任务: 无<br />微任务: 无                    |                                               |
 
 
 
 
 
+```javascript
+new Promise((resolve, reject) => {
+  console.log(1)
+  resolve()
+}).then(() => {
+  console.log(2)
+  // 多了个return
+  return new Promise((resolve, reject) => {
+    console.log(3)
+    resolve()
+  }).then(() => {
+    console.log(4)
+  }).then(() => { // 相当于return了这个then的执行返回Promise
+    console.log(5)
+  })
+}).then(() => {
+  console.log(6)
+})
+```
+
+
+
+```javascript
+async function async1() {
+  console.log(1); //同步
+  await async2(); //同步
+  console.log(2); //同步
+}
+async function async2() {
+  console.log(3);
+}
+console.log(4);//同步
+setTimeout(function () { //异步 宏任务
+  console.log(5);
+});
+async1()//同步
+new Promise(function (resolve, reject) {
+  console.log(6); //同步
+  resolve();
+}).then(function () { //异步 微任务
+  console.log(7);
+});
+console.log(8); //同步
+
+```
+
+第一步: 
+
+
+
+
+
+
+
+
+
+```javascript
+async function async1() {
+  console.log(1);
+  await async2();
+  console.log(2);
+}
+async function async2() {
+  console.log(3);
+}
+
+new Promise((resolve, reject) => {
+  setTimeout(() => { //异步, 宏任务 setTimeout1
+    resolve()
+    console.log(4)
+  }, 1000);
+}).then(() => { //异步 微任务 then1
+  console.log(5)
+  new Promise((resolve, reject) => {
+    setTimeout(() => { //异步 宏任务setTimeout3
+      async1() //异步 微任务async1
+      resolve()
+      console.log(6)
+    }, 1000)
+  }).then(() => { //异步 微任务then7
+    console.log(7)
+  }).then(() => { //异步 微任务8
+    console.log(8)
+  })
+}).then(() => {//异步 微任务9
+  console.log(9)
+})
+
+new Promise((resolve, reject) => {
+  console.log(10) // 同步
+  setTimeout(() => { //异步, 宏任务 setTimeout2
+    resolve()
+    console.log(11)
+  }, 3000);
+}).then(() => { //异步 微任务 then12
+  console.log(12)
+})
+```
+
+
+
+```javascript
+async1 转换成 new Promise
+
+
+
+new Promise((resolve, reject) => {
+  setTimeout(() => { //异步 宏任务 setTimeout1
+    resolve()
+    console.log(4)
+  }, 1000);
+}).then(() => { //异步 then5
+  console.log(5)
+  new Promise((resolve, reject) => {
+    setTimeout(() => { //异步 宏任务 setTimeout3
+      // async1()
+      console.log(1);
+      new Promise((resolve, reject) => {
+        console.log(3)
+      }).then(() => { //异步 then2
+        console.log(2)
+      })
+      resolve()
+      console.log(6)
+    }, 1000)
+  }).then(() => { //异步then7
+    console.log(7)
+  }).then(() => { //异步then8
+    console.log(8)
+  })
+}).then(() => { //异步then9
+  console.log(9)
+})
+
+new Promise((resolve, reject) => {
+  console.log(10) // 同步
+  setTimeout(() => { //异步, 宏任务setTimeout2
+    resolve()
+    console.log(11)
+  }, 3000);
+}).then(() => { //异步then12
+  console.log(12)
+})
+```
+
+
+
+| 轮数 | 执行                             | 输出    | 产生                                              | 剩余                                               |
+| ---- | -------------------------------- | ------- | ------------------------------------------------- | -------------------------------------------------- |
+| 1    | 同步输出                         | 10      | 宏任务: setTimeout1, setTimeout2<br />微任务: 无  | 宏任务: setTimeout1, setTimeout2<br />微任务: 无   |
+| 2    | 宏任务: setTimeout1, setTimeout2 | 4       | 宏任务: setTimeout2<br />微任务:  then5, then12   | 宏任务: setTimeout2<br />微任务: then5, then12     |
+| 3    | 微任务: then5                    | 5       | 宏任务: setTimeout3,setTimeout2<br />微任务:then9 | 宏任务: setTimeout3 setTimeout2<br />微任务: then9 |
+| 4    | 微任务: then9                    | 9       | 宏任务: setTimeout3 setTimeout2<br />微任务: 无   | 宏任务: setTimeout3 setTimeout2<br />微任务: 无    |
+| 5    | 宏任务: setTimeout3              | 1,3,6,2 | 宏任务: setTimeout2<br />微任务: then7            | 宏任务: setTimeout2<br />微任务: then7             |
+| 6    | 微任务: then7                    | 7       | 宏任务: setTimeout2<br />微任务: then8            | 宏任务: setTimeout2<br />微任务: then8             |
+| 7    | 微任务: then8                    | 8       | 宏任务: setTimeout2<br />微任务: 无               | 宏任务: setTimeout2<br />微任务: 无                |
+| 8    | 宏任务: setTimeout2              | 11      | 宏任务: 无<br />微任务: then12                    | 宏任务: 无<br />微任务: then12                     |
+| 9    | 微任务 then12                    | 12      | 宏任务: 无<br />微任务: 无                        | 宏任务: 无<br />微任务: 无                         |
 
 
 

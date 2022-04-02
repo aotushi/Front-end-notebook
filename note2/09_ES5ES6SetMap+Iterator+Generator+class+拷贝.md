@@ -2887,6 +2887,49 @@ class Map {
 
 
 
+### 5.实例
+
+#### Map对象排序
+
+> https://juejin.cn/post/6940644097652703246
+
+* Array.from(将类数组对象或可遍历对象转换成数组)
+* sort
+* 转回map对象(Map([ [a,b], [c,d] ])会生成{a=>b, c=>d})
+
+```javascript
+const map = new Map() // 我偏偏要乱序，你能咋地
+map.set(2, '林二心')
+map.set(1, '林一心')
+map.set(5, '林五心')
+map.set(4, '林四心')
+map.set(3, '林三心')
+console.log(map) // Map { 2 => '林二心', 1 => '林一心', 5 => '林五心', 4 => '林四心', 3 => '林三心' }
+
+
+
+const arr = Array.from(map);
+console.log(arr);
+console.log(arr) 
+/* [ [ 2, '林二心' ],
+     [ 1, '林一心' ],
+     [ 5, '林五心' ],
+     [ 4, '林四心' ],
+     [ 3, '林三心' ] ] */
+
+arr.sort((a,b) => a[0] - b[0]);
+console.log(arr);
+/* [  [ 1, '林一心' ],
+      [ 2, '林二心' ],
+      [ 3, '林三心' ],
+      [ 4, '林四心' ],
+      [ 5, '林五心' ] ] */
+
+
+const map2 = new Map(arr);
+console.log(map2)
+```
+
 
 
 ## 迭代器(iterator)和生成器(generator)(未完成)????!!!!

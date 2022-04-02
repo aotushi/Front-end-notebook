@@ -1758,6 +1758,24 @@ console.log(Number(new Error('a'))) // NaN
 
 而当我们 `Number([1, 2, 3])` 的时候，先调用 `[1, 2, 3]` 的 `valueOf` 方法，此时返回 `[1, 2, 3]`，再调用 `toString` 方法，此时返回 `1,2,3`，接下来调用 `ToNumber`，参照对应表，因为无法转换为数字，所以最后的结果为 `NaN`。
 
+
+
+#### 数组类型转换
+
+> https://juejin.cn/post/6950664413317693470
+>
+> 数组调用`toString()`会隐含调用`Array.join()`方法
+
+使用数组实现`a==1&&a==2&&a==3`效果
+
+```javascript
+let a = [1,2,3];
+a.join = a.shift;
+console.log(a==1&&a==2&&a==3); //true
+```
+
+
+
 #### JSON.stringify()
 
 JSON.stringify() 方法可以将一个 JavaScript 值转换为一个 JSON 字符串，实现上也是调用了 toString 方法，也算是一种类型转换的方法。下面讲一讲JSON.stringify 的注意要点：
@@ -8574,6 +8592,22 @@ console.log(myclass.prototype.y); // 1
 
 
 
+**实例**
+
+> https://juejin.cn/post/6950664413317693470
+
+使用defineProperty实现`a==1&&b==2&&c==3`为true
+
+```javascript
+var val = 0;
+Object.defineProperty(window, 'a', {
+  get() {
+    return ++val;
+  }
+});
+console.log(....); //true
+```
+
 
 
 
@@ -8871,10 +8905,10 @@ A string representing the object
 
 **Desc**
 
-An object's toString() method is most commonly invoked whne that object undergoes...
+An object's toString() method is most commonly invoked when that object undergoes...
 
-* explicit [type conversion](https://developer.mozilla.org/en-US/docs/Glossary/Type_Conversion) to a string(for example, String(myObject))
-* implicit  [type coercion](https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion) into a string(for example, myObject + 'hello world')
+* explicit(明确的) [type conversion](https://developer.mozilla.org/en-US/docs/Glossary/Type_Conversion) to a string(for example, String(myObject))
+* implicit(含蓄的)  [type coercion](https://developer.mozilla.org/en-US/docs/Glossary/Type_coercion) into a string(for example, myObject + 'hello world')
 
 > Note: This assumes the object does not have a custom implementation of <span style="color:red;">**`Symbol.toPrimitive`**</span>. If it does, that method will take priority and be called instaed of `toString()`
 
@@ -8894,7 +8928,7 @@ obj + '1' //'21'
 String(obj); //'2'
 ```
 
-This method is inherited by every object descended from Object, but can be overridden by erther the author or built-in descendant objects (for example, `Number.prototype.toString()`)
+This method is inherited by every object descended from Object, but can be overridden by either the author or built-in descendant objects (for example, `Number.prototype.toString()`)
 
 
 
@@ -8958,6 +8992,26 @@ Object.prototype.toString.call(new Date()); //[object prototype polluted]
 ```
 
 
+
+**应用**
+
+使用toString方法实现`a==1&&a==2&&a==3`结果为true
+
+> https://juejin.cn/post/6950664413317693470
+>
+> 还有数组,Object.defineProperty方法
+
+```javascript
+let a = {
+  i: 1,
+  toString() {
+    return a.i;
+  }
+}
+
+a==1&&a==2&&a==3
+//true
+```
 
 
 
