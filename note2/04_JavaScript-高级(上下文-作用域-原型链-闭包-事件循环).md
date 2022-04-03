@@ -344,6 +344,10 @@ function process(data) {
     console.log(i);
   }
 }
+
+//说明了几件事情?
+//1. for循环内存在块作用域
+//2. let声明的变量会绑定到循环的每一次迭代中
 ```
 
 <u>3.创建块作用域变量</u>
@@ -1486,24 +1490,12 @@ ECStack = [
 
 ### 1.定义
 
-MDN 对闭包的定义为：(理论上的)
+一个函数和对其周围状态（**lexical environment，词法环境**）的引用捆绑在一起（或者说函数被引用包围），这样的组合就是**闭包**（**closure**）。<u>闭包让你可以在一个内层函数中访问到其外层函数的作用域</u>。在 JavaScript 中，每当创建一个函数，闭包就会在函数创建的同时被创建出来。 --- MDN
 
-> 闭包是指那些能够访问自由变量的函数。
+特点:
 
-那什么是自由变量呢？
-
-> 自由变量是指在函数中使用的，但既不是函数参数也不是函数的局部变量的变量。
-
-由此，我们可以看出闭包共有两部分组成：
-
-> 闭包 = 函数 + 函数能够访问的自由变量
-
-ECMAScript中，闭包指的是：(实践上的)
-
-1. 从理论角度：所有的函数。因为它们都在创建的时候就将上层上下文的数据保存起来了。哪怕是简单的全局变量也是如此，因为函数中访问全局变量就相当于是在访问自由变量，这个时候使用最外层的作用域。
-2. 从实践角度：以下函数才算是闭包：
-   1. 即使创建它的上下文已经销毁，它仍然存在（比如，内部函数从父函数中返回）
-   2. 在代码中引用了自由变量
+* 内部函数引用外部函数的作用域
+* 内部函数不再定义的作用域中执行
 
 ### 2.示例
 
@@ -1652,13 +1644,224 @@ data[0]Context 的 AO 并没有 i 值，所以会沿着作用域链从匿名函�
 
 
 
+### 4.闭包实例
+
+在定时器, 事件监听器,Ajax请求,跨窗口通信,Web Works或者其他的异步(或同步)任务中,<span style="color:blue;"> 只要使用了回调函数,实际上就是在使用闭包.</span>
+
+**IIFE模式是闭包吗?**
+
+```javascript
+var a = 2;
+(function IIFE() {
+  console.log(a);
+})();
+```
+
+以上代码并不是严格的闭包:
+
+* 因为函数（示例代码中的IIFE）并不是在它本身的词法作用域以外执行的。它在定义时所在的作用域中执行
+* a是通过普通的词法作用域查找而非闭包被发现的。
+
+#### 循环和闭包
+
+```javascript
+for (var i=1; i<=5; i++) {
+  setTimeout(function timer() {
+    console.log(i);
+  }, i*1000)
+}
+```
+
+延迟函数的回调会在循环结束时才执行. 即使每个迭代中执行的setTimeout(..., 0), 所有的回调函数依然是在循环结束后才被执行.
+
+**代码的问题:**
+
+我们试图假设循环中的每个迭代在运行时都会给自己“捕获”一个i的副本。<u>但是根据作用域的工作原理，实际情况是尽管循环中的五个函数是在各个迭代中分别定义的，但是它们都被封闭在一个共享的全局作用域中，因此实际上只有一个i。</u>
+
+**代码改进**
+
+我们需要更多的闭包作用域，特别是在循环的过程中每个迭代都需要一个闭包作用域。
+
+<u>1.IIFE</u>
+
+IIFE会通过声明并立即执行一个函数来创建作用域。
+
+```javascript
+for (var i=0; i<=5; i++) {
+  (setTimeout(function IIFE() {
+    console.log(i);
+  }, i*1000))(i)
+}
+
+for (var i=1; i<=5; i++) {
+  (function(){
+    setTimeout(function timer() {
+      console.log(i);
+    },i*1000)
+  })();
+}
+
+//正确代码
+for (var i=1; i<=5; i++) {
+  (function() {
+    var j = i;
+    setTimeout(function timer() {
+      console.log(j);
+    }, j*1000)
+  })()
+}
+//改进
+for (var i=1; i<=5; i++) {
+  (function() {
+    setTimeout(function timer() {
+      console.log(i);
+    }, i*1000)
+  })(i);
+}
+```
+
+<u>2.let代替IIFE</u>
+
+使用let声明来代替IIFE创建新的作用域
+
+```javascript
+for (var i=1; i<=5; i++) {
+  let j=i; //闭包的块作用域
+  setTimeout(function timer() {
+    console.log(j);
+  }, j*1000);
+}
+```
+
+改进:
+
+for循环头部的let声明还会有一个特殊的行为。这个行为指出变量在循环过程中不止被声明一次，每次迭代都会声明。随后的每个迭代都会使用上一个迭代结束时的值来初始化这个变量。
+
+```javascript
+for (let i=1; i<=5; i++) {
+  setTimeout(function timer() {
+    console.log(i);
+  }, i*1000)
+}
+```
+
+#### 模块
+
+通过在模块实例的内部保留对公共API对象的内部引用，可以从内部对模块实例进行修改，包括添加或删除方法和属性，以及修改它们的值。
+
+**用法**
+
+* 接收参数
+* 命名将要作为公共API返回的对象
+
+```javascript
+var foo = (function CoolModule(id) {
+  function change() {
+    //修改公共API
+    publicAPI.identify = identify2;
+  }
+  
+  function identify1() {
+    console.log(id);
+  }
+  
+  function identify2() {
+    console.log(id.toUpperCase());
+  }
+  
+  var publicAPI = {
+    change: change,
+    identify: identify1
+  };
+  
+  return publicAPI;
+})('foo module');
+
+foo.identify(); //'foo module'
+foo.change();
+foo.identify(); //'FOO MODULE'
+```
+
+
+
+**现在模块机制**
+
+大多数模块依赖加载器/管理器本质上都是将这种模块定义封装进一个友好的API。这里并不会研究某个具体的库，为了宏观了解我会简单地介绍一些核心概念：
+
+```javascript
+var myModules = (function Manager() {
+  var modules = {};
+  
+  function define(name, deps, impl) {
+    for (var i=0; i<deps.length; i++) {
+      deps[i] = modules[deps[i]]
+    } 
+    modules[name] = impl.apply(impl, deps);
+  }
+  
+  function get(name) {
+    return modules[name];
+  }
+  
+  return {
+    define: define,
+    get: get
+  };
+})();
+```
 
 
 
 
 
+**ES6模块机制**
+
+ES6中为模块增加了一级语法支持。在通过模块系统进行加载时，ES6会将文件当作独立的模块来处理。每个模块都可以导入其他模块或特定的API成员，同样也可以导出自己的API成员。
 
 
+
+**ES模块和现代模块(函数模块)的区别**
+
+* 基于函数的模块并不是一个能被静态识别的模式（编译器无法识别），它们的API语义只有在运行时才会被考虑进来。因此可以在运行时修改一个模块的API（参考前面关于public API的讨论）。
+
+* <u>ES6模块API是静态的</u>（API不会在运行时改变）。由于编辑器知道这一点，因此可以在（的确也这样做了）编译期检查对导入模块的API成员的引用是否真实存在。如果API引用并不存在，编译器会在编译时就抛出“早期”错误，而不会等到运行期再动态解析（并且报错）。
+
+
+
+<u>import</u>可以将一个模块中的一个或多个API导入到当前作用域中，并分别绑定在一个变量上（在我们的例子里是hello）。
+
+<u>module</u>会将整个模块的API导入并绑定到一个变量上（在我们的例子里是foo和bar）。
+
+export会将当前模块的一个标识符（变量、函数）导出为公共API。这些操作可以在模块定义中根据需要使用任意多次。
+
+```javascript
+//bar.js
+function hello(who) {
+  return 'let me introduce: ' + who;
+}
+export hello;
+
+
+//foo.js 从bar模块导入hello
+import hello from 'bar';
+
+let hungry = 'hippo';
+
+function awesome() {
+  console.log(
+  	hello(hungry).toUpperCase();
+  )
+}
+
+//baz.js 导入完整的foo和bar模块
+module foo from 'foo';
+module bar from 'bar';
+
+console.log(
+	bar.hello('rhino')
+);
+foo.awesome(); 
+```
 
 
 

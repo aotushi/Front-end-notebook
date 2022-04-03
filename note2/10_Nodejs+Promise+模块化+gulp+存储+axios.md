@@ -5319,17 +5319,55 @@ https://juejin.cn/post/6994594642280857630
 
 
 
+### 实现Promise.finally
+
+```javascript
+Promise.prototype.finally = function(cb) {
+  return this.then(
+    val => Promise.resolve(cb()).then(() => val),
+    err => Promise.reject(cb()).then(() => throw err)
+  )
+}
+```
 
 
-#### 自定义promise-异常传透
+
+### 实现Promise.allSettled
+
+```javascript
+Promise.myAllSettled = function (promises) {
+  if (promises.length === 0) return Promise.resolve([]);
+  const _promises = promises.map(item => item instanceof Promise ? item : Promise.resolve(item));
+  
+  _promises.forEach((promise, idx) => {
+    promise.then(value => {
+      res[idx] = {
+        status: 'fulfilled',
+        value
+      }
+      
+      unSettledPromiseCount -= 1;
+      
+      if (unSettledPromiseCount === 0) {
+        resolve(res);
+      }
+    }, reason => {
+      res[idx] = {
+        status: 'fulfilled',
+        reason
+      }
+      
+      unSettledPromiseCount -= 1;
+      
+      if (unSettledPromiseCount === 0) {
+        resolve(res);
+      }
+    })
+  })
+}
+```
 
 
-
-#### 自定义promise-值传递
-
-
-
-#### 自定义promise-中断链条
 
 
 
