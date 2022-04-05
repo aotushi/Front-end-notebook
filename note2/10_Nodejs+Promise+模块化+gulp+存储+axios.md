@@ -5132,7 +5132,9 @@ Promise.prototoype.Finally = function(cb) {
 
 ### 静态方法 6种
 
+#### Promise.resolve()
 
+#### Promise.reject()
 
 #### Promise.all()
 
@@ -5303,9 +5305,31 @@ Promise.all(request)
 
 #### Promise.allSettled
 
+##### 概述
+
+该方法返回一个在所有给定的promise都已经`fulfilled`或`rejected`后的promise,并带有一个对象数组,每个对象表示对应的promise结果.
+
+##### Syntax
+
+```javascript
+Promise.allSettled(iterable)
+```
+
+##### Parameters
+
+`iterable`
+
+* an iterable Object, such as an array, in which each member is a Promise.
+
+##### Return values
+
+* 
 
 
 
+#### Promise.any
+
+#### Promise.race
 
 
 
@@ -5368,6 +5392,11 @@ Promise.myAllSettled = function (promises) {
 ```
 
 
+
+### 实现Promise.race
+
+```javascript
+```
 
 
 
