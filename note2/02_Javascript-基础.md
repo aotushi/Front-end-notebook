@@ -3,6 +3,8 @@
 JavaScript标准:
 
 * 正式版: Ecma-international.org(Publications and standards >>> standards >>> ECMA262)
+  * 建议下载一个PDF版放在PC端 版本建议5.1和10(现在最新为11)
+
 * 最新草稿版: tc39.github.io/ecma262(tc39.es/ecma262)
 
 文档网站
@@ -13,6 +15,10 @@ JavaScript标准:
 
 
 
+
+
+
+
 ## 知识体系
 
 ![](http://naotu.baidu.com/file/c709489342dc43b9c7e6ca18bbfb58a8?token=5e7f3ab4e6b5866e)
@@ -20,6 +26,66 @@ JavaScript标准:
 
 
 [].map.call($0.querySelectorAll('code'), e => e.innerText).join('/n')
+
+
+
+## 编程语言通识
+
+### 语言按语法分类
+
+* 非形式语言
+  * 中文, 英文
+* 形式语言(乔姆斯基谱系)
+  * 0型 无限制文法
+  * 1型 上下文相关文法
+  * 2型 上下文无关文法
+  * 3型 正则文法
+
+### 产生式(BNF)
+
+通过产生式来理解语言,在这里通过其中一种BNF来加深理解.
+
+BNF规则:
+
+* 用尖括号括起来的名称来表示语法结构名
+* 语法结构分成基础结构和许可用其他语法结构定义的复杂结构
+  * 基础结构称终结符
+  * 符合结构称非终结符
+* 引号和中间的字符表示终结符
+* 可以有括号
+* `*`表示重复多次
+* `|`表示或
+* `+`表示至少一次
+
+```javascript
+
+//a和b 组成
+
+<Program>: = 'a' + | 'b' +
+<Program>: = <Program> 'a'+ | <Program> 'b' +
+  
+//定义加法
+<Number> = '0' | '1' | '2' | ... | '9'
+<DecimalNumber> = '0' | {{'1'| '2' |...|'9'} <Number>*}; //定义十进制数
+
+//定义加法
+<Expression> = <DecimalNumber> | <Expression> '+' <DecimalNumber>
+
+//定义四则运算
+<AdditiveExpression> = <DecimalNumber> | <Expression> '+' <DecimalNumber>
+
+//定义乘法表达式
+<MultiplicationExpression> = <DecimalNumber> | <MultiplicationExpression> '*' <DecimalNumber>
+  
+//描述 1+2*3
+<AdditiveExpression> = <MultiplicationExpression> | <AdditiveExpression> '+' <MultiplicationExpression> 
+  
+//
+<LogicExpression> = <AdditiveExpresion> |
+  									<LogicExpression> '||' <AdditiveExperssion>																							<LogicExpression> '&&' <AdditiveExperssion>	
+```
+
+
 
 
 
