@@ -5130,11 +5130,54 @@ Promise.prototoype.Finally = function(cb) {
 
 
 
+```javascript
+Promise.prototype.finally = function(cb) {
+  return this.then(
+    val => Promise.resolve(cb()).then(() => val),
+    err => Promise.reject(cb()).then(() => throw err)
+  )
+}
+```
+
+
+
 ### 静态方法 6种
 
 #### Promise.resolve()
 
+
+
+##### 实现
+
+```javascript
+Promise.myResolve = function(val) {
+  if (val instanceof Promise) {
+    return val
+  }
+  
+  return new Promise(resolve => resolve(val))
+}
+```
+
+
+
 #### Promise.reject()
+
+
+
+##### 实现
+
+```javascript
+Promise.myReject = function(err) {
+  return new Promise((resolve, reject) => reject(err))
+}
+```
+
+
+
+
+
+
 
 #### Promise.all()
 
@@ -5307,7 +5350,9 @@ Promise.all(request)
 
 ##### 概述
 
-该方法返回一个在所有给定的promise都已经`fulfilled`或`rejected`后的promise,并带有一个对象数组,每个对象表示对应的promise结果.
+the method returns a promise that resolves after all of the fulfilled or rejected, with an array of objects that each describes the outcome of each promise.
+
+
 
 ##### Syntax
 
@@ -5324,12 +5369,182 @@ Promise.allSettled(iterable)
 ##### Return values
 
 * 
+* 当且仅当传进一个空迭代对象作为参数,返回一个已经完成状态的Promise空数组对象.
+* 对于每个结果对象，都有一个 `status` 字符串。如果它的值为 `fulfilled`，则结果对象上存在一个 `value` 。如果值为 `rejected`，则存在一个 `reason` 。value（或 reason ）反映了每个 promise 决议（或拒绝）的值。
+
+```javascript
+//status是显式存在的
+
+Promise.allSettled([1,2,3]).then(val => console.log(val));
+
+//log:
+[
+  {status: 'fulfilled', value: 1},
+  {status: 'fulfilled', value: 2},
+  {status: 'fulfilled', value: 3}
+]
+```
+
+##### 实现
+
+```javascript
+Promise.myAllSettled = function (promises) {
+  
+  // 判断数组长度
+  if (promises.length === 0) return Promise.resolve([]);
+
+  // 非promise对象包装成promise对象
+  const _promises = promises.map(promise => promise instanceof Promise ? promsie : Promise.resolve(promise));
+
+  return Promise((resolve, reject) => {
+    
+    const res = [];
+    let unPromisesCount = _promises.length;
+    
+    _promises.forEach((promise, idx) => {
+      promise.then(val => {
+        res[idx] = {
+          status: 'fulfilled',
+          val
+        };
+        unPromisesCount -= 1;
+        if (unPromisesCount === 0) {
+          return resolve(res);
+        }
+      });
+  
+      promise.catch(err => {
+        res[idx] = {
+          status: 'rejected',
+          err
+        };
+        unPromisesCount -= 1;
+        if (unPromisesCount === 0) {
+          return reject(res);
+        }
+      })
+    })
+  })
+}
+```
+
+
 
 
 
 #### Promise.any
 
+##### 概述
+
+* `Promise.any()` 接收一个[`Promise`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)可迭代对象，只要其中的一个 `promise` 成功，就返回那个已经成功的 `promise` 。
+* 如果可迭代对象中没有一个 `promise` 成功（即所有的 `promises` 都失败/拒绝），就返回一个失败的 `promise `和[`AggregateError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/AggregateError)类型的实例，它是 [`Error`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error) 的一个子类，用于把单一的错误集合在一起。
+* 本质上，这个方法和[`Promise.all()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)是相反的。
+
+
+
+##### Syntax
+
+```javascript
+Promise.any(iterable)
+```
+
+##### Parameter
+
+`iterable`
+
+一个可迭代对象,例如Array
+
+##### Return values
+
+- 如果传入的参数是一个空的可迭代对象，则返回一个 **已失败（already rejected）** 状态的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)。
+- 如果传入的参数不包含任何 `promise`，则返回一个 **异步完成** （**asynchronously resolved**）的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)。
+- 其他情况下都会返回一个**处理中（pending）** 的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)。 
+- 只要传入的迭代对象中的任何一个 `promise` 变成成功（resolve）状态，或者其中的所有的 `promises` 都失败，那么返回的 `promise` 就会 **异步地**（当调用栈为空时） 变成成功/失败（resolved/reject）状态。
+
+##### Desc
+
+* 这个方法用于返回第一个成功的 `promise` 。只要有一个 `promise` 成功此方法就会终止，它不会等待其他的 `promise` 全部完成。
+* 不像 [Promise.all()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/all) 会返回一组完成值那样（resolved values），我们只能得到一个成功值（假设至少有一个 `promise` 完成）
+* 也不像 [Promise.race()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/race) 总是返回第一个结果值（resolved/reject）那样，这个方法返回的是第一个 *成功的* 值。
+* Fulfillment
+  * 如果传入的参数是一个空的可迭代对象, 这个方法将会同步返回一个已经完成的 `promise`。
+  * 如果传入的任何一个 `promise` 已成功, 或者传入的参数不包括任何 `promise`, 那么 `Promise.any` 返回一个异步成功的 `promise`。
+* Rejection
+  * 如果所有传入的 `promises` 都失败, `Promise.any` 将返回异步失败，和一个 [AggregateError](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError) 对象，它继承自 [Error](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error)，有一个 `error` 属性，属性值是由所有失败值填充的数组。
+
+
+
+##### 实现
+
+```javascript
+//https://juejin.cn/post/7033275515880341512#heading-35
+Promise.myAny = function(promises) {
+  return new Promise((resolve, reject) => {
+    let idx = 0;
+    if (promises.length === 0) return;
+    
+    promises.forEach((p, i) => {
+      Promise.resolve(p).then(
+      	val => resolve(val),
+        err => {
+          idx++;
+          if (idx === promises.length) {
+            return new AggregateError('all promise were rejected')
+          }
+        }
+      )
+    })
+  })
+}
+```
+
+
+
 #### Promise.race
+
+##### 概述
+
+返回一个Promise,一旦迭代器中的某个promise解决或拒绝,返回的promise就会解决或拒绝.
+
+##### Syntax
+
+```javascript
+Promise.race(iterable)
+```
+
+##### Parameter
+
+`iterable`
+
+可迭代对象,类似Array.
+
+##### Return values
+
+一个**待定的** [`Promise`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 只要给定的迭代中的一个promise解决或拒绝，就采用第一个promise的值作为它的值，从而**异步**地解析或拒绝（一旦堆栈为空）????
+
+
+
+##### Desc
+
+* `race` 函数返回一个 `Promise`，它将与第一个传递的 promise 相同的完成方式被完成。它可以是完成（ resolves），也可以是失败（rejects），这要取决于第一个完成的方式是两个中的哪个。
+
+* 如果传的迭代是空的，则返回的 promise 将永远等待。
+
+* 如果迭代包含一个或多个非承诺值和/或已解决/拒绝的承诺，则` Promise.race` 将解析为迭代中找到的第一个值
+
+
+
+##### 实现
+
+```javascript
+Promise.myRace = function (promiseArr) {
+  return new Promise((resolve, reject) => {
+    promiseArr.forEach(p => {
+      Promise.resolve(p).then(val => resolve(val), err => reject(err))
+    })
+  })
+}
+```
 
 
 
@@ -5343,56 +5558,6 @@ https://juejin.cn/post/6994594642280857630
 
 
 
-### 实现Promise.finally
-
-```javascript
-Promise.prototype.finally = function(cb) {
-  return this.then(
-    val => Promise.resolve(cb()).then(() => val),
-    err => Promise.reject(cb()).then(() => throw err)
-  )
-}
-```
-
-
-
-### 实现Promise.allSettled
-
-```javascript
-Promise.myAllSettled = function (promises) {
-  if (promises.length === 0) return Promise.resolve([]);
-  const _promises = promises.map(item => item instanceof Promise ? item : Promise.resolve(item));
-  
-  _promises.forEach((promise, idx) => {
-    promise.then(value => {
-      res[idx] = {
-        status: 'fulfilled',
-        value
-      }
-      
-      unSettledPromiseCount -= 1;
-      
-      if (unSettledPromiseCount === 0) {
-        resolve(res);
-      }
-    }, reason => {
-      res[idx] = {
-        status: 'fulfilled',
-        reason
-      }
-      
-      unSettledPromiseCount -= 1;
-      
-      if (unSettledPromiseCount === 0) {
-        resolve(res);
-      }
-    })
-  })
-}
-```
-
-
-
 ### 实现Promise.race
 
 ```javascript
@@ -5401,6 +5566,102 @@ Promise.myAllSettled = function (promises) {
 
 
 ## Promise的使用案例
+
+### 如何串行执行多个Promise
+
+案例: 一个封装的延迟函数，然后一个装有3,4,5的数组，需求就是在开始执行时依次等待3, 4, 5秒，并在之后打印对应输出
+
+```javascript
+//https://juejin.cn/post/6844903801296519182
+
+function delay(time) {
+  return new Promise((resolve, reject) => {
+    console.log(`wait ${time}s`);
+    setTimeout(() => {
+      console.log('execute');
+      resolve();
+    }, time*1000)
+  })
+}
+
+const arr = [3,4,5];
+```
+
+1.reduce
+
+```javascript
+arr.reduce((s,v) => {
+  return s.then(() => delay(v))
+}, Promise.resolve())
+```
+
+2.async + 循环+await
+
+```javascript
+(
+	async function() {
+    for (const v of arr) {
+      await delay(v)
+    }
+  }
+)()
+```
+
+3.普通循环
+
+```javascript
+let p = Promise.resolve();
+for (const i of arr) {
+  p = p.then(() => delay(i));
+}
+
+//while循环存在一定的问题
+//思路没啥问题，问题就在于i放在外层时实际上每次都被改动，这和一道经典的面试题一样
+let i;
+let p = Promise.resolve();
+while(i = arr.shift()) {
+  p = p.then(() => delay(i))
+}
+
+//更正
+let i;
+let p = Promise.resolve();
+while(i = arr.shift()) {
+  let s = i;
+  p = p.then(() => delay(s))
+}
+```
+
+
+
+4.递归
+
+```javascript
+function dispatch(i, p=Promise.resolve()) {
+  if (!arr[i]) return Promise.resolve();
+  return p.then(() => dispatch(i+1, delay(arr[i])))
+}
+
+dispatch(0)
+```
+
+
+
+5.for await of 
+
+ 待完成
+
+6.generator
+
+```javascript
+待完成
+```
+
+
+
+
+
+//
 
 ```html
 <script>

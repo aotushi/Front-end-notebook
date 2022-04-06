@@ -4431,7 +4431,10 @@ container.onmousemove = getUserAction;
 
 **防抖原理**
 
-你尽管触发事件，但是我一定在事件触发 n 秒后才执行，如果你在一个事件触发的 n 秒内又触发了这个事件，那我就以新的事件的时间为准，n 秒后才执行，总之，就是要等你触发完事件 n 秒内不再触发事件
+* 尽管触发事件，但是我一定在事件<span style="color:red">触发 n 秒后才执行</span>;
+
+* 如果你在一个事件触发的 n 秒内又触发了这个事件，以新的事件的时间为准，n 秒后才执行.
+* 就是要等你触发完事件 n 秒内不再触发事件
 
 ### 第一版
 
@@ -4443,6 +4446,10 @@ function debounce (func, wait) {
     timeId = setTimeout(func, wait);
   }
 }
+
+//使用闭包的原因?
+//1.需要获取函数调用产生的标志,如果不使用闭包,调用标志应该声明在全局中,变量污染问题
+//2.
 ```
 
 如果我们要使用它，以最一开始的例子为例：
@@ -4639,9 +4646,17 @@ function debounce(func, wait, immediate) {
 
 > [JavaScript专题之跟着 underscore 学节流 · Issue #26 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/26)
 
+
+
+### 原因
+
+同防抖函数中的原因: 
+
+高频事件需要在一定时间内处理,如果函数处理的时间大于平均每次的时间,那么就会造成卡顿.
+
 ### 原理
 
-如果你持续触发事件，每隔一段时间，只执行一次事件。
+如果你持续触发事件，<span style="color:red">每隔一段时间只执行一次事件</span>。
 
 根据首次是否执行以及结束后是否执行，效果有所不同，实现的方式也有所不同。
 我们用 leading 代表首次是否执行，trailing 代表结束后是否再执行一次。
