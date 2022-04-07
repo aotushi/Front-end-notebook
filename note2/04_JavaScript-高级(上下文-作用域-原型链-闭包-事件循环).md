@@ -4468,6 +4468,20 @@ container.onmousemove = debounce(getUserAction, 1000);
 
 > this指向问题
 
+如果我们在 `getUserAction` 函数中 `console.log(this)`，在不使用 `debounce` 函数的时候，`this` 的值为：
+
+```html
+<div id="container"></div>
+```
+
+如果使用我们的 debounce 函数，`getUserAction`函数中的this 就会指向 Window 对象,因为setTimeout中的函数是在全局环境中执行的.
+
+所以我们需要将 this 指向正确的对象。
+
+debounce函数中的this指向的是window
+
+debounce内的闭包函数中的this指向的是绑定的DOM节点
+
 ```javascript
 
 let count = 1,
@@ -4483,11 +4497,7 @@ container.onmousemove = getUserAction;
 container.onmousemove = debounce(getUserAction, 1000);
 ```
 
-在`getUserAction`函数中打印this, 值为如下:
 
-```
-<div id="container"></div>
-```
 
 但如果我们使用debounce函数,this就会指向Window对象.
 
@@ -4499,7 +4509,9 @@ container.onmousemove = debounce(getUserAction, 1000);
 
 function debounce(func, wait) {
   let timeId;
+  // 这个层级中的this指向window 因为在JS环境中直接调用
   return function() {
+    //这个执行上下文中的this指向DOM节点
     let context = this;
     clearTimeout(timeId);
     timeId = setTimeout(function() { func.call(context) }, wait);
@@ -4642,7 +4654,7 @@ function debounce(func, wait, immediate) {
 
 
 
-## 节流函数(未完成)
+## 节流函数
 
 > [JavaScript专题之跟着 underscore 学节流 · Issue #26 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/26)
 
@@ -4739,9 +4751,9 @@ function throttle(func, wait) {
 
 
 
-### 时间戳+定时器方案
+### 时间戳+定时器方案 ????
 
-鼠标移入能立刻执行，停止触发的时候还能再执行一次！
+功能要求: 鼠标移入能立刻执行，停止触发的时候还能再执行一次.
 
 ```javascript
 function throttle(func, wait) {
@@ -4778,9 +4790,13 @@ function throttle(func, wait) {
 }
 ```
 
+效果图如下:
 
+鼠标移入，事件立刻执行，晃了 3s，事件再一次执行，当数字变成 3 的时候，也就是 6s 后，我们立刻移出鼠标，停止触发事件，9s 的时候，依然会再执行一次事件。
 
-### 优化
+![68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f7468726f74746c652f7468726f74746c65332e676966](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/68747470733a2f2f63646e2e6a7364656c6976722e6e65742f67682f6d717971696e6766656e672f426c6f672f496d616765732f7468726f74746c652f7468726f74746c65332e676966.4uxh87j1z9q0.gif)
+
+### 优化 ????
 
 我有时也希望无头有尾，或者有头无尾，这个咋办？
 
@@ -4790,6 +4806,39 @@ leading：false 表示禁用第一次执行
 trailing: false 表示禁用停止触发的回调
 
 ```javascript
+// 第四版
+function throttle(func, wait, options) {
+    var timeout, context, args, result;
+    var previous = 0;
+    if (!options) options = {};
+
+    var later = function() {
+        previous = options.leading === false ? 0 : new Date().getTime();
+        timeout = null;
+        func.apply(context, args);
+        if (!timeout) context = args = null;
+    };
+
+    var throttled = function() {
+        var now = new Date().getTime();
+        if (!previous && options.leading === false) previous = now;
+        var remaining = wait - (now - previous);
+        context = this;
+        args = arguments;
+        if (remaining <= 0 || remaining > wait) {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            previous = now;
+            func.apply(context, args);
+            if (!timeout) context = args = null;
+        } else if (!timeout && options.trailing !== false) {
+            timeout = setTimeout(later, remaining);
+        }
+    };
+    return throttled;
+}
 ```
 
 

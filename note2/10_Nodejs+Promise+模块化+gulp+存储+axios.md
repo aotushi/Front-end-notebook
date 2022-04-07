@@ -4776,7 +4776,7 @@ promise.success(function(value) {
 
 
 
-
+### Promise实现
 
 
 
@@ -5544,23 +5544,6 @@ Promise.myRace = function (promiseArr) {
     })
   })
 }
-```
-
-
-
-## Promise实现
-
-#### 自定义Promise
-
-```js
-https://juejin.cn/post/6994594642280857630
-```
-
-
-
-### 实现Promise.race
-
-```javascript
 ```
 
 
