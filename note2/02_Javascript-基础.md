@@ -3147,6 +3147,22 @@ function instance_of(Case, Constructor) {
 
 
 
+```javascript
+function instanceOf(proto, Ctor) {
+  
+  while(proto !== null) {
+    if (proto !== Ctor.prototype) {
+      proto = Object.getPrototypeOf(proto);
+    } else {
+      return true;
+    }
+  }
+  return false;
+}
+```
+
+
+
 
 
 #### 小于运算符(<)
