@@ -11540,6 +11540,10 @@ if (!Function.prototype.softBind) {
 
 测试softBind
 
+> 这个地方的设置还是非常优秀的应该说.
+>
+> 开始虽然每一句都是明白,但不能理解具体实现的功能.尤其是三元表达式哪里,其实是忽略了一个事实: this的值去取决于调用的位置. 再加上三个例子,更好的理解.
+
 ```javascript
 function foo() {
   console.log('name: ' + this.name)
@@ -11554,7 +11558,9 @@ let fooOBJ = foo.softBind(obj);
 fooOBJ(); //name: obj
 
 obj2.foo = foo.softBind(obj);
-obj2.foo(); //name: 
+obj2.foo(); //name: obj2
+
+fooOBJ.call(obj3); //name: obj3
 ```
 
 
