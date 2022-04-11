@@ -11507,7 +11507,7 @@ Note:
 
 如果函数体处于严格模式，this会被绑定到undefined，否则this会被绑定到全局对象。
 
-<u>3.软绑定</u> ????!!!!
+<u>3. 硬绑定存在的问题及解决</u> ????!!!!
 
 硬绑定这种方式可以把this强制绑定到指定的对象（除了使用new时），防止函数调用应用默认绑定规则。问题在于，硬绑定会大大降低函数的灵活性，使用硬绑定之后就无法使用隐式绑定或者显式绑定来修改this。
 
@@ -11533,9 +11533,28 @@ if (!Function.prototype.softBind) {
 }
 ```
 
-除了软绑定之外，softBind(..)的其他原理和ES5内置的bind(..)类似。它会对指定的函数进行封装，首先检查调用时的this，如果this绑定到全局对象或者undefined，那就把指定的默认对象obj绑定到this，否则不会修改this。此外，这段代码还支持可选的柯里化（详情请查看之前和bind(..)相关的介绍）。
+除了软绑定之外，softBind(..)的其他原理和ES5内置的bind(..)类似。
+
+* 它会对指定的函数进行封装，首先检查调用时的this，如果this绑定到全局对象或者undefined，那就把指定的默认对象obj绑定到this，否则不会修改this。
+* 此外，这段代码还支持可选的柯里化.
+
+测试softBind
 
 ```javascript
+function foo() {
+  console.log('name: ' + this.name)
+}
+
+let obj = {name: 'obj'},
+    obj2 = {name: 'obj2'},
+    obj3 = {name: 'obj3'};
+
+let fooOBJ = foo.softBind(obj);
+
+fooOBJ(); //name: obj
+
+obj2.foo = foo.softBind(obj);
+obj2.foo(); //name: 
 ```
 
 
