@@ -5956,7 +5956,9 @@ console.log(a); // 10
 
 ### 描述
 
-在JavaScript中，几乎所有的对象都是`Object`类型的实例，它们都会从`Object.prototype`继承属性和方法，虽然大部分属性都会被覆盖（shadowed）或者说被重写了（overridden）。 除此之外，`Object` 还可以被故意的创建，但是这个对象并不是一个“真正的对象”（例如：通过 `Object.create(null)`），或者通过一些手段改变对象，使其不再是一个“真正的对象”（比如说: `Object.setPrototypeOf`）。
+在JavaScript中，几乎所有的对象都是`Object`类型的实例，它们都会从`Object.prototype`继承属性和方法，虽然大部分属性都会被覆盖（shadowed）或者说被重写了（overridden）。 
+
+除此之外，`Object` 还可以被故意的创建，但是这个对象并不是一个“真正的对象”（例如：通过 `Object.create(null)`），或者通过一些手段改变对象，使其不再是一个“真正的对象”（比如说: `Object.setPrototypeOf`）。
 
 `Object` 构造函数为给定的参数创建一个包装类对象（object wrapper），具体有以下情况：
 
@@ -6533,52 +6535,78 @@ console.log(person1.name); //daisy
 
 
 
-### 3.对象的属性
+### 3.对象的属性+不变性
 
 > 在JS中,对象属性分为两类: 数据属性和访问器属性. 
+
+在创建普通属性时属性描述符会使用默认值，我们也可以使用Object.defineProperty(..)来添加一个新属性或者修改一个已有属性（如果它是configurable）并对特性进行设置。
+
+
 
 #### 1. 数据属性
 
 > 数据属性包含的是一个数据的位置,在这可以对数据值进行读写.
 
-#### 1.1.数据属性包含的4个特性
+##### 1.1 数据属性的4个属性描述符
 
-##### 1.1.1 configurable
+<span style="color:blue;">**configurable** 可配置</span>
 
-默认值为true. 表示是否能通过delete删除属性从而重新定义属性; 能否修改属性的特性; 或能否把属性修改为访问器属性.
+* 只要属性是可配置的，就可以使用defineProperty(..)方法来修改属性描述符;
 
-##### 1.1.2 enumerable
+* 把configurable修改成false是单向操作，无法撤销！
 
-表示是否通过for-in循环返回属性
+* 即便属性是`configurable:false`，我们还是可以把writable的状态由true改为false，但是无法由false改为true。
 
-##### 1.1.3 writable
+* 除了无法修改，configurable:false还会禁止删除这个属性：
 
-表示能否修改属性的值
+如果对象的某个属性是某个对象/函数的最后一个引用者，对这个属性执行delete操作之后，这个未引用的对象/函数就可以被垃圾回收。但是，不要把delete看作一个释放内存的工具（就像C/C++中那样），它就是一个删除对象属性的操作，仅此而已。
 
-##### 1.1.4 value
+
+
+
+
+<span style="color:blue;">**enumerable** 可枚举</span>
+
+这个描述符控制的是属性是否会出现在对象的属性枚举中，比如说for..in循环
+
+* 设置成false，这个属性就不会出现在枚举中，可以正常访问它。
+
+* 设置成true就会让它出现在枚举中。
+
+
+
+<span style="color:blue;">**writable **可写</span>
+
+writable决定是否可以修改属性的值。
+
+如果其值为 false, 那么更新对应的属性值,不会发生变化;如果在严格模式下,会报错.
+
+可以把`writable:false`看作是属性不可改变，相当于你定义了一个空操作setter。严格来说，如果要和`writable:false`一致的话，你的setter被调用时应当抛出一个`TypeError`错误。
+
+```javascript
+'use strict'
+
+let myObject = {};
+
+Object.defineProperty(myObject, 'a', {
+  value: 2,
+  writable: false,
+  enumerable: true,
+  configurable: true
+})
+
+myObject.a = 3; //TypeEror
+```
+
+
+
+<span style="color:blue;">**value **值</span>
 
 包含该属性的数据值. 默认为undefined.
 
 
 
-```js
-//实例 创建一个Person对象,打印name属性的默认值
-
-let person = {
-  name: 'mack',
-  cell: '1234'
-}
-
-//Object.getOwnPropertyDescriptor()方法可获取指定属性的描述
-
-console.log(Object.getOwnPropertyDescriptor(person, 'name'));
-
-//{value: "mack", writable: true, enumerable: true, configurable: true}
-```
-
-
-
-#### 1.2 修改数据属性的默认特性
+##### 1.2 修改数据属性的默认特性
 
 修改属性的默认特性用到方法`Object.defineProperty()`方法, 它有3个参数: 属性所在的对象, 属性名, 一个描述符对象.
 
@@ -6604,7 +6632,7 @@ Object.defineProperty(person, 'name', {configurable: true});
 
 
 
-#### 2.访问器属性 getter/setter
+#### 2. 访问器属性 getter/setter
 
 > 这个属性不包含数据值，包含的是一对get和set方法，在读写访问器属性时，就是通过这两个方法来进行操作处理的。
 >
@@ -6612,21 +6640,21 @@ Object.defineProperty(person, 'name', {configurable: true});
 
 
 
-#### 2.1访问器属性包含的4个特性
+##### 2.1访问器属性4特性
 
-##### 2.1.1 configurable
+**configurable**
 
 >  默认为false. 表示能否通过delete删除属性从而重新定义属性，能否修改属性的特性，或能否把属性修改为访问器属性
 
-##### 2.1.2 enumerable
+**enumerable**
 
 表示能否通过for-in循环返回属性,默认为false
 
-##### 2.1.3 Get
+**Get**
 
 在读取属性时调用的函数,默认值为undefined
 
-##### 2.1.4 Set
+**Set**
 
 在写入属性时调用的函数,默认值为undefined
 
@@ -6659,7 +6687,289 @@ Object {enumearble: false, configurable: false, get:function, set:function}
 
 
 
-### 3.1 对象具体属性
+##### 2.2 `for...in`与`enumerable`
+
+`enumerable`属性和`for...in`循环
+
+* `enumerable`值为`true`, 属性会出现在`for...in`循环中
+* `enumerable`值为`false`, 属性不会出现在`for...in`循环中
+* 无论`enumerable`值为什么, `in`操作符都正常使用
+
+> 注意:
+>
+> 数组上应用for..in循环有时会产生出人意料的结果，因为这种枚举不仅会包含所有数值索引，还会包含所有可枚举属性
+
+
+
+区分属性是否可枚举的方法
+
+* `for...in`
+* `Object.prototype.propertyIsEnumerable('a')`
+
+`propertyIsEnumerable(..)`会检查给定的属性名是否直接存在于对象中（而不是在原型链上）并且满足`enumerable:true`。
+
+
+
+`in`和`hasOwnProperty(..)`的区别在于是否查找[[Prototype]]链，
+
+`Object.keys(..)`和`Object.getOwnPropertyNames(..)`都只会查找对象直接包含的属性。
+
+##### 2.3 如何获取操作符'in'使用的属性列表
+
+（目前）并没有内置的方法可以获取in操作符使用的属性列表.
+
+不过你可以递归遍历某个对象的整条[[Prototype]]链并保存每一层中使用Object.keys(..)得到的属性列表——只包含可枚举属性。
+
+```javascript
+let obj = {};
+let res = [Object.keys(obj)];
+
+while(true) {
+  let proto = Object.getPrototypeOf(obj);
+  if (proto === null) return
+  
+  res.concat(Object.keys(proto))
+  obj = proto
+}
+
+
+//Object.prototype中的属性是不可枚举的
+
+Object.getOwnPropertyDescriptor(Object.prototype, 'constructor')
+
+configurable: true
+enumerable: false
+value: ƒ Object()
+assign: ƒ assign()
+create: ƒ create()
+defineProperties: ƒ defineProperties()
+defineProperty: ƒ defineProperty()
+entries: ƒ entries()
+freeze: ƒ freeze()
+fromEntries: ƒ fromEntries()
+getOwnPropertyDescriptor: ƒ getOwnPropertyDescriptor()
+getOwnPropertyDescriptors: ƒ getOwnPropertyDescriptors()
+getOwnPropertyNames: ƒ getOwnPropertyNames()
+getOwnPropertySymbols: ƒ getOwnPropertySymbols()
+getPrototypeOf: ƒ getPrototypeOf()
+hasOwn: ƒ hasOwn()
+is: ƒ is()
+isExtensible: ƒ isExtensible()
+isFrozen: ƒ isFrozen()
+isSealed: ƒ isSealed()
+keys: ƒ keys()
+length: 1
+name: "Object"
+preventExtensions: ƒ preventExtensions()
+prototype: {constructor: ƒ, __defineGetter__: ƒ, __defineSetter__: ƒ, hasOwnProperty: ƒ, __lookupGetter__: ƒ, …}
+seal: ƒ seal()
+setPrototypeOf: ƒ setPrototypeOf()
+values: ƒ values()
+arguments: (...)
+caller: (...)
+[[Prototype]]: ƒ ()
+[[Scopes]]: Scopes[0]
+writable: true
+[[Prototype]]: Object
+```
+
+
+
+
+
+#### 3. 不变性
+
+这里的不变性是浅不变性,只会影响目标对象和它的直接属性。如果目标对象引用了其他对象（数组、对象、函数，等），其他对象的内容不受影响，仍然是可变的.
+
+
+
+##### 1.对象常量
+
+结合writable:false和configurable:false就可以创建一个真正的常量属性（不可修改、重定义或者删除）
+
+```javascript
+let myObj = {};
+
+Object.defineProperty(myObj, 'FAVORITE NUMBER', {
+  value: 42,
+  writable: false,
+  configurable: false
+})
+```
+
+
+
+##### 2.禁止扩展
+
+如果你想禁止一个对象添加新属性并且保留已有属性，可以使用Object.preventExtensions(..)
+
+在非严格模式下，创建属性b会静默失败。在严格模式下，将会抛出TypeError错误。
+
+```javascript
+let myObj = {a:2};
+
+Object.perventExtensions(myObj);
+
+myObj.b = 3;
+myObj.b; //undefined
+```
+
+```javascript
+'use strict'
+let obj = {a:2}
+
+Object.preventExtensions(obj);
+
+obj.b = 3;
+//Uncaught TypeError: Cannot add property b, object is not extensible
+```
+
+
+
+##### 3.密封
+
+Object.seal(..)会创建一个“密封”的对象，这个方法实际上会在一个现有对象上调用Object.preventExtensions(..)并把所有现有属性标记为configurable:false。
+
+密封之后不仅不能添加新属性，也不能重新配置或者删除任何现有属性（虽然可以修改属性的值）
+
+
+
+##### 4.冻结
+
+Object.freeze(..)会创建一个冻结对象，这个方法实际上会在一个现有对象上调用Object.seal(..)并把所有“数据访问”属性标记为writable:false，这样就无法修改它们的值。
+
+这个方法是你可以应用在对象上的级别最高的不可变性，它会禁止对于对象本身及其任意直接属性的修改（不过就像我们之前说过的，这个对象引用的其他对象是不受影响的）。
+
+
+
+##### 深度冻结对象的方法
+
+首先在这个对象上调用Object.freeze(..)，然后遍历它引用的所有对象并在这些对象上调用Object.freeze(..)。但是一定要小心，因为这样做有可能会在无意中冻结其他（共享）对象
+
+
+
+#### 4. 判断属性存在与否
+
+例如,如何区分访问对象属性的值为undefined时,其是否是显式声明的undefined还是不存在?
+
+可以在不访问属性值的情况下判断对象中是否存在这个属性：
+
+* `in`操作符: 检查属性名是否在对象及其[[Prototype]]原型链中
+* `hasOwnProperty`只会检查属性是否在对象中,不检查原型链
+  * `Object.create(null)` 没有原型,无法使用`has...`
+  * 强制解决: `Object.prototype.hasOwnProperty.call(obj, 'a')`
+
+
+
+
+
+### 4.操作对象属性
+
+#### getter/setter ([[Get]]/[[Put]])
+
+对象默认的[[Put]]和[[Get]]操作分别可以控制属性值的设置和获取。
+
+在ES5中可以使用getter和setter部分改写默认操作，但是只能应用在单个属性上，无法应用在整个对象上。
+
+getter是一个隐藏函数，会在获取属性值时调用。
+
+setter也是一个隐藏函数，会在设置属性值时调用。
+
+**访问描述符**: 定义了getter、setter或者两者都有的一个属性. JS会忽略其value和writable,取而代之的是关心set和get,configurable,enumerable.
+
+**数据描述符**: 和上面相对,没有定义getter, setter
+
+如何定义getter/setter
+
+#### 读取对象的属性发生了什么?
+
+在语句规范中, `obj.a`在obj上实际上是实现了[[Get]]操作(有点像函数调用: `[[Get]]()` ).
+
+* 对象默认的内置`[[Get]]`操作, 首先在对象中查找是否有名称相同的属性,如果有就返回属性的值.
+* 如果没有找到名称相同的属性,`[[Get]]`算法会从原型链上查找属性.
+* 如果找不到, 返回值undefined
+
+
+
+#### 赋值对象的属性发生了什么??
+
+如果已经存在这个属性，[[Put]]算法大致会检查下面这些内容。
+
+1．属性是否是访问描述符（参见3.3.9节）？如果是并且存在setter就调用setter。
+
+2．属性的数据描述符中writable是否是false？如果是，在非严格模式下静默失败，在严格模式下抛出TypeError异常。
+
+3．如果都不是，将该值设置为属性的值。
+
+如果属性不存在,  第五章.(你不知道的JS)
+
+
+
+#### 属性操作(访问/设置)的两种方式:
+
+* `.`操作符  被称为'属性访问'
+* `[]`操作符 被称为'键访问'
+
+#### 两种属性操作的区别:
+
+* `.`操作符要求属性名满足标识符的命名规范
+* `[]`语法可以接受任意UTF-8/Unicode字符串作为属性名
+
+#### 属性名的类型
+
+* **字符串** 如果你使用string（字面量）以外的其他值作为属性名，那它首先会被转换为一个字符串。
+
+#### 可计算属性名
+
+* 通过<u>表达式</u>来计算属性名,来获取相应的属性名.
+
+* 可计算属性名最常用的场景可能是ES6的符号（Symbol）
+
+```javascript
+let obj = {
+  [Symbol.Something] : 'hello world'
+}
+```
+
+
+
+#### 属性和方法的区别
+
+如果访问的对象属性是一个函数, 把对象内部引用的函数称为“方法”似乎有点不妥。
+
+严格来说，函数永远不会“属于”一个对象.
+
+> 来自 本文件中的this->隐式绑定
+
+* 因为JavaScript是基于函数作用域的(ES6中增加了块作用域),<span style="color:blue">JavaScript中的对象没有作用域的概念.</span>
+
+* <span style="color:blue">对象属性函数的作用域是全局对象</span>,你可以在其内部中访问全局变量,但是不能访问到对象中的属性, <span style="color:blue">也就是说属性函数的作用域链上并不包含这个对象</span>, 如果要访问对象中的属性,只能在函数里使用this.'属性'来访问,并且对函数的调用方式是obj.fn()
+
+
+
+#### 重复的对象字面量属性
+
+ECMAScript 5严格模式中加入了对象字面量重复属性的校验，当同时存在多个同名属性时会抛出错误。
+
+但是在ECMAScript6中重复属性检查被移除了，无论是在严格模式还是非严格模式下，代码不再检查重复属性，**对于每一组重复属性，都会选取最后一个取值**.
+
+```javascript
+//ES6
+'use strict'
+let person = {
+  name: 'Nicholas',
+  name: 'Greg'
+};
+console.log(person.name); //'Greg'
+```
+
+
+
+
+
+
+
+### 5 Object的属性
 
 #### Object.prototype.constructor
 
@@ -6781,68 +7091,6 @@ a.constructor === Number; //false
 
 
 <u>Changing the constructor of a function</u>
-
-
-
-
-
-
-
-### 4.读取/添加对象属性
-
-```js
-对象.属性名
-对象['属性名']
-使用中括号语法的条件:1.对象属性名不符合命名规范;2.如果使用变量的值作为属性名
-
-var obj={
-	'a-b':'c', //名字不合法 必须使用obj['a-b']来读取
-	username:'zzz',
-	age:33
-}
-
-var xx = 'username'
-obj.xx 错误
-obj[xx] 最终极端的obj['username']===obj.username
-
-
-//向对象中添加属性
--- 语法:
-对象.属性名 = 属性值
-对象['属性名'] = 属性值;
-```
-
-
-
-#### 注意事项
-
-1.**对象的可计算属性括号可以放表达式**
-
-```javascript
-let obj = {},a = 13;
-
-obj[typeof 1 + a] = true; //注意这里的类型转换和先后顺序
-
-console.log(obj);//{'number13': true}
-```
-
-
-
-### 5.重复的对象字面量属性
-
-ECMAScript 5严格模式中加入了对象字面量重复属性的校验，当同时存在多个同名属性时会抛出错误。
-
-但是在ECMAScript6中重复属性检查被移除了，无论是在严格模式还是非严格模式下，代码不再检查重复属性，**对于每一组重复属性，都会选取最后一个取值**.
-
-```javascript
-//ES6
-'use strict'
-let person = {
-  name: 'Nicholas',
-  name: 'Greg'
-};
-console.log(person.name); //'Greg'
-```
 
 
 
@@ -7168,7 +7416,7 @@ Using uary plus
 
 
 
-### 7.对象的方法
+### 7.Object的方法
 
 > ECMAScript其中一个设计目标是：不再创建新的全局函数，也不在Object.prototype上创建新的方法。
 >
@@ -9304,6 +9552,20 @@ console.log(a == b); //false
 
 如果想要复制一个对象, 创建一个独立的拷贝,克隆.(假设对象的所有属性都是原始类型)
 
+克隆对象需要面对的问题:
+
+* 区分浅拷贝和深拷贝
+
+* 对待循环引用的处理
+
+* 函数的处理: 是采用toString还是其他
+
+
+
+#### 4.浅拷贝
+
+
+
 ##### 1. for循环复制
 
 创建一个新对象，并通过遍历现有属性的结构，在原始类型值的层面，将其复制到新对象，以复制已有对象的结构。
@@ -9328,6 +9590,10 @@ alert( user.name ); // 原来的对象中的 name 属性依然是 John
 
 ##### 2. Object.assign
 
+> 它会遍历一个或多个源对象的所有可枚举(enumerable)的自有键(owned key)并把它们复制(适用`=`操作符赋值)到目标对象, 最后返回目标对象.
+
+
+
 用 `Object.assign` 代替 `for..in` 循环来进行简单克隆
 
 ```js
@@ -9341,7 +9607,7 @@ let clone = Object.assign({}, user);
 
 
 
-#### 3.深层克隆
+深层克隆
 
 对象属性为其他对象的引用,如何处理? 如果使用上面的克隆循环的方式, 属性对象会以引用形式被拷贝.
 
@@ -9374,7 +9640,7 @@ clone.sizes === user.sizes //true
 
 
 
-#### 4.总结
+##### 总结
 
 ```js
 对象通过引用被赋值和拷贝。换句话说，一个变量存储的不是“对象的值”，而是一个对值的“引用”（内存地址）。因此，拷贝此类变量或将其作为函数参数传递时，所拷贝的是引用，而不是对象本身。
@@ -9390,7 +9656,11 @@ clone.sizes === user.sizes //true
 
 > 几种深拷贝方式
 
-#### 5.1 JSON方式
+##### 5.1 JSON方式
+
+适用于JSON安全对象（可以被序列化为一个JSON字符串并且可以根据这个字符串解析出一个结构和值完全一样的对象）
+
+适用于JSON安全对象（可以被序列化为一个JSON字符串并且可以根据这个字符串解析出一个结构和值完全一样的对象）
 
 ```js
 function deepClone(target) {
@@ -9400,7 +9670,7 @@ function deepClone(target) {
 
 
 
-#### 5.2 普通方法
+##### 5.2 普通方法
 
 ```js
 //09 文档中
@@ -9412,7 +9682,11 @@ target.fn = proObj.fn.bind(target);
 
 
 
-#### 5.3 递归
+##### 5.3 递归
+
+
+
+
 
 ### 12. 对象使用的实例
 
@@ -9608,6 +9882,17 @@ console.log(person['last name']); //
 ```
 
 任何可用于对象实例括号记法的属性名，也可以作为字面量中的计算属性名。
+
+
+
+#### 数组支持`[]`访问形式
+
+* 可以给数组添加命名属性
+* 添加了命名属性（无论是通过．语法还是[]语法），数组的length值并未发生变化。
+* 如果你试图向数组添加一个属性，但是属性名“看起来”像一个数字，那它会变成一个数值下标
+* 用对象来存储**键/值对**，只用数组来存储**数值下标/值对**。
+
+
 
 
 
