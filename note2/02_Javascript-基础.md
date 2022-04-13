@@ -11653,7 +11653,7 @@ new绑定 > 显示绑定
 
 硬绑定: Function.prototype.bind()会创建一个新的包装函数,这个函数会忽略它当前的this绑定(无论绑定的对象是什么),并把我们提供的对象绑定到this上.
 
-来个例子: ????
+来个例子: 
 
 ```javascript
 function foo(sth) {
@@ -11706,7 +11706,7 @@ bar被硬绑定到obj1上,但是new bar(3)并没有像我们预计的把obj1.a�
 
 
 
-##### this绑定例外
+##### this绑定例外 !!!
 
 <u>1.被忽略的this</u>
 
