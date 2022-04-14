@@ -3414,10 +3414,10 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 ## Promise🌈
 
-### 1.异步编程背景
+### 异步编程背景
 
-* JavaScript引擎是基于单线程（Single-threaded）事件循环的概念构建的，同一时刻只允许一个代码块在执行
-* 即将运行的代码存放在任务队列（job queue）中，每当一段代码准备执行时，都会被添加到任务队列
+* JavaScript引擎是基于<span style="background: #ccc;">单线程（Single-threaded）事件循环</span>的概念构建的，<u>同一时刻只允许一个代码块在执行</u>
+* 即将运行的代码存放在<span style="background: #ccc;">任务队列（job queue）</span>中，每当一段代码准备执行时，都会被添加到任务队列
 * 事件循环（eventloop）是JavaScript引擎中的一段程序，负责监控代码执行并管理任务队列，会执行队列中的下一个任务
 
 
@@ -3433,7 +3433,7 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
-
+### Promise之前的异步处理
 
 #### 事件模型
 
@@ -3732,20 +3732,13 @@ let promise = new Promise(function (resolve, reject) {
 * resolve(value) -- 如果任务成功完成并带有结果value
 * reject(error) -- 如果出现了error, error即为error对象
 
-#### 返回值
-
-由`new Promise`构造函数<span style="color:blue">返回的`promise`对象</span>具有以下内部属性:
-
-* `state`   最初是`pending`, 然后在 `resolve` 被调用时变为 `"fulfilled"`，或者在 `reject` 被调用时变为 `"rejected"`
-* `result` —— 最初是 `undefined`，然后在 `resolve(value)` 被调用时变为 `value`，或者在 `reject(error)` 被调用时变为 `error`。
 
 
+**`resolve`函数的作用**，将`Promise`对象的状态从<span style="background:#ccc">“未完成”变为“成功”</span>（即从 pending 变为 fulfilled），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
 
-**`resolve`函数的作用是**，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 fulfilled），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；
+**`reject`函数的作用**，将`Promise`对象的状态从<span style="background:#ccc">“未完成”变为“失败”</span>（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
 
-**`reject`函数的作用是**，将`Promise`对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
-
-与最初的 “pending” promise 相反，一个 resolved 或 rejected 的 promise 都会被称为 “settled”。
+与最初的 “pending” promise 相反，一个 resolved 或 rejected 的 promise 都会被称为 <span style="background:#ccc">“settled”。</span>
 
 ```javascript
 //成功完成任务
@@ -3759,6 +3752,29 @@ let promise = new Promise((resolve, reject) => {
   setTimeout(() => reject(new Error('ddd')), 1000)
 })
 ```
+
+
+
+#### 返回值
+
+由`new Promise`构造函数<span style="color:blue">返回的`promise`对象</span>具有以下内部属性:
+
+* `state`   
+  * 最初是`pending`, 
+  * 然后在 `resolve` 被调用时变为 `"fulfilled"`，
+  * 或者在 `reject` 被调用时变为 `"rejected"`
+
+* `result` 
+  * 最初是 `undefined`，
+  * 然后在 `resolve(value)` 被调用时变为 `value`，
+  * 或者在 `reject(error)` 被调用时变为 `error`。
+
+
+所以，executor 最终将 `promise` 移至以下状态之一:
+
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="246" viewBox="0 0 512 246"><defs><style>@import url(https://fonts.googleapis.com/css?family=Open+Sans:bold,italic,bolditalic%7CPT+Mono);@font-face{font-family:'PT Mono';font-weight:700;font-style:normal;src:local('PT MonoBold'),url(/font/PTMonoBold.woff2) format('woff2'),url(/font/PTMonoBold.woff) format('woff'),url(/font/PTMonoBold.ttf) format('truetype')}</style></defs><g id="promise" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="promise-resolve-reject.svg"><path id="Rectangle-1" fill="#FBF2EC" stroke="#DBAF88" stroke-width="2" d="M1 91h182v70H1z"/><text id="new-Promise(executor" fill="#7E7C7B" font-family="PTMono-Regular, PT Mono" font-size="14" font-weight="normal"><tspan x="2" y="82">new Promise(executor)</tspan></text><text id="state:-&quot;pending&quot;-res" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="14" font-weight="normal"><tspan x="13" y="115.432">state: "pending"</tspan> <tspan x="13" y="135.432">result: undefined</tspan></text><path id="Line" fill="#C06334" fill-rule="nonzero" d="M196.51 134.673l.908.419 103.284 47.574 2.51-5.45L313 189.433l-15.644.5 2.509-5.45-103.283-47.574-.909-.418.837-1.817z"/><path id="Line-Copy" fill="#C06334" fill-rule="nonzero" d="M297.38 56L313 57l-10.173 11.896-2.335-5.528-103.103 43.553-.921.39-.778-1.843.92-.39 103.104-43.552-2.334-5.527z"/><text id="resolve(value)" fill="#C06334" font-family="PTMono-Regular, PT Mono" font-size="14" font-weight="normal" transform="rotate(-23 244.39 72.63)"><tspan x="185.59" y="77.13">resolve(value)</tspan></text><text id="reject(error)" fill="#C06334" font-family="PTMono-Regular, PT Mono" font-size="14" font-weight="normal" transform="rotate(25 251.634 150.64)"><tspan x="197.034" y="155.141">reject(error)</tspan></text><path id="Rectangle-1-Copy" fill="#FBF2EC" stroke="#478964" stroke-width="2" d="M323 10h182v64H323z"/><text id="state:-&quot;fulfilled&quot;-r" fill="#478964" font-family="PTMono-Regular, PT Mono" font-size="14" font-weight="normal"><tspan x="338" y="34.432">state: "fulfilled"</tspan> <tspan x="338" y="54.432">result: value</tspan></text><path id="Rectangle-1-Copy-3" fill="#FEF1F0" stroke="#D35155" stroke-width="2" d="M323 177h182v64H323z"/><text id="state:-&quot;rejected&quot;-re" fill="#AF6E24" font-family="PTMono-Regular, PT Mono" font-size="14" font-weight="normal"><tspan x="338" y="201.432">state: "rejected"</tspan> <tspan x="338" y="221.432">result: error</tspan></text></g></g></svg>
+
+
 
 #### 总结
 
@@ -3783,7 +3799,7 @@ let promise = new Promise((resolve, reject) => {
 
 3.**Resolve/reject 可以立即进行**
 
-* executor 通常是异步执行某些操作，并在一段时间后调用 `resolve/reject`，但这不是必须的
+* executor 通常是异步执行某些操作，并在一段时间后调用 `resolve/reject`，但这不是必须的.我们还可以立即调用 `resolve` 或 `reject`
 
 ```javascript
 let promise = new Promise(function(resolve, reject) {
@@ -3865,7 +3881,7 @@ promise.then(null, function(err) {
 
 * catch()方法，相当于只给其传入拒绝处理程序的then()方法
 * 使用`null`作为第一个参数: `then(null, errorHandleingFunction)`
-* 或者不用第一个参数也一样: `then(errorHandlingFunction)`
+* 或使用: `.catch(errorHandlingFunction)`, 其`.catch(f)`调用时`.then(null, f)`的完全模拟,它知识一个简写形式.
 
 
 
@@ -3921,7 +3937,7 @@ promise.catch(function(error) {
 
 ##### then() + catch()
 
-* then()方法和catch()方法一起使用才能更好地处理异步操作结果。
+* then()方法和catch()方法一起使用才能更好地<u>处理异步操作结果</u>。
 
 * 如果不给Promise添加拒绝处理程序，那所有失败就自动被忽略.
 
@@ -3943,21 +3959,35 @@ promise.then(function(contents) {
 
 **注意**
 
-每次调用then()方法或catch()方法都会创建一个新任务，当Promise被解决（resolved）时执行。这些任务最终会被加入到一个为Promise量身定制的独立队列中，这个任务队列的具体细节对于理解如何使用Promise而言不重要，通常你只要理解任务队列是如何运作的就可以了。
+每次调用then()方法或catch()方法都会<span style="color:blue">创建一个新任务</span>，当Promise被解决（resolved）时执行。
+
+<span style="color:blue">这些任务最终会被加入到一个为Promise量身定制的独立队列中</span>，这个任务队列的具体细节对于理解如何使用Promise而言不重要，通常你只要理解任务队列是如何运作的就可以了。
 
 
 
 ##### finally
 
+像常规 `try {...} catch {...}` 中的 `finally` 子句一样，promise 中也有 `finally`。
+
 * `.finally(f)` 调用与 `.then(f, f)` 类似，在某种意义上，`f` 总是在 promise 被 settled 时运行：即 promise 被 resolve 或 reject。
 * `finally` 是执行清理（cleanup）的很好的处理程序（handler），例如无论结果如何，都停止使用不再需要的加载指示符（indicator）。
+
+```javascript
+new Promise((resolve, reject) => {
+  //do something
+}).finally(() => stop loading indicator)
+ // 所以，加载指示器（loading indicator）始终会在我们处理结果/错误之前停止
+	.then(res => show res, err => show err)
+```
+
+
 
 
 
 **finally 与 then 的区别**
 
 * `finally` 处理程序（handler）没有参数。在 `finally` 中，我们不知道 promise 是否成功。
-* `finally` 处理程序将结果和 error 传递给下一个处理程序。
+* `finally` 处理程序将 <u>结果和 error</u> 传递给下一个处理程序。
 
 
 
@@ -3976,9 +4006,9 @@ function loadScript(src) {
   return new Promise((resolve, reject) => {
     let script = document.createElement('script');
   	script.src = src;
-    
+    //注意,没有传递参数
   	script.onload = () => resolve(script);
-    scropt.onerror = () => reject(new Error('error'));
+    script.onerror = () => reject(new Error('error'));
     
     document.body.head.append(script);
   })
@@ -3996,12 +4026,6 @@ promise.then(script => alert('Another handler...'));
 
 
 
-
-
-
-
-
-
 1.Promise新建后就会立即执行
 
 ```javascript
@@ -4015,13 +4039,14 @@ promise.then(function() {
 })
 
 console.log('Hi');
-
-//Hi
 //Promise
+//Hi
 //resolved
 ```
 
 上面代码中，Promise 新建后立即执行，所以首先输出的是`Promise`。然后，`then`方法指定的回调函数，将在当前脚本所有同步任务执行完才会执行，所以`resolved`最后输出。
+
+
 
 2.异步加载图片
 
@@ -4552,7 +4577,7 @@ new Proise((resolve, reject) => {
 
 #### 返回Promise
 
-`.then(handler)` 中所使用的处理程序（handler）可以<span style="color:blue">**显示创建并返回**</span>一个 promise。(显示是自己添加的, 因为then的回调函数本身返回一个promise)
+`.then(handler)` 中所使用的处理程序（handler）可以<span style="color:blue">**显式创建并返回**</span>(`return new Promise())`一个 promise。(显式两个字是自己添加的, 因为then的回调函数本身返回一个promise)
 
 在这种情况下，其他的处理程序（handler）将等待它 settled 后再获得其结果（result）
 
@@ -4616,7 +4641,7 @@ loadScript("/article/promise-chaining/one.js").then(script1 => {
 
 #### Thenables  ????
 
-then处理程序（handler）返回的不完全是一个 promise，而是返回的被称为 “thenable” 对象 — 一个具有方法 `.then` 的任意对象。它会被当做一个 promise 来对待。
+<span style="color:blue;">then处理程序（handler）返回的不完全是一个 promise</span>，而是返回的被称为 “thenable” 对象 — 一个具有方法 `.then` 的任意对象。它会被当做一个 promise 来对待。
 
 按照这个想法是，第三方库可以实现自己的“promise 兼容（promise-compatible）”对象。它们可以具有扩展的方法集，但也与原生的 promise 兼容，因为它们实现了 `.then` 方法。
 
