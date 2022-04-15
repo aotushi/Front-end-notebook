@@ -11323,6 +11323,8 @@ obj1.obj2.foo(); //42
 * 参数传递.将函数通过参数传递进函数.
 * 把函数传入语言内置的函数
 
+<u>将对象.方法赋值给变量</u>
+
 ```javascript
 function foo() {
   console.log(this.a);
@@ -11342,7 +11344,9 @@ bar(); //'oops, global!'
 
 虽然bar是obj.foo的一个引用，但是实际上，它引用的是foo函数本身，因此此时的bar()其实是一个不带任何修饰的函数调用，因此应用了默认绑定。
 
-另一种情况: 传入回调函数; 也会存在调用回调函数的函数修改this的情况
+
+
+<u>传入回调函数</u>; 也会存在调用回调函数的函数修改this的情况
 
 ```javascript
 function foo() {
@@ -11363,9 +11367,9 @@ var a = 'oops, global!';
 doFoo(obj.foo); //'oops, global!'
 ```
 
-参数传递其实就是一种**隐式赋值**，因此我们传入函数时也会被隐式赋值，所以结果和上一个例子一样。
+<span style="background: #ccc">参数传递其实就是一种**隐式赋值**</span>，因此我们传入函数时也会被隐式赋值，所以结果和上一个例子一样。
 
-把函数传入语言内置的函数.
+<u>把函数传入语言内置的函数.</u>
 
 ```javascript
 function foo() {
@@ -11708,7 +11712,7 @@ bar被硬绑定到obj1上,但是new bar(3)并没有像我们预计的把obj1.a�
 
 ##### this绑定例外 !!!
 
-<u>1.被忽略的this</u>
+<u>1.可以忽略的this</u>
 
 > 如果把null或undefined作为this的绑定对象传入call, apply, bind, 这些值在调用时会被忽略,实际应用的默认绑定规则.
 

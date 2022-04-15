@@ -4932,7 +4932,7 @@ promise
 
 **与try/catch比较**
 
-跟传统的`try/catch`代码块不同的是，如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。
+跟传统的`try/catch`代码块不同的是，<span style="background:#ccc">如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。</span>
 
 ```javascript
 const someAsyncThing = function() {
@@ -4968,7 +4968,7 @@ promise.then(function(value) { console.log(value) });
 
 上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。
 
-一般建议, Promise 对象后面要跟`catch()`方法，这样可以处理 Promise 内部发生的错误。`catch()`方法返回的还是一个 Promise 对象，因此后面还可以接着调用`then()`方法。
+一般建议, Promise 对象后面要跟`catch()`方法，这样可以处理 Promise 内部发生的错误。<span style="background:#ccc">`catch()`方法返回的还是一个 Promise 对象</span>，因此后面还可以接着调用`then()`方法。
 
 ```javascript
 const someAsyncThing = function() {
