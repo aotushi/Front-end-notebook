@@ -3837,10 +3837,10 @@ console.log(typeof PersonClass.prototype.sayName); //true
 
 * 函数声明可以被提升，而类声明与let声明类似，不能被提升；真正执行声明语句之前，它们会一直存在于临时死区中。
 *  类声明中的所有代码将自动运行在严格模式下，而且无法强行让代码脱离严格模式执行.
-* 在自定义类型中，需要通过Object.defineProperty()方法手工指定某个方法为不可枚举；而在类中，所有方法都是不可枚举的.
+* 在自定义类型中，需要通过Object.defineProperty()方法手工指定某个方法为不可枚举；<span style="color:blue">而在类中，所有方法都是不可枚举的.</span>
 * 每个类都有一个名为**[[Construct]]**的内部方法，通过关键字new调用那些不含[[Construct]]的方法会导致程序抛出错误.
 * 使用除关键字new以外的方式调用类的构造函数会导致程序抛出错误.
-* 在类中修改类名会导致程序报错.
+* <span style="color:blue">在类中修改类名会导致程序报错.</span>
 
 了解了这些差异之后，我们可以用除了类之外的语法为之前示例中的PersonClass声明编写等价代码：
 
@@ -4191,7 +4191,7 @@ PersonType.prototype.sayName = function() {
 
 #### 1. ES6
 
-ECMAScript 6的类语法简化了创建静态成员的过程，在<u>方法或访问器属性名</u>前使用正式的**静态注释**即可
+ECMAScript 6的类语法简化了创建静态成员的过程，在<u>方法或访问器属性名</u>前使用正式的<span style="color:blue">**静态注释**</span>即可
 
 **注意事项**
 

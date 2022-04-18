@@ -4803,7 +4803,20 @@ promise.success(function(value) {
 
 ### Promise实现
 
+> https://juejin.cn/post/6945319439772434469#heading-15
 
+
+
+```javascript
+class MyPromise {
+  constructor(executor) {
+    executor(this.resolve(), this.reject())
+  }
+  
+  let resolve = () => {}
+  let reject = () => {}
+}
+```
 
 
 
