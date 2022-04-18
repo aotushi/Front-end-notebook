@@ -1,6 +1,6 @@
 ## 标准文档/资源
 
-JavaScript标准:
+### JavaScript标准:
 
 * 正式版: Ecma-international.org(Publications and standards >>> standards >>> ECMA262)
   * 建议下载一个PDF版放在PC端 版本建议5.1和10(现在最新为11)
@@ -14,6 +14,52 @@ JavaScript标准:
 * w3.org
 
 
+
+### TC39 ECMA-262 ECMAScript之间的关系
+
+> https://mp.weixin.qq.com/s/5EzYOIxHkHEmWvdXEGadAA
+
+- `ECMAScript`：指语言标准及语言版本，比如 ES6 表示语言（标准）的第 6 版
+- `TC39` 指的是技术委员会（ `Technical Committee` ）第 `39` 号，一个推动 `JavaScript` 发展的委员会。它是 `ECMA` 的一部分， `ECMA` 是 “ `ECMAScript` ” 规范下的 `JavaScript` 语言标准化的机构。
+
+
+
+### ECMAScript发展历程
+
+经过漫长的发展， `ECMAScript` 已经经过了多个大版本的迭代
+
+- `ECMAScript 6`（2015 年 6 月）：一大波更新，实现了当年 ES4 的许多设想，并正式改为按年份命名规范版本
+- 以后的 ECMAScript 版本（ES2018、ES2019、ES2020 等）都在 6 月正式获准生效
+
+### 标准指定流程
+
+> 从 `ES2016` 开始（新 `TC39` 流程施行以来）， `ES` 版本的概念被大大弱化了，需要关心的是特性提案处于第几阶段，只要进入第 4 阶段就已经算是标准特性了
+>
+> 你可以来这里：`https://github.com/tc39/proposals` 看到所有正在进行中的 `TC39` 提案
+
+
+
+### 使用
+
+如果你想用到上面还没被规范化的提案，可以使用下面的 `babel` 插件：
+
+- babel-presets-stage-0
+- babel-presets-stage-1
+- babel-presets-stage-2
+- babel-presets-stage-3
+- babel-presets-stage-4
+
+
+
+### 向后兼容
+
+ ES 规范每一版始终完全兼容先前的所有特性，比如 ES6 提出了let、const但并没有干掉var，这是因为如果推出了不兼容的新版本，会造成一些问题：
+
+为了避免这些问题， `ES6` 采用了一种策略叫 `One JavaScript` ：
+
+- 新版本始终完全向后兼容（但偶尔可能会有轻微、不明显的清理）
+- 旧特性不删除也不修复，而是引入更好的版本，比如let就是var的改进版
+- 如果语言的某些方面有变化，只在新的语法结构内生效，即隐式选用，例如，yield只在generator中才是关键字、模块和类中的所有代码都默认开启严格模式
 
 
 
