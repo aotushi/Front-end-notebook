@@ -4801,20 +4801,416 @@ promise.success(function(value) {
 
 
 
-### Promise实现
+### Promise实现 🚩🚩🚩
 
 > https://juejin.cn/post/6945319439772434469#heading-15
 
 
 
 ```javascript
+//version 1 实现基本功能
+
+const PENDING = 'pending'
+const 'FULFILLED' = 'fulfilled'
+const 'REJECTED' = 'rejected'
+
 class MyPromise {
   constructor(executor) {
-    executor(this.resolve(), this.reject())
+    executor(this.resolve, this.reject)
   }
   
-  let resolve = () => {}
-  let reject = () => {}
+  status = PENDING
+  value = null
+  reason = null
+  
+  resolve = (value) => {
+    if (this.status === PENDING) {
+      this.status = FULFILLED
+      this.value = value
+    }
+  }
+  
+  reject = (reason) => {
+    if (this.status === PENDING) {
+      this.status = REJECTED
+      this.value = reason
+    }
+  }
+  
+  then(onFulfilled, onRejected) {
+    if (this.status === FULFILLED) {
+      onFulfilled(this.value)
+    }
+    else if (this.status === Rejected) {
+      onRejected(this.reason)
+    }
+  }
+}
+```
+
+
+
+```javascript
+//version 2
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
+
+class MyPromise {
+  constructor(executor) {
+    executor(this.resolve, this.reject)
+  }
+  
+  status = PENDING
+  value = null
+  reason = null
+  
+  // 添加异步处理
+  onFulfilledCallback = null
+  onRejectedCallback = null
+  
+  resolve = (value) => {
+    if (this.status === PENDING) {
+      this.status = FULFILLED
+      this.value = value
+      
+      //添加异步处理
+      this.onFulfilledCallback && this.onFulfilledCallback(this.value)
+    }
+  }
+  
+  reject = (reason) => {
+    if (this.status === PENDING) {
+      this.status = REJECTED
+      this.value = reason
+      
+      //添加异步处理
+      this.onRejectedCallback && this.onRejectedCallback(this.reason)
+    }
+  }
+  
+  
+  then(onFulfilled, onRejected) {
+    if (this.status === FULFILLED) {
+      onFulfilled(this.value)
+    }
+    else if (this.status === REJECTED) {
+      onRejected(this.value)
+    }
+    else if (this.status === PENDING) {
+      // 因为不知道后面状态的变化,所以将成功和失败的回调储存起来
+      // 等到执行成功失败函数的时候再进行传递
+      onFulfilledCalback = onFulfilled
+      onRejectedCallback = onRejected
+    }
+  }
+}
+```
+
+
+
+```javascript
+// version 3 实现then方法多次调用添加多个处理函数
+
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
+
+class MyPromise {
+  constructor(executor) {
+    executor(this.resolve, this.reject)
+  }
+  
+  status = PENDING
+  value = null
+  reason = null
+  
+  //
+  onFulfilledCallback = []
+  onRejectedCallback = []
+  
+  resolve = (value) => {
+    if (this.status === PENDING) {
+      this.status = FULFILLED
+      this.value = value
+      
+      //this.onFulfilledCallback.length && this.onFulfilledCallback.shift()(value) 只会执行一次
+      while(this.onFulfilledCallback.length) {
+        this.onFulfilledCallback.shift()(value)
+      }
+    }
+  }
+  
+  reject = (reason) => {
+    if (this.status === PENDING) {
+      this.status = REJECTED
+      this.value = reason
+      
+      //this.onRejectedCallback.length && this.onRejectedCallback.shift()(reason)
+      while(this.onRejectedCalback.length) {
+        this.onRejectedCallback.shift()(reason)
+      }
+    }
+  }
+  
+  then(onFulfilled, onRejected) {
+    if (this.status === FULFILLED) {
+      onFulfilled(this.value)
+    }
+    else if (this.status === REJECTED) {
+      onRejected(this.value)
+    }
+    else if (this.status === PENDING) {
+      this.onFulfilledCallback.push(onFulfilled)
+      this.onRejectedCallback.push(onRejected)
+    }
+  }
+}
+```
+
+
+
+4 实现then方法的链式调用
+
+then方法要链式调用就需要返回一个Promise对象
+
+then方法里面return一个返回值作为下一个then方法的参数,如果return一个Promise对象,那么就需要判断它的状态
+
+```javascript
+class MyPromise {
+  //...
+  then(onFulfilled, onRejected) {
+    //为了链式调用这里直接创建一个 MyPromise, 并在后面return出去
+    const promise2 = new MyPromise((resolve, reject) => {
+      //这里的内容在执行器中,会立即执行
+      if (this.status === FULFILLED) {
+        //获取成功回调的执行结果
+        const x = onFulfilled(this.value)
+        //传入 resolvePromise 集中处理
+        resolvePromise(x, resolve, reject)
+      }
+      else if (this.status === REJECTED) {
+        onRejected(this.value)
+      }
+      else if (this.status === PENDING) {
+        this.onFulfilledCallback.push(onFulfilled)
+        this.onRejectedCallback.push(onRejected)
+      }
+    })
+    return promise2
+  }
+}
+
+function resolvePromise(x, resolve, reject) {
+  if (x instanceof MyPromise) {
+    //执行x, 调用then方法, 目的是将其状态变为 fulfilled 或 rejected
+    // x.then(value => resolve(value), reason=>reject(reason))
+    //简化之后
+    x.then(resolve, reject)
+  }
+  else {
+    //普通纸
+    resolve(x)
+  }
+}
+```
+
+
+
+5 then方法链式调用识别 Promise 是否返回自己
+
+如果then方法返回的是自己的Promise对象,则会发生循环调用,这个时候程序会报错
+
+```javascript
+//test.js
+
+const promsie = new MyPromise((resolve, reject) => {
+  resolve(100)
+})
+
+const p1 = promise.then(value => {
+  console.log(value)
+  return p1
+})
+```
+
+使用原生Promise执行上面的代码,会报类型错误
+
+```javascript
+Uncaught (in promise) TypeError: Chaining cycle detected for promise #<Promise>
+```
+
+在MyPromise中实现一下:
+
+```javascript
+class MyPromise {
+  ....
+  then(onFulfilled, onRejected) {
+    const promise2 = new MyPromise((resolve,reject)=> {
+      if (this.status === FULFILLED) {
+        const x = onFulfilled(this.value)
+      	//resolvePromise 集中处理,将promise2 传入
+      	resolvePromise(promise2, x, resolve, reject)
+      }
+      else if (this.status === REJECTED) {
+        onRejected(this.reason)
+      }
+      else if (this.status === PENDING) {
+        this.onFulfilledCallback.push(onFulfilled)
+        this.onRejectedCallback.push(onRejected)
+      }
+    })
+    return promise2
+  }
+}
+
+function resolvePromise(promise2, x, resolve, reject) {
+  //如果相等了,说明return的是自己,抛出类型错误并返回
+  if (promise2 === x) {
+    return TypeError(new TypeError('Chaing cycle detected for promise #<Promise>'))
+  }
+  
+  if (x instanceof MyPromise) {
+    x.then(resolve, reject)
+  }else {
+    resolve(x)
+  }
+}
+```
+
+执行报错:
+
+```javascript
+resolvePromise(promise2, x, resolve, reject);
+                       ^
+
+ReferenceError: Cannot access 'promise2' before initialization
+```
+
+我们必须要等 promise2 完成初始化。这个时候我们就要用上宏微任务和事件循环的知识了，这里就需要创建一个异步函数去等待 promise2 完成初始化，前面我们已经确认了创建微任务的技术方案 --> `queueMicrotask`
+
+```javascript
+//MyPromise
+
+class MyPromise {
+  //...
+  then(onFulfilled, onRejected) {
+    const promise2 = new MyPromise((resolve, reject) => {
+      if (this.status === FULFILLED) {
+        //创建一个微任务 等待promise2 完成初始化
+        queueMicrotask(() => {
+          //获取成功回调函数的执行结果
+          const x = onFulfilled(this.value)
+          //传入 resolvePromise 集中处理
+          resolvePromise(promise2, x, resolve, reject)
+        })
+      } else if (this.status === REJECTED) {
+        //...
+      }
+    })
+    
+    return promise2
+  }
+}
+```
+
+
+
+6 捕获错误及then链式调用其他状态代码补充
+
+6.1捕获执行器错误
+
+```javascript
+// MyPromise
+
+constructor(executor) {
+  try {
+    executor(this.resolve, this.reject)
+  } catch(error) {
+    this.reject(error)
+  }
+}
+```
+
+验证:
+
+```javascript
+const MyPromise = require('./MyPromise')
+const promise = new MyPromise((resolve, reject) => {
+    // resolve('success')
+    throw new Error('执行器错误')
+})
+ 
+promise.then(value => {
+  console.log(1)
+  console.log('resolve', value)
+}, reason => {
+  console.log(2)
+  console.log(reason.message)
+})
+```
+
+执行结果
+
+```javascript
+2
+执行器错误
+```
+
+6.2then执行时错误捕获
+
+```javascript
+//MyPromise
+
+then(onFulfilled, onRejected) {
+  const promise2 = new MyPromise((resolve, reject) => {
+    if (this.status === FULFILLED) {
+    	queueMicrotask(() => {
+        try {
+          const x = onFulfilled(this.value)
+          resolvePromise(promise2, x, resolve, reject)
+        } catch(error) {
+          reject(error)
+        }
+      })
+    }
+    else if (this.status === REJECTED) {
+      
+    }
+    else if (this.status === PENDING) {
+      
+    }
+  })
+}
+```
+
+7 对rejected和pending状态进行改造,参考fulfilled
+
+> 改造内容:
+>
+> 1. 增加异步状态下的链式调用
+> 2. 增加回调函数执行结果的判断
+> 3. 增加识别 Promise 是否返回自己
+> 4. 增加错误捕获
+
+```javascript
+//MyPromise.js
+
+then(onFulfilled, onRejected) {
+  const promise2 = new MyPromise((resolve, reject) => {
+  	if (this.status === FULFILLED) {
+      queueMicrotask(() => {
+        try {
+          const x = onFulfilled(this.value)
+          resolveProimse(promise2, x, resolve, reject)
+        } catch(error) {
+          reject(error)
+        }
+      })
+    }
+  })
+  
+  reurn promise2
 }
 ```
 
