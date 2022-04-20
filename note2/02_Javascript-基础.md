@@ -19143,14 +19143,28 @@ let res = arr.flat(Infinity)
 
 ```javascript
 //replace + split
-let res = arr.replace(/(\[|\])/g, '').split(',')
+let str = JSON.stringify(arr)
+let res = str.replace(/(\[|\])/g, '').split(',')
 ```
 
 
 
 ```javascript
 //replace + JSON.parse
-let res = arr.replace(/(\[|\])/g, '')
+let str = JSON.stringify(arr)
+let res = str.replace(/(\[|\])/g, '')
+res = '[' + res + ']'
+res = JSON.parse(res)
+```
+
+
+
+```javascript
+//普通递归
+let res = []
+let fn = function(arr) {
+  
+}
 ```
 
 
