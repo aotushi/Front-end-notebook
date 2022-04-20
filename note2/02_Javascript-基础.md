@@ -5235,6 +5235,33 @@ console.timeEnd();
 >
 > https://juejin.cn/post/6844904032071319565
 
+下表是JS中常用的实现循环遍历的方法的跳出/结束遍历的办法
+
+break, continue都是在for循环中使用的语句
+
+return只能在函数内部使用
+
+
+
+```javascript
+//Array.prototype.forEach
+
+let arr = [1,2,3,4,5]
+let arr2 = []
+arr.forEach(item => {
+  if (item == 2) {
+    //break Uncaught SyntaxError: illegal break statement
+    //continue; //Uncaught SyntaxError: illegal continue statement: no surrouding iteration stateemnt
+    //return; //[1,3,4,5] 只能跳出本次循环
+    //return true; //[1,3,4,5] 只能跳出本次循环
+    //return false; //[1,3,4,5] 只能跳出本次循环
+  }
+	arr2.push(item)
+})
+```
+
+
+
 | 序号 | 方法          | break  | continue     | return       | return true  | return false | throw |
 | ---- | ------------- | ------ | ------------ | ------------ | ------------ | ------------ | ----- |
 | 1    | for循环       | √      | 跳出本次循环 | 不合法       | 不合法       | 不合法       |       |
@@ -11061,7 +11088,7 @@ const where = () => {
 
 
 
-**类数组对象转换成数组的 ? 种方法**
+**类数组对象转换成数组的 5 种方法**
 
 ```javascript
 [].slice.call(arguments)
@@ -11069,6 +11096,7 @@ const where = () => {
 [].concat.apply([], arguments);
 Array.from(arguments)
 [...arguments]
+for循环
 ```
 
 
@@ -15506,23 +15534,28 @@ for (let i in arr) {
 
 
 
-#### 4. 遍历数组的问题
+#### 4. 如何停止遍历数组???
 
 ##### 1. forEach()中无法return/break,
 
-for循环和for-in, for...of能正确响应break、continue和return语句，但forEach不行。 
+**for循环, for-in, for...of**能正确响应break、continue和return语句，但forEach不行。 
+
+具体查看 `语句 > JS中如何跳出循环/结束遍历`中的内容
 
 ```js
-//跳出for循环使用break, 但在数组中用forEach循环如果要退出使用break会报错,使用return也不能跳出.
+//跳出for循环使用break, 但在数组中用forEach循环如果要退出使用break会报错,使用return只能跳出本次循环
 
 //原因:
 
+根据forEach的实现,回调函数只是执行而不使用返回值,函数中的return可以终止下面的语句执行,相当于跳出了本次循环.
 
-//解决方法:
+//如何终端forEach
 0. 使用for循环
 1. 使用some/every
 2. 使用try&catch
 ```
+
+
 
 
 
@@ -16818,7 +16851,7 @@ Current Index(idx)当前索引
 Source Array(src)源数组
 ```
 
-reducer函数的返回值分配给累计器,该返回值在数组的每个迭代中被记住,并最后称为最终的单个结果值.
+reducer函数的返回值分配给累计器,该返回值在数组的每个迭代中被记住,并最后成为最终的单个结果值.
 
 `callback` 
 
@@ -16833,7 +16866,16 @@ reducer函数的返回值分配给累计器,该返回值在数组的每个迭代
 
 * 作为第一次调用 `callback`函数时的第一个参数的值。 
 * 如果没有提供初始值，则将使用数组中的第一个元素。 
-* 在没有初始值的空数组上调用 reduce 将报错。
+* 在空数组上调用 没有初始值的reduce 将报错。
+
+```javascript
+[].reduce(() => {})
+//Uncaught TyperError: Reduce of empty array with no initial value 
+
+[].reduce(() => {}, 0) //0
+```
+
+
 
 **返回值**
 
@@ -16843,7 +16885,7 @@ reducer函数的返回值分配给累计器,该返回值在数组的每个迭代
 
 * `reduce`为数组中的每一个元素依次执行`callback`函数，不包括数组中被删除或从未被赋值的元素，接受四个参数：
 * 回调函数第一次执行时，`accumulator` 和`currentValue`的取值有两种情况：
-  * 如果提供了`initialValue`，`accumulator`取值为`initialValue`，`currentValue`取数组中的第一个值；
+  * 如果提供了`initialValue`，`accumulator`取值为`initialValue`，`currentValue`取数组中的第一个值；`currentIndex`为`currentValue`的索引值.
   * 如果没有提供 `initialValue`，那么`accumulator`取数组中的第一个值，`currentValue`取数组中的第二个值。
   * 如果没有提供`initialValue`，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供`initialValue`，从索引0开始。
 * 如果数组为空且没有提供`initialValue`，会抛出[`TypeError`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError) 。
@@ -18260,7 +18302,11 @@ Array(N).fill().map(i => i+1)
 
 
 
-#### 判断是否存在数组中 in
+#### 判断数组是否包含某个值
+
+**in** 
+
+只能判断键是否存在于数组中
 
 ```js
 //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in
@@ -18281,6 +18327,19 @@ let trees = new Array('redwood', 'bay', 'cedar', 'oak');
 //数组空位
 0 in [undefined, undefined]; //true
 0 in [,,,]; //false
+```
+
+
+
+```javascript
+for循环
+indexOf/lastIndexOf
+includes
+find/findIndex
+some/every
+concat
+filter
+reduce
 ```
 
 
@@ -19049,7 +19108,7 @@ console.log(unique([NaN, NaN])); //[NaN]
 
 
 
-#### 数组扁平化
+#### 数组扁平化 !!!!
 
 > [面试官连环追问：数组拍平（扁平化） flat 方法实现 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904025993773063#heading-14)
 >
@@ -19057,7 +19116,42 @@ console.log(unique([NaN, NaN])); //[NaN]
 
 
 
+* toString + split
 
+* flat
+* replace + split
+* replace + JSON.parse
+* 普通递归
+* 利用reduce函数迭代
+* 扩展运算符
+
+```javascript
+//toString + split
+let arr = [1, [2, [3, [4, 5]]], 6];// -> [1, 2, 3, 4, 5, 6]
+let str = arr.toString().split(',')
+```
+
+
+
+```javascript
+//flat
+
+let res = arr.flat(Infinity)
+```
+
+
+
+```javascript
+//replace + split
+let res = arr.replace(/(\[|\])/g, '').split(',')
+```
+
+
+
+```javascript
+//replace + JSON.parse
+let res = arr.replace(/(\[|\])/g, '')
+```
 
 
 

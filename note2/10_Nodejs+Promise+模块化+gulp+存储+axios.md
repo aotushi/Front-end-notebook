@@ -4803,7 +4803,9 @@ promise.success(function(value) {
 
 ### Promise实现 🚩🚩🚩
 
-> https://juejin.cn/post/6945319439772434469#heading-15
+> https://juejin.cn/post/6945319439772434469
+>
+> 非常重要的一道题.需要多阅读多理解,Promise理解的并不好
 
 
 
@@ -5175,10 +5177,12 @@ then(onFulfilled, onRejected) {
       })
     }
     else if (this.status === REJECTED) {
-      
+      cosnt x = onRejected(this.reason)
+      resolvePromise(promise2, x, resolve, reject)
     }
     else if (this.status === PENDING) {
-      
+      this.onFulfilledCallback.push(onFulfilled)
+      this.onRejectedCallback.push(onRejected)
     }
   })
 }
@@ -5208,6 +5212,38 @@ then(onFulfilled, onRejected) {
         }
       })
     }
+    else if (this.status === REJECTED) {
+      queueMicrotask(() => {
+        try {
+          const x = onRejected(this.reason)
+          resolvePromise(promise2, x, resolve, reject)
+        } catch(error) {
+          reject(error)
+        }
+      })
+    }
+    else if (this.status === PENDING) {
+      this.onFulfilledCallback.push(() => {
+        queueMicrotask(() => {
+          try {
+            const x = onFulfilled(this.value)
+            resolvePromise(promise2, x, resolve, reject)
+          } catch(error) {
+            reject(error)
+          }
+        })
+      })
+      this.onRejectedCallback.push(() => {
+        queueMicrotask(() => {
+          try {
+            const x = onRejected(this.reason)
+            resolvePromise(promise2, x, resolve, reject)
+          } catch(error) {
+            reject(error)
+          }
+        })
+      })
+    }
   })
   
   reurn promise2
@@ -5215,6 +5251,56 @@ then(onFulfilled, onRejected) {
 ```
 
 
+
+8 then中的参数变为可选
+
+上面我们处理 then 方法的时候都是默认传入 onFulfilled、onRejected 两个回调函数，但是实际上原生 Promise 是可以选择参数的单传或者不传，都不会影响执行。
+
+```javascript
+//MyPromise
+
+then(onFulfilled, onRejected) {
+  // 如果不传,就使用默认函数
+  onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value
+  onRejected = typeof onRejected === 'function' ? 
+onRejected : reason => {throw reason}
+  
+  const promise2 = new MyPromise((resolve, reject) => {
+    
+  })
+}
+```
+
+
+
+9 实现resolve与reject的静态调用
+
+` Promise.resolve` 来返回一个 Promise 对象
+
+```javascript
+MyPromise {
+  //...
+  
+  //resolve静态方法
+  static resolve(parameter) {
+    if (parameter instanceof MyPromise) {
+      return parameter
+    }
+    
+    //转成常规方式
+    return new MyPromise(resolve => {
+      resolve(parameter)
+    })
+  }
+  
+  //rejec静态方法
+  static reject(parameter) {
+    return new MyPromise((resolve, reject) => {
+      
+    })
+  }
+}
+```
 
 
 
