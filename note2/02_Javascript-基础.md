@@ -3684,9 +3684,11 @@ console.log(c, typeof c); // true string
 
 
 
-### 7.位运算符(Bitwise operators)
+### 7.位运算符(Bitwise operators)  //todo
 
-> 位运算符将它的操作数视为32位元的二进制串（0和1组成）而非十进制八进制或十六进制数。例如：十进制数字9用二进制表示为1001，位运算符就是在这个二进制表示上执行运算，但是返回结果是标准的JavaScript数值。
+#### 概述
+
+> 位运算符将它的操作数视为32位的二进制串（0和1组成）而非十进制八进制或十六进制数。例如：十进制数字9用二进制表示为1001，位运算符就是在这个二进制表示上执行运算，但是返回结果是标准的JavaScript数值。
 
 javascript位运算符表格一览
 
@@ -3975,6 +3977,8 @@ console.log('~~(-2.999): ', ~~(-2.999));   // => -2
 
 在二进制基础上对数字进行移动操作
 
+
+
 ##### 2.1 `<<` 按位左移运算符
 
 > Bitwise left shift operator
@@ -3991,13 +3995,37 @@ console.log('~~(-2.999): ', ~~(-2.999));   // => -2
 
 **Define**
 
-> Bitwise unsigned right shift opearot
+> Bitwise unsigned right shift oprator
 >
 > the unsigned right shift operator(>>>) (zero-fill right shift) shifts the first operand the specified number of bits to the right. Excess bits shifted off to the right are discarded. Zero bits are shifted in from the left. The sign bit becomes 0, so the result is always non-negative. Unlike the other bitwise operators, zero-fill right shift returns an unsigned 32-bit integer.
 
 无符号右移操作符（>>>）（零填充右移）将第一个操作数向右移动指定的位数。向右移出的多余的位被丢弃,再从从左边移入0。符号位变为0，所以结果总是非负的。与其他位操作符不同，零填充右移返回一个无符号的32位整数。
 
 **Desc**
+
+> this operator shifts first operand the specified number of bits to the right.
+>
+> 这个操作符向右移动第一个操作数具体位数
+>
+> Excess bits <u>shifted off(移出)</u> to the right are discarded.
+>
+> 向右移出多余的比特(位)被丢弃
+>
+> Zero bits are <u>shifted in(移入)</u> from the left.
+>
+> 0位从左边被移入
+>
+> The sign bit becomes `0`, so the result always non-negative.
+>
+> 符号位成为0, 所以结果总是非负的.
+>
+> Unlike the other bitwise operators, zero-fill right shift returns an unsigned 32-bit integer.
+>
+> 和其他位操作符不同, `0填充右移`返回一个 无符号 的32位整数
+
+
+
+
 
 对非负整数,零填充右移符号和符号传播右移得到一样的结果.例如
 
@@ -4009,8 +4037,8 @@ console.log('~~(-2.999): ', ~~(-2.999));   // => -2
 对负数来说,两者结果不同
 
 ```javascript 
--9(base 10): 11111111111111111111111111110111 (base 2)
--9>>>2(base 10): 00111111111111111111111111111101 (base 2)
+-9    (base 10):   11111111111111111111111111110111 (base 2)
+-9>>>2(base 10):   00111111111111111111111111111101 (base 2)
 
 //如何快速得出右移后的十进制数
 1.取反加1 11....11
@@ -4020,21 +4048,27 @@ console.log('~~(-2.999): ', ~~(-2.999));   // => -2
 
 ```
 
-**Example**
+**注意**
 
-取整,但不可对负数取整.
+* 取整,但不可对负数取整.
 
-JS做位运算时,小数部分怎么处理?
+* JS做位运算时,小数部分会忽略
 
-```javascript
-console.log(6.83>>>0) //6
-```
-
-其他
-
-非数值运算会变成0
+* 非数值运算会变成0
 
 ```javascript
+1.01 >>> 2
+1.01(10)        00000000000000000000000000000001 //? 这里写错了,应该是仍然存在小数位吧,但在应用右移操作符时应该会被忽略
+1.01(10) >>> 2  00000000000000000000000000000000 //转换成十进制为0
+
+-2 >>> 0
+2        00000000000000000000000000000010
+-2       11111111111111111111111111111110  //进制转负数需要取反且加1
+-2 >>> 0 11111111111111111111111111111110  //结果是将二进制转换成10进制  
+
+
+
+
 1>>>0  //1
 1.5>>>0 //1
 -1>>>0 //4294967295
@@ -4057,6 +4091,8 @@ JS需要位运算时,会将操作数转成32位比特序列,也就是补码.再�
 
 * 对于非数值类型,会首先将操作数转成一个整型(就是0),然后再进行计算.实际上这是一个伪命题,实质上是对非数值操作数的整型表达式进行的位运算.
 * JS中的整型在内存中是一个64位双精度浮点型,但JS在进行位运算时,会将操作数转成带符号位的32位比特序列,也就是补码(????).运算结束后,再按照64位存储.这里肯定会存在精度丢失的问题,JS如何处理呢?超过32位的部分直接截断.
+
+
 
 ### 8. 字符串运算符
 
@@ -15256,6 +15292,33 @@ console.log(obj.length); //2
 
 
 
+**实现**
+
+```javascript
+//https://juejin.cn/post/6844903986479251464#heading-39
+
+Array.prototype.push = function(...items) {
+  let O = Object(this)
+  let len = O.length >>> 0
+  let argCount = items.length >>> 0
+  // 2** 53-1 为JS能表示的最大的数
+  if (len+argCount > 2**53-1) {
+    throw new TypeError('The number of array is over the max value restricted!')
+  }
+  
+  for (let i=0; i<argCount; i++) {
+    O[len+i] = items[i]
+  }
+  
+  let newLength = len + argCount
+  O.length = newLength
+  
+  return newLength
+}
+```
+
+
+
 #### pop()
 
 **定义**
@@ -15316,6 +15379,41 @@ console.log(arr); // [3, 2, 1, 4, 5, 6]
 ```
 
 
+
+**实现**
+
+```javascript
+// https://juejin.cn/post/6844903986479251464#heading-39
+
+//自己的
+Array.prototype.pop = function() {
+  let O = Object(this)
+  let len = O.length >>> 0
+   
+  let deleteItem = O[len - 1]
+  
+  O.length = len - 1;
+  
+  return deleteItem;
+}
+
+//完善的
+Array.prototype.pop = function() {
+  let O = Object(this)
+  let len = O.length >>> 0
+  
+  if (len === 0) {
+		O.length = 0 //???
+    return undefind
+  }
+  
+  len--
+  let value = O[len]
+  delete O[len]
+  O.length = len
+  return value
+}
+```
 
 
 
@@ -15822,92 +15920,8 @@ var removed = myFish.splice(-2, 1);
 **代码实现** ????
 
 ```js
-//代码实现  https://blog.csdn.net/weixin_43523913/article/details/106021147
-//https://blog.csdn.net/lunahaijiao/article/details/112645946
+// https://juejin.cn/post/6844903986479251464#heading-39
 
-
-Array.prototype.splice = function (start, deleteCount) {
-  // 参数个数
-  let argLen = arguments.length;
-  // 数组
-  let array = Object(this);
-  // 数组的长度
-  let len = array.length;
-  // 添加元素的个数
-  let addCount = argLen > 2 ? argLen - 2 : 0;
-
-  // 计算有效的start
-  let startIndex = computeSpliceStartIndex(start, len);
-  // 计算有效的deleteCount
-  let delCount = computeSpliceDeleteCount(startIndex, deleteCount, len);
-  // 记录删除的数组元素
-  let deletedElements = new Array(delCount);
-
-  // 将删除的元素记录到deleteArray
-  recordDeleteElements(startIndex, delCount, array, deletedElements)
-
-  // 移动数组元素
-  moveElements(startIndex, delCount, array, addCount)
-
-  let i = startIndex
-  let argumentsIndex = 2
-
-  // 插入新元素
-  while (argumentsIndex < argLen) {
-    array[i+1]=arguments[argumentsIndex++]
-  }
-
-  array.length = len - delCount + addCount
-
-  return deletedElements;
-}
-
-// 计算真实的start
-function computeSpliceStartIndex(start, len) {
-  // 处理负值,如果负值的绝对值大于数组的长度,则表示开始位置为第0位
-  if (start < 0){
-    start += len;
-    return start < 0 ? 0 : start;
-  }
-  // 处理超出边界问题
-  return start > len - 1 ? len - 1 : start;
-}
-
-// 计算真实的deleteCount
-function computedSpliceDeleteCount(startIndex, deleteCount, len) {
-  // 超出边界问题
-  if (deleteCount > len - startIndex) deleteCount = len - startIndex;
-  // 负值问题
-  if (deleteCount < 0) deleteCount = 0;
-  return deleteCount;
-}
-
-// 记录删除元素,用于返回结果数组
-function moveElements(startIndex, delCount, array, addCount) {
-  for (let i = 0; i < delCount; i++){
-    deletedElements[i] = array[startIndex + i];
-  }
-}
-
-// 移动数组元素,便于插入新元素
-function moveElements(startIndex, delCount, array, addCount) {
-  let realAddCount = addCount - delCount;
-  if (realAddCount) {
-    // 向后移动
-    for (let i = array.length - 1; i >= startIndex + delCount; i--){
-      array[i+realAddCount]=array[i]
-    }
-  } else if (realAddCount < 0) {
-    // 向前移动
-    for (let i = startIndex + delCount; i <= array.length - 1; i++){
-      if (i + Math.abs(realAddCount) > array.length - 1) {
-        // 删除冗余元素
-        delete array[i];
-        continue;
-      }
-      array[i]=array[i+Math.abs(realAddCount)]
-    }
-  }
 
 ```
 
@@ -16646,9 +16660,78 @@ let new_array = arr.map(function callback(currentValue[,index[, array]])) {
 * 如果存在的数组元素改变了，那么传给`callback`的值是`map`访问该元素时的值。在`map`函数调用后但在访问该元素前，该元素被删除的话，则无法被访问到。
 * 根据规范中定义的算法，如果被map调用的数组是离散的，新数组将也是离散的保持相同的索引为空。
 
-**重写**
+**实现**
+
+依照 [ecma262 草案](https://link.juejin.cn/?target=https%3A%2F%2Ftc39.es%2Fecma262%2F%23sec-array.prototype.map)，实现的map的规范如下:
+
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/11/3/16e311d99e860405~tplv-t2oaga2asx-zoom-in-crop-mark:1304:0:0:0.awebp)
+
+
 
 ```javascript
+//根据草案实现
+//https://juejin.cn/post/6844903938890661896#comment
+//https://juejin.cn/post/6844903986479251464#heading-39
+Array.prototype.map = function(callback, thisArg) {
+  
+  // 处理数组类型异常
+  
+  // 处理回调类型异常
+  
+  //先转换为对象
+  let O = Object(this)
+  let T = thisArg || undefined
+  
+  let len = O.length >>> 0
+  let A = new Array(len)
+  for (let k=0; k<len; k++) {
+    //如果使用hasOwnProperty 它只查找私有属性
+    if (k in O) {
+      let kValue = O[k]
+      let mappedValue = callback.call(T,kValue,k,O)
+      A[k] = mappedValue
+    }
+  }
+  return A
+}
+
+
+//注意  
+//length >>> 0 字面意思右移零位,这里的作用是保证len为数字且为整数.
+
+//为什么使用in查找而不使用hasOwnProperty查找:    in使用原型链查找, 能有效处理稀疏数组的情况  这个地方我是存疑的,如果k不存在于数组O身上,那么在原型上也找不到. 例如 0 in [] 返回的是false
+```
+
+
+
+```javascript
+//V8源码实现  
+
+function ArrayMap(f, receiver) {
+  CHECK_OBJECT_COERCIBLE(this, 'Array.prototype.map')
+  
+  // Pull out the length so that modification to the length in the loop will not affect the looping and side effects are visible
+  
+  var array = TO_OBJECT(this)
+  let length = TO_LENGTH(array.length)
+  if (!IS_CALLABLE(f)) throw $make_type_error(kCalledNonCallable, f);
+  
+  for (var i=0; i<length; i++) {
+    if (i in array) {
+      var element = array[i]
+      %CreateDataProperty(result, i, %_Call(f, receiver, element, i, array))
+    }
+  }
+  
+  return result
+}
+```
+
+
+
+```javascript
+//简略版
+
 Array.prototype.myMap = function(callback) {
   let arr = this,
       thisArg = arguments[1],
@@ -16909,6 +16992,60 @@ var maxCallback2 = ( max, cur ) => Math.max( max, cur );
 ```
 
 **方法重写**
+
+`reduce` 可以理解为「归一」，意为海纳百川，万剑归一
+
+
+
+ECMA-262 规范文档实现如下:
+
+> https://tc39.es/ecma262/#sec-array.prototype.reduce
+
+<img src="https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/image.7aj30gv837c0.webp" alt="image" style="zoom: 150%;" />
+
+```javascript
+//https://juejin.cn/post/6844903938890661896#heading-3
+
+Array.prototype.reduce = function(callback, initialValue) {
+  // 异常处理
+  
+  let O = Object(this)
+  let len = O.length >>> 0
+  let k = 0, accumulator
+  
+  // 新增
+  if (initialValue) {
+    accumulator = initialValue
+  } else {
+    // step 4.
+    if (len === 0) {
+      throw new TypeError('reduce of empty array with no intial value')
+    }
+    
+    // step 8.
+    let kPresent = false  //没有找到关于Pk的解释
+    while(!kPresent && (k < len)) {
+      kPresent = k in O
+      if (kPresent) {
+        accumulator = O[k]
+      }
+      k++
+    }
+  }
+  
+  while(k < len) {
+    if (k in O) {
+      let kValue = O[k]
+      accumulator = callback.call(undefined, accumulator, kValue, k, O)
+    }
+    k++
+  }
+  
+  return accumulator
+}
+```
+
+
 
 ```javascript
 Array.prototype.myReduce = function (callback) {
@@ -18279,7 +18416,7 @@ for (let i=0; i<=n; i++) {
 }
 
 //ES6
-Array.from(Array(num).keys())
+Array.from( Array(num).keys() )
 
 [...Array(num).keys()]
 
@@ -18306,7 +18443,7 @@ Array(N).fill().map(i => i+1)
 
 **in** 
 
-只能判断键是否存在于数组中
+只能判断键是否存在于数组及prototype chain中
 
 ```js
 //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in
@@ -19163,7 +19300,35 @@ res = JSON.parse(res)
 //普通递归
 let res = []
 let fn = function(arr) {
-  
+  for (let i=0; i<arr.length; i++) {
+    if (Array.isArray(arr[i])) {
+      fn(arr[i])
+    }
+    else {
+      res.push(arr[i])
+    }
+  }
+}
+```
+
+
+
+```javascript
+//利用reduce函数迭代
+function flatten(arr) {
+  return arr.reduce((pre, crt) => {
+    return pre.concat(Array.isArray(crt) ? flatten(crt) : crt)
+  }, [])
+}
+```
+
+
+
+```javascript
+//扩展运算符
+
+while(arr.some(Array.isArray)) {
+  arr = [].concat(...arr)
 }
 ```
 
@@ -19413,7 +19578,22 @@ let maxNum = Math.max(...arr);
 
 
 
+### 数组中高阶函数
 
+#### 介绍
+
+> `一个函数`就可以接收另一个函数作为参数或者返回值为一个函数，`这种函数`就称之为高阶函数。
+
+#### 数组中的高阶函数
+
+* map
+* reduce
+* filter
+* sort
+
+#### 实现以上高阶函数
+
+具体见每个方法中的实现
 
 
 
