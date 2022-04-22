@@ -12,7 +12,7 @@ for (let i=0,len=arr.length; i<arr; i++) {
   }
 }
 
-res.map(item => `- [ ] [${item.href}](item.innerText)`).forEach(item => console.log(item))
+res.map(item => `- [ ] [${item.href}](item.text)`).forEach(item => console.log(item))
 
 //打印出来 去除多余字符 黏贴复制
 ```
@@ -110,3 +110,56 @@ res.map(item => `- [ ] [${item.href}](item.innerText)`).forEach(item => console.
 
 
 
+
+
+### 程序员依扬
+
+> https://juejin.cn/user/3720403075993373/posts
+
+
+
+#### 文章列表
+
+- [ ] [聊聊程序员面试时，那些必须注意的事情](https://juejin.cn/post/7064378348343918629)
+- [ ] [切勿习惯性加班](https://juejin.cn/post/6973828161662353439)
+- [ ] [我的 2020 总结，我在蚂蚁成长的这一年](https://juejin.cn/post/6919273190804062216)
+- [ ] [多年经验总结，写出最惊艳的 Markdown 高级用法](https://juejin.cn/post/6916304556733399054)
+- [x] [【进阶 6-3 期】Array 原型方法源码实现大揭秘](https://juejin.cn/post/6844903938890661896)
+- [ ] [【进阶 7-5 期】浅出篇 | 7 个角度吃透 Lodash 防抖节流原理](https://juejin.cn/post/6844903886281506829)
+- [ ] [【1 月最新】前端 100 问：能搞懂 80% 的请把简历给我](https://juejin.cn/post/6844903885488783374)
+- [ ] [【进阶 7-4 期】深入篇 | 阿里 P6 必会 Lodash 防抖节流函数实现原理](https://juejin.cn/post/6844903879017021454)
+- [ ] [【进阶 7-3 期】[译] Throttle 和 Debounce 在 React 中的应用](https://juejin.cn/post/6844903871504973837)
+- [ ] [【进阶 7-2 期】深入浅出防抖函数 debounce](https://juejin.cn/post/6844903863061839885)
+- [ ] [【进阶 7-1 期】深入浅出面试必考题 - 节流函数 throttle](https://juejin.cn/post/6844903855667281928)
+- [ ] [【进阶 6-2 期】深入高阶函数应用之柯里化](https://juejin.cn/post/6844903847677132807)
+- [ ] [【进阶 6-1 期】JavaScript 高阶函数浅析](https://juejin.cn/post/6844903839032672263)
+- [ ] [【半月刊 4】前端高频面试题及答案汇总](https://juejin.cn/post/6844903821420789767)
+- [ ] [【进阶5-2期】图解原型链及其继承优缺点](https://juejin.cn/post/6844903814324027399)
+- [ ] [【半月刊 3】前端高频面试题及答案汇总](https://juejin.cn/post/6844903807789318152)
+- [ ] [【半月刊 2】前端高频面试题及答案汇总](https://juejin.cn/post/6844903789049167885)
+- [ ] [【进阶5-1期】重新认识构造函数、原型和原型链](https://juejin.cn/post/6844903779079290887)
+- [ ] [【半月刊】前端高频面试题及答案汇总](https://juejin.cn/post/6844903778387247117)
+- [ ] [【进阶4-4期】Lodash是如何实现深拷贝的](https://juejin.cn/post/6844903775283445767)
+- [ ] [精华提炼「你不知道的 JavaScript」之作用域和闭包](https://juejin.cn/post/6844903766542516231)
+- [ ] [【进阶4-3期】面试题之如何实现一个深拷贝](https://juejin.cn/post/6844903764499906568)
+- [ ] [前端大神 Winter 直播笔记及我的学习方法论](https://juejin.cn/post/6844903763161907207)
+- [ ] [【进阶4-2期】Object.assign 原理及其实现](https://juejin.cn/post/6844903753490006029)
+- [ ] [【进阶4-1期】详细解析赋值、浅拷贝和深拷贝的区别](https://juejin.cn/post/6844903745961066503)
+- [ ] [【进阶3-5期】深度解析 new 原理及模拟实现](https://juejin.cn/post/6844903736666488846)
+- [ ] [【进阶3-4期】深度解析bind原理、使用场景及模拟实现](https://juejin.cn/post/6844903733013250056)
+- [ ] [【进阶1-3期】JavaScript深入之内存空间详细图解](https://juejin.cn/post/6844903717716623374)
+- [ ] [【进阶1-2期】JavaScript深入之执行上下文栈和变量对象](https://juejin.cn/post/6844903717381079047)
+- [ ] [【进阶3-3期】深度解析 call 和 apply 原理、使用场景及实现](https://juejin.cn/post/6844903730580553736)
+- [ ] [【进阶3-2期】JavaScript深入之重新认识箭头函数的this](https://juejin.cn/post/6844903728198205453)
+- [ ] [【进阶3-1期】JavaScript深入之史上最全--5种this绑定全面解析](https://juejin.cn/post/6844903726625325063)
+- [ ] [【进阶2-3期】JavaScript深入之闭包面试题解](https://juejin.cn/post/6844903725903904775)
+- [ ] [【进阶2-2期】JavaScript深入之从作用域链理解闭包](https://juejin.cn/post/6844903725404782599)
+- [ ] [【进阶2-1期】深入浅出图解作用域链和闭包](https://juejin.cn/post/6844903724901466120)
+- [ ] [【进阶1-5期】JavaScript深入之4类常见内存泄漏及如何避免](https://juejin.cn/post/6844903724893077512)
+- [ ] [【进阶1-4期】JavaScript深入之带你走进内存机制](https://juejin.cn/post/6844903718354157575)
+- [ ] [【进阶1-1期】理解JavaScript 中的执行上下文和执行栈](https://juejin.cn/post/6844903717372723208)
+- [ ] [Vue 进阶系列（三）之Render函数原理及实现](https://juejin.cn/post/6844903709441261581)
+- [ ] [Vue 进阶系列（二）之插件原理及实现](https://juejin.cn/post/6844903701979627528)
+- [ ] [Vue 进阶系列（一）之响应式原理及实现](https://juejin.cn/post/6844903697005150222)
+- [ ] [JavaScript常用八种继承方案](https://juejin.cn/post/6844903696111763470)
+- [ ] [2018大厂高级前端面试题汇总](https://juejin.cn/post/6844903695411314696)

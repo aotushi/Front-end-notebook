@@ -9671,7 +9671,7 @@ console.log(a == b); //false
 
 
 
-#### 4.浅拷贝
+#### 4.浅拷贝对象
 
 
 
@@ -9714,7 +9714,11 @@ let user = {
 let clone = Object.assign({}, user); 
 ```
 
+##### 3. 数组中的浅拷贝
 
+* slice
+* concat
+* 扩展运算符
 
 深层克隆
 
@@ -10565,6 +10569,52 @@ console.log(typeof doSomething); //'function'
 ```
 
 在这个示例中，doSomething()函数被提升至全局作用域，所以在if代码块外也可以访问到。ECMAScript 6将这个行为标准化了，移除了之前存在于各浏览器间不兼容的行为，所以所有ECMAScript 6的运行时环境都将执行这一标准。
+
+### new介绍
+
+> the `new` operator lets developers create an instance of a user-defined object type or one of the built-in object types that has a constructor function.
+
+
+
+#### Syntax
+
+> new constructor [ ([arguments])]
+
+#### Parameters
+
+`constructor`
+
+A class or function that specifies the type of the object instance
+
+`arguments`
+
+A list of values that the `constructor` will be called with
+
+#### Desc
+
+**the `new` keyword does the following things:**
+
+1.create <span style="color:blue">a blank, plain JavaScript object</span>
+
+2.Adds a property to the new object(`__proto`__) that links to the constructor function's prototype object.
+
+3.Binds the newly created object instance as the `this` context(i.e. all references to `this` in the constructor function now refer to the object created in the first step)
+
+4.Returns `this` if the function doesn't return an object
+
+
+
+**when the code `new Foo(...)` is executed, the following things happen:**
+
+1.A new object is created, inherited from `Foo.prototype`
+
+2.the constructor function `Foo` is called with the specified arguments, and with `this` bound to the newly created object. `new Foo` is equivalent to `new Foo()`. i.e. if no argument list is specified, `Foo` is called without arguments.
+
+3.the object(not null, false, 3.1415 or other primitive types) returned by the constructor function becomes the result of the whole `new` expression. If the constructor function doesn't explicitly return an object, the object created in step 1 is used instead (normally constructors don't return a value, but they can choose to do s<u>o if they want to override the normal object createion process</u>) 没太明白,中文版翻译可以理解
+
+
+
+
 
 
 
@@ -12967,10 +13017,11 @@ Function.prototype.myBind = function(cxt) {
 Function.prototype.myBind = function(cxt) {
   let fn = this;
   let argsOut = [].slice.call(arguments, 1);
+  
   let bound = function() {
     let argsInner = [].slice.call(arguments);
-    //当作为构造函数使用时,this指向实例,fn指向调用绑定方法的函数.因为下面的'bound.prototype = this.prototype', 已经修改了bound.prototype为调用方法的函数的原型.此时结果为true,当结果为true时,this指向实例.
-    fn.apply(this instanceof fn ? this : cxt, argsOut.concat(argsInner));
+    //当作为构造函数使用时,this指向实例,fn指向调用绑定方法的函数.因为下面的'bound.prototype = this.prototype', 已经修改了bound.prototype为调用方法的函数的原型.此时结果为true,当结果为true时,也就是外部使用了new操作符,这时需要将内部的传递的this更改为实例本身.
+    return fn.apply(this instanceof fn ? this : cxt, argsOut.concat(argsInner));
   }
   //修改返回函数的prototype为调用绑定方法函数的prototype,实例就可以继承函数的原型中的值
   bound.prototype = this.prototype;
@@ -12987,12 +13038,27 @@ Function.prototype.myBind = function(cxt) {
   let fn = this;
   let argsOut = [].slice.call(arguments, 1);
   let bound = function() {
-    let argsInner = [].slice.call(argumetns);
+    let argsInner = [].slice.call(arguments);
     fn.apply(this instanceof fn ? this : cxt, argsOut.concat(argsInner));
   }
   bound.prototype = this.prototype;
   return bound
 }
+
+
+function func() {
+	console.log('this', this)
+}
+let obj = {a:1, b:2}
+
+let res = new func.myBind(obj)
+//直接调用会报错: 
+//点运算符优先级高于new运算符,
+Uncaught TypeError: Right-hand side of 'instanceof' is not callable
+
+let res = func.myBind(obj)
+let result = new res()
+//
 ```
 
 
@@ -13015,6 +13081,34 @@ Function.prototype.myBind = function(cxt) {
   fbound.prototype = new fNOP();
   return fbound;
 }
+```
+
+
+
+**new和bind一起使用的问题/疑惑**
+
+new调用和bind一起使用,会出现问题
+
+```javascript
+function func() {
+  console.log('this', this)
+}
+
+new func.bind()
+//Uncaught TypeError: func.bind is not a constructor  应该是对参数类型进行的判断
+// typeof
+
+new (func.bind()) //没报错 正常执行
+
+let res = new func.myBind()
+res()
+//Uncaught TypeError: Right-hand side of 'instanceof' is not callable
+// instanceof 左边的this打印的值是window
+
+
+
+new func.myBind() //返回的是bound函数
+new (func.myBind())() //返回的是Bound类对象
 ```
 
 
