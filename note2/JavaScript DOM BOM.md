@@ -1488,6 +1488,7 @@ event.target.className
 
 
 
+
 ### 二.移动鼠标
 
 #### 1.mouseover mouseouter
@@ -1537,6 +1538,7 @@ https://codepen.io/westover/pen/ExWLpqM
 
 
 
+
 #### 3. 跳过元素
 
 当鼠标移动时，就会触发 `mousemove` 事件。但这并不意味着每个像素都会导致一个事件。浏览器会一直检查鼠标的位置。如果发现了变化，就会触发事件。这意味着，如果访问者非常快地移动鼠标，那么某些 DOM 元素就可能被跳过.
@@ -1551,6 +1553,7 @@ https://codepen.io/westover/pen/ExWLpqM
   See the Pen <a href='https://codepen.io/westover/pen/VwpBVrG'>VwpBVrG</a> by xxl
   (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
 </iframe>
+
 
 
 
@@ -1598,6 +1601,7 @@ https://codepen.io/westover/pen/ExWLpqM
 </iframe>
 
 
+
 2.智能工具提示
 
 编写一个函数，该函数仅在访问者将鼠标 **移至** 元素而不是 **移过** 元素的情况下，在该元素上显示工具提示
@@ -1607,7 +1611,6 @@ https://codepen.io/westover/pen/ExWLpqM
 
 
 ```js
-
 这个案例真的比较难理解,起码我是这么想.
 https://zh.javascript.info/mousemove-mouseover-mouseout-mouseenter-mouseleave#shi-jian-mouseovermouseoutrelatedtarget
 ```
@@ -1687,6 +1690,7 @@ note:
   See the Pen <a href='https://codepen.io/westover/pen/YzZBKoP'>dom-键盘事件</a> by xxl
   (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
 </iframe>
+
 
 
 
@@ -1830,6 +1834,7 @@ function checkPhoneKey(key) {
   See the Pen <a href='https://codepen.io/westover/pen/WNpPopw'>dom-键盘事件keyup/keydown</a> by xxl
   (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
 </iframe>
+
 
 
 
@@ -2841,6 +2846,7 @@ https://codepen.io/westover/pen/bGqjbJy
 
 
 
+
 #### 1.2 其他
 
 将scrollTop设置为0或者一个大的值,例如1e9,将会使元素滚动到顶部/底部.
@@ -2891,7 +2897,6 @@ document.documentElement.scrollTop + document.body.scrollTop
 #### 实例
 
 ```HTML
-
 <style>
     button{
         margin-top: 300px;
@@ -3121,7 +3126,6 @@ clientTop:
 ### 拖拽基础
 
 ```HTML
-
 <style>
     *{
         margin: 0;

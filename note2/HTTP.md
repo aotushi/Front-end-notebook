@@ -1,190 +1,237 @@
-## 浏览器相关原理
-
-> [浏览器相关原理(面试题)详细总结一 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903962216824839#heading-10)
->
-> [浏览器相关原理(面试题)详细总结二 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903969693646862#heading-1)
-
-### 1.Chrome打开一个页面需要启动多少进程?分别有哪些进程?
-
-浏览器从关闭状态进行启动，然后新开 1 个页面至少需要 1 个网络进程、1 个浏览器进程、1 个 GPU 进程以及 1 个渲染进程，共 4 个进程；后续再新开标签页，浏览器、网络进程、GPU进程是共享的，不会重新启动，如果2个页面属于同一站点的话，并且从a页面中打开的b页面，那么他们也会共用一个渲染进程，否则新开一个渲染进程。
-
-最新的 Chrome 浏览器包括：1 个浏览器（Browser）主进程、1 个 GPU 进程、1 个网络（NetWork）进程、多个渲染进程和多个插件进程。
-
-| 名称       | 定义                                                         |
-| ---------- | ------------------------------------------------------------ |
-| 浏览器进程 | 主要负责界面显示、用户交互、子进程管理，同时提供存储等功能   |
-| 渲染进程   | 核心任务是将 HTML、CSS 和 JavaScript 转换为用户可以与之交互的网页，排版引擎 Blink 和 JavaScript 引擎 V8 都是运行在该进程中，默认情况下，Chrome 会为每个 Tab 标签创建一个渲染进程。出于安全考虑，渲染进程都是运行在沙箱模式下。 |
-| GPU进程    | Chrome 刚开始发布的时候是没有 GPU 进程的。而 GPU 的使用初衷是为了实现 3D CSS 的效果，只是随后网页、Chrome 的 UI 界面都选择采用 GPU 来绘制，这使得 GPU 成为浏览器普遍的需求。最后，Chrome 在其多进程架构上也引入了 GPU 进程 |
-| 网络进程   | 主要负责页面的网络资源加载，之前是作为一个模块运行在浏览器进程里面的，直至最近才独立出来，成为一个单独的进程 |
-| 插件进程   | 主要是负责插件的运行，因插件易崩溃，所以需要通过插件进程来隔离，以保证插件进程崩溃不会对浏览器和页面造成影响 |
-
-
-
-### 2.如何保证页面文件能被完成送达浏览器
-
-#### 背景
-
-互联网中的数据是通过数据包来传输的。数据包要在互联网上进行传输，就要符合网际协议(IP)，互联网上不同的在线设备都有唯一的地址，地址只是一个数字，只要知道这个具体的地址，就可以往这里发送信息。
-
-如果要想把一个数据包从主机 A 发送给主机 B，那么在传输之前，数据包上会被附加上主机 B 的 IP 地址信息，这样在传输过程中才能正确寻址。额外地，数据包上还会附加上主机 A 本身的 IP 地址，有了这些信息主机 B 才可以回复信息给主机 A。这些附加的信息会被装进一个叫 IP 头的数据结构里。IP 头是 IP 数据包开头的信息，包含 IP 版本、源 IP 地址、目标 IP 地址、生存时间等信息。
-
-IP 是非常底层的协议，只负责把数据包传送到对方电脑，但是对方电脑并不知道把数据包交给哪个程序，是交给浏览器还是交给王者荣耀？因此，需要基于 IP 之上开发能和应用打交道的协议，最常见的是`用户数据包协议（User Datagram Protocol)，简称UDP`和`传输控制协议（Transmission Control Protocol）,简称TCP`.
-
-
-
-#### 传输过程
-
-1.上层将数据包交给传输层
-
-2.传输层会在数据包前面加上`UDP`头, 组成新的UDP数据包,再将新的UDP数据包交给网络层
-
-3.网络层再将IP头附加到数据包上,组成新的IP数据包,并交给底层
-
-4.数据包被传输到主机B的网络层,在这里主机B拆开IP头信息,并将拆开来的数据包交给传输层
-
-5.在传输层,数据包中的UDP头会被拆开,并根据UDP中所提供的端口号,把数据部分交给上层的应用程序
-
-6.最终,数据包就发送到主机B上层的应用程序这里
-
-
-
-### 3.UCP和TCP的区别
-
-* TCP协议在传送数据段的时候要给段标号；UDP协议不
-
-* TCP协议可靠；UDP协议不可靠
-
-* TCP协议是面向连接；UDP协议采用无连接
-
-* TCP协议负载较高，采用虚电路；UDP采用无连接
-
-* TCP协议的发送方要确认接收方是否收到数据段（3次握手协议）
-
-* TCP协议采用窗口技术和流控制
-
-### 4.TCP传输的详细过程
-
-#### 4.1 进行3次握手,尽力TCP连接
-
-#### 4.2 发送HTTP请求,服务器处理请求,返回响应结果
-
-#### 4.3 关闭TCP连接
-
-
-
-
-### 5.站点第二次打开的速度会快很多?
-
-主要原因是第一次加载页面过程中，缓存了一些耗时的数据。 那么，哪些数据会被缓存呢？
-
-#### 5.1 DNS缓存
-
-在浏览器本地把对应的 IP 和域名关联起来，这样在进行DNS解析的时候就很快
-
-#### 5.2 MemoryCache
-
-是指存在内存中的缓存。从优先级上来说，它是浏览器最先尝试去命中的一种缓存。从效率上来说，它是响应速度最快的一种缓存。 内存缓存是快的，也是“短命”的。它和渲染进程“生死相依”，当进程结束后，也就是 tab 关闭以后，内存里的数据也将不复存在。
-
-#### 5.3 浏览器缓存
-
-浏览器缓存，也称Http缓存，分为强缓存和协商缓存。优先级较高的是强缓存，在命中强缓存失败的情况下，才会走协商缓存。
-
-**强缓存**
-
-`强缓存`是利用 http 头中的 `Expires` 和 `Cache-Control` 两个字段来控制的。强缓存中，当请求再次发出时，浏览器会根据其中的 expires 和 cache-control 判断目标资源是否“命中”强缓存，若命中则直接从缓存中获取资源，不会再与服务端发生通信。
-
-实现强缓存，过去我们一直用expires。当服务器返回响应时，在 Response Headers 中将过期时间写入 expires 字段。像这样
-
-```javascript
-expires: Wed, 12 Sep 2019 06:12:18 GMT
-```
-
-可以看到，expires 是一个时间戳，接下来如果我们试图再次向服务器请求资源，浏览器就会先对比本地时间和 expires 的时间戳，如果本地时间小于 expires 设定的过期时间，那么就直接去缓存中取这个资源。
-
-从这样的描述中大家也不难猜测，expires 是有问题的，它最大的问题在于对“本地时间”的依赖。如果服务端和客户端的时间设置可能不同，或者我直接手动去把客户端的时间改掉，那么 expires 将无法达到我们的预期。
-
-考虑到 expires 的局限性，HTTP1.1 新增了`Cache-Control`字段来完成 expires 的任务。expires 能做的事情，Cache-Control 都能做；expires 完成不了的事情，Cache-Control 也能做。因此，Cache-Control 可以视作是 expires 的完全替代方案。在当下的前端实践里，我们继续使用 expires 的唯一目的就是向下兼容.
-
-```javascript
-cache-control: max-age=31536000
-```
-
-在 Cache-Control 中，我们通过max-age来控制资源的有效期。max-age 不是一个时间戳，而是一个时间长度。在本例中，max-age 是 31536000 秒，它意味着该资源在 31536000 秒以内都是有效的，完美地规避了时间戳带来的潜在问题。
-
-Cache-Control 相对于 expires 更加准确，它的优先级也更高。当 Cache-Control 与 expires 同时出现时，我们以 Cache-Control 为准。
-
-**协商缓存**
-
-协商缓存依赖于服务端与浏览器之间的通信。协商缓存机制下，浏览器需要向服务器去询问缓存的相关信息，进而判断是重新发起请求、下载完整的响应，还是从本地获取缓存的资源。如果服务端提示缓存资源未改动（Not Modified），资源会被重定向到浏览器缓存，<u>这种情况下网络请求对应的状态码是 304。</u>
-
-协商缓存的实现,从 `Last-Modified` 到 `Etag`,Last-Modified 是一个时间戳，如果我们启用了协商缓存，它会在首次请求时随着 Response Headers 返回：
-
-```javascript
-Last-Modified: Fri, 27 Oct 2017 06:35:57 GMT
-```
-
-随后我们每次请求时，会带上一个叫 If-Modified-Since 的时间戳字段，它的值正是上一次 response 返回给它的 last-modified 值：
-
-```javascript
-If-Modified-Since: Fri, 27 Oct 2017 06:35:57 GMT
-```
-
-服务器接收到这个时间戳后，会比对该时间戳和资源在服务器上的最后修改时间是否一致，从而判断资源是否发生了变化。如果发生了变化，就会返回一个完整的响应内容，并在 Response Headers 中添加新的 Last-Modified 值；否则，返回如上图的 304 响应，Response Headers 不会再添加 Last-Modified 字段。
-
-使用Last-Modified 存在一些弊端，这其中最常见的就是这样两个场景:
-
-* 我们编辑了文件，但文件的内容没有改变。服务端并不清楚我们是否真正改变了文件，它仍然通过最后编辑时间进行判断。因此这个资源在再次被请求时，会被当做新资源，进而引发一次完整的响应——不该重新请求的时候，也会重新请求
-* 当我们修改文件的速度过快时（比如花了 100ms 完成了改动），由于 If-Modified-Since 只能检查到以秒为最小计量单位的时间差，所以它是感知不到这个改动的——该重新请求的时候，反而没有重新请求了
-
-这两个场景其实指向了同一个 bug——服务器并没有正确感知文件的变化。为了解决这样的问题，`Etag 作为 Last-Modified 的补充出现了。`
-
-`Etag` 是由服务器为每个资源生成的唯一的标识字符串，这个标识字符串可以是基于文件内容编码的，只要文件内容不同，它们对应的 Etag 就是不同的，反之亦然。因此 Etag 能够精准地感知文件的变化。
-
-Etag 的生成过程需要服务器额外付出开销，会影响服务端的性能，这是它的弊端。因此启用 Etag 需要我们审时度势。正如我们刚刚所提到的——Etag 并不能替代 Last-Modified，它只能作为 Last-Modified 的补充和强化存在。
-
-Etag 在感知文件变化上比 Last-Modified 更加准确，优先级也更高。当 Etag 和 Last-Modified 同时存在时，以 Etag 为准。
-
-#### 5.4 Service Worker Cache
-
-Service Worker 是一种独立于主线程之外的 Javascript 线程。它脱离于浏览器窗体，因此无法直接访问 DOM。这样独立的个性使得 Service Worker 的“个人行为”无法干扰页面的性能，这个“幕后工作者”可以帮我们实现离线缓存、消息推送和网络代理等功能。我们借助 Service worker 实现的离线缓存就称为 Service Worker Cache。
-
-Service Worker 的生命周期包括 install、active、working 三个阶段。一旦 Service Worker 被 install，它将始终存在，只会在 active 与 working 之间切换，除非我们主动终止它。这是它可以用来实现离线存储的重要先决条件.
-
-
-
-#### 5.5 Push Cache
-
-ush Cache 是指 HTTP2 在 server push 阶段存在的缓存。这块的知识比较新，应用也还处于萌芽阶段，应用范围有限不代表不重要——HTTP2 是趋势、是未来。在它还未被推而广之的此时此刻，我仍希望大家能对 Push Cache 的关键特性有所了解：
-
-Push Cache 是缓存的最后一道防线。浏览器只有在 Memory Cache、HTTP Cache 和 Service Worker Cache 均未命中的情况下才会去询问 Push Cache。
-
-Push Cache 是一种存在于会话阶段的缓存，当 session 终止时，缓存也随之释放。
-
-不同的页面只要共享了同一个 HTTP2 连接，那么它们就可以共享同一个 Push Cache。
-
-
-
 
 
 ## HTTP协议
 
-> 介绍: 超文本传输协议. 基于TCP/IP的应用层通信协议,详细规定了浏览器与万维网服务器之间互相通信的规则.
+### 背景
+
+> 前端后端交互，这时候我们需要了解什么是请求报文，什么是响应报文，
+
+
+
+### what
+
+> 介绍: 超文本传输协议(英语：**H**yper**T**ext **T**ransfer **P**rotocol，缩写：**HTTP**)是一种用于分布式、协作式和[超媒体](https://zh.wikipedia.org/wiki/超媒體)信息系统的[应用层](https://zh.wikipedia.org/wiki/应用层)[协议](https://zh.wikipedia.org/wiki/网络传输协议)[[1\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-ietf2616-1)。HTTP是[万维网](https://zh.wikipedia.org/wiki/全球資訊網)的数据通信的基础。
+>
+> 设计HTTP最初的目的是为了提供一种发布和接收[HTML](https://zh.wikipedia.org/wiki/HTML)页面的方法。通过HTTP或者[HTTPS](https://zh.wikipedia.org/wiki/HTTPS)协议请求的资源由[统一资源标识符](https://zh.wikipedia.org/wiki/统一资源标志符)（Uniform Resource Identifiers，URI）来标识。
 >
 > 协议主要规定了两方面的内容:
 >
 > * 客户端向服务器发送数据,称之为==请求报文==
 > * 服务器向客户端返回数据,称之为==响应报文==
 
+**简单理解**
+
+> **HTTP 是一个在计算机世界里专门在两点之间传输文字、图片、音频、视频等超文本数据的约定和规范**
+
+**超文本**
+
+*超文本*是用超链接的方法，将各种不同空间的文字信息组织在一起的网状文本.最成功的超文本系统之应用，当属在互联网上使用的[万维网](https://zh.wikipedia.org/wiki/全球資訊網)[[2\]](https://zh.wikipedia.org/wiki/超文本#cite_note-2)。
 
 
-#### FIddle工具
+
+### 概述
+
+HTTP是一个客户端（用户）和服务端（网站）之间请求和应答的标准，通常使用[TCP协议](https://zh.wikipedia.org/wiki/传输控制协议)。通过使用[网页浏览器](https://zh.wikipedia.org/wiki/網頁瀏覽器)、[网络爬虫](https://zh.wikipedia.org/wiki/网络爬虫)或者其它的工具，客户端发起一个HTTP请求到服务器上指定端口（默认[端口](https://zh.wikipedia.org/wiki/通訊埠)为80）。我们称这个客户端为用户代理程序（user agent）。应答的服务器上存储着一些资源，比如HTML文件和图像。我们称这个应答服务器为源服务器（origin server）。在用户代理和源服务器中间可能存在多个“中间层”，比如[代理服务器](https://zh.wikipedia.org/wiki/代理伺服器)、[网关](https://zh.wikipedia.org/wiki/网关)或者[隧道](https://zh.wikipedia.org/wiki/隧道)（tunnel）。
+
+尽管[TCP/IP](https://zh.wikipedia.org/wiki/TCP/IP)协议是互联网上最流行的应用，但是在HTTP协议中并没有规定它必须使用或它支持的层。事实上HTTP可以在任何互联网协议或其他网络上实现。HTTP假定其下层协议提供可靠的传输。因此，任何能够提供这种保证的协议都可以被其使用，所以其在TCP/IP协议族使用TCP作为其传输层。
+
+通常，由HTTP客户端发起一个请求，创建一个到服务器指定端口（默认是80端口）的TCP连接。HTTP服务器则在那个端口监听客户端的请求。一旦收到请求，服务器会向客户端返回一个状态，比如"HTTP/1.1 200 OK"，以及返回的内容，如请求的文件、错误消息、或者其它信息。
+
+
+
+### 请求方法
+
+HTTP/1.1协议中共定义了八种方法（也叫“动作”）来以不同方式操作指定的资源：
+
+- GET
+
+  向指定的资源发出“显示”请求。使用GET方法应该只用在读取资料，而不应当被用于产生“[副作用](https://zh.wikipedia.org/wiki/超文本传输协议#副作用)”的操作中，例如在[网络应用程序](https://zh.wikipedia.org/wiki/网络应用程序)中。其中一个原因是GET可能会被[网络爬虫](https://zh.wikipedia.org/wiki/網路爬蟲)等随意访问。参见[安全方法](https://zh.wikipedia.org/wiki/超文本传输协议#安全方法)。浏览器直接发出的GET只能由一个url触发。GET上要在url之外带一些参数就只能依靠url上附带querystring。
+
+- HEAD
+
+  与GET方法一样，都是向服务器发出指定资源的请求。只不过服务器将不传回资源的本文部分。它的好处在于，使用这个方法可以在不必传输全部内容的情况下，就可以获取其中“关于该资源的信息”（元信息或称元数据）。
+
+- POST
+
+  向指定资源提交数据，请求服务器进行处理（例如提交表单或者上传文件）。数据被包含在请求本文中。这个请求可能会创建新的资源或修改现有资源，或二者皆有。每次提交，表单的数据被浏览器用编码到HTTP请求的body里。浏览器发出的POST请求的body主要有两种格式，一种是application/x-www-form-urlencoded用来传输简单的数据，大概就是"key1=value1&key2=value2"这样的格式。另外一种是传文件，会采用multipart/form-data格式。采用后者是因为application/x-www-form-urlencoded的编码方式对于文件这种二进制的数据非常低效。
+
+- PUT
+
+  向指定资源位置上传其最新内容。
+
+- DELETE
+
+  请求服务器删除Request-URI所标识的资源。
+
+- TRACE
+
+  回显服务器收到的请求，主要用于测试或诊断。
+
+- OPTIONS
+
+  这个方法可使服务器传回该资源所支持的所有HTTP请求方法。用'*'来代替资源名称，向Web服务器发送OPTIONS请求，可以测试服务器功能是否正常运作。
+
+- CONNECT
+
+  HTTP/1.1协议中预留给能够将连接改为隧道方式的代理服务器。通常用于SSL加密服务器的链接（经由非加密的HTTP代理服务器）。
+
+方法名称是区分大小写的。当某个请求所针对的资源不支持对应的请求方法的时候，服务器应当返回[状态码405](https://zh.wikipedia.org/wiki/HTTP状态码#405)（Method Not Allowed），当服务器不认识或者不支持对应的请求方法的时候，应当返回[状态码501](https://zh.wikipedia.org/wiki/HTTP状态码#501)（Not Implemented）。
+
+**HTTP服务器至少应该实现GET和HEAD方法**，其他方法都是可选的。当然，所有的方法支持的实现都应当符合下述的方法各自的语义定义。此外，除了上述方法，特定的HTTP服务器还能够扩展自定义的方法。例如：
+
+- PATCH（由 [RFC 5789](https://tools.ietf.org/html/rfc5789) 指定的方法）
+
+**安全方法**
+
+对于GET和HEAD方法而言，除了进行获取资源信息外，这些请求不应当再有其他意义。也就是说，这些方法应当被认为是“安全的”。 客户端可能会使用其他“非安全”方法，例如POST，PUT及DELETE，应该以特殊的方式（通常是按钮而不是[超链接](https://zh.wikipedia.org/wiki/超链接)）告知客户可能的后果（例如一个按钮控制的资金交易），或请求的操作可能是不安全的（例如某个文件将被上传或删除）。
+
+但是，不能想当然地认为服务器在处理某个GET请求时不会产生任何副作用。事实上，很多动态资源会把这作为其特性。这里重要的区别在于用户并没有请求这一副作用，因此不应由用户为这些副作用承担责任。
+
+**副作用**
+
+假如在不考虑诸如错误或者过期等问题的情况下，若干次请求的副作用与单次请求相同或者根本没有副作用，那么这些请求方法就能够被视作“[幂等(idempotence)](https://zh.wikipedia.org/wiki/冪等)”的。GET，HEAD，PUT和DELETE方法都有这样的幂等属性，同样由于根据协议，OPTIONS，TRACE都不应有副作用，因此也理所当然也是幂等的。
+
+假如一个由若干请求组成的请求序列产生的结果，在重复执行这个请求序列或者其中任何一个或多个请求后仍没有发生变化，则这个请求序列便是“幂等”的。但是，可能出现一个由若干请求组成的请求序列是“非幂等”的，即使这个请求序列中所有执行的请求方法都是幂等的。例如，这个请求序列的结果依赖于某个会在下次执行这个序列的过程中被修改的变量。
+
+### 版本
+
+> HTTP的发展是由[蒂姆·伯纳斯-李](https://zh.wikipedia.org/wiki/提姆·柏內茲-李)于1989年在[欧洲核子研究组织](https://zh.wikipedia.org/wiki/歐洲核子研究組織)（CERN）所发起
+>
+> 1999年6月公布的 [RFC 2616](https://tools.ietf.org/html/rfc2616)，定义了HTTP协议中现今广泛使用的一个版本——HTTP 1.1。
+>
+> 2014年12月，[互联网工程任务组](https://zh.wikipedia.org/wiki/互联网工程任务组)（IETF）的Hypertext Transfer Protocol Bis（httpbis）工作小组将[HTTP/2](https://zh.wikipedia.org/wiki/HTTP/2)标准提议递交至[IESG](https://zh.wikipedia.org/w/index.php?title=IESG&action=edit&redlink=1)进行讨论[[2\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-2)，于2015年2月17日被批准。[[3\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-approval2-3) 
+>
+> HTTP/2标准于2015年5月以RFC 7540正式发表，取代HTTP 1.1成为HTTP的实现标准。[[4\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-rfc7540-4)
+
+
+
+HTTP/1.0
+
+这是第一个在通讯中指定版本号的HTTP协议版本。
+
+HTTP/1.1
+
+默认采用持续连接（Connection: keep-alive），能很好地配合代理服务器工作。还支持以[管道方式](https://zh.wikipedia.org/wiki/HTTP管线化)在同时发送多个请求，以便降低线路负载，提高传输速度。
+
+HTTP/1.1相较于HTTP/1.0协议的区别主要体现在：
+
+- 缓存处理
+- 带宽优化及网络连接的使用
+- 错误通知的管理
+- 消息在网络中的发送
+- 互联网地址的维护
+- 安全性及完整性
+
+HTTP/2, HTTP/3
+
+they have kept the above mentioned features of HTTP/1.1
+
+
+
+### HTTP/1.1 request messages
+
+> Request messages are sent by a client to a target server
+
+#### Request syntax
+
+A client sends *request messages* to the server, which consist of:
+
+* a **request line**, consisting of the case-sensitive(区分大小写) request method, a [space](https://en.wikipedia.org/wiki/Space_(punctuation)), the requested URL, another space, the protocol version, a [carriage return](https://en.wikipedia.org/wiki/Carriage_return),(回车) and a [line feed](https://en.wikipedia.org/wiki/Line_feed)(换行), e.g.:
+
+> GET /images/logo.png HTTP/1.1
+
+* **zero or more [request header fields](https://en.wikipedia.org/wiki/HTTP_request_header_field)** (at least 1 or more headers in case of HTTP/1.1), each consisting of the case-insensitive field name(域名), a colon(冒号), optional leading [whitespace](https://en.wikipedia.org/wiki/Whitespace_(computer_science))(可选前导空格), the field value, an optional trailing whitespace(空白;末尾无用空白) and ending with a carriage return and a line feed, e.g.:
+
+> Host:  www.example.com
+>
+> Accept-Language: en
+
+* **an empty line**, consisting of a carriage return and a line feed;
+* **an optional [message body](https://en.wikipedia.org/wiki/HTTP_message_body)**.
+
+In the HTTP/1.1 protocol, all header fields except `Host: hostname` are optional.
+
+
+
+#### Request methods
+
+
+
+### HTTP/1.1 response messages
+
+> A response message is sent by a server to a client as a reply to its former request message.
+
+#### Response syntax
+
+> A server sends *response messages* to the client, which consist of
+
+* a **status line**, consisting of the protocol version, a [space](https://en.wikipedia.org/wiki/Space_(punctuation)), the [response status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes), another space, a possibly empty reason phrase, a [carriage return](https://en.wikipedia.org/wiki/Carriage_return) and a [line feed](https://en.wikipedia.org/wiki/Line_feed), e.g.:
+
+```
+HTTP/1.1 200 OK
+```
+
+
+
+* zero or more [response header fields](https://en.wikipedia.org/wiki/HTTP_response_header_field), each consisting of the case-insensitive field name, a colon, optional leading [whitespace](https://en.wikipedia.org/wiki/Whitespace_(computer_science)), the field value, an optional trailing whitespace and ending with a carriage return and a line feed, e.g.:
+
+```
+Content-Type: text/html
+```
+
+- an empty line, consisting of a carriage return and a line feed;
+- an optional [message body](https://en.wikipedia.org/wiki/HTTP_message_body).
+
+
+
+#### Response status code
+
+
+
+
+
+
+
+### 状态码
+
+> [List of HTTP status codes - Wikipedia](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
+
+#### 概述
+
+> **HTTP状态码**（英语：HTTP Status Code）是用以表示[网页服务器](https://zh.wikipedia.org/wiki/網頁伺服器)[超文本传输协议](https://zh.wikipedia.org/wiki/超文本传输协议)响应状态的3位数字代码。
+>
+> 所有状态码被分为五类，状态码的第一个数字代表了响应的五种状态之一。所示的消息短语是典型的，但是可以提供任何可读取的替代方案。 除非另有说明，状态码是HTTP/1.1标准（[RFC 7231](https://tools.ietf.org/html/rfc7231)）的一部分。[[1\]](https://zh.wikipedia.org/wiki/HTTP状态码#cite_note-1)
+>
+> HTTP状态码的官方注册表由[互联网号码分配局](https://zh.wikipedia.org/wiki/互联网号码分配局)（Internet Assigned Numbers Authority）维护
+
+### 5 classes standard
+
+There are five classes defined by the standard:
+
+- *1xx informational response* – the request was received, continuing process
+- *2xx successful* – the request was successfully received, understood, and accepted
+- *3xx redirection* – further action needs to be taken in order to complete the request
+- *4xx client error* – the request contains bad syntax or cannot be fulfilled
+- *5xx server error* – the server failed to fulfil an apparently valid request
+
+
+
+
+
+> 所有HTTP响应的第一行都是**状态行**，依次是当前**HTTP版本号**，3位数字组成的[状态代码](https://zh.wikipedia.org/wiki/HTTP状态码)，以及描述状态的短语，彼此由空格分隔。
+
+
+
+
+
+
 
 
 
 ### 端口号
 
 ```js
-- 是计算机服务的端口,一台计算机有65536个端口.
+- 是计算机服务的端口,一台计算机有65536个端口. 2**16
 UDP,TCP协议报头只有两字节存储端口号,所以只能是0~65535
 
 
@@ -523,7 +570,6 @@ require('http')
 #### 响应行设置
 
 ```js
-
 require('http')
 .createServer((request, response)=>{
     //设置响应状态码
@@ -696,6 +742,222 @@ require('http')
     - 以斜杠开头的路径(和请求报文中的请求行中的URL一致)
     - 以域名开头的路径
 ```
+
+
+
+
+
+
+
+## HTTP HTTPS
+
+> https://juejin.cn/post/7016593221815910408
+
+### 概述
+
+http: 是一个客户端和服务器端请求和应答的标准（TCP），用于从 WWW 服务器传输超文本到本地浏览器的超文本传输协议。
+ https:是以安全为目标的 HTTP 通道，即 HTTP 下 加入 SSL 层进行加密。其作用是：建立一个信息安全通道，来确保数据的传输，确保网站的真实性。
+
+
+
+### 区别及优缺点
+
+http 是超文本传输协议，信息是明文传输，HTTPS 协议要比 http 协议`安全`，https 是具有安全性的 ssl 加密传输协议，可防止数据在传输过程中被窃取、改变，确保数据的完整性(当然这种安全性并非绝对的，对于更深入的 Web 安全问题，此处暂且不表)。
+
+http 协议的`默认端口`为 80，https 的默认端口为 443。
+
+http 的连接很简单，是无状态的。https 握手阶段比较`费时`，会使页面加载时间延长 50%，增加 10%~20%的耗电。
+
+https `缓存`不如 http 高效，会增加数据开销。
+
+Https 协议需要 ca 证书，费用较高，功能越强大的`证书费`用越高。
+
+SSL 证书需要绑定 `IP`，不能再同一个 IP 上绑定多个域名，IPV4 资源支持不了这种消耗。
+
+
+
+###  HTTPS协议工作原理
+
+客户端在使用 HTTPS 方式与 Web 服务器通信时有以下几个步骤：
+
+1. 客户端使用 https url 访问服务器，则要求 web 服务器`建立 ssl 链接`。
+2. web 服务器接收到客户端的请求之后，会`将网站的证书（证书中包含了公钥），传输给客户端`。
+3. 客户端和 web 服务器端开始`协商 SSL 链接的安全等级`，也就是加密等级。
+4. 客户端浏览器通过双方协商一致的安全等级，`建立会话密钥`，然后通过网站的公钥来加密会话密钥，并传送给网站。
+5. web 服务器`通过自己的私钥解密出会话密钥`。
+6. web 服务器`通过会话密钥加密与客户端之间的通信`。
+
+[解读HTTP1/HTTP2/HTTP3](https://juejin.cn/post/6995109407545622542)
+
+
+
+
+
+## 浏览器相关原理
+
+> [浏览器相关原理(面试题)详细总结一 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903962216824839#heading-10)
+>
+> [浏览器相关原理(面试题)详细总结二 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903969693646862#heading-1)
+
+### 1.Chrome打开一个页面需要启动多少进程?分别有哪些进程?
+
+浏览器从关闭状态进行启动，然后新开 1 个页面至少需要 1 个网络进程、1 个浏览器进程、1 个 GPU 进程以及 1 个渲染进程，共 4 个进程；后续再新开标签页，浏览器、网络进程、GPU进程是共享的，不会重新启动，如果2个页面属于同一站点的话，并且从a页面中打开的b页面，那么他们也会共用一个渲染进程，否则新开一个渲染进程。
+
+最新的 Chrome 浏览器包括：1 个浏览器（Browser）主进程、1 个 GPU 进程、1 个网络（NetWork）进程、多个渲染进程和多个插件进程。
+
+| 名称       | 定义                                                         |
+| ---------- | ------------------------------------------------------------ |
+| 浏览器进程 | 主要负责界面显示、用户交互、子进程管理，同时提供存储等功能   |
+| 渲染进程   | 核心任务是将 HTML、CSS 和 JavaScript 转换为用户可以与之交互的网页，排版引擎 Blink 和 JavaScript 引擎 V8 都是运行在该进程中，默认情况下，Chrome 会为每个 Tab 标签创建一个渲染进程。出于安全考虑，渲染进程都是运行在沙箱模式下。 |
+| GPU进程    | Chrome 刚开始发布的时候是没有 GPU 进程的。而 GPU 的使用初衷是为了实现 3D CSS 的效果，只是随后网页、Chrome 的 UI 界面都选择采用 GPU 来绘制，这使得 GPU 成为浏览器普遍的需求。最后，Chrome 在其多进程架构上也引入了 GPU 进程 |
+| 网络进程   | 主要负责页面的网络资源加载，之前是作为一个模块运行在浏览器进程里面的，直至最近才独立出来，成为一个单独的进程 |
+| 插件进程   | 主要是负责插件的运行，因插件易崩溃，所以需要通过插件进程来隔离，以保证插件进程崩溃不会对浏览器和页面造成影响 |
+
+
+
+### 2.如何保证页面文件能被完成送达浏览器
+
+#### 背景
+
+互联网中的数据是通过数据包来传输的。数据包要在互联网上进行传输，就要符合网际协议(IP)，互联网上不同的在线设备都有唯一的地址，地址只是一个数字，只要知道这个具体的地址，就可以往这里发送信息。
+
+如果要想把一个数据包从主机 A 发送给主机 B，那么在传输之前，数据包上会被附加上主机 B 的 IP 地址信息，这样在传输过程中才能正确寻址。额外地，数据包上还会附加上主机 A 本身的 IP 地址，有了这些信息主机 B 才可以回复信息给主机 A。这些附加的信息会被装进一个叫 IP 头的数据结构里。IP 头是 IP 数据包开头的信息，包含 IP 版本、源 IP 地址、目标 IP 地址、生存时间等信息。
+
+IP 是非常底层的协议，只负责把数据包传送到对方电脑，但是对方电脑并不知道把数据包交给哪个程序，是交给浏览器还是交给王者荣耀？因此，需要基于 IP 之上开发能和应用打交道的协议，最常见的是`用户数据包协议（User Datagram Protocol)，简称UDP`和`传输控制协议（Transmission Control Protocol）,简称TCP`.
+
+
+
+#### 传输过程
+
+1.上层将数据包交给传输层
+
+2.传输层会在数据包前面加上`UDP`头, 组成新的UDP数据包,再将新的UDP数据包交给网络层
+
+3.网络层再将IP头附加到数据包上,组成新的IP数据包,并交给底层
+
+4.数据包被传输到主机B的网络层,在这里主机B拆开IP头信息,并将拆开来的数据包交给传输层
+
+5.在传输层,数据包中的UDP头会被拆开,并根据UDP中所提供的端口号,把数据部分交给上层的应用程序
+
+6.最终,数据包就发送到主机B上层的应用程序这里
+
+
+
+### 3.UCP和TCP的区别
+
+* TCP协议在传送数据段的时候要给段标号；UDP协议不
+
+* TCP协议可靠；UDP协议不可靠
+
+* TCP协议是面向连接；UDP协议采用无连接
+
+* TCP协议负载较高，采用虚电路；UDP采用无连接
+
+* TCP协议的发送方要确认接收方是否收到数据段（3次握手协议）
+
+* TCP协议采用窗口技术和流控制
+
+### 4.TCP传输的详细过程
+
+#### 4.1 进行3次握手,尽力TCP连接
+
+#### 4.2 发送HTTP请求,服务器处理请求,返回响应结果
+
+#### 4.3 关闭TCP连接
+
+
+
+
+### 5.站点第二次打开的速度会快很多?
+
+主要原因是第一次加载页面过程中，缓存了一些耗时的数据。 那么，哪些数据会被缓存呢？
+
+#### 5.1 DNS缓存
+
+在浏览器本地把对应的 IP 和域名关联起来，这样在进行DNS解析的时候就很快
+
+#### 5.2 MemoryCache
+
+是指存在内存中的缓存。从优先级上来说，它是浏览器最先尝试去命中的一种缓存。从效率上来说，它是响应速度最快的一种缓存。 内存缓存是快的，也是“短命”的。它和渲染进程“生死相依”，当进程结束后，也就是 tab 关闭以后，内存里的数据也将不复存在。
+
+#### 5.3 浏览器缓存
+
+浏览器缓存，也称Http缓存，分为强缓存和协商缓存。优先级较高的是强缓存，在命中强缓存失败的情况下，才会走协商缓存。
+
+**强缓存**
+
+`强缓存`是利用 http 头中的 `Expires` 和 `Cache-Control` 两个字段来控制的。强缓存中，当请求再次发出时，浏览器会根据其中的 expires 和 cache-control 判断目标资源是否“命中”强缓存，若命中则直接从缓存中获取资源，不会再与服务端发生通信。
+
+实现强缓存，过去我们一直用expires。当服务器返回响应时，在 Response Headers 中将过期时间写入 expires 字段。像这样
+
+```javascript
+expires: Wed, 12 Sep 2019 06:12:18 GMT
+```
+
+可以看到，expires 是一个时间戳，接下来如果我们试图再次向服务器请求资源，浏览器就会先对比本地时间和 expires 的时间戳，如果本地时间小于 expires 设定的过期时间，那么就直接去缓存中取这个资源。
+
+从这样的描述中大家也不难猜测，expires 是有问题的，它最大的问题在于对“本地时间”的依赖。如果服务端和客户端的时间设置可能不同，或者我直接手动去把客户端的时间改掉，那么 expires 将无法达到我们的预期。
+
+考虑到 expires 的局限性，HTTP1.1 新增了`Cache-Control`字段来完成 expires 的任务。expires 能做的事情，Cache-Control 都能做；expires 完成不了的事情，Cache-Control 也能做。因此，Cache-Control 可以视作是 expires 的完全替代方案。在当下的前端实践里，我们继续使用 expires 的唯一目的就是向下兼容.
+
+```javascript
+cache-control: max-age=31536000
+```
+
+在 Cache-Control 中，我们通过max-age来控制资源的有效期。max-age 不是一个时间戳，而是一个时间长度。在本例中，max-age 是 31536000 秒，它意味着该资源在 31536000 秒以内都是有效的，完美地规避了时间戳带来的潜在问题。
+
+Cache-Control 相对于 expires 更加准确，它的优先级也更高。当 Cache-Control 与 expires 同时出现时，我们以 Cache-Control 为准。
+
+**协商缓存**
+
+协商缓存依赖于服务端与浏览器之间的通信。协商缓存机制下，浏览器需要向服务器去询问缓存的相关信息，进而判断是重新发起请求、下载完整的响应，还是从本地获取缓存的资源。如果服务端提示缓存资源未改动（Not Modified），资源会被重定向到浏览器缓存，<u>这种情况下网络请求对应的状态码是 304。</u>
+
+协商缓存的实现,从 `Last-Modified` 到 `Etag`,Last-Modified 是一个时间戳，如果我们启用了协商缓存，它会在首次请求时随着 Response Headers 返回：
+
+```javascript
+Last-Modified: Fri, 27 Oct 2017 06:35:57 GMT
+```
+
+随后我们每次请求时，会带上一个叫 If-Modified-Since 的时间戳字段，它的值正是上一次 response 返回给它的 last-modified 值：
+
+```javascript
+If-Modified-Since: Fri, 27 Oct 2017 06:35:57 GMT
+```
+
+服务器接收到这个时间戳后，会比对该时间戳和资源在服务器上的最后修改时间是否一致，从而判断资源是否发生了变化。如果发生了变化，就会返回一个完整的响应内容，并在 Response Headers 中添加新的 Last-Modified 值；否则，返回如上图的 304 响应，Response Headers 不会再添加 Last-Modified 字段。
+
+使用Last-Modified 存在一些弊端，这其中最常见的就是这样两个场景:
+
+* 我们编辑了文件，但文件的内容没有改变。服务端并不清楚我们是否真正改变了文件，它仍然通过最后编辑时间进行判断。因此这个资源在再次被请求时，会被当做新资源，进而引发一次完整的响应——不该重新请求的时候，也会重新请求
+* 当我们修改文件的速度过快时（比如花了 100ms 完成了改动），由于 If-Modified-Since 只能检查到以秒为最小计量单位的时间差，所以它是感知不到这个改动的——该重新请求的时候，反而没有重新请求了
+
+这两个场景其实指向了同一个 bug——服务器并没有正确感知文件的变化。为了解决这样的问题，`Etag 作为 Last-Modified 的补充出现了。`
+
+`Etag` 是由服务器为每个资源生成的唯一的标识字符串，这个标识字符串可以是基于文件内容编码的，只要文件内容不同，它们对应的 Etag 就是不同的，反之亦然。因此 Etag 能够精准地感知文件的变化。
+
+Etag 的生成过程需要服务器额外付出开销，会影响服务端的性能，这是它的弊端。因此启用 Etag 需要我们审时度势。正如我们刚刚所提到的——Etag 并不能替代 Last-Modified，它只能作为 Last-Modified 的补充和强化存在。
+
+Etag 在感知文件变化上比 Last-Modified 更加准确，优先级也更高。当 Etag 和 Last-Modified 同时存在时，以 Etag 为准。
+
+#### 5.4 Service Worker Cache
+
+Service Worker 是一种独立于主线程之外的 Javascript 线程。它脱离于浏览器窗体，因此无法直接访问 DOM。这样独立的个性使得 Service Worker 的“个人行为”无法干扰页面的性能，这个“幕后工作者”可以帮我们实现离线缓存、消息推送和网络代理等功能。我们借助 Service worker 实现的离线缓存就称为 Service Worker Cache。
+
+Service Worker 的生命周期包括 install、active、working 三个阶段。一旦 Service Worker 被 install，它将始终存在，只会在 active 与 working 之间切换，除非我们主动终止它。这是它可以用来实现离线存储的重要先决条件.
+
+
+
+#### 5.5 Push Cache
+
+ush Cache 是指 HTTP2 在 server push 阶段存在的缓存。这块的知识比较新，应用也还处于萌芽阶段，应用范围有限不代表不重要——HTTP2 是趋势、是未来。在它还未被推而广之的此时此刻，我仍希望大家能对 Push Cache 的关键特性有所了解：
+
+Push Cache 是缓存的最后一道防线。浏览器只有在 Memory Cache、HTTP Cache 和 Service Worker Cache 均未命中的情况下才会去询问 Push Cache。
+
+Push Cache 是一种存在于会话阶段的缓存，当 session 终止时，缓存也随之释放。
+
+不同的页面只要共享了同一个 HTTP2 连接，那么它们就可以共享同一个 Push Cache。
+
+
 
 
 

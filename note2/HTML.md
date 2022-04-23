@@ -228,6 +228,7 @@ p标签里的br需要两个才起作用.:一个换行,一个高度
 ```
 
 特点：
+
 * 有序
 * 被\<ol>管理
 * \<ol>中只能包含\<li>
@@ -247,6 +248,7 @@ p标签里的br需要两个才起作用.:一个换行,一个高度
 ```
 
 特点
+
 * 列表项围绕主题
 * dl管理dt，dd
 * dl只能包含dd，dd标签可以包含其他标签
@@ -977,6 +979,7 @@ CSS2中引入了一些属性选择器，这些选择器可基于元素的属性�
 
 
 
+
 ##### 2. 目标伪类选择器
 
 目标伪类选择器“:target”是众多实用的CSS3特性中的一个，用来匹配文档（页面）的URI[插图]中某个标志符的目标元素
@@ -1001,6 +1004,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
+
 **更多的应用场景**
 
 | 效果                                       | 地址                                                         |
@@ -1022,6 +1026,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 </iframe>
 
 
+
 **实例-幻灯片 ++**
 
 第二个和第四个没有效果.
@@ -1033,6 +1038,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 </iframe>
 
 
+
 **实例-tab效果**
 
 <iframe height="300" style="width: 100%;" scrolling="no" title="目标伪类选择器-tab" src="https://codepen.io/westover/embed/xxdwRwX?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
@@ -1040,6 +1046,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
   目标伪类选择器-tab</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>
 </iframe>
+
 
 
 
@@ -1229,6 +1236,7 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
 
 
+
 **浏览器兼容性**
 
 CSS3结构伪类选择器在主流浏览器下运行都非常的完美，只是在IE 9以下版本的浏览器中无法正常运行
@@ -1278,6 +1286,7 @@ n的值为:
 
 
 
+
 ##### 6. 否定伪类选择器
 
 否定选择器“:not()”是CSS3的新选择器，类似jQuery中的“:not()”选择器，主要用来定位不匹配该选择器的元素
@@ -1315,6 +1324,7 @@ CSS3中对伪元素进行了一定的调整，在以前的基础上增加一个�
   ::first-letter -首字下沉</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>.
 </iframe>
+
 
 
 
@@ -1362,6 +1372,7 @@ a[href^=http]::after {
   ::selection demo</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>.
 </iframe>
+
 
 
 
@@ -1490,7 +1501,7 @@ a[href^=http]::after {
   
   hover和active, 其他元素也有这个属性
   ```
-  
+
 * 四个状态同时存在,需要安装 **lvha**的排列顺序 (love hate)
 
 * 处于隐私的考虑,访问后的链接只能改变**颜色**,不能改变颜色
@@ -1503,9 +1514,9 @@ a[href^=http]::after {
   * 排序错误类型2:    link active visited hover   点击后只有visited设置的一种颜色
 
 * 伪类权重值和类权重值相同,都可以按照10计算.
-  
+
   * 案例：`a:link{属性：属性值}`  权重值=标签选择器+伪类选择器=11
-  
+
     
 
 ##### 默认2种状态
@@ -1705,11 +1716,12 @@ a[href^=http]::after {
 * 格式:
 
   *  **font: italic weight size/line-height family**
-  *   italic 倾斜 normal 正常
+  *  italic 倾斜 normal 正常
 
   
 
 * 注意:
+
   * 最少写2个, **字号和字体**
   * 当复合属性, 单属性同时存在,先写复合属性,再写单属性. 因为存在层叠(覆盖)规模
 
@@ -1910,6 +1922,7 @@ margin单属性和复合属性,和padding一致
   See the Pen <a href='https://codepen.io/westover/pen/VwpqjQp'>外边距合并</a> by xxl
   (<a href='https://codepen.io/westover'>@westover</a>) on <a href='https://codepen.io'>CodePen</a>.
 </iframe>
+
 
 
 
@@ -2441,9 +2454,10 @@ positioning脱离文档流的元素，其他盒子与其他盒子内的文本都
   * 1106更新: 图片之间横向留白. 原因:代码换行. 解决和下面2种方法相同.
 
 * 解决:
+
   * 父元素font-size设置0 [设置范围窄 不常用   案例是包含img的div使用了字号属性]
   * img转换为块元素   [初始化操作时候需要先设置 ]
-  
+
 * 其他
 
   > 如果图片和span同一行,两者都为行内块元素.那么如何对齐?  
@@ -2921,7 +2935,7 @@ float:right;
 * 当层级不同时,谁的层级高,谁在上面
 * 当层级是负数时,低于标准流
 
-*  层级概述: 
+* 层级概述: 
   * 当父元素的层级相同时,后写的元素(包括子元素)会压在先写的元素(包括子元素)的上面,此时子元素的层级高于其他元素的父元素(的层级没有作用;)
   * 当父元素的层级不同时,层级高的包括子元素会压在层级低的子元素的上面 ;
   * 当父元素不设置层级时,给子元素设置层级能决定自身的高低
@@ -3237,50 +3251,50 @@ margin-top:-自身宽度一半;
 
 
 * **使用方法**(依照阿里图标字体使用方法)：
-	
-    * **Unicode方法**
+
+  * **Unicode方法**
+
+    ```html
+    1.拷贝项目下面生成的@font-face
+    @font-face {
+      font-family: 'iconfont';
+      src: url('iconfont.eot');
+      src: url('iconfont.eot?#iefix') format('embedded-opentype'),
+          url('iconfont.woff2') format('woff2'),
+          url('iconfont.woff') format('woff'),
+          url('iconfont.ttf') format('truetype'),
+        url('iconfont.svg#iconfont') format('svg');
+    }
+    2.定义使用iconfont的样式
+      <html>
+          .iconfont {
+            font-family: "iconfont" !important; /*避免覆盖需要提权； 一般是放在style的开始*/
+            font-size: 16px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased; /* 字体抗锯齿渲染 */
+            -moz-osx-font-smoothing: grayscale;
+          }
+    
+      </html>
+    
+      3.挑选相应图标并获取字体编码，应用于页面
+      <span class="iconfont">&#x33;</span>
+    ```
+
+      * **font-class引用**  主要使用这种方便
 
       ```html
-      1.拷贝项目下面生成的@font-face
-      @font-face {
-        font-family: 'iconfont';
-        src: url('iconfont.eot');
-        src: url('iconfont.eot?#iefix') format('embedded-opentype'),
-            url('iconfont.woff2') format('woff2'),
-            url('iconfont.woff') format('woff'),
-            url('iconfont.ttf') format('truetype'),
-          url('iconfont.svg#iconfont') format('svg');
-      }
-      2.定义使用iconfont的样式
-        <html>
-            .iconfont {
-              font-family: "iconfont" !important; /*避免覆盖需要提权； 一般是放在style的开始*/
-              font-size: 16px;
-              font-style: normal;
-              -webkit-font-smoothing: antialiased; /* 字体抗锯齿渲染 */
-              -moz-osx-font-smoothing: grayscale;
-            }
-	  
-        </html>
-	  
-        3.挑选相应图标并获取字体编码，应用于页面
-        <span class="iconfont">&#x33;</span>
+      目的：解决Unicode书写不直观，语义不明确的问题
+      步骤：
+      1.引入项目下生成的fontclass代码：
+      <link rel="stylesheet" type="text/css" href="./iconfont.css">
+    
+      2.挑选相应图标并获取类名，应用于页面
+      <span class="iconfont icon-xxx"></span>
       ```
 
-        * **font-class引用**  主要使用这种方便
+      * **Symbol引用**  不做推荐，浏览器支持较少
 
-        ```html
-        目的：解决Unicode书写不直观，语义不明确的问题
-        步骤：
-        1.引入项目下生成的fontclass代码：
-        <link rel="stylesheet" type="text/css" href="./iconfont.css">
-	  
-        2.挑选相应图标并获取类名，应用于页面
-        <span class="iconfont icon-xxx"></span>
-        ```
-
-        * **Symbol引用**  不做推荐，浏览器支持较少
-	
 * 字体格式：
 
   * woff： web open font format
@@ -4982,6 +4996,7 @@ translate只能适用于块级显示模式元素,对行内元素无效,但可以
 
 
 
+
 #### 2. 旋转
 
 概述: 图片沿Z轴旋转.顺时针是正值, 逆时针是负值.
@@ -5431,9 +5446,9 @@ animation-fill-mode:forwars
 >
 >```html
 ><link
->    rel="stylesheet"
->    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
->  />
+>rel="stylesheet"
+>href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+>/>
 >```
 >
 >调用(不要忘记前缀animate_animated  不同版本的调用前缀不同 下面是最新的):
@@ -6433,7 +6448,7 @@ vw单位
 >
 > 需要欺骗浏览器
 >
->  
+> 
 
 
 

@@ -19,34 +19,6 @@
 
 <hr style="background:red"/>
 
-### note2
-
-* [01_html&css](./note2/01_html&css.md)
-* [02_Javascript-基础](./note2/02_Javascript-基础.md)
-* [03_Javascript-DOM](./note2/03_Javascript-DOM.md)
-* [04_JavaScript-高级(上下文-作用域-原型链-闭包-事件循环).md](./note2/04_JavaScript-高级(上下文-作用域-原型链-闭包-事件循环).md)
-* [05_PC项目-less](./note2/05_PC项目-less.md)
-* [06_BOM](./note2/06_BOM.md)
-* [07_jQuery](./note2/07_jQuery.md)
-* [08_Git+BootStrap+Less](./note2/08_Git+BootStrap+Less.md)
-* [09_ES5ES6SetMap拷贝](./note2/09_ES5ES6SetMap拷贝.md)
-* [10_Nodejs+Promise+模块化+gulp+存储+axios ](./note2/10_Nodejs+Promise+模块化+gulp+存储+axios.md)
-* [11_webpack](./note2/11_webpack配置教程.md)
-* [12_react](./note2/12_react.md)
-* [13_react脚手架Vue配置代理](./note2/13_react脚手架 Vue配置代理.md)
-* [14_移动端](./note2/14_移动端.md)
-* [15_vue_react脚手架rem适配](./note2/15_vue_react脚手架rem适配.md)
-* [16_react扩展+案例+antd](./note2/16_react扩展+案例+antd.md)
-* [17_Vue](./note2/17_Vue.md)
-* [18_vue脚手架配置代理](./note2/18_vue脚手架配置代理.md)
-* [19_Vue源码分析](./note2/19_Vue源码分析.md)
-* [20_Vue项目](./note2/20_Vue项目.md)
-* [21_组件间通信](./note2/21_组件间通信.md)
-* [22_Vue项目后台](./note2/22_Vue项目后台.md)
-* [23_小程序uniapp](./note2/23_小程序uniapp.md)
-* [24_其他](./note2/24_实战.md)
-* [HTML5+CSS3 视频教程](./note2/HTML5+CSS3视频教程.md)
-
 
 
 

@@ -306,7 +306,6 @@ wx:key='{{唯一值}}'
 #### 生命周期
 
 ```js
-
 1.onLoad(Object query)
  页面加载时触发.一个页面只会调用一次,可以在onLoad的参数中获取打开当前页面路径中的参数
 
@@ -389,6 +388,7 @@ onLoad:function(options){
 
 
 <hr>
+
 
 ### 小程序中的for循环
 
@@ -615,6 +615,7 @@ display:-webkit-box;
 
 <hr>
 
+
 ### 功能-tabBar
 
 ```js
@@ -637,7 +638,6 @@ https://developers.weixin.qq.com/miniprogram/dev/framework/ability/custom-tabbar
 ### login页面功能实现
 
 ```js
-
 登录流程
  1收集表单数据
  2前端验证
@@ -669,7 +669,6 @@ id只能设置一个,data-xxx可以设置多个
 ### video页面++
 
 ```js
-
 flex:1
 flex: flex-grow（可拉伸）: 0; flex-shrink(可压缩): 1; flex-basis: auto(自身宽度);
 flex: 1; flex-grow: 1; flex-shrink: 1; flex-basis: 0%;
@@ -733,6 +732,7 @@ num>>>0  转换成数值  //将event.currentTarget.id自动转换成的字符串
 
 
 <hr>
+
 
 ### video
 
@@ -935,7 +935,6 @@ wx.
 
 ```js
 
-
 1.使用HbuilderX编辑器运行到浏览器中的项目,需要提前配置好的有:
  跨域,
  数据假报错(数据已经请求回来并显示,但在console中有undefined的错误)
@@ -965,7 +964,6 @@ wx.
 >3.1 server.js
 
 ```js
-
 //server文件夹根目录下 server.js
 let Koa = require('koa');
 let router = require('./router/index.js');
