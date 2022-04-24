@@ -2,6 +2,10 @@
 
 ## HTTP协议
 
+> https://developer.mozilla.org/zh-CN/docs/Web/HTTP
+>
+> 
+
 ### 背景
 
 > 前端后端交互，这时候我们需要了解什么是请求报文，什么是响应报文，
@@ -173,20 +177,67 @@ HTTP/1.1 200 OK
 
 
 
-* zero or more [response header fields](https://en.wikipedia.org/wiki/HTTP_response_header_field), each consisting of the case-insensitive field name, a colon, optional leading [whitespace](https://en.wikipedia.org/wiki/Whitespace_(computer_science)), the field value, an optional trailing whitespace and ending with a carriage return and a line feed, e.g.:
+* **zero or more [response header fields](https://en.wikipedia.org/wiki/HTTP_response_header_field)**, each consisting of the case-insensitive field name, a colon, optional leading [whitespace](https://en.wikipedia.org/wiki/Whitespace_(computer_science)), the field value, an optional trailing whitespace and ending with a carriage return and a line feed, e.g.:
 
 ```
 Content-Type: text/html
 ```
 
-- an empty line, consisting of a carriage return and a line feed;
-- an optional [message body](https://en.wikipedia.org/wiki/HTTP_message_body).
+- **an empty line**, consisting of a carriage return and a line feed;
+- **an optional [message body](https://en.wikipedia.org/wiki/HTTP_message_body)**.
 
 
 
 #### Response status code
 
+> In HTTP/1.0 and since, the first line of the HTTP response is called the *status line* and includes a numeric *status code* (such as "[404](https://en.wikipedia.org/wiki/HTTP_404)") and a textual *reason phrase* (such as "Not Found"). 
+>
+> The response status code is a three-digit integer code representing the result of the server's attempt to understand and satisfy the client's corresponding request. 
+>
+> 
 
+The first digit of the status code defines its class:
+
+- `1XX` (informational)
+
+  The request was received, continuing process.
+
+- `2XX` (successful)
+
+  The request was successfully received, understood, and accepted.
+
+- `3XX` (redirection)
+
+  Further action needs to be taken in order to complete the request.
+
+- `4XX` (client error)
+
+  The request contains bad syntax or cannot be fulfilled.
+
+- `5XX` (server error)
+
+  The server failed to fulfill an apparently valid request.
+
+
+
+### HTTP/1.1 example of request /response transaction
+
+> Below is a sample HTTP transaction between an HTTP/1.1 client and an HTTP/1.1 server running on [www.example.com](https://en.wikipedia.org/wiki/Example.com), port 80
+
+#### client request
+
+
+
+```html
+GET / HTTP/1.1
+HOST: www.example.com
+User-Agent: Mozilla/5.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+```
 
 
 
@@ -793,7 +844,7 @@ SSL 证书需要绑定 `IP`，不能再同一个 IP 上绑定多个域名，IPV4
 
 
 
-## 浏览器相关原理
+## 浏览器相关
 
 > [浏览器相关原理(面试题)详细总结一 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903962216824839#heading-10)
 >
@@ -963,11 +1014,17 @@ Push Cache 是一种存在于会话阶段的缓存，当 session 终止时，缓
 
 ### 浏览器输入URL后发生了什么？
 
+> [细说浏览器输入URL后发生了什么 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904054074654728)
+>
+> [从URL输入到页面展现到底发生什么？- github](https://github.com/ljianshu/Blog/issues/24)   //待整理
+>
+> 
+
 ![lya7b81ow94pniln3aif.jpg (880×622) (cloudinary.com)](https://res.cloudinary.com/practicaldev/image/fetch/s--GY9Fa-eL--/c_limit%2Cf_auto%2Cfl_progressive%2Cq_auto%2Cw_880/https://dev-to-uploads.s3.amazonaws.com/i/lya7b81ow94pniln3aif.jpg)
 
 
 
-> [细说浏览器输入URL后发生了什么 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904054074654728)
+
 
 
 
@@ -1126,31 +1183,6 @@ CSS 样式来源主要有 3 种，分别是`通过 link 引用的外部 CSS 文�
 最后，合成线程发送绘制图块命令给浏览器进程。浏览器进程根据指令生成页面，并显示到显示器上，渲染过程完成。
 
 
-
-
-
-
-
-
-
-### Chrome使用
-
-```js
-- Network
-
-Headers: 请求行和头, 响应行和头
-
-Response: 响应体
-preview: 解析后的响应体. 字符串情况下使用preview下会格式化.
-
-xhr: 显示ajax内容
-查看请求体:
-All:点击login-headers:
-
-
-查询解析后的字符串参数: Query String Parameters
-点击-查询网址--headers--query string parameters
-```
 
 
 
@@ -1458,3 +1490,291 @@ server.listen(8000);
 
 
 ### 其他
+
+
+
+
+
+
+
+
+
+## 本地存储
+
+
+
+> 浏览器系列之 Cookie 和 SameSite 属性 https://github.com/mqyqingfeng/Blog/issues/157
+
+
+
+### 会话控制cookie
+
+> HTTP协议是一个无状态协议,它无法区分多次请求是否发送自同一客户端.而我们在实际运用中却又有大量这种需求, 我们通过**会话(session)的控制**来解决该问题.
+
+
+
+#### cookie是什么
+
+```
+cookie本质是一个存储在浏览器的文本,随着http请求自动传递给服务器.
+也可以说cookie是一个请求头(响应头):
+服务器以响应头的形式将cookie发送浏览器
+浏览器收到以后自动将cookie保存
+浏览器再次访问服务器时, 会以[请求头]的形式将cookie发回.
+```
+
+
+
+#### cookie的不足
+
+```
+各个浏览器对cookie的数量和大小都有不同的限制，这样就导致我们不能在Cookie中保存过多的信息。一般数量不超过50个，单个大小不超过4kb。
+cookie是由服务器发送给浏览器，再由浏览器将cookie发回，如果cookie较大会导致发送速度非常慢，降低用户的体验
+1.
+2.
+```
+
+
+
+#### 框架下cookie的使用
+
+```js
+通过配置cookie-parser中间件,可以将cookie解析为一个对象,并且添加为response的cookie属性.
+使用步骤:
+//1.下载安装包
+npm i cookie-parser -S
+
+//2.引入
+const express=require('express');
+var cookieParser=require('cookie-parser');
+//3.设置中间件
+app.use(cookieParser());
+
+app.get('/set-cookie', (requset, response)=>{
+    //4.创建cookie的两种方式:区别在于参数个数,生命周期
+    //格式: response.cookie('参数1','参加2',留存时间对象) 
+    //设置后,浏览器端的Response-Headers中会多出一个响应头Set-Cookie.Request-Headers多出一个Cookie的请求头
+    //Request-Headers: Cookie:name=xiaohigh
+    //Response-Headers:Set-Cookie: name(参数1)=xiaohigh(参数2); Path=/
+    
+    response.cookie('username', 'sunwukong', {maxAge:60*60*24*1000});
+    response.cookie('name', 'xiaohigh', {maxAge:60*1000}) //声明周期 60秒*1000毫秒
+})       
+    
+    //5.获取cookie  
+    app.get('/get-cookie', (request, response)=>{
+    	conole.log(request.cookies); //服务端
+    	response.send('获取cookie'); //cookie设置是对响应头进行设置,响应体没有内容.所以需要send.不设置会一直页面会一直请求.
+	})  
+
+//5.删除cookie
+app.get('/clearcookie', (request, response)=>{
+    response.clearCookie('username')//用来删除一个指定的cookie
+})
+app.listen(80);
+
+
+
+- 格式补充:
+set-cookie 是服务器响应cookie
+- path=/
+path路径,设置该cookie生效的路径
+/ 表示根目录
+domain 该cookie生效的域名 例如baike.baidu.com
+
+- 声明周期
+1.设置时间的cookie
+结束时间:设置的时间周期
+2.未设置时间的cookie
+结束时间:关闭浏览器.但若还在相应时间范围内,带声明周期的cookie会存在.
+
+
+
+
+```
+
+#### cookie的查看
+
+```
+浏览器中如何查看
+
+Chrome-设置-使用搜索框搜索'cookie'
+```
+
+
+
+
+
+### session
+
+> Session 是一个对象，存储特定用户会话所需的属性及配置信息。Session是保存在服务器端的数据.（保存介质， 文件、数据库、内存）
+
+
+
+#### session工作流程
+
+```
+我们可以在服务器中为每一次会话创建一个对象，然后每个对象都设置一个唯一的id，并将该id以cookie的形式发送给浏览器(响应头中查看)，然后将会话中产生的数据统一保存到这个对象中，这样我们就可以将用户的数据全都保存到服务器中，而不需要保存到客户端，客户端只需要保存一个id即可。
+```
+
+
+
+
+
+#### 框架下session使用
+
+```js
+查看使用:npmjs.com网站
+
+//1.下载安装
+npm i express-session
+
+//2.引入模块
+var session=require('express-session');
+
+//3.中间件设置
+app.use(session({
+    name:'id22',          //设置cookie的name,默认值是connect.sid
+    secret: 'keyboard cat', //参与加密的字符串(又称签名)
+    resave: false,         //是否在每次请求时重新保存session
+    saveUninitialized: true, //是否每一个客户端都进行初始化 是否为每次请求都设置一个cookie用来储存session的id.建议使用true,虽然初始默认值是false.
+    //cookie:{secure:true}  //需要证书
+    //设置cookie
+    cookie:{
+        httpOnly:true, //开启权限,前后端无法无法通过JS操作
+        maxAge:1000*30 //控制sessionID的过期时间的.
+    }
+}))
+
+//4.设置session 
+//session的存储位置: 内存. 放在内存中的特点: 重启之后session会丢失
+app.get('/set-session', (request, response)=>{
+    request.session.name='xiaohigh';
+    request.session.email='xiaohigh@qq.com';
+//浏览器请求此页面之后,在Response-Headers中有Set-Cookie,其值有connect-id及加密值,path路径,HTTPOnly(表明该cookie只能进行HTTP请求使用,表明该cookie不允许浏览器使用JS修改cookie. 通常可使用document.cookie获取当前浏览器的cookie).  
+    response.send('session的设置');
+})
+
+//5.获取session
+app.get('/get-session', (request, response)=>{
+    console.log(request.session.name);
+    console.log(request.session.email);
+    
+    response.send('获取session');
+})
+
+//6.删除session
+app.get('/clear-session', (request, response)=>{
+    request.session.destroy(function(){
+        response.send('session删除成功');
+    })
+})
+
+app.listen(80);
+
+```
+
+
+
+
+
+### cookie与session的区别
+
+```
+1)	存在的位置：
+cookie 存在于客户端
+session 存在于服务器端，一个session域对象为一个用户浏览器服务
+2)	安全性：(https证书)
+cookie是以明文的方式存放在客户端的，安全性较低，可以通过一个加密算法进行加密后存放
+session存放于服务器中，所以安全性较好
+3)	网络传输量：
+cookie会传递消息给服务器
+session本身存放于服务器，但是通过cookie传递id，会有少量的传送流量
+4)	大小：
+cookie 保存的数据不能超过4K，很多浏览器都限制一个站点最多保存50个cookie
+session 保存数据理论上没有任何限制
+
+```
+
+
+
+
+
+
+
+### 前台数据存储
+
+#### 存储方式
+
+- cookie
+
+- sessionStorage
+
+- localStorage
+
+  注意: session后台数据存储
+
+#### 区别 localStoarge与sessionStorage
+
+- 相同点(5条):
+  - 浏览器不能禁用
+  - 纯浏览器端存储, 大小不受限制
+  - 只能保存文本, 如果是对象或数组, 需要转换为JSON
+  - 请求时不会自动携带
+  - API相同:
+    - setItem(key, value)
+    - getItem(key, value)
+    - removeitem(key, value)
+- 不同点(1条,关闭浏览器是否会被删除):
+  - localStorage保存在本地文件中, 除非编码或手动删除, 否则一直存在
+  - sessonStorage数据保存在当前会话内存中, 关闭浏览器则清除
+
+
+
+#### 区别cookie 与 localStorage和sessionStorage
+
+- 容量:  cookie小
+- 请求时是否自动携带:  cookie自动携带
+- API易用性:  cookie的操作语法不方便
+- 浏览器是否可禁用: cookie可禁用
+
+#### 区别cookie与session
+
+- cookie保存在浏览器端(前台可以操作)
+- session保存在服务器端(前台不能操作)
+- session依赖于cookie(session的id以cookie的形式保存在浏览器端)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

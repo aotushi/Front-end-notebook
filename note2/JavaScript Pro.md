@@ -11207,17 +11207,315 @@ app.all('/jquery-server', (request, response)=>{
 
 ## 跨域
 
+> [跨域资源共享 CORS 详解- 阮一峰](https://www.ruanyifeng.com/blog/2016/04/cors.html)
+>
+> [跨源资源共享(CORS) - MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS)
+>
+> 
+
+
+
+
+
+### what
+
+`跨源资源共享` ([CORS](https://developer.mozilla.org/zh-CN/docs/Glossary/CORS))（或通俗地译为跨域资源共享）是一种基于 [HTTP](https://developer.mozilla.org/zh-CN/docs/Glossary/HTTP) 头的机制，该机制通过允许服务器标示除了它自己以外的其它 [origin](https://developer.mozilla.org/zh-CN/docs/Glossary/Origin)（域，协议和端口），使得浏览器允许这些 origin 访问加载自己的资源。
+
+**CORS**是一个W3C标准，全称是"跨域资源共享"（Cross-origin resource sharing）。
+
+<span style="color:blue">它允许浏览器向跨源服务器，发出[`XMLHttpRequest`](https://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)请求，从而克服了AJAX只能 [同源](https://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html) 使用的限制。</span>
+
+**实例**
+
+运行在 `https://domain-a.com` 的 JavaScript 代码使用 [`XMLHttpRequest`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest) 来发起一个到 `https://domain-b.com/data.json` 的请求。
+
+
+
+### 简介
+
+CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。
+
+整个CORS通信过程，都是浏览器自动完成，不需要用户参与。对于开发者来说，CORS通信与同源的AJAX通信没有差别，代码完全一样。浏览器一旦发现AJAX请求跨源，就会自动添加一些附加的头信息，有时还会多出一次附加的请求，但用户不会有感觉。
+
+因此，实现CORS通信的关键是服务器。只要服务器实现了CORS接口，就可以跨源通信
+
+
+
+### 两种请求
+
+浏览器将CORS请求分成两类：**简单请求（simple request）**和 **非简单请求（not-so-simple request）**。
+
+只要同时满足以下两大条件，就属于简单请求。
+
+- 使用下列方法之一：
+
+  - [`GET`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/GET)
+  - [`HEAD`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/HEAD)
+  - [`POST`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/POST)
+
+- 除了被用户代理自动设置的首部字段（例如`Connection` , `User-Agent`）和在 Fetch 规范中定义为
+
+   禁用首部名称的其他首部，允许人为设置的字段为 Fetch 规范定义的对 CORS 安全的首部字段集合
+
+  。该集合为：
+
+  - [`Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept)
+  - [`Accept-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Language)
+  - [`Content-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Language)
+  - [`Content-Type`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type) （需要注意额外的限制）
+
+- `Content-Type`的值仅限于下列三者之一：
+
+  - `text/plain`
+  - `multipart/form-data`
+  - `application/x-www-form-urlencoded`
+
+- 请求中的任意 [`XMLHttpRequest`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest) 对象均没有注册任何事件监听器；[`XMLHttpRequest`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest) 对象可以使用 [`XMLHttpRequest.upload`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/upload) 属性访问。
+
+- 请求中没有使用 [`ReadableStream`](https://developer.mozilla.org/zh-CN/docs/Web/API/ReadableStream) 对象。
+
+
+
+这是为了兼容表单（form），因为历史上表单一直可以发出跨域请求。AJAX 的跨域设计就是，只要表单可以发，AJAX 就可以直接发。
+
+浏览器对这两种请求的处理，是不一样的。
+
+
+
+### 简单请求
+
+#### 基本流程
+
+对于简单请求，浏览器直接发出CORS请求。具体来说，就是在头信息之中，增加一个`Origin`字段。
+
+下面是一个例子，浏览器发现这次跨源AJAX请求是简单请求，就自动在头信息之中，添加一个`Origin`字段。
+
+```javascript
+GET /cors HTTP/1.1
+Origin: http://api.bob.com
+Host: api.alice.com
+Accept-Language: en-US
+Connection: keep-alive
+User-Agent: Mozilla/5.0...
 ```
-http请求分两大类: 普通请求,ajax请求
+
+上面的头信息中，`Origin`字段用来说明，本次请求来自哪个源（协议 + 域名 + 端口）。服务器根据这个值，决定是否同意这次请求。
+
+<u>如果`Origin`指定的源，不在许可范围内</u>，服务器会返回一个正常的HTTP回应。浏览器发现，这个回应的头信息没有包含`Access-Control-Allow-Origin`字段（详见下文），就知道出错了，从而抛出一个错误，被`XMLHttpRequest`的`onerror`回调函数捕获。注意，这种错误无法通过状态码识别，因为HTTP回应的状态码有可能是200。
+
+<u>如果`Origin`指定的域名在许可范围内</u>，服务器返回的响应，会多出几个头信息字段。
+
+```javascript
+Access-Control-Allow-Origin: http://api.bob.com
+Access-Control-Allow-Credentials: true
+Access-Control-Expose-Headers: FooBar
+Content-Type: text/html; charset=utf-8
+```
+
+上面的头信息之中，有三个与CORS请求相关的字段，都以`Access-Control-`开头。
+
+##### Access-Control-Allow-Origin
+
+该字段是必须的。它的值要么是请求时`Origin`字段的值，要么是一个`*`，表示接受任意域名的请求
+
+##### Access-Control-Allow-Credentials
+
+该字段可选。它的值是一个布尔值，表示是否允许发送Cookie。默认情况下，Cookie不包括在CORS请求之中。
+
+设为`true`，即表示服务器明确许可，Cookie可以包含在请求中，一起发给服务器。
+
+这个值也只能设为`true`，如果服务器不要浏览器发送Cookie，删除该字段即可。
+
+##### Access-Control-Expose-Headers
+
+该字段可选。CORS请求时，`XMLHttpRequest`对象的`getResponseHeader()`方法只能拿到6个基本字段：
+
+> `Cache-Control`、
+>
+> `Content-Language`、
+>
+> `Content-Type`、
+>
+> `Expires`、
+>
+> `Last-Modified`、
+>
+> `Pragma`。
+
+如果想拿到其他字段，就必须在`Access-Control-Expose-Headers`里面指定。上面的例子指定，`getResponseHeader('FooBar')`可以返回`FooBar`字段的值。
 
 
+
+#### withCredentials属性
+
+CORS请求默认不发送Cookie和HTTP认证信息。如果要把Cookie发到服务器:
+
+一方面要服务器同意，指定`Access-Control-Allow-Credentials`字段。
+
+```javascript
+Access-Control-Allow-Credentials: true
+```
+
+另一方面，开发者必须在AJAX请求中打开`withCredentials`属性。
+
+```javascript
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+```
+
+否则，即使服务器同意发送Cookie，浏览器也不会发送。或者，服务器要求设置Cookie，浏览器也不会处理。
+
+但是，如果省略`withCredentials`设置，有的浏览器还是会一起发送Cookie。这时，可以显式关闭`withCredentials`。
+
+```javascript
+xhr.withCredentials = false;
+```
+
+要注意的是，如果要发送Cookie，`Access-Control-Allow-Origin`就不能设为星号，必须指定明确的、与请求网页一致的域名。同时，Cookie依然遵循同源政策，只有用服务器域名设置的Cookie才会上传，其他域名的Cookie并不会上传，且（跨源）原网页代码中的`document.cookie`也无法读取服务器域名下的Cookie。
+
+
+
+### 非简单请求
+
+#### 预检请求
+
+非简单请求是那种对服务器有特殊要求的请求，比如请求方法是`PUT`或`DELETE`，或者`Content-Type`字段的类型是`application/json`。
+
+非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为"预检"请求（preflight）。
+
+浏览器先询问服务器，当前网页所在的域名是否在服务器的许可名单之中，以及可以使用哪些HTTP动词和头信息字段。只有得到肯定答复，浏览器才会发出正式的`XMLHttpRequest`请求，否则就报错。
+
+下面是一段浏览器的JavaScript脚本。
+
+```javascript
+let url = 'http://api.alice.com/cors'
+let xhr = new XMLHttpRequest()
+xhr.open('PUT', url, true)
+xhr.setRequestHeader('X-Custom-Header', 'value')
+xhr.send()
 ```
 
 
 
+上面代码中，HTTP请求的方法是`PUT`，并且发送一个自定义头信息`X-Custom-Header`。
+
+浏览器发现，这是一个非简单请求，就自动发出一个"预检"请求，要求服务器确认可以这样请求。下面是这个"预检"请求的HTTP头信息。
+
+> ```http
+> OPTIONS /cors HTTP/1.1
+> Origin: http://api.bob.com
+> Access-Control-Request-Method: PUT
+> Access-Control-Request-Headers: X-Custom-Header
+> Host: api.alice.com
+> Accept-Language: en-US
+> Connection: keep-alive
+> User-Agent: Mozilla/5.0...
+> ```
+
+"预检"请求用的请求方法是`OPTIONS`，表示这个请求是用来询问的。头信息里面，关键字段是`Origin`，表示请求来自哪个源。
+
+除了`Origin`字段，"预检"请求的头信息包括两个特殊字段。
+
+**（1）Access-Control-Request-Method**
+
+该字段是必须的，用来列出浏览器的CORS请求会用到哪些HTTP方法，上例是`PUT`。
+
+**（2）Access-Control-Request-Headers**
+
+该字段是一个逗号分隔的字符串，指定浏览器CORS请求会额外发送的头信息字段，上例是`X-Custom-Header`。
 
 
-### 如何产生
+
+#### 预检请求回应
+
+服务器收到"预检"请求以后，检查了`Origin`、`Access-Control-Request-Method`和`Access-Control-Request-Headers`字段以后，确认允许跨源请求，就可以做出回应。
+
+> ```http
+> HTTP/1.1 200 OK
+> Date: Mon, 01 Dec 2008 01:15:39 GMT
+> Server: Apache/2.0.61 (Unix)
+> Access-Control-Allow-Origin: http://api.bob.com
+> Access-Control-Allow-Methods: GET, POST, PUT
+> Access-Control-Allow-Headers: X-Custom-Header
+> Content-Type: text/html; charset=utf-8
+> Content-Encoding: gzip
+> Content-Length: 0
+> Keep-Alive: timeout=2, max=100
+> Connection: Keep-Alive
+> Content-Type: text/plain
+> ```
+
+上面的HTTP回应中，关键的是`Access-Control-Allow-Origin`字段，表示`http://api.bob.com`可以请求数据。该字段也可以设为星号，表示同意任意跨源请求。
+
+> ```http
+> Access-Control-Allow-Origin: *
+> ```
+
+如果服务器否定了"预检"请求，会返回一个正常的HTTP回应，但是没有任何CORS相关的头信息字段。这时，浏览器就会认定，服务器不同意预检请求，因此触发一个错误，被`XMLHttpRequest`对象的`onerror`回调函数捕获。控制台会打印出如下的报错信息。
+
+> ```bash
+> XMLHttpRequest cannot load http://api.alice.com.
+> Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
+> ```
+
+服务器回应的其他CORS相关字段如下。
+
+**（1）Access-Control-Allow-Methods**
+
+该字段必需，它的值是逗号分隔的一个字符串，表明服务器支持的所有跨域请求的方法。注意，返回的是所有支持的方法，而不单是浏览器请求的那个方法。这是为了避免多次"预检"请求。
+
+**（2）Access-Control-Allow-Headers**
+
+如果浏览器请求包括`Access-Control-Request-Headers`字段，则`Access-Control-Allow-Headers`字段是必需的。它也是一个逗号分隔的字符串，表明服务器支持的所有头信息字段，不限于浏览器在"预检"中请求的字段。
+
+**（3）Access-Control-Allow-Credentials**
+
+该字段与简单请求时的含义相同。
+
+**（4）Access-Control-Max-Age**
+
+该字段可选，用来指定本次预检请求的有效期，单位为秒。上面结果中，有效期是20天（1728000秒），即允许缓存该条回应1728000秒（即20天），在此期间，不用发出另一条预检请求。
+
+
+
+#### 浏览器的正常请求和回应
+
+一旦服务器通过了"预检"请求，以后每次浏览器正常的CORS请求，就都跟简单请求一样，会有一个`Origin`头信息字段。服务器的回应，也都会有一个`Access-Control-Allow-Origin`头信息字段。
+
+下面是"预检"请求之后，浏览器的正常CORS请求。
+
+> ```http
+> PUT /cors HTTP/1.1
+> Origin: http://api.bob.com
+> Host: api.alice.com
+> X-Custom-Header: value   //自定专用消息头 已经弃用
+> Accept-Language: en-US
+> Connection: keep-alive
+> User-Agent: Mozilla/5.0...
+> ```
+
+上面头信息的`Origin`字段是浏览器自动添加的。
+
+下面是服务器正常的回应。
+
+> ```http
+> Access-Control-Allow-Origin: http://api.bob.com
+> Content-Type: text/html; charset=utf-8
+> ```
+
+上面头信息中，`Access-Control-Allow-Origin`字段是每次回应都必定包含的。
+
+
+
+
+
+
+
+
+
+### 原因
+
+> [同源安全策略](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy) 默认阻止“跨域”获取资源。但是 CORS 给了web服务器这样的权限，即服务器可以选择，允许跨域请求访问到它们的资源。
 
 ```
 1.同源策略
@@ -11227,7 +11525,84 @@ http请求分两大类: 普通请求,ajax请求
 
 
 
-### 同源策略
+### 使用场景
+
+这份 [cross-origin sharing standard](https://fetch.spec.whatwg.org/#http-cors-protocol) 允许在下列场景中使用跨站点 HTTP 请求：
+
+- 前文提到的由 [`XMLHttpRequest`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest) 或 [Fetch APIs](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) 发起的跨源 HTTP 请求。
+- Web 字体 (CSS 中通过 `@font-face` 使用跨源字体资源)，[因此，网站就可以发布 TrueType 字体资源，并只允许已授权网站进行跨站调用](https://www.w3.org/TR/css-fonts-3/#font-fetching-requirements)。
+- [WebGL 贴图](https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL)
+- 使用 [`drawImage`](https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/drawImage) 将 Images/video 画面绘制到 canvas。
+- [来自图像的 CSS 图形](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Shapes/Shapes_From_Images)
+
+
+
+### 功能概述
+
+跨源资源共享标准新增了一组 HTTP 首部字段，允许服务器声明哪些源站通过浏览器有权限访问哪些资源。
+
+对那些可能对服务器数据产生副作用的 HTTP 请求方法(GET之外及其他),浏览器必须首先使用 [`OPTIONS`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/OPTIONS) 方法发起一个预检请求（preflight request），从而获知服务端是否允许该跨源请求。
+
+在预检请求的返回中，服务器端也可以通知客户端，是否需要携带身份凭证（包括 [Cookies](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Cookies) 和 [HTTP认证](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Authentication) 相关数据）。
+
+#### 错误检查
+
+CORS 请求失败会产生错误，但是为了安全，在 JavaScript 代码层面是无法获知到底具体是哪里出了问题。你只能查看浏览器的控制台以得知具体是哪里出现了错误。
+
+
+
+
+
+### 解决方案
+
+* JSONP
+* document.domain
+* window.name
+* CORS
+* proxy
+* window.postMessage()
+
+#### JSONP
+
+>  script 标签 src 属性中的链 接却可以访问跨域的 js 脚本，利用这个特性，服务端不再返回 JSON 格式的数据，而是 返回一段调用某个函数的 js 代码，在 src 中进行了调用，这样实现了跨域。
+
+
+
+```javascript
+//动态创建script
+
+let script = document.createElement('script')
+
+//设置回调函数
+function getDate(data) {
+  console.log(data)
+}
+
+
+//设置script的src属性
+script.src = 'http://localhost:3000/?callback=getData'
+
+//让script生效
+document.body.appendChild(script)
+```
+
+
+
+
+
+## 同源策略
+
+> [浏览器的同源策略 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy)
+>
+> 
+
+### 概述
+
+> **同源策略**是一个重要的安全策略，它用于限制一个[origin](https://developer.mozilla.org/zh-CN/docs/Glossary/Origin)的文档或者它加载的脚本如何能与另一个源的资源进行交互。它能帮助阻隔恶意文档，减少可能被攻击的媒介。
+
+### 同源
+
+> 如果两个 URL 的 [protocol](https://developer.mozilla.org/zh-CN/docs/Glossary/Protocol)、[port (en-US)](https://developer.mozilla.org/en-US/docs/Glossary/Port) (如果有指定的话)和 [host](https://developer.mozilla.org/zh-CN/docs/Glossary/Host) 都相同的话，则这两个 URL 是*同源*。
 
 ```
 - 同源策略(Same-Origin Policy)最早由 Netscape 公司提出，是浏览器的一种安全策略。
@@ -11237,12 +11612,71 @@ http请求分两大类: 普通请求,ajax请求
 
 ```
 
-### url简写
 
-```
-如果当前请求时一个同源的请求,则URL的协议,域名,端口,可以不写.
-可以简写的类型: a, form, img, link, script, ajax 
-```
+
+### 同源策略带来的问题
+
+> https://juejin.cn/post/7003232769182547998
+
+1. 一级域名相同，只是二级域名不同的同一所有者的网页被限制（Cookie、LocalStorage、IndexDB的读取）
+2. 无法跨域发送 AJAX 请求 ???
+3. 无法操作 DOM
+
+Q：为什么 Form 表单可以跨域发送请求，而 AJAX 不可以。
+ A：因为 Form 表单提交之后会刷新页面，所以即使跨域了也无法获取到数据，所以浏览器认为这个是安全的。而 AJAX 最大的优点就是在不重新加载整个页面的情况下，更新部分网页内容。如果让它跨域，则可以读取到目标 URL 的私密信息，这将会变得非常危险，所以浏览器是不允许 AJAX 跨域发送请求的。
+
+
+
+
+
+
+
+
+### 跨源网络访问
+
+同源策略控制不同源之间的交互.这些交互通常分为三类：
+
+- 跨域***写操作**（Cross-origin writes）*一般是被允许的*。*例如链接（links），重定向以及表单提交。特定少数的HTTP请求需要添加 [preflight](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS#附带身份凭证的请求)。
+- 跨域***资源嵌入**（Cross-origin embedding）*一般是被允许（后面会举例说明）。
+- 跨域***读操作**（Cross-origin reads）*一般是不被允许的*，*但常可以通过内嵌资源来巧妙的进行读取访问。例如，你可以读取嵌入图片的高度和宽度，调用内嵌脚本的方法，或[availability of an embedded resource](https://grepular.com/Abusing_HTTP_Status_Codes_to_Expose_Private_Information). !!(这篇文章没看完, 挺有意思的  未完成)
+
+
+
+#### **嵌入跨源的资源示例**
+
+* \<script src="..."\>\</script\> 标签嵌入跨域脚本
+* `<link rel="stylesheet" href="...">` 标签嵌入CSS。由于CSS的[松散的语法规则](http://scarybeastsecurity.blogspot.dk/2009/12/generic-cross-browser-cross-domain.html)，CSS的跨域需要一个设置正确的 HTTP 头部 `Content-Type` 。不同浏览器有不同的限制： [IE](http://msdn.microsoft.com/zh-CN/library/ie/gg622939(v=vs.85).aspx), [Firefox](https://www.mozilla.org/security/announce/2010/mfsa2010-46.html), [Chrome](https://code.google.com/p/chromium/issues/detail?id=9877), [Safari](https://support.apple.com/kb/HT4070) (跳至CVE-2010-0051)部分 和 [Opera](https://www.opera.com/support/kb/view/943/)。
+* 通过 [`<img>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/img) 展示的图片。支持的图片格式包括PNG,JPEG,GIF,BMP,SVG,...
+* 通过 [\<video\>](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/video) 和 [\<audio\>](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/audio) 播放的多媒体资源。
+* 通过 [\<object\>](https://developer.mozilla.org/zh-CN/docs/web/html/element/object)、 [\<embed\>](https://developer.mozilla.org/zh-CN/docs/HTML/Element/embed) 和 `<applet>` 嵌入的插件。
+* 通过 [`@font-face`](https://developer.mozilla.org/zh-CN/docs/web/css/@font-face) 引入的字体。一些浏览器允许跨域字体（cross-origin fonts），一些需要同源字体（same-origin fonts）。
+* 通过 [\<iframe\>](https://developer.mozilla.org/zh-CN/docs/web/html/element/iframe) 载入的任何资源。站点可以使用 [X-Frame-Options](https://developer.mozilla.org/zh-CN/docs/HTTP/X-Frame-Options) 消息头来阻止这种形式的跨域交互。
+
+
+
+#### 如何允许跨源访问
+
+可以使用 [CORS](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS) 来允许跨源访问。CORS 是 [HTTP](https://developer.mozilla.org/zh-CN/docs/Glossary/HTTP) 的一部分，它允许服务端来指定哪些主机可以从这个服务端加载资源。
+
+
+
+#### 如何阻止跨源访问(暂时了解)
+
+- 阻止跨域写操作，只要检测请求中的一个不可推测的标记(CSRF token)即可，这个标记被称为 [Cross-Site Request Forgery (CSRF)](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)) 标记。你必须使用这个标记来阻止页面的跨站读操作。
+- 阻止资源的跨站读取，需要保证该资源是不可嵌入的。阻止嵌入行为是必须的，因为嵌入资源通常向其暴露信息。
+- 阻止跨站嵌入，需要确保你的资源不能通过以上列出的可嵌入资源格式使用。浏览器可能不会遵守 `Content-Type` 头部定义的类型。例如，如果您在HTML文档中指定 `<script>` 标记，则浏览器将尝试将标签内部的 HTML 解析为JavaScript。 当您的资源不是您网站的入口点时，您还可以使用CSRF令牌来防止嵌入。
+
+#### 跨源脚本API访问(暂时了解)
+
+https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy
+
+
+
+#### 跨源数据存储访问
+
+访问存储在浏览器中的数据，如 [localStorage](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage) 和 [IndexedDB](https://developer.mozilla.org/zh-CN/docs/IndexedDB)，是以源进行分割。每个源都拥有自己单独的存储空间，一个源中的 JavaScript 脚本不能对属于其它源的数据进行读写操作。
+
+
 
 
 
@@ -11463,45 +11897,6 @@ app.all('/jsonp-server', (request, response)=>{
 			${callback}(`${data}`); //内容发送到网页上script标签内,类型只能是JS代码
 		`)
     })        
-```
-
-
-
-#### jQuery发送JSON请求
-
-```html
-//$.getJSON('发送请求的URL固定写法', 回调函数function(data){})
-//http://127.0.0.1/路径?callback=?. 其中?callback=?是固定写法.
-
-
-================客户端=======================
-<script crossorigin="anonymous" src='https://cdn.bootcss.com/jquery/3.5.0/jquery.min.js'></script>
-...
-<button>点击发送 JSONP 请求</button>
-<div id="result"> </div>
-<script>
-    $('button').click(function(){
-        //大小写 注意
-        $.getJSON('http://127.0.0.1:8001/jsonp-server?callback=?', function(data){
-            // console.log(data);
-            $('#result').html(data);
-        });
-    });
-</script>
-
-
-================服务端=======================
-<script>//为了代码格式添加
-	const express=require('express');
-    const app=express();
-    app.all('/jsonp-server', (requeset, response)=>{
-        //获取URL中的参数
-        let callback=request.query.callback;
-        let data='中文汉字';
-        response.send(`${callback}('${data}')`); //函数调用形式的字符串
-    })
-    app.listen(80);
-</script>
 ```
 
 
