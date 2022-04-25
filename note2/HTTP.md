@@ -77,17 +77,73 @@ HTTP本质是无状态的，使用Cookies可以创建有状态的会话。
 
 ### HTTP流
 
+> 当客户端想要和服务端进行信息交互时（服务端是指最终服务器，或者是一个中间代理），过程表现为下面几步：
+
+#### 1.打开一个TCP连接
+
+TCP连接被用来发送一条或多条请求，以及接受响应消息。客户端可能打开一条新的连接，或重用一个已经存在的连接，或者也可能开几个新的TCP连接连向服务端。
+
+#### 2.发送一个HTTP报文
+
+HTTP报文（在HTTP/2之前）是语义可读的。在HTTP/2中，这些简单的消息被封装在了帧中，这使得报文不能被直接读取，但是原理仍是相同的。
+
+```http
+GET / HTTP/1.1
+Host: developer.mozilla.org
+Accept-Language: fr
+```
+
+
+
+#### 3.读取服务端返回的报文信息
+
+```http
+HTTP/1.1 200 OK
+Date: Sat, 09 Oct 2010 14:28:02 GMT
+Server: Apache
+Last-Modified: Tue, 01 Dec 2009 20:18:22 GMT
+ETag: "51142bc1-7449-479b075b2891b"
+Accept-Ranges: bytes
+Content-Length: 29769
+Content-Type: text/html
+
+<!DOCTYPE html... (here comes the 29769 bytes of the requested web page)
+```
+
+
+
+#### 4.关闭连接或者为后续请求重用连接。
+
+当HTTP流水线启动时，后续请求都可以不用等待第一个请求的成功响应就被发送。然而HTTP流水线已被证明很难在现有的网络中实现，因为现有网络中有很多老旧的软件与现代版本的软件共存。因此，HTTP流水线已被在有多请求下表现得更稳健的HTTP/2的帧所取代。
+
+
+
+### HTTP报文
+
+HTTP/1.1以及更早的HTTP协议报文都是语义可读的。在HTTP/2中，这些报文被嵌入到了一个新的二进制结构，帧。帧允许实现很多优化，比如报文头部的压缩和复用。即使只有原始HTTP报文的一部分以HTTP/2发送出来，每条报文的语义依旧不变，客户端会重组原始HTTP/1.1请求。因此用HTTP/1.1格式来理解HTTP/2报文仍旧有效。
+
+有两种HTTP报文的类型，请求与响应，每种都有其特定的格式。
+
+#### 请求
+
+案例:
+
+![http-request](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/http-request.21xsklz7rx28.webp)
+
+
+
+#### 响应
+
+![HTTP-response](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/HTTP-response.5zyxiin1ews0.webp)
+
+
+
 
 
 ## HTTP协议
 
 > https://developer.mozilla.org/zh-CN/docs/Web/HTTP
 >
-> 
-
-### 背景
-
-> 前端后端交互，这时候我们需要了解什么是请求报文，什么是响应报文，
 
 
 
@@ -112,13 +168,50 @@ HTTP本质是无状态的，使用Cookies可以创建有状态的会话。
 
 
 
-### 概述
+### 版本
 
-HTTP是一个客户端（用户）和服务端（网站）之间请求和应答的标准，通常使用[TCP协议](https://zh.wikipedia.org/wiki/传输控制协议)。通过使用[网页浏览器](https://zh.wikipedia.org/wiki/網頁瀏覽器)、[网络爬虫](https://zh.wikipedia.org/wiki/网络爬虫)或者其它的工具，客户端发起一个HTTP请求到服务器上指定端口（默认[端口](https://zh.wikipedia.org/wiki/通訊埠)为80）。我们称这个客户端为用户代理程序（user agent）。应答的服务器上存储着一些资源，比如HTML文件和图像。我们称这个应答服务器为源服务器（origin server）。在用户代理和源服务器中间可能存在多个“中间层”，比如[代理服务器](https://zh.wikipedia.org/wiki/代理伺服器)、[网关](https://zh.wikipedia.org/wiki/网关)或者[隧道](https://zh.wikipedia.org/wiki/隧道)（tunnel）。
+> HTTP的发展是由[蒂姆·伯纳斯-李](https://zh.wikipedia.org/wiki/提姆·柏內茲-李)于1989年在[欧洲核子研究组织](https://zh.wikipedia.org/wiki/歐洲核子研究組織)（CERN）所发起
+>
+> 1999年6月公布的 [RFC 2616](https://tools.ietf.org/html/rfc2616)，定义了HTTP协议中现今广泛使用的一个版本——HTTP 1.1。
+>
+> 2014年12月，[互联网工程任务组](https://zh.wikipedia.org/wiki/互联网工程任务组)（IETF）的Hypertext Transfer Protocol Bis（httpbis）工作小组将[HTTP/2](https://zh.wikipedia.org/wiki/HTTP/2)标准提议递交至[IESG](https://zh.wikipedia.org/w/index.php?title=IESG&action=edit&redlink=1)进行讨论[[2\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-2)，于2015年2月17日被批准。[[3\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-approval2-3) 
+>
+> HTTP/2标准于2015年5月以RFC 7540正式发表，取代HTTP 1.1成为HTTP的实现标准。[[4\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-rfc7540-4)
 
-尽管[TCP/IP](https://zh.wikipedia.org/wiki/TCP/IP)协议是互联网上最流行的应用，但是在HTTP协议中并没有规定它必须使用或它支持的层。事实上HTTP可以在任何互联网协议或其他网络上实现。HTTP假定其下层协议提供可靠的传输。因此，任何能够提供这种保证的协议都可以被其使用，所以其在TCP/IP协议族使用TCP作为其传输层。
 
-通常，由HTTP客户端发起一个请求，创建一个到服务器指定端口（默认是80端口）的TCP连接。HTTP服务器则在那个端口监听客户端的请求。一旦收到请求，服务器会向客户端返回一个状态，比如"HTTP/1.1 200 OK"，以及返回的内容，如请求的文件、错误消息、或者其它信息。
+
+HTTP/1.0
+
+这是第一个在通讯中指定版本号的HTTP协议版本。
+
+HTTP/1.1
+
+默认采用持续连接（Connection: keep-alive），能很好地配合代理服务器工作。还支持以[管道方式](https://zh.wikipedia.org/wiki/HTTP管线化)在同时发送多个请求，以便降低线路负载，提高传输速度。
+
+HTTP/1.1相较于HTTP/1.0协议的区别主要体现在：
+
+- 缓存处理
+- 带宽优化及网络连接的使用
+- 错误通知的管理
+- 消息在网络中的发送
+- 互联网地址的维护
+- 安全性及完整性
+
+HTTP/2, HTTP/3
+
+they have kept the above mentioned features of HTTP/1.1
+
+
+
+
+
+### HTTP消息
+
+> [HTTP消息 - HTTP | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Messages)
+
+HTTP消息是服务器和客户端之间交换数据的方式。有两种类型的消息︰ 请求（requests）--由客户端发送用来触发一个服务器上的动作；响应（responses）--来自服务器的应答。
+
+HTTP消息由采用ASCII编码的多行文本构成。在HTTP/1.1及早期版本中，这些消息通过连接公开地发送。在HTTP/2中，为了优化和性能方面的改进，曾经可人工阅读的消息被分到多个HTTP帧中。
 
 
 
@@ -175,39 +268,6 @@ HTTP/1.1协议中共定义了八种方法（也叫“动作”）来以不同方
 假如在不考虑诸如错误或者过期等问题的情况下，若干次请求的副作用与单次请求相同或者根本没有副作用，那么这些请求方法就能够被视作“[幂等(idempotence)](https://zh.wikipedia.org/wiki/冪等)”的。GET，HEAD，PUT和DELETE方法都有这样的幂等属性，同样由于根据协议，OPTIONS，TRACE都不应有副作用，因此也理所当然也是幂等的。
 
 假如一个由若干请求组成的请求序列产生的结果，在重复执行这个请求序列或者其中任何一个或多个请求后仍没有发生变化，则这个请求序列便是“幂等”的。但是，可能出现一个由若干请求组成的请求序列是“非幂等”的，即使这个请求序列中所有执行的请求方法都是幂等的。例如，这个请求序列的结果依赖于某个会在下次执行这个序列的过程中被修改的变量。
-
-### 版本
-
-> HTTP的发展是由[蒂姆·伯纳斯-李](https://zh.wikipedia.org/wiki/提姆·柏內茲-李)于1989年在[欧洲核子研究组织](https://zh.wikipedia.org/wiki/歐洲核子研究組織)（CERN）所发起
->
-> 1999年6月公布的 [RFC 2616](https://tools.ietf.org/html/rfc2616)，定义了HTTP协议中现今广泛使用的一个版本——HTTP 1.1。
->
-> 2014年12月，[互联网工程任务组](https://zh.wikipedia.org/wiki/互联网工程任务组)（IETF）的Hypertext Transfer Protocol Bis（httpbis）工作小组将[HTTP/2](https://zh.wikipedia.org/wiki/HTTP/2)标准提议递交至[IESG](https://zh.wikipedia.org/w/index.php?title=IESG&action=edit&redlink=1)进行讨论[[2\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-2)，于2015年2月17日被批准。[[3\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-approval2-3) 
->
-> HTTP/2标准于2015年5月以RFC 7540正式发表，取代HTTP 1.1成为HTTP的实现标准。[[4\]](https://zh.wikipedia.org/wiki/超文本传输协议#cite_note-rfc7540-4)
-
-
-
-HTTP/1.0
-
-这是第一个在通讯中指定版本号的HTTP协议版本。
-
-HTTP/1.1
-
-默认采用持续连接（Connection: keep-alive），能很好地配合代理服务器工作。还支持以[管道方式](https://zh.wikipedia.org/wiki/HTTP管线化)在同时发送多个请求，以便降低线路负载，提高传输速度。
-
-HTTP/1.1相较于HTTP/1.0协议的区别主要体现在：
-
-- 缓存处理
-- 带宽优化及网络连接的使用
-- 错误通知的管理
-- 消息在网络中的发送
-- 互联网地址的维护
-- 安全性及完整性
-
-HTTP/2, HTTP/3
-
-they have kept the above mentioned features of HTTP/1.1
 
 
 
