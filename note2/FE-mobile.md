@@ -228,13 +228,16 @@ $$
 
 ### 视口(viewport)
 
+> [Viewport - 术语表 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Glossary/Viewport#了解更多)
 > https://developer.mozilla.org/en-US/docs/Web/CSS/Viewport_concepts
 
 #### 概述
 
-简单理解，视口（viewport）是用户在**网页**上的可见区域。
+> 在电脑图形学里面，视口代表了一个可看见的多边形区域（通常来说是矩形）。在浏览器范畴里，它代表的是浏览器中网站可见内容的部分。视口外的内容在被滚动进来前都是不可见的。
+>
+> 但不包括浏览器的 UI， 菜单栏等——<u>即指你正在浏览的文档的那一部分</u>
 
-视口 (viewport) 代表当前可见的计算机图形区域。在 Web 浏览器术语中，通常与浏览器窗口相同，但不包括浏览器的 UI， 菜单栏等——<u>即指你正在浏览的文档的那一部分</u>。
+简单理解，视口（viewport）是用户在**网页**上的可见区域。
 
 Viewport 的大小取决于屏幕的大小：
 
@@ -244,17 +247,17 @@ Viewport 的大小取决于屏幕的大小：
 
 **概括地说，viewport 基本上是当前文档的可见部分。**
 
+
+
 #### Viewport大小是可变的
 
 **document.documentElement.clientWidth**
 
-用CSS像素表示的文档内部宽度，包括padding(不包括borders，margins，垂直滚动条)。
-
-表示视口宽度
+用CSS像素表示的文档内部宽度，包括padding(不包括borders，margins，垂直滚动条)。这就是视口的宽度.
 
 **Window.innerWidth**
 
-是用 CSS pixels 单位表示的浏览器窗口 viewport 宽度，包括垂直滚动条，如果渲染了的话。
+是用 CSS pixels 单位表示的浏览器窗口 viewport 宽度，包括垂直滚动条(如果渲染的话)。
 
 **Window.outerWidth**
 
@@ -274,21 +277,27 @@ window.innerHeight /* 937 */
 window.outerHeight /* 1040 */
 ```
 
-在实测中，`innerWidth` 和 `outerWidth` 是相同的，但是 `outerHeight` 比 `innerHeight` 高。这是因为 `outerHeight` 的测量包括浏览器框架在内，包括了地址栏和书签栏总共 ? 的高度，而浏览器没有左右边框
+<span style="color:blue">在实测中，`innerWidth` 和 `outerWidth` 是相同的，但是 `outerHeight` 比 `innerHeight` 高</span>。这是因为 `outerHeight` 的测量包括浏览器框架在内，包括了地址栏和书签栏总共 ? 的高度，而浏览器没有左右边框.
 
 `innerHeight` 和 `innerWidth` 所组成的区域通常被认为是**布局视口 (layout viewport)**。浏览器的框架不被认为是 viewport 的一部分。
 
 当缩放时，  Chrome 对 `innerWidth` 和 `clientWidth` 给出了新的 CSS 像素大小。对 `outerWidth` 和 `outerHeight` 的返回值有差异: Chrome 返回了默认的像素值; Firefox 返回了缩放后的 CSS 像素值.
 
-##### 布局视口 视觉视口
 
-`innerHeight` 和 `innerWidth` 所组成的区域通常被认为是**布局视口 (layout viewport)**。浏览器的框架不被认为是 viewport 的一部分。
 
-Web 浏览器包含两个 viewport，**布局视口 (layout viewport)** 和**视觉视口 (visual viewport)**。
+#### 布局视口 视觉视口
 
-visual viewport 指当前浏览器中可见的部分，并且可以变化。
+Web 浏览器包含两个 viewport，布局视口 (layout viewport) 和视觉视口 (visual viewport)。
+
+**布局视口 (layout viewport)**: `innerHeight` 和 `innerWidth` 所组成的区域,但浏览器的框架不被认为是 viewport 的一部分。
+
+**视觉视口(visual viewport)**:  指浏览器里页面的当前可视部分，且是可以改变的。
 
 当使用触屏双指缩放，当动态键盘在手机上弹出的时候，或者之前隐藏的地址栏变得可见的时候，visual viewport 缩小了，但是 layout viewport 却保持不变。
+
+**可视视口（visual viewport）**: 视口当前可见的部分叫做。可视视口可能会比布局视口**（**layout viewport ）更小，因为当用户缩小浏览器缩放比例时，布局视口不变，而可视视口变小了。
+
+
 
 
 
