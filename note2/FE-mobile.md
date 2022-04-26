@@ -48,37 +48,53 @@
 
 ### 像素相关
 
-#### 1.物理像素
+> https://www.cnblogs.com/houxianzhou/p/14604922.html
 
-​		**物理像素又名：设备像素**，是一个长度单位，单位是px，1个物理像素就是屏幕上的一个物理成像点，就是屏幕中一个微小的发光物理元器件（可简单理解为超级微小的灯泡），是屏幕能显示的最小粒度。屏幕的物理像素点数（分辨率）是手机屏幕的一个重要参数，<span style="color:red">**由屏幕制造商决定，屏幕生产后无法修改。**</span>例如 iPhone6 横向上拥有的物理像素为750、纵向上拥有的物理像素为1334 ，我们也可以用：750* 1334表示。
+#### 0. css(css pixel, px) 像素
 
-物理像素图示：
+> 适用于web编程， 在CSS中以px为后缀，是一个长度单位
 
- <img src="https://s1.ax1x.com/2020/06/27/NyZr5R.jpg" style="zoom:150%;" />
+在 CSS 规范中，长度单位可以分为两类，绝对单位以及相对单位
 
-#### 2. css 像素
+px是一个相对单位，相对的是设备像素（device pixel）
 
-​		**css像素又名： 逻辑像素**，css像素是一个抽象的长度单位，单位也是px，它是为 Web 开发者创造的，用来精确的度量Web 页面上的内容大小。我们在编写css、js、less中所使用的都是css像素；
+一般情况，页面缩放比为1，1个CSS像素等于1个设备独立像素
 
-> 思考：我代码中4px*4px的盒子（css像素），到了屏幕上到底对应几个物理像素（发光的小灯泡）呢？要探讨这个对应关系，就要学习接下来的新概念：设备独立像素。
+`CSS`像素又具有两个方面的相对性：
+
+- 在同一个设备上，每1个 CSS 像素所代表的设备像素是可以变化的（比如调整屏幕的分辨率）
+- 在不同的设备之间，每1个 CSS 像素所代表的设备像素是可以变化的（比如两个不同型号的手机）
+
+在页面进行缩放操作也会 引起`css`中`px`的变化，假设页面放大一倍，原来的 1px 的东西变成 2px，在实际宽度不变的情况下1px 变得跟原来的 2px 的长度（长宽）一样了（元素会占据更多的设备像素）
+
+假设原来需要 320px 才能填满的宽度现在只需要 160px
+
+px会受到下面的因素的影响而变化：
+
+- 每英寸像素（PPI）
+- 设备像素比（DPR）
+
+
+
+#### 1.设备像素（device pixel）
+
+**设备像素：又名物理像素**。指的是设备能控制显示的最小物理单位，不一定是一个小正方形区块，也没有标准的宽高，只是用于显示丰富色彩的一个“点”而已
+
+可以参考公园里的景观变色彩灯，一个彩灯(物理像素)由红、蓝、绿小灯组成，三盏小灯不同的亮度混合出各种色彩
+
+从屏幕在工厂生产出的那天起，它上面设备像素点就固定不变了，单位为`pt`
+
+![](https://mmbiz.qpic.cn/mmbiz_png/gH31uF9VIibRcRiczR54yJAzIMHicu30E1HhFYuugVde3iaSHW43XF1xDaoKBwwsQhVfgu362RNXCTfgsBpnmQ9Evw/640?wx_fmt=png)
+
+
 
 #### 3.设备独立像素
 
-设备独立像素简称 DIP 或 DP（device-independent pixel），又称：**屏幕密度无关像素**。
+设备独立像素简称 DIP （device-independent pixel），又称：**屏幕密度无关像素**。表示*与设备无关的逻辑像素*，<span style="color:blue">代表可以通过程序控制使用的虚拟像素</span>。
 
-> 引言： 在没出现【高清屏】的年代，1个css像素对应1个物理像素，但自从【高清屏】问世，二者就不再是1对1的关系了。苹果公司在2010年推出了一种新的显示标准：**在屏幕尺寸不变的前提下**，把更多的物理像素点**压缩**至一块屏幕里，这样分辨率就会更高，显示效果就会更佳细腻。苹果将这种屏幕称为：**Retina 屏幕（又名：视网膜屏幕）**，与此同时推出了配备这种屏幕的划时代数码产品——iPhone4。
+##### 与设备像素 CSS像素的关系
 
-<img src="https://user-gold-cdn.xitu.io/2020/6/28/172fb94cfb4331fb?w=488&h=367&f=webp&s=10234" style="zoom:80%;" /> 
-
-我们来看一个场景：
-
-​	程序员写了：width = 2px，height = 2px 的盒子，若1个css像素直接对应1个物理像素，由于iPhone3G/S 与iPhone4屏幕尺寸相同，但iPhone4的屏幕能容纳下更多的物理像素点，所以iPhone4的物理像素点比iPhone3G/S小很多，那么理论上这个盒子在iPhone4屏幕上也就会比iPhone3G/S屏幕上小很多，而事实是iPhone3G/S 和 iPhone4下这个盒子是一样大的！！！，只不过 iPhone4更加细腻、清晰。如何做到的呢？这就要靠设备独立像素。<img src="https://s1.ax1x.com/2020/06/28/NRIXX6.jpg" style="zoom: 50%;" />
-
-**对比：iPhone3G/S 与 iPhone4的成像效果：**
-
- <img src="https://s1.ax1x.com/2020/06/28/NRIEo4.png" style="zoom:80%;" />
-
-<span style="color:#ee0b41">设备独立像素的出现，使得即使在【**高清屏**】上元素也可以拥有正常的尺寸，让代码不受到设备的影响，它是设备厂商根据屏幕特性设置的，无法更改。</span>
+<u>一个设备独立像素里可能包含1个或者多个物理像素点，包含的越多则屏幕看起来越清晰</u>
 
 **设备独立像素 与 css像素关系**
 
@@ -89,17 +105,49 @@
 - 普通屏幕下 1 个设备独立像素 对应 1 个物理像素
 - 高清屏幕下 1 个设备独立像素 对应 N 个物理像素
 
-#### 4.像素比
+比如： 们会说“电脑屏幕在 2560x1600分辨率下不适合玩游戏，我们把它调为 1440x900”，这里的“分辨率”（非严谨说法）指的就是设备独立像素。
 
-> 设备像素比,用于描述整个渲染环境在硬件设备上的缩放程度。在程序中可以通过window对象上的devicePixelRatio属性来得到这个值。它是只读的，但不是常量，对浏览器的一些特殊操作会改变这个值。
->
-> 
+##### 出现的原因
 
-​	像素比（dpr）: 单一方向上，【物理像素】和【设备独立像素】的比值。即：**dpr = 物理像素 / 设备独立像素**
+iPhone 3GS 和 iPhone 4/4s 的尺寸都是 3.5 寸，但 iPhone 3GS 的分辨率是 320x480，iPhone 4/4s 的分辨率是 640x960。 这意味着，iPhone 3GS 有 320 个物理像素，iPhone 4/4s 有 640 个物理像素
 
-```javascript
-使用js获取dpr：window.devicePixelRatio
-```
+如果我们按照真实的物理像素进行布局，比如说我们按照 320 物理像素进行布局，到了 640 物理像素的手机上就会有一半的空白，<span style="background: #ccc">为了避免这种问题，就产生了虚拟像素单位.</span>
+
+我们统一 iPhone 3GS 和 iPhone 4/4s 都是 320 个虚拟像素，只是在 iPhone 3GS 上，最终 1 个虚拟像素换算成 1 个物理像素，在 iphone 4s 中，1 个虚拟像素最终换算成 2 个物理像素
+
+至于 1 个虚拟像素被换算成几个物理像素，这个数值我们称之为**设备像素比(dpr)**
+
+##### 获取
+
+在`javaScript`中可以通过`window.screen.width/ window.screen.height` 查看
+
+
+
+#### 4.设备像素比(dpr)
+
+设备像素比dpr(device pixel ratio), 单一方向上【设备像素】除以【设备独立像素】的比值，用于描述整个渲染环境在硬件设备上的缩放程度。
+
+在`JavaScript`中可以通过 `window.devicePixelRatio` 获取，它是只读的，但不是常量，对浏览器的一些特殊操作会改变这个值。
+$$
+dpr = \frac{设备像素}{设备独立像素}
+$$
+具体描述如下：
+
+| 设备像素比 | 设备像素         | CSS像素 |
+| ---------- | ---------------- | ------- |
+| 1:1        | 1*1  1个设备像素 | 1       |
+| 2:1        | 2*2  4个设备像素 | 1       |
+| 3:1        | 3*3 9个设备像素  | 1       |
+
+**描述一下你的屏幕：**
+
+​	现在以iPhone6为例，我们描述一下屏幕（横向上）:
+
+1. 物理像素：750px
+2. 设备独立像素：375px
+3. css像素：375px
+
+
 
 几款手机的屏幕像素参数，[点击这里查看更多](https://uiiiuiii.com/screen/)
 
@@ -115,15 +163,16 @@
 
 
 
+#### 总结
+
+* 无缩放情况下，1个CSS像素等于1个设备独立像素
+* 设备像素由屏幕生产之后就不发生改变，而设备独立像素是一个虚拟单位会发生改变
+* PC端中，1个设备独立像素 = 1个设备像素 （在100%，未缩放的情况下）
+* 在移动端中，标准屏幕（160ppi）下 1个设备独立像素 = 1个设备像素
+* 设备像素比（dpr） = 设备像素 / 设备独立像素
+* 每英寸像素（ppi），值越大，图像越清晰
 
 
-**描述一下你的屏幕：**
-
-​	现在以iPhone6为例，我们描述一下屏幕（横向上）:
-
-1. 物理像素：750px
-2. 设备独立像素：375px
-3. css像素：375px
 
 ### 图片高清显示
 
@@ -177,7 +226,71 @@
 
 
 
-### 视口相关
+### 视口(viewport)
+
+> https://developer.mozilla.org/en-US/docs/Web/CSS/Viewport_concepts
+
+#### 概述
+
+简单理解，视口（viewport）是用户在**网页**上的可见区域。
+
+视口 (viewport) 代表当前可见的计算机图形区域。在 Web 浏览器术语中，通常与浏览器窗口相同，但不包括浏览器的 UI， 菜单栏等——<u>即指你正在浏览的文档的那一部分</u>。
+
+Viewport 的大小取决于屏幕的大小：
+
+* 在尺寸较大的设备中，应用显示区域不一定是全屏的，viewport 是浏览器窗口的大小。
+* 在大多数移动设备中，浏览器是全屏的，viewport 是整个屏幕的大小。
+* 在全屏模式下，viewport 是设备屏幕的范围，浏览器窗口小于或等于视口的大小（全屏模式快捷键`F11`,）
+
+**概括地说，viewport 基本上是当前文档的可见部分。**
+
+#### Viewport大小是可变的
+
+**document.documentElement.clientWidth**
+
+用CSS像素表示的文档内部宽度，包括padding(不包括borders，margins，垂直滚动条)。
+
+表示视口宽度
+
+**Window.innerWidth**
+
+是用 CSS pixels 单位表示的浏览器窗口 viewport 宽度，包括垂直滚动条，如果渲染了的话。
+
+**Window.outerWidth**
+
+包括了浏览器外边框的窗口宽度
+
+
+
+Viewport的宽度并不总是窗口的宽度，可以在Chrome通过查询window和document的高度宽度：
+
+```javascript
+document.documentElement.clientWidth /* 1920 */
+window.innerWidth /* 1920 */
+window.outerWidth /* 1920 */
+
+document.documentElement.clientHeight /* 937 */
+window.innerHeight /* 937 */
+window.outerHeight /* 1040 */
+```
+
+在实测中，`innerWidth` 和 `outerWidth` 是相同的，但是 `outerHeight` 比 `innerHeight` 高。这是因为 `outerHeight` 的测量包括浏览器框架在内，包括了地址栏和书签栏总共 ? 的高度，而浏览器没有左右边框
+
+`innerHeight` 和 `innerWidth` 所组成的区域通常被认为是**布局视口 (layout viewport)**。浏览器的框架不被认为是 viewport 的一部分。
+
+当缩放时，  Chrome 对 `innerWidth` 和 `clientWidth` 给出了新的 CSS 像素大小。对 `outerWidth` 和 `outerHeight` 的返回值有差异: Chrome 返回了默认的像素值; Firefox 返回了缩放后的 CSS 像素值.
+
+##### 布局视口 视觉视口
+
+`innerHeight` 和 `innerWidth` 所组成的区域通常被认为是**布局视口 (layout viewport)**。浏览器的框架不被认为是 viewport 的一部分。
+
+Web 浏览器包含两个 viewport，**布局视口 (layout viewport)** 和**视觉视口 (visual viewport)**。
+
+visual viewport 指当前浏览器中可见的部分，并且可以变化。
+
+当使用触屏双指缩放，当动态键盘在手机上弹出的时候，或者之前隐藏的地址栏变得可见的时候，visual viewport 缩小了，但是 layout viewport 却保持不变。
+
+
 
 #### pc端视口
 
