@@ -215,7 +215,54 @@ HTTP消息由采用ASCII编码的多行文本构成。在HTTP/1.1及早期版本
 
 
 
-### 请求方法
+#### HTTP请求
+
+
+
+#### HTTP响应
+
+
+
+#### 请求 HTTP/1.1 request messages
+
+
+
+> Request messages are sent by a client to a target server
+
+#### Request syntax
+
+A client sends *request messages* to the server, which consist of:
+
+* a **request line**, consisting of 
+  * the case-sensitive(区分大小写) request method, 
+  * a [space](https://en.wikipedia.org/wiki/Space_(punctuation)), 
+  * the requested URL, 
+  * another space, 
+  * the protocol version, a [carriage return](https://en.wikipedia.org/wiki/Carriage_return),(回车) and a [line feed](https://en.wikipedia.org/wiki/Line_feed)(换行), e.g.:
+
+
+```html
+requestMethod URL protocolVersion
+
+GET /images/logo.png HTTP/1.1
+```
+
+
+
+* **zero or more [request header fields](https://en.wikipedia.org/wiki/HTTP_request_header_field)** (at least 1 or more headers in case of HTTP/1.1), each consisting of the case-insensitive field name(域名), a colon(冒号), optional leading [whitespace](https://en.wikipedia.org/wiki/Whitespace_(computer_science))(可选前导空格), the field value, an optional trailing whitespace(空白;末尾无用空白) and ending with a carriage return and a line feed, e.g.:
+
+> Host:  www.example.com
+>
+> Accept-Language: en
+
+* **an empty line**, consisting of a carriage return and a line feed;
+* **an optional [message body](https://en.wikipedia.org/wiki/HTTP_message_body)**.
+
+In the HTTP/1.1 protocol, all header fields except `Host: hostname` are optional.
+
+
+
+#### 请求方法
 
 HTTP/1.1协议中共定义了八种方法（也叫“动作”）来以不同方式操作指定的资源：
 
@@ -271,32 +318,7 @@ HTTP/1.1协议中共定义了八种方法（也叫“动作”）来以不同方
 
 
 
-### HTTP/1.1 request messages
-
-> Request messages are sent by a client to a target server
-
-#### Request syntax
-
-A client sends *request messages* to the server, which consist of:
-
-* a **request line**, consisting of the case-sensitive(区分大小写) request method, a [space](https://en.wikipedia.org/wiki/Space_(punctuation)), the requested URL, another space, the protocol version, a [carriage return](https://en.wikipedia.org/wiki/Carriage_return),(回车) and a [line feed](https://en.wikipedia.org/wiki/Line_feed)(换行), e.g.:
-
-> GET /images/logo.png HTTP/1.1
-
-* **zero or more [request header fields](https://en.wikipedia.org/wiki/HTTP_request_header_field)** (at least 1 or more headers in case of HTTP/1.1), each consisting of the case-insensitive field name(域名), a colon(冒号), optional leading [whitespace](https://en.wikipedia.org/wiki/Whitespace_(computer_science))(可选前导空格), the field value, an optional trailing whitespace(空白;末尾无用空白) and ending with a carriage return and a line feed, e.g.:
-
-> Host:  www.example.com
->
-> Accept-Language: en
-
-* **an empty line**, consisting of a carriage return and a line feed;
-* **an optional [message body](https://en.wikipedia.org/wiki/HTTP_message_body)**.
-
-In the HTTP/1.1 protocol, all header fields except `Host: hostname` are optional.
-
-
-
-#### Request methods
+#### 
 
 
 
