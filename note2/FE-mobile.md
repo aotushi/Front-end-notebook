@@ -92,30 +92,29 @@ px会受到下面的因素的影响而变化：
 
 设备独立像素简称 DIP （device-independent pixel），又称：**屏幕密度无关像素**。表示*与设备无关的逻辑像素*，<span style="color:blue">代表可以通过程序控制使用的虚拟像素</span>。
 
-##### 与设备像素 CSS像素的关系
+出现的原因?
 
-<u>一个设备独立像素里可能包含1个或者多个物理像素点，包含的越多则屏幕看起来越清晰</u>
+更高分辨率的屏幕诞生.理论上来讲，在白色手机(分辨率320\*480)上相同大小的图片和文字，在黑色手机(分辨率640\*960)上会被缩小一倍，因为它的分辨率提高了一倍。
 
-**设备独立像素 与 css像素关系**
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/37001e1c48e14b6c8606024183a1151b~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
 
--  在标准情况下（无缩放）：1css像素 = 1设备独立像素 
+乔布斯在`iPhone4`的发布会上首次提出了`Retina Display`(视网膜屏幕)的概念，它正是解决了上面的问题. 在`iPhone4`使用的视网膜屏幕中，<span style="color:blue;">把`2x2`个像素当`1`个像素使用</span>，这样让屏幕看起来更精致，但是元素的大小却不会改变。
 
-**设备独立像素 与 物理像素关系**
+如果黑色手机使用了视网膜屏幕的技术，那么显示结果应该是下面的情况，比如列表的宽度为`300`个像素，那么在一条水平线上，白色手机会用`300`个物理像素去渲染它，而黑色手机实际上会用`600`个物理像素去渲染它。
 
-- 普通屏幕下 1 个设备独立像素 对应 1 个物理像素
-- 高清屏幕下 1 个设备独立像素 对应 N 个物理像素
 
-比如： 们会说“电脑屏幕在 2560x1600分辨率下不适合玩游戏，我们把它调为 1440x900”，这里的“分辨率”（非严谨说法）指的就是设备独立像素。
 
-##### 出现的原因
+我们必须<span style="color:blue">用一种单位</span>来同时告诉不同分辨率的手机，要显示的目标(对象)在界面上显示元素的大小是多少，这个单位就是设备独立像素(`Device Independent Pixels`)简称`DIP`或`DP`。
 
-iPhone 3GS 和 iPhone 4/4s 的尺寸都是 3.5 寸，但 iPhone 3GS 的分辨率是 320x480，iPhone 4/4s 的分辨率是 640x960。 这意味着，iPhone 3GS 有 320 个物理像素，iPhone 4/4s 有 640 个物理像素
+上面我们说，列表的宽度为`300`个像素，实际上我们可以说：列表的宽度为`300`个设备独立像素。
 
-如果我们按照真实的物理像素进行布局，比如说我们按照 320 物理像素进行布局，到了 640 物理像素的手机上就会有一半的空白，<span style="background: #ccc">为了避免这种问题，就产生了虚拟像素单位.</span>
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a0dd7c1f817e4bbabe5590651ed97eb6~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
 
-我们统一 iPhone 3GS 和 iPhone 4/4s 都是 320 个虚拟像素，只是在 iPhone 3GS 上，最终 1 个虚拟像素换算成 1 个物理像素，在 iphone 4s 中，1 个虚拟像素最终换算成 2 个物理像素
 
-至于 1 个虚拟像素被换算成几个物理像素，这个数值我们称之为**设备像素比(dpr)**
+
+Chrome开发工具,模拟手机型号,每种型号上面会显示一个尺寸，比如`iPhone X`显示的尺寸是`375x812`，实际`iPhone X`的分辨率会比这高很多，这里显示的就是设备独立像素。
+
+
 
 ##### 获取
 
@@ -123,29 +122,27 @@ iPhone 3GS 和 iPhone 4/4s 的尺寸都是 3.5 寸，但 iPhone 3GS 的分辨率
 
 
 
+
+
 #### 4.设备像素比(dpr)
 
 设备像素比dpr(device pixel ratio), 单一方向上【设备像素】除以【设备独立像素】的比值，用于描述整个渲染环境在硬件设备上的缩放程度。
 
-在`JavaScript`中可以通过 `window.devicePixelRatio` 获取，它是只读的，但不是常量，对浏览器的一些特殊操作会改变这个值。
+
 $$
 dpr = \frac{设备像素}{设备独立像素}
 $$
-具体描述如下：
 
-| 设备像素比 | 设备像素         | CSS像素 |
-| ---------- | ---------------- | ------- |
-| 1:1        | 1*1  1个设备像素 | 1       |
-| 2:1        | 2*2  4个设备像素 | 1       |
-| 3:1        | 3*3 9个设备像素  | 1       |
 
-**描述一下你的屏幕：**
+获取:
 
-​	现在以iPhone6为例，我们描述一下屏幕（横向上）:
+在`web`中，浏览器为我们提供了`window.devicePixelRatio`来帮助我们获取`dpr`。
 
-1. 物理像素：750px
-2. 设备独立像素：375px
-3. css像素：375px
+在`css`中，可以使用媒体查询`min-device-pixel-ratio`，区分`dpr`：
+
+```css
+@media (-webkit-min-device-pixel-ratio: 2), (min-device-pixel-ratio: 2) {}
+```
 
 
 
@@ -163,53 +160,45 @@ $$
 
 
 
-#### 尺寸的区别
+具体描述如下：
 
-##### 设备独立像素(屏幕尺寸)
+| 设备像素比 | 设备像素         | CSS像素 |
+| ---------- | ---------------- | ------- |
+| 1:1        | 1*1  1个设备像素 | 1       |
+| 2:1        | 2*2  4个设备像素 | 1       |
+| 3:1        | 3*3 9个设备像素  | 1       |
 
-```javascript
-screen.width
-screen.heigth
-```
+例外:
 
-![dip_img](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/dip_img.6a03hm2uvmg0.webp)
+`iPhone 6、7、8 Plus`的实际物理像素是`1080 x 1920`，
 
+在Chrome开发者工具中它的设备独立像素是`414 x 736`，设备像素比为`3`，
 
+设备独立像素和设备像素比的乘积并不等于`1080 x 1920`，而是等于`1242 x 2208`。
 
-##### CSS像素(窗口尺寸)
-
-包含滚动条
-
-```javascript
-window.innerWidth
-window.innerHeight
-```
-
-![css_img](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/css_img.6997s9e5gg40.webp)
+实际上，手机会自动把`1242 x 2208`个像素点塞进`1080 * 1920`个物理像素点来渲染，我们不用关心这个过程，而`1242 x 2208`被称为屏幕的`设计像素`。我们开发过程中也是以这个`设计像素`为准。
 
 
 
-不包含滚动条
+安卓和苹果手机上设备独立像素的应用:
 
-```javascript
-document.documentElement.clientWidth
-document.documentElement.clientHeight
-```
+从苹果提出视网膜屏幕开始，才出现设备像素比这个概念.
 
-![css_img_2](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/css_img_2.6djagn6f14c.webp)
+由于`Android`屏幕尺寸非常多、分辨率高低跨度非常大，不像苹果只有它自己的几款固定设备、尺寸。所以，为了保证各种设备的显示效果，`Android`按照设备的像素密度将设备分成了几个区间：
 
-##### 获取HTML元素尺寸(内容)
-
-```javascript
-document.documentElement.offsetWidth
-document.documentElement.offsetHeight
-```
-
-![HTML_img](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/HTML_img.3fqq3986l0i0.webp)
+由于各个设备的尺寸、分辨率上的差异，设备独立像素也不会完全相等，所以各种`Android`设备仍然不能做到在展示上完全相等。		
 
 
 
 
+
+
+
+
+
+
+
+​							
 
 #### 总结
 
@@ -274,14 +263,16 @@ document.documentElement.offsetHeight
 
 
 
-### 视口(viewport)
+## 视口(viewport)
 
 > [Viewport - 术语表 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Glossary/Viewport#了解更多)
 > https://developer.mozilla.org/en-US/docs/Web/CSS/Viewport_concepts
 >
 > https://juejin.cn/post/6844903734347055118
 
-#### 概述
+
+
+### 概述
 
 > 在电脑图形学里面，视口代表了一个可看见的多边形区域（通常来说是矩形）。在浏览器范畴里，它代表的是浏览器中网站可见内容的部分。视口外的内容在被滚动进来前都是不可见的。
 >
@@ -299,7 +290,7 @@ Viewport 的大小取决于屏幕的大小：
 
 
 
-#### Viewport大小是可变的
+### Viewport大小是可变的
 
 **document.documentElement.clientWidth**
 
@@ -349,7 +340,7 @@ Web 浏览器包含两个 viewport，布局视口 (layout viewport) 和视觉视
 
 
 
-#### pc端视口
+### pc端视口
 
 ​        在pc端，视口的默认宽度和**浏览器窗口**的宽度一致。在 css 标准文档中，视口也被称为：<u>初始包含块</u>，它是所有 css 百分比宽度推算的根源，在pc端可通过如下几种方式获取宽度：
 
@@ -360,43 +351,76 @@ console.log('最干净的显示区域+滚动条+浏览器边框',window.outerWid
 console.log('与浏览器无关，当前设备显示分辨率横向的值',screen.width);
 ```
 
-#### 移动端视口
+### 移动端视口
 
-​	在移动端,浏览器厂商面临着一个比较大的问题,他们如何将数以万计甚至可以说是数以亿计的pc端网页完整的呈现在移动端设备上，并且不会出现<s>横向滚动条呢</s>？那就要引出移动端的三个概念：
+​	移动端视口共包括三种：布局视口、视觉视口和理想视口
 
-**1.布局视口、2.视觉视口、3. 理想视口**
 
-##### 1. 布局视口
 
-> 为什么用? 布局视口大于视觉视口.  布局视口deveice-width赋值给视觉视口
+#### 1. 布局视口
 
-​	用于解决[早期的页面](http://www.shindoo.com/index.asp)在手机上显示的问题，早期的时候我们这样做：pc端网页宽度一般都为：960px ~ 1024px 这个范围，就算超出了该范围，960px ~ 1024px这个区域也依然是版心的位置，浏览器厂商针对移动端设备设计了一个容器，先用这个容器去承装pc端的网页，这容器的宽度一般是**<span style='color:red'>980px</span>**，不同的设备可能有所差异，但相差并不大；随后将这个容器**等比例压缩**到与手机等宽，这样就可以保证没有滚动条且能完整呈现页面，但是这样做依然有问题：网页内容被压缩的太小，严重影响用户体验。
+布局视口(`layout viewport`)：当我们以百分比来指定一个元素的大小时，它的计算值是由这个<span style="color:blue">元素的包含块</span>计算而来的。当这个元素是最顶级的元素时，它就是基于布局视口来计算的。
 
-移动端和pc端获取的方式一样,但是含义不一样.移动端获取的布局视口一般是固定的.
+所以，布局视口是网页布局的基准窗口，在`PC`浏览器上，布局视口就等于当前浏览器的窗口大小（不包括`borders` 、`margins`、滚动条）。
 
-移动端获取布局视口方式：`document.documentElement.clientWidth/Height ` 在进行 @media 媒体查询的时候，查询的宽度值也是布局视口的宽度值。
+获取:
 
- <span style='color:red'>**注意：布局视口经过压缩后，横向的宽度用css像素表达就不再是375px了，而是980px，因为布局视口是被压缩，而不是截取。**</span> 注意:px是抽象的长度单位
+```javascript
+document.documentElement.clientWidth / clientHeight
+```
+
+
 
  <img src="https://s1.ax1x.com/2020/06/28/NRoBg1.png" style="zoom: 50%;" />
 
 
-##### 2.视觉视口
-​	视觉视口就是用户可见的区域，**它的绝对宽度永远和设备屏幕一样宽**，但是这个宽度里所包含的css像素值是变化的，例如：一般手机会将980个css像素放入视觉视口中，而ipad Pro会将1024个css像素放入视觉视口中。
+#### 2. 视觉视口
+视觉视口(`visual viewport`)：用户通过屏幕真实看到的区域。
 
-移动端获取视觉视口方式：```window.innerWidth```，不过在Android2、Opera mini 、UC8 中无法正确获取。（一般不通过代码看视觉视口）+和布局视口一般是一样的.
+视觉视口默认等于当前浏览器的窗口大小（包括滚动条宽度）。
 
- <img src="https://s1.ax1x.com/2020/06/28/NR7QO0.png" style="zoom: 50%;" />
+当用户对浏览器进行缩放时，不会改变布局视口的大小，所以页面布局是不变的，但是缩放会改变视觉视口的大小。
 
-**描述一下你的屏幕：**
+<u>例如：</u>
 
-现在以iPhone6为例，我们描述一下屏幕（横向上）:
+用户将浏览器窗口放大了`200%`，这时浏览器窗口中的`CSS像素`会随着视觉视口的放大而放大，这时一个`CSS`像素会跨越更多的物理像素。
 
-1. 物理像素：750px
-2. 设备独立像素：375px
-3. <span style='color:red'>**css像素：980px**</span>
+所以，布局视口会限制你的`CSS`布局而视觉视口决定用户具体能看到什么。
 
-##### 3.理想视口标准
+<u>获取:</u>
+
+```javascript
+window.innerwidth / innerHeight
+```
+
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bacccff7697542f799ad99cd078de44c~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
+
+
+
+
+
+#### 3. 理想视口标准
+
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3c8562b88a6a4e6fb23c672b64cdcd40~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
+
+
+
+上面在介绍`CSS像素时`曾经提到`页面的缩放系数 = CSS像素 / 设备独立像素`，实际上说`页面的缩放系数 = 理想视口宽度 / 视觉视口宽度`更为准确。
+
+所以，当页面缩放比例为`100%`时，`CSS像素 = 设备独立像素`，`理想视口 = 视觉视口`。
+
+**获取**
+
+```javascript
+screen.width / height
+```
+
+
+
+
+ 
+
+
 
 与屏幕（**设备独立像素**dip）等宽的**布局视口**，称之为理想视口，所以也可以说理想视口是一种标准：让布局视口宽度 与 屏幕等宽（设备独立像素宽度），靠meta标签实现。
 
@@ -412,6 +436,16 @@ console.log('与浏览器无关，当前设备显示分辨率横向的值',scree
 width //代表布局视口
 device-width//代表设备独立像素dip
 ```
+
+
+
+
+
+
+
+
+
+
 
 **【总结】：** 
 
@@ -525,6 +559,27 @@ viewport 相关选项
 
 
 ## 适配
+
+WEB端开发
+
+在写`CSS`时，我们用到最多的单位是`px`，即`CSS像素`，当页面缩放比例为`100%`时，一个`CSS像素`等于一个设备独立像素。
+
+但是`CSS像素`是很容易被改变的，当用户对浏览器进行了放大，`CSS像素`会被放大，这时一个`CSS像素`会跨越更多的物理像素。
+
+`页面的缩放系数 = CSS像素 / 设备独立像素`。
+
+
+ 
+
+移动端开发
+
+在`iOS`、`Android`和`React Native`开发中样式单位其实都使用的是设备独立像素。
+
+`iOS`的尺寸单位为`pt`，`Android`的尺寸单位为`dp`，`React Native`中没有指定明确的单位，它们其实都是设备独立像素`dp`。
+
+
+
+
 
 **一、为什么要做适配？**
 			由于移动端设备的屏幕尺寸大小不一，会出现：同一个元素，在两个不同的手机上显示效果不一样（比例不同）。要想让同一个元素在不同设备上，显示效果一样，就需要适配，**无论采用何种适配方式，中心原则永远是：**<span style="color:#ee0b41">**等比**</span>！。
