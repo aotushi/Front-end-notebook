@@ -209,21 +209,117 @@ they have kept the above mentioned features of HTTP/1.1
 
 > [HTTP消息 - HTTP | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Messages)
 
-HTTP消息是服务器和客户端之间交换数据的方式。有两种类型的消息︰ 请求（requests）--由客户端发送用来触发一个服务器上的动作；响应（responses）--来自服务器的应答。
+HTTP消息是服务器和客户端之间交换数据的方式。有两种类型的消息︰ 
+
+请求（requests）--由客户端发送用来触发一个服务器上的动作；
+
+响应（responses）--来自服务器的应答。
 
 HTTP消息由采用ASCII编码的多行文本构成。在HTTP/1.1及早期版本中，这些消息通过连接公开地发送。在HTTP/2中，为了优化和性能方面的改进，曾经可人工阅读的消息被分到多个HTTP帧中。
 
+**HTTP 请求和响应具有类似解构, 由以下部分组成:**
+
+1.**起始行**:  总是单行; 用于描述要执行的请求，或者是对应的状态，成功或失败
+
+2.**可选HTTP头集合**: 指明请求或描述消息正文
+
+3.**空行:** 指示所有关于请求的元数据已经发送完毕
+
+4.**可选的正文**: 包含请求或响应的相关数据, 正文大小由起始行HTTP头指定
+
+起始行和HTTP消息中的HTTP头统称为请求头 而其有效负载被称为消息正文.
+
+<img src="https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/HTTPMsgStructure2.6ek1f6fu5hw0.webp" alt="HTTPMsgStructure2" style="zoom: 200%;" />
 
 
-#### HTTP请求
+
+### HTTP消息- Request
+
+#### 起始行
+
+起始行包含3个元素:
+
+* HTTP方法
+* 请求目标(request target)
+* HTTP版本
 
 
 
-#### HTTP响应
+##### HTTP方法
+
+描述要求执行的动作. 例如,`GET`表示要获取资源, `POST`表示向服务器推送数据(创建/修改资源,或产生要返回的临时文件).
+
+##### 请求目标request target
+
+通常是一个URL,或者是协议,端口号和域名的绝对路径. 通常以请求的环境为特征.请求的格式因不同的hTTP方法而异. 它可以是以下几种形式:
+
+* 原始形式(origin form): 一个绝对路径，末尾跟上一个 ' ? ' 和查询字符串. 被`GET，POST，HEAD 和 OPTIONS `方法所使用.
+
+```http
+POST / HTTP/1.1
+GET /background.png HTTP/1.0
+HEAD /test.html?query=alibaba HTTP/1.1
+OPTIONS /anypage.html HTTP/1.0
+```
 
 
 
-#### 请求 HTTP/1.1 request messages
+* 绝对形式(absolute form): 一个完整的URL, 主要在使用 `GET` 方法连接到代理时使用。
+
+```http
+GET http://developer.mozilla.org/en-US/docs/Web/HTTP/Messages HTTP/1.1
+```
+
+* 授权形式(authority form) : 由域名和可选端口（以`':'`为前缀）组成的 URL. 仅在使用 `CONNECT` 建立 HTTP 隧道时才使用
+
+```http
+CONNECT developer.mozilla.org:80 HTTP/1.1
+```
+
+* 星号形式 (asterisk form)，一个简单的星号(`'*'`)，配合 `OPTIONS` 方法使用，代表整个服务器。
+
+```javascript
+OPTIONS * HTTP/1.1
+```
+
+
+
+##### HTTP版本
+
+定义了剩余报文的结构，作为对期望的响应版本的指示符。
+
+
+
+#### Headers
+
+来自请求的 [HTTP headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers) 遵循和 HTTP header 相同的基本结构：不区分大小写的字符串，紧跟着的冒号 `(':')` 和一个结构取决于 header 的值。 整个 header（包括值）由一行组成，这一行可以相当长。
+
+请求头可以分为几组：
+
+* *General headers，*例如 [`Via`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Via)，适用于整个报文。
+* *Request headers，*例如 [`User-Agent`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/User-Agent)，[`Accept-Type`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Type)，通过进一步的定义(例如 [`Accept-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Language))，或者给定上下文(例如 [`Referer`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Referer))，或者进行有条件的限制 (例如 [`If-None`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/If-None)) 来修改请求。
+* *Entity headers，*例如 [`Content-Length`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Length)，适用于请求的 body。显然，如果请求中没有任何 body，则不会发送这样的头文件。
+
+
+
+
+
+#### Body
+
+请求的最后一部分是它的 body。不是所有的请求都有一个 body: 例如获取资源的请求，GET，HEAD，DELETE 和 OPTIONS，通常它们不需要 body。 有些请求将数据发送到服务器以便更新数据：常见的的情况是 POST 请求（包含 HTML 表单数据）
+
+Body 大致可分为两类：
+
+- *Single-resource bodies*，由一个单文件组成。该类型 body 由两个 header 定义： [`Content-Type`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Type) 和 [`Content-Length`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Length).
+- *[Multiple-resource bodies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#multipartform-data)*，由多部分 body 组成，每一部分包含不同的信息位。通常是和  [HTML Forms](https://developer.mozilla.org/en-US/docs/Learn/Forms) 连系在一起。
+
+![HTTP_Request_Headers2](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/HTTP_Request_Headers2.4tfbn35oqs80.webp)
+
+
+
+
+
+#### HTTP/1.1 request messages
 
 
 
@@ -318,11 +414,11 @@ HTTP/1.1协议中共定义了八种方法（也叫“动作”）来以不同方
 
 
 
-#### 
+### HTTP消息-Response
 
 
 
-### HTTP/1.1 response messages
+#### HTTP响应 HTTP/1.1 response messages
 
 > A response message is sent by a server to a client as a reply to its former request message.
 
@@ -378,27 +474,6 @@ The first digit of the status code defines its class:
 - `5XX` (server error)
 
   The server failed to fulfill an apparently valid request.
-
-
-
-### HTTP/1.1 example of request /response transaction
-
-> Below is a sample HTTP transaction between an HTTP/1.1 client and an HTTP/1.1 server running on [www.example.com](https://en.wikipedia.org/wiki/Example.com), port 80
-
-#### client request
-
-
-
-```html
-GET / HTTP/1.1
-HOST: www.example.com
-User-Agent: Mozilla/5.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
-Accept-Language: en-GB,en;q=0.5
-Accept-Encoding: gzip, deflate, br
-Connection: keep-alive
-
-```
 
 
 
