@@ -78,7 +78,7 @@ px会受到下面的因素的影响而变化：
 
 #### 1.设备像素（device pixel）
 
-**设备像素：又名物理像素**。指的是设备能控制显示的最小物理单位，不一定是一个小正方形区块，也没有标准的宽高，只是用于显示丰富色彩的一个“点”而已
+**设备像素：又名物理像素**(physical pixel)。指的是设备能控制显示的最小物理单位，不一定是一个小正方形区块，也没有标准的宽高，只是用于显示丰富色彩的一个“点”而已
 
 可以参考公园里的景观变色彩灯，一个彩灯(物理像素)由红、蓝、绿小灯组成，三盏小灯不同的亮度混合出各种色彩
 
@@ -163,6 +163,54 @@ $$
 
 
 
+#### 尺寸的区别
+
+##### 设备独立像素(屏幕尺寸)
+
+```javascript
+screen.width
+screen.heigth
+```
+
+![dip_img](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/dip_img.6a03hm2uvmg0.webp)
+
+
+
+##### CSS像素(窗口尺寸)
+
+包含滚动条
+
+```javascript
+window.innerWidth
+window.innerHeight
+```
+
+![css_img](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/css_img.6997s9e5gg40.webp)
+
+
+
+不包含滚动条
+
+```javascript
+document.documentElement.clientWidth
+document.documentElement.clientHeight
+```
+
+![css_img_2](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/css_img_2.6djagn6f14c.webp)
+
+##### 获取HTML元素尺寸(内容)
+
+```javascript
+document.documentElement.offsetWidth
+document.documentElement.offsetHeight
+```
+
+![HTML_img](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/HTML_img.3fqq3986l0i0.webp)
+
+
+
+
+
 #### 总结
 
 * 无缩放情况下，1个CSS像素等于1个设备独立像素
@@ -230,6 +278,8 @@ $$
 
 > [Viewport - 术语表 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Glossary/Viewport#了解更多)
 > https://developer.mozilla.org/en-US/docs/Web/CSS/Viewport_concepts
+>
+> https://juejin.cn/post/6844903734347055118
 
 #### 概述
 
@@ -291,11 +341,9 @@ Web 浏览器包含两个 viewport，布局视口 (layout viewport) 和视觉视
 
 **布局视口 (layout viewport)**: `innerHeight` 和 `innerWidth` 所组成的区域,但浏览器的框架不被认为是 viewport 的一部分。
 
-**视觉视口(visual viewport)**:  指浏览器里页面的当前可视部分，且是可以改变的。
+**视觉视口(visual viewport)**:  指浏览器里页面的当前可视部分，且是可以改变的。视觉视口是屏幕的可视部分，不包括屏幕键盘，缩放外的区域。视觉视口要么跟布局视口相同，要么更小
 
 当使用触屏双指缩放，当动态键盘在手机上弹出的时候，或者之前隐藏的地址栏变得可见的时候，visual viewport 缩小了，但是 layout viewport 却保持不变。
-
-**可视视口（visual viewport）**: 视口当前可见的部分叫做。可视视口可能会比布局视口**（**layout viewport ）更小，因为当用户缩小浏览器缩放比例时，布局视口不变，而可视视口变小了。
 
 
 
@@ -326,7 +374,7 @@ console.log('与浏览器无关，当前设备显示分辨率横向的值',scree
 
 移动端和pc端获取的方式一样,但是含义不一样.移动端获取的布局视口一般是固定的.
 
-移动端获取布局视口方式：```document.documentElement.clientWidth ``` 
+移动端获取布局视口方式：`document.documentElement.clientWidth/Height ` 在进行 @media 媒体查询的时候，查询的宽度值也是布局视口的宽度值。
 
  <span style='color:red'>**注意：布局视口经过压缩后，横向的宽度用css像素表达就不再是375px了，而是980px，因为布局视口是被压缩，而不是截取。**</span> 注意:px是抽象的长度单位
 
