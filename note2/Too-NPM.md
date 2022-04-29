@@ -4,7 +4,7 @@
 
 ### 介绍
 
-全称：Node Package Manager , Node 的包管理器，也是一个应用程序。
+全称：Node Package Manager , Node 的包管理器，也是一个应用程序。是随同NodeJS一起安装的包管理和分发工具，它很方便让JavaScript开发者下载、安装、上传以及管理已经安装的包。
 
 ### 包是什么
 
@@ -17,6 +17,14 @@ Node.js 的包基本遵循 CommonJS 规范，将一组相关的模块组合在�
 ### 安装
 
 安装完 nodejs 之后会自动安装 npm
+
+#### 工具包网站
+
+```js
+国外: https://www.npmjs.com/
+```
+
+
 
 ### 背景知识(开发+生产)
 
@@ -35,33 +43,7 @@ Node.js 的包基本遵循 CommonJS 规范，将一组相关的模块组合在�
 
 ### 常用命令
 
-```js
-npm -version/-v
-npm init/i 初始化
-npm i --yes 简洁写法 全部采用默认值,但上级路径中不能存在中文
-npm search/s name 搜索包
-npm install/i name 安装包
-
-//安装到依赖中  包名会被注册在package.json中的dependencies里面,在生产环境下这个包的依赖依然存在.
-//安装包并添加到生产中(devdependencies)  6版本可省略,自动添加到依赖中
-npm i name --save-dev
-npm i name -D
-
-//安装包并添加到开发中(dependencies)
-//
-npm i name --save
-npm i name -S
-
-
-npm i name -g 全局安装
-
-npm i/install  安装全部依赖
-npm i --production 只安装dependencies中的依赖
-
-npm remove/r name1 name2 移除包,可以添加多个包的名字
-```
-
-
+> [CLI Commands | npm Docs (npmjs.com)](https://docs.npmjs.com/cli/v8/commands)
 
 #### 查看 npm 的版本
 
@@ -71,9 +53,19 @@ npm -v
 
 #### 初始化
 
-```sh
 //主要是用来创建package.json文件,如果已经存在,则不需要重新创建.
 //包名字不能使用中文,大写和npm
+
+##### 基础语法
+
+```shell
+npm init [-f| --force| -y | --yes]
+```
+
+
+
+```sh
+
 
 npm init
 //简洁写法, 输入都采用默认值
@@ -102,7 +94,7 @@ npm init --yes
 
 <http://www.ruanyifeng.com/blog/2011/05/how_to_choose_free_software_licenses.html>
 
-#### <span style="color:blue">搜索包</span>
+#### 搜索
 
 ```sh
 npm search jquery
@@ -111,43 +103,133 @@ npm s jquery
 
 
 
-#### 工具包网站
+#### 安装模块
 
-```js
-国外: https://www.npmjs.com/
+##### 基础语法
+
+```markdown
+npm install [<@scope>/]<pkg>
+npm install [<@scope>/]<pkg>@<tag>
+npm install [<@scope>/]<pkg>@<version>
+npm install [<@scope>/]<pkg>@<version range>
+npm install <alias>@npm:<name>
+npm install <folder>
+npm install <tarball file>
+npm install <tarball url>
+npm install <git:// url>
+npm install <github username>/<github project>
+
+aliases: add, i, in, ins, inst, insta, instal, isnt, isnta, isntal, isntall
+
+common options: [-S|--save| -D|--save-dev| -O|--save-optional] [-E| --save-exact] [--dry-run]
+            
+```
+
+安装包,默认会安装最新的版本
+
+```tiki wiki
+npm install gulp
+```
+
+安装指定版本的包
+
+```tiki wiki
+npm install gulp@3.9.1
+```
+
+安装包并将信息保持到项目的package.json文件中;
+
+6 版本的 npm ，安装包时会自动保存在 dependencies 中，可以不用写 --save
+
+命令行可以添加多个包 npm i chalk ludash
+
+
+
+项目对模块的依赖可以使用下面的 3 种方法来表示（假设当前版本号是 1.1.0 ）：
+
+- 兼容模块新发布的补丁版本：~1.1.0、1.1.x、1.1
+- 兼容模块新发布的小版本、补丁版本：^1.1.0、1.x、1
+- 兼容模块新发布的大版本、小版本、补丁版本：*、x
+
+
+
+安装包信息到**生产环境(dependencies)** `-S | -save`
+
+```markdown
+npm i gulp --save
+npm i gulp -S
+```
+
+package.json文件的 dependencies 字段：
+
+```shell
+## 安装并在 package.json 中保存包的信息(dependencies 属性)
+"dependencies": { 
+    "gulp": "^3.9.1"
+}
 ```
 
 
 
-#### 安装工具包
+安装包信息到**开发环境(devDependencies)** `-D | --save-dev`
 
 ```sh
-// devdependency 开发依赖
-// dependency 生产依赖
-// 命令行可以添加多个包 npm i chalk ludash
-
-npm install jquery
-npm i jquery //等效于npm install jquery --save
-
-# 安装并在 package.json 中保存包的信息(dependencies 属性)
-npm install jquery --save
-npm install jquery -S
-
-# 安装并在 package.json 中保存包的信息(devDependencies 属性) 主要用来保存一些开发依赖包,例如webpack
-npm install babel --save-dev
-npm install babel -D
-
+//安装并在 package.json 中保存包的信息(devDependencies 属性) 主要用来保存一些开发依赖包,例如webpack
+npm i gulp --save-dev
+npm i gulp -D
 ```
 
->  6 版本的 npm ，安装包时会自动保存在 dependencies 中，可以不用写 --save
+package.json 文件的 devDependencies字段：
+
+```markdown
+"devDependencies": {
+    "gulp": "^3.9.1"
+}
+```
+
+安装包信息到**可选阶段(optionalDependencies)** `-O | --save-optional`
+
+```markdown
+npm i gulp --save-optional
+npm i gulp -O
+```
+
+package.json 文件的optionalDependencies字段：
+
+```markdown
+"optionalDependencies": {
+    "gulp": "^3.9.1"
+}
+```
+
+**精确安装指定模块**版本 `-E | --save-exact`
+
+```markdown
+npm i gulp --save-exact
+npm i gulp -E
+```
+
+输入命令npm install gulp -ES，留意package.json 文件的 dependencies 字段，以看出版本号中的^消失了
+
+```markdown
+"dependencies": {
+    "gulp": "3.9.1"
+}
+```
 
 
 
+**本地安装**
+
+```markdown
+npm i gulp
+```
 
 
-#### 全局安装
 
-```sh
+**全局安装** 使用`-g` 或 `--global`
+
+```shell
 //package.json没有变化,对单个项目没有影响
 //全局安装位置的查看命令: npm root -g 打印结果就是下面的文件夹
 //安装位置: .../AppDate/Roaming/npm/node_modles
@@ -156,10 +238,6 @@ npm install babel -D
 
 npm install less -g
 npm install nodemon -g 
-
-//nodemon包 作用/自动刷新页面 无需重启
-nodemon xxx.js
-
 ```
 
 全局安装一般用于安装==全局工具==，如 cnpm，yarn，webpack ，gulp等，全局命令的安装位置
@@ -170,6 +248,67 @@ C:\Users\你的用户名\AppData\Roaming\npm
 
 > 全局安装命令在任意的命令行下, 都可以执行
 
+
+
+#### 查看安装的模块
+
+##### 基础语法
+
+```shell
+npm ls [[<@scope>/]<pkg> ...]
+
+aliases: list, la, ll
+```
+
+查看全局安装的模块及依赖
+
+```shell
+npm ls -g
+```
+
+
+
+#### 卸载模块
+
+##### 基础语法
+
+```html
+npm uninstall [<@scope>/]<pkg>[@<version>]... [-S|--save|-D|--save-dev|-O|--save-optional]
+
+aliases: remove, rm, r, un, unlink
+```
+
+如卸载开发版本的模块, 一行可以写多个包名
+
+```javascript
+npm uninstall gulp --save-dev
+
+npm remove jquery
+npm remove jquery chalk //可以在写法上移出多个包
+```
+
+
+
+#### 更新模块
+
+##### 基础语法
+
+```html
+npm update [-g] [<pkg>...]
+```
+
+
+
+#### 检查模块是否已过时
+
+##### 基础语法
+
+```html
+npm outdated [[<@scope>/]<pkg>...]
+```
+
+
+
 #### 全局变量配置
 
 ```js
@@ -178,16 +317,6 @@ window电脑
 ```
 
 
-
-#### 查询安装包
-
-```js
-1.查询全局是否安装过某个包
-npm list 包名 -g
-
-2.查询全局安装过的包
-npm list -g --depth 0
-```
 
 
 
@@ -204,12 +333,39 @@ npm install
 npm i --production // 只安装 dependencies 属性中的依赖
 ```
 
-#### 移除包
 
-```sh
-npm remove jquery
-npm remove jquery chalk //可以在写法上移出多个包
+
+#### 查看某条命令的帮助
+
+##### 基础语法
+
+```shell
+npm help <term> [<terms..>]
 ```
+
+例如输入`npm help install`，系统在默认的浏览器或者默认的编辑器中打开本地nodejs安装包的文件/nodejs/node_modules/npm/html/doc/cli/npm-install.html
+
+
+
+#### 查看包安装路径
+
+输出 node_modules的路径
+
+```shell
+npm root [-g]
+```
+
+#### 查询安装包
+
+```js
+1.查询全局是否安装过某个包
+npm list 包名 -g
+
+2.查询全局安装过的包
+npm list -g --depth 0
+```
+
+
 
 #### 使用流程
 
@@ -248,6 +404,34 @@ console.log(_.random(1, 100));
 
 
 
+
+
+
+```js
+npm -version/-v
+npm init/i 初始化
+npm i --yes 简洁写法 全部采用默认值,但上级路径中不能存在中文
+npm search/s name 搜索包
+npm install/i name 安装包
+
+//安装到依赖中  包名会被注册在package.json中的dependencies里面,在生产环境下这个包的依赖依然存在.
+//安装包并添加到生产中(devdependencies)  6版本可省略,自动添加到依赖中
+npm i name --save-dev
+npm i name -D
+
+//安装包并添加到开发中(dependencies)
+//
+npm i name --save
+npm i name -S
+
+
+npm i name -g 全局安装
+
+npm i/install  安装全部依赖
+npm i --production 只安装dependencies中的依赖
+
+npm remove/r name1 name2 移除包,可以添加多个包的名字
+```
 
 
 

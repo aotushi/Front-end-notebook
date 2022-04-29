@@ -2,16 +2,300 @@
 
 
 
-## 安装
+## Vue简介
 
+> [Vue简介-Vue是什么？-CSDNVue入门技能树](https://edu.csdn.net/skill/vue/vue-712ec6452ab547478479a4509f787517?a=vue-f92d37226dc14bb58918663305bfc15b)
+
+### 什么是Vue
+
+> 是一套构建用户界面的**渐进式**（用到哪一块就用哪一块，不需要全部用上）前端框架，Vue 的核心库只关注视图层
+
+### Vue兼容性及资源
+
+#### 版本
+
+**Vue.js 不支持 IE8 及其以下版本，因为 Vue.js 使用了 IE8 不能模拟的 ECMAScript 5 特性。 Vue.js 支持所有[兼容 ECMAScript 5 的浏览器](http://caniuse.com/#feat=es5)**
+
+#### 资源
+
+vue.js中文官网：http://cn.vuejs.org/
+
+### 与React,angular框架比较
+
+#### 与React比较
+
+相同: 
+
+* Virtual DOM; 
+* 响应式和组件化; 
+* 都有支持native的方案，React的RN，vue的Wee下; 
+* 都支持SSR服务端渲染
+* 都支持props进行父子组件间的通信
+* 性能方面: React 和 Vue 在大部分常见场景下都能提供近似的性能。通常 Vue 会有少量优势
+
+不同: 
+
+* 数据绑定方面，vue实现了数据的双向数据绑定，react数据流动是单向的
+* virtual DOM不一样,vue会跟踪每一个组件的依赖关系,不需要重新渲染整个组件树.而对于React而言,每当应用的状态被改变时,全部组件都会重新渲染,所以react中会需要shouldComponentUpdate这个生命周期函数方法来进行控制
+* state对象在react应用中不可变的,需要使用setState方法更新状态;在vue中,state对象不是必须的,数据由data属性在vue对象中管理（如果要操作直接this.xxx）
+* 组件写法不一样, React推荐的做法是 JSX , 也就是把HTML和CSS全都写进JavaScript了,即'all in js'; Vue推荐的做法是webpack+vue-loader的单文件组件格式,即html,css,js写在同一个文件
+
+#### 与angular比较
+
+* 在性能方面，这两个框架都非常的快
+* 在大小方面, Vue要小得多
+* 灵活性：Vue 相比于 Angular 更加灵活，Vue 官方提供了构建工具来协助你构建项目，但它并不限制你去如何组织你的应用代码
+
+
+
+### 核心特点
+
+#### 1.响应式数据绑定
+
+传统的js操作页面：在以前使用js操作页面，需要操作某个html元素的数据，就的使用js代码获取元素然后再处理业务逻辑
+
+响应式数据绑定的方式操作页面，可以直接使用像下面代码那样的写法就可以将数据填充到页面中
+
+```vue
+<template>
+  <div id="app">
+    {{ message }}
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'app',
+  data () {
+    return {
+      message: 'Welcome to Your Vue.js App'
+    }
+  }
+}
+</script>
+
+<style>
+</style>
 ```
-官网
-使用开发版,完整的错误和警告
+
+
+
+
+
+#### 2.可组合的视图组件
+
+一个页面映射为组件树。划分组件可维护、可重用、可测试，也就是一个页面由多个组件组合而成
+
+##### Vue中实现组件引入示例:
+
+第一步：import导入需要引入的组件文件；
+
+第二步：注册组件；
+
+第三步：在需要引入组件的文件中加上组件标签（这个标签的标签名就是注册的组件名字，多个单词的有xx-xx的形式）
+
+需要注意的是：<u>组件可以嵌套引入，也就是说组件可以引入其他组件</u>
+
+```vue
+//创建组件 用于被引入的组件,组件名称叫Hello.vue
+
+<template>
+	<div class="hello">
+    <h2>
+      Essential Links
+  	</h2>
+  </div>
+</template>
+
+<script>
+	export default {
+    name: 'hello'
+  }
+</script>
+
+<!-- Add 'scoped' attribute to limit CSS to this component only -->
+<style scoped>
+
+</style>
 ```
 
 
 
-## 初识Vue
+```vue
+// 需要引入组件的组件
+
+<template>
+  <div id="app">
+    {{ message }}
+    <hello></hello> <!-- 3. 使用组件标签 标签名字就是注册的组件名,多个单词的有xx-xx形式 -->
+  </div>
+</template>
+
+<script>
+  //1.在需要被引入的组件中,先使用import导入组件
+  import Hello from './components/Hello'
+  export default {
+    name: 'app',
+    data () {
+      return {
+        message: 'Welcome to Your Vue.js App'
+      }
+    },
+    //2.使用components注册这个组件
+    components: {
+      Hello
+    }
+  }
+</script>
+
+<style>
+</style>
+```
+
+##### 单文件组件
+
+Js，css，html 存在一个文件中，是一个单文件组件，上面vue模板文件里的Hello.vue就是一个单文件组件
+
+
+
+#### 3.虚拟DOM
+
+##### 概述
+
+运行的js速度是很快的，大量的操作DOM就会很慢，时常在更新数据后会<u>重新渲染页面</u>，这样造成在没有改变数据的地方也重新渲染了DOM节点，这样就造成了很大程度上的资源浪费。
+
+利用在内存中生成与真实DOM与之对应的数据结构，这个在内存中生成的结构称之为虚拟DOM. 当数据发生变化时，能够智能地计算出重新渲染组件的最小代价并应用到DOM操作上
+
+
+
+
+
+#### 4.MVVM模式
+
+**MVVM概述：**M：Model数据模型 ， V：view 视图模板  ， vm：view-Model：视图模型
+
+**vue的MVVM实例（双向数据绑定）：**当输入框输入数据的时候，相应的message也会改变
+
+```vue
+<template>
+  <div id="app">
+    <input type="text" v-model="message"/>
+    {{ message }}
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'app',
+    data () {
+      return {
+        message: 'Welcome'
+      }
+    }
+  }
+</script>
+
+<style>
+</style>
+```
+
+vue是如何实现双向数据绑定的：当数据发生改变—自动更新视图。利用`Object.definedProperty`中的`setter/getter`代理数据，监控对数据的操作
+
+```html
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <title>Title</title>
+  </head>
+  <body>
+    <input type='text' id='username'><br/>
+    <span id='uName'></span>
+  </body>
+  <script>
+  	var obj = {
+      pwd: '123'
+    }
+    Object.defineProperty(obj, 'username', {
+      set: function(val) {
+        document.getElementById('uName').innerText = val
+        document.getElementById('uName').value = val
+        console.log('set')
+      },
+      get: function() {}
+    })
+    
+    document.getElementById('username').addEventListener('keyup', function() {
+      obj.username = event.target.value
+    })
+  </script>
+</html>
+```
+
+
+
+
+
+
+
+#### 5.声明式渲染
+
+Vue.js 的核心是一个允许采用简洁的模板语法来声明式的将数据渲染进 DOM，初始化根实例，vue自动将数据绑定在DOM模板上
+
+**声明式渲染与命令式渲染区别**
+
+声明式渲染：所谓声明式渲染只需要声明在哪里，做什么，而无需关心如何实现
+
+命令式渲染：需要具体代码表达在哪里，做什么，如何实践
+
+需求：求数组中每一项的倍数，放在另一个数组中实例
+
+```html
+//命令式渲染
+<!Doctype html>
+<html lang='en'>
+  <head>
+    
+    <meta charset='utf-i'>
+    <title>title</title>
+  </head>
+  <body>
+    <script>
+    	let arr = [1,2,3,4,5]
+      let newArr = []
+      for (let i=0,len=arr.length; i<len; i++) {
+        newArr.push(arr[i]*2)
+      }
+    </script>
+  </body>
+</html>
+```
+
+
+
+```html
+//声明式渲染
+<!Doctype html>
+<html lang='en'>
+  <head>
+    
+    <meta charset='utf-i'>
+    <title>title</title>
+  </head>
+  <body>
+    <script>
+    	let arr = [1,2,3,4,5]
+      let newArr = arr.map(function(item) {
+        return item*2
+      })
+    </script>
+  </body>
+</html>
+```
+
+
+
+
 
 ### **1.在html页面上使用vue**
 
@@ -169,6 +453,639 @@ vm.$watch('a', function(newValue, oldValue) {
 ```
 
 
+
+## vue原理及MVVM响应式原理
+
+### 什么是MVVM
+
+> MVVM采用分而治之的思想,把不同的代码放到不同的模块当中，然后通过特定的逻辑联系到一起
+
+* M：model、就是模型数据，普通的JS对象
+* V：view、就是Dom
+* VM：view-model、就是Vue，view和model不可以直接交互，需要通过VM联系到一起
+
+<span style="background: #ccc">M 到 V（数据驱动视图）：Data Bindings：通过数据绑定联系到一起。</span>
+
+<span style="background: #ccc">V 到 M（视图影响数据）：Dom Listeners：通过事件监听联系到一起。</span>
+
+<span style="background: #ccc">只要数据进行了改变，同时视图也会同时更新。</span>
+
+理解了基本思想之后，我们要做什么才能**实现VM呢？**
+
+1.首先，需要利用Object.defineProperty，将要观察的对象，转化成getter/setter，以便拦截对象赋值与取值操作，称之为<span style="color:blue">Observer</span>，也就是<u>数据观察者</u>；
+
+2.需要将DOM解析，提取其中的指令与占位符，并赋与不同的操作，称之为<span style="color:blue">Compile</span>，也就是<u>指令解析器</u>
+
+3.需要将Compile的解析结果，与Observer所观察的对象连接起来，建立关系，在Observer观察到对象数据变化时，接收通知，同时更新DOM，称之为<span style="color:blue">Watcher</span>，也就是<u>订阅者</u>，它是Observer和Compile之间通信的桥梁；
+
+4.最后，需要一个公共入口对象，接收配置，协调上述三者，称为vm，也就是Vue;
+
+
+
+### 双向绑定
+
+> 目前几种主流的mvc(vm)框架都实现了单向数据绑定（例如react就是典型的数据单向绑定），简单的理解双向数据绑定无非就是在单向绑定的基础上给可输入元素（input、textare等）添加了change(input)事件，来动态修改model和 view。
+
+
+
+#### 实现数据绑定的做法
+
+* 发布者-订阅者模式(backbond.js)
+* 脏值检查(angular.js)
+* 数据劫持(vue.js)
+
+#### 发布者-订阅者模式
+
+> 一般通过sub, pub的方式实现数据和视图的绑定监听，更新数据方式通常做法是 vm.set(‘property’, value)。
+> 这种方式现在毕竟太low了，我们更希望通过 vm.property = value 这种方式更新数据，同时自动更新视图，于是有了下面两种方式。
+
+#### 脏值检查
+
+angular.js 是通过脏值检测的方式比对数据是否有变更，来决定是否更新视图，最简单的方式就是通过 setInterval() 定时轮询检测数据变动, angular只有在指定的事件触发时进入脏值检测，大致如下：
+
+- .DOM事件，譬如用户输入文本，点击按钮等。( ng-click )
+- 2.XHR响应事件 ( $http )
+- 3.浏览器Location变更事件 ( $location )
+- 4.Timer事件( timeout ,timeout,interval )
+- 5.执行 digest() 或digest()或apply()
+
+
+
+#### 数据劫持
+
+vue.js 则是采用数据劫持结合`发布者-订阅者模式`的方式，通过`Object.defineProperty()`来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。
+
+
+
+### vue.js数据劫持实现
+
+#### 1.思路整理
+
+vue是通过数据劫持的方式来做数据绑定的，其中最核心的方法便是通过`Object.defineProperty()`来实现对属性的劫持，达到监听数据变动的目的，无疑这个方法是本文中最重要、最基础的内容之一
+
+要实现mvvm的双向绑定，就必须要实现以下几点:
+
+- 1、实现一个数据监听器Observer，能够对数据对象的所有属性进行监听，如有变动可拿到最新值并通知订阅者
+- 2、实现一个指令解析器Compile，对每个元素节点的指令进行扫描和解析，根据指令模板替换数据，以及绑定相应的更新函数
+- 3、实现一个Watcher，作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图
+- 4、mvvm入口函数，整合以上三者上述流程如图所示：
+
+![data-binding](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/data-binding.6mm44bq2ngs0.webp)
+
+#### 2. 指令解析器Compile实现
+
+`指令解析器`的主要作用就是对指令进行解析。例如：v-text，v-html，v-on，v-bind等。解析指令之后，将模板中的变量替换成数据，然后初始化渲染页面视图，并将每个指令对应的节点绑定更新函数，添加监听数据的订阅者，一旦数据有变动，收到通知，更新视图，如图所示：
+
+![compile](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/compile.77rqen6dm140.webp)
+
+在创建指令解析器之前，我们要提供入口类，也就是vm，用来接受配置，协调其它三者：
+
+```javascript
+// 入口类
+class Myvue {
+  constructor(options) {
+    this.$el = options.el;
+    this.$data = options.data;
+    this.$options = options;
+    if (this.$el) {
+      //2.实现执行的解析器
+      new Compile(this.$el, this)
+    }
+  }
+}
+```
+
+**指令解析器的解析过程：**
+
+- 1.首先对el属性挂载的元素进行编译，将模板中的指令（v-text等）或者插值表达式（{{}}）进行替换，但是频繁的编译和替换会导致页面的<u>回流和重绘</u>，会影响页面的性能，所以我们要利用`文档碎片对象`，会减少页面的回流和重绘。文档碎片的作用：将替换之后的内容放到缓存中，需要使用时会进行获取。
+- 2.将文档碎片对象作为模板进行编译。
+- 3.将文档碎片追加到根元素中。
+  指定解析器的部分代码如下：
+
+```javascript
+//指令解析器
+
+class Compile {
+  constructor(el, vm) {
+    //当前传入的el是一个元素节点,则赋值给当前类的el,否则自行获取元素节点
+    this.el = this.isElementNode(el) ? el : document.querySelector(el);
+    this.vm = vm;
+    
+    /*
+    	需要对根节点下的每一个节点进行编译,然后将页面中的数据(例如{{person.name}})进行替换
+    	频繁的编译和替换会导致页面的回流和重绘,会影响页面的性能
+    	文档碎片的作用: 将替换之后的内容放到缓存中,需要使用时会进行获取
+    */
+    //1.获取文档碎片对象,会减少页面回流和重绘
+    const fragment = this.node2Fragment(this.el);
+    
+    //2.将文档碎片对象作为模板进行编译
+    this.compile(fragment)
+    
+    //3.将文档碎片追加到根元素中
+    this.el.appendChild(fragment)
+  }
+  
+  //创建文档碎片对象
+  node2Fragment(el) {
+    // 创建文档碎片对象
+    const f = document.createDocumentFragment();
+    let firstChild;
+    //遍历传入的DOM节点
+    while (firstChild = el.firstChild) {
+      //追加文档碎片
+      f.appendChild(firstChild)
+    }
+    return f;
+  }
+  
+  // 编译模板: 获取到的文档碎片内容
+  /** 内容如下:
+  <h2>{{person.name}}--{{person.age}}</h2>
+        <h3>{{person.fav}}</h3>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+        </ul>
+        <h3>{{msg}}</h3>
+        <div v-text="msg"></div>
+        <div v-html="msg"></div>
+        <input type="text" v-model="msg">
+   */
+  
+  compile(fragment) {
+    // 1.获取子节点
+    const childNode = fragment.childNodes;
+    [...childNodes].forEach(child => {
+      //元素节点
+      if (this.isElementNode(child)) {
+        //编译元素节点
+        this.compileElement(child)
+      } else {
+        // 文本节点
+        // 编译文本节点 主要处理{{}}形式的表达式
+        this.compileText(child)
+      }
+      
+      // 递归遍历
+      if (child.childNodes && child.childNodes.length) {
+        this.compile(child)
+      }
+    })
+  }
+}
+```
+
+在对文档碎片对象进行递归遍历时，我们从文档碎片对象中获取到的节点可能是元素节点，也可能是文本节点。对于元素节点和文本节点的编译过程是不一样的，所以我们在compile函数中进行了区分，对元素节点和文本节点的编译过程代码如下：
+
+```javascript
+// 编译元素节点
+compileElement(node){
+    // console.log(node);//<div v-text='msg'></div>
+    // 获取属性节点
+    const attributes = node.attributes;
+    // console.log(attributes);//{0: v-on:click, v-on:click: v-on:click, length: 1}
+    [...attributes].forEach(attr => {
+        console.log(attr.name,'name') // v-text  v-on
+        console.log(attr.value,'value') // msg  handleClick
+        const {name,value} = attr;
+        // 如果当前属性名是否是自定义指令 name的值可能是：v-text v-html v-model v-on:click
+        if(this.isDirective(name)){
+            const [,dirctive] = name.split('-'); // dirctive的值可能是： text html model on:click bind
+            const [dirName,eventName] = dirctive.split(':'); // dirName的值可能是：text html model on bind
+            // 根据dirName调用compileUtil对象中的对应方法,用来更新数据，体现了数据驱动视图。
+            compileUtil[dirName](node,value,this.vm,eventName);
+
+            // 删除有指令的标签上的属性 将v-text等从标签中去除
+            node.removeAttribute('v-' + dirctive);
+        }else if(this.isEventName(name)){ // 处理以@开头的事件绑定
+            let [,eventName] = name.split('@');
+            compileUtil['on'](node,value,this.vm,eventName);
+        }else if(this.isAttrName(name)){ // 处理以:开头的属性绑定
+            let [,attrName] = name.split(':');
+            compileUtil['bind'](node,value,this.vm,attrName);
+        }
+    });
+}
+// 编译文本节点:主要处理 {{}} 形式的表达式 ,{{}} 实现原理和v-text一样，都是用的node.textContent
+compileText(node){
+    // 取出节点中的文本内容，包括换行、空格等
+    const content = node.textContent;
+    // 正则匹配出含{{}}的内容
+    if(/\{\{(.+?)\}\}/.test(content)){
+        // 调用
+        compileUtil['text'](node,content,this.vm);
+    }
+}
+// 判断当前属性名是否是自定义指令
+isDirective(attrName){
+    return attrName.startsWith('v-');
+}
+// 判断是否是一个事件名称
+isEventName(attrName){
+    return attrName.startsWith('@');
+}
+// 判断是否是一个事件名称
+isAttrName(attrName){
+    return attrName.startsWith(':');
+}
+// 判断当前传入的是否是元素节点
+isElementNode(node){
+    // DOM对象的nodeType属性
+    // 元素节点的nodeType为1
+    // 属性节点的nodeType为2
+    // 文本节点的nodeType为3，文本节点包含文字、空格、换行等。
+    return node.nodeType === 1;
+}
+```
+
+大家可以看到在元素节点和文本节点的编译过程中使用到了compileUtil编译工具类，它是整个替换过程中的主要执行类，根据接收到不同的指令，执行对应的替换逻辑：
+
+```javascript
+// 编译工具类
+const compileUtil = {
+    /**
+     * 处理 v-text 指令
+     * @param {*} node 当前元素节点
+     * @param {*} expr 表达式 msg vue.js中MVVM的实现原理
+     * @param {*} vm 当前vm实例
+     */
+    text(node,expr,vm){
+        let value;
+        // 当前传入的表达式expr可能是$data中的一个属性，也可能是$data中对象.属性的形式，也可能是{{}}插值表达式
+        // 如果当前传入的是插值表达式
+        if(expr.indexOf('{{') !== -1){
+            value = expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
+                // console.log(args);//["{{msg}}", "msg", 0, "{{msg}}"]
+                return this.getVal(args[1],vm)
+            });
+        }else{
+            value = this.getVal(expr,vm);
+        }
+        this.updater.textUpdater(node,value);
+    },
+    /**
+     * 处理 v-html 指令
+     * @param {*} node 当前元素节点
+     * @param {*} expr 表达式
+     * @param {*} vm 当前vm实例
+     */
+    html(node,expr,vm){
+        const value = this.getVal(expr,vm);
+        this.updater.htmlUpdater(node,value);
+    },
+    /**
+     * 处理 v-model 指令
+     * @param {*} node 当前元素节点
+     * @param {*} expr 表达式
+     * @param {*} vm 当前vm实例
+     */
+    model(node,expr,vm){
+        const value = this.getVal(expr,vm);
+        this.updater.modelUpdater(node,value);
+    },
+    /**
+     * 处理 v-on 指令
+     * @param {*} node 当前元素节点
+     * @param {*} expr 表达式
+     * @param {*} vm 当前vm实例
+     * @param {*} eventName 当前事件名称
+     */
+    on(node,expr,vm,eventName){
+        // 取出methods中的函数
+        let fn = vm.$options.methods && vm.$options.methods[expr];
+        // 调用函数时，同时改变this指向当前的vm实例
+        node.addEventListener(eventName,fn.bind(vm),false);
+    },
+    /**
+     * 处理 v-bind 指令
+     * @param {*} node 当前元素节点
+     * @param {*} expr 表达式
+     * @param {*} vm 当前vm实例
+     * @param {*} eventName 当前事件名称
+     */
+    bind(node,expr,vm,attrName){
+        console.log(node,expr,attrName)
+        const value = this.getVal(expr,vm);
+        this.updater.bindUpdater(node,value,attrName);
+    },
+    // 更新的函数
+    updater:{
+        textUpdater(node,value){
+            node.textContent = value;
+        },
+        htmlUpdater(node,value){
+            node.innerHTML = value;
+        },
+        modelUpdater(node,value){
+            node.value = value;
+        },
+        bindUpdater(node,value,attrName){
+            node.setAttribute(attrName,value)
+        },
+    },
+    // 根据表达式expr从data中获取值
+    getVal(expr,vm){
+        // 当前传入的表达式expr可能是$data中的一个属性，也可能是$data中对象.属性的形式
+        // 可以获取data中属性值，也可以获取data中对象的属性值
+        return expr.split('.').reduce((data,currentVal)=>{
+            return data[currentVal];
+        },vm.$data);
+    },
+}
+```
+
+小结：
+
+- 1.v-text：使用的是node.nodeContent进行实现
+- 2.v-html：使用的是node.innerHTML进行实现
+- 3.v-model：用于实现表单对象的数据绑定，node.value
+- 4.v-on/@：node.addEventListener（）；在addEventListener对this指向进行了改变，指向当前的vm实例，所以我们在使用vue时，this一直指向的是当前的vue实例。
+- 5.v-bind(或者:)：node.setAttribute()
+
+#### 3. 实现数据监听器Observer
+
+vue的双向绑定原理是通过数据劫持实现的，数据劫持的底层又是基于`Object.defineProperty`中的getter和setter进行实现的。
+
+**流程:**
+
+- 1.在getter中我们要做的主要操作: 就是使用数据模型中的数据进行视图的初始化，同时向订阅器Dep中添加对应属性的订阅者，用于收集属性的依赖，实现一个属性对应一个订阅者。
+- 2.在setter中我们要做的主要操作: 数据劫持是需要对每一个属性值进行劫持的，当我们获取到新值的时候，初始状态是不会对该值进行劫持的，所以要对新值做劫持操作。然后对传入的新值进行赋值。在赋值之后，我们的模型中的数据已经进行了更新，那么我们要通知订阅器Dep去通知变化，进行视图的更新，从而达到`数据驱动视图`的目的。
+
+
+流程图
+
+![Observer](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/Observer.3mznk18yqiq0.webp)
+
+**数据监听器Observer以及订阅器Deposit的代码实现**
+
+```javascript
+// 订阅器/依赖收集器
+class Dep{
+    constructor(){
+        // 定义依赖容器
+        this.subs = [];
+    }
+    // 收集订阅者
+    addSub(watcher){
+        this.subs.push(watcher);
+    }
+    // 通知订阅者去更新视图
+    notify(){
+        // 遍历容器，找到对应订阅者，调用更新方法去更新视图
+        this.subs.forEach(watcher => watcher.update())  
+    }
+}
+// 数据观察者类，使用Object.defineProperty实现数据劫持
+class Observer{
+    constructor(data){
+        this.observe(data)
+    }
+    // 劫持函数
+    observe(data){
+        // 此处仅对对象做数据观测
+        if(data && typeof data === 'object'){
+            // 遍历获取到到所有的key
+            Object.keys(data).forEach(key => {
+                // 使用监听函数进行数据监听
+                this.defineReactive(data,key,data[key])
+            })
+        }
+    }
+    // 监听函数
+    defineReactive(obj,key,value){
+        // 传入的value是对象的一个属性值，属性值也可能是一个对象，所以需要递归遍历
+        this.observe(value);
+        // 创建依赖收集器
+        const dep = new Dep();
+        // 劫持所有的属性
+        Object.defineProperty(obj,key,{
+            // 是否可枚举
+            enumerable:true,
+            // 是否可更改
+            configurable:false,
+            // 获取数据进行初始化
+            get(){
+                // 订阅数据变化时，向订阅器Dep中添加订阅者，用于收集属性的依赖，实现一个属性对应一个订阅者
+                Dep.target && dep.addSub(Dep.target)
+                return value;
+            },
+            // 使用箭头函数是为了将函数内部的this指向外部的Observer类
+            set:(newVal) => {
+                // 获取到新的值时，初始状态是不会对该值进行劫持的，所以要对新值做劫持操作
+                this.observe(newVal)
+                // 当前传入的新值不等于旧值
+                if(newVal !== value){
+                    value = newVal;
+                }
+                // 更新数据之后，告诉Dep去通知变化
+                dep.notify();
+            }
+        })
+    }
+```
+
+
+
+#### 4. 实现数据订阅者Watcher
+
+为每一个属性添加订阅者：需要注意的是，每一个模型数据中的每一个属性都要对应一个订阅者进行观测。所以属性与订阅者是一一对应的关系。既然是一一对应的关系，那么我们在进行初始化视图的时候就应该进行订阅者的添加。
+
+初始化视图操作是在Compile指令解析器种进行的，所以修改指令解析器中的代码如下(此处仅对v-text和v-html进行演示，完整代码请看开头提到的github)：
+
+```javascript
+/**
+ * 处理 v-text 指令
+ * @param {*} node 当前元素节点
+ * @param {*} expr 表达式 msg vue.js中MVVM的实现原理
+ * @param {*} vm 当前vm实例
+ */
+text(node,expr,vm){
+    let value;
+    // 当前传入的表达式expr可能是$data中的一个属性，也可能是$data中对象.属性的形式，也可能是{{}}插值表达式
+    // 如果当前传入的是插值表达式
+    if(expr.indexOf('{{') !== -1){
+        value = expr.replace(/\{\{(.+?)\}\}/g,(...args)=>{
+            // console.log(args);//["{{msg}}", "msg", 0, "{{msg}}"]
+            // 添加订阅者，对数据进行监听，数据如果发生了变化，调用updater进行更新视图
+            new Watcher(vm,args[1],() => {
+                // 获取到新值之后，更新视图
+                this.updater.textUpdater(node,this.getContentVal(expr,vm));
+            })
+            return this.getVal(args[1],vm)
+        })
+    }else{
+        value = this.getVal(expr,vm);
+    }
+    // 初始化视图
+    this.updater.textUpdater(node,value);
+},
+/**
+ * 处理 v-html 指令
+ * @param {*} node 当前元素节点
+ * @param {*} expr 表达式
+ * @param {*} vm 当前vm实例
+ */
+html(node,expr,vm){
+    const value = this.getVal(expr,vm);
+    // 添加订阅者，对数据进行监听，数据如果发生了变化，调用updater进行更新视图
+    new Watcher(vm,expr,(newVal) => {
+        // 获取到新值之后，更新视图
+        this.updater.htmlUpdater(node,newVal);
+    })
+    // 初始化视图
+    this.updater.htmlUpdater(node,value);
+},
+```
+
+
+
+**订阅者的定义**
+
+在初始化视图时添加了订阅者之后，那么订阅者拿到新值之后就可以利用新值进行视图的更新，订阅者代码实现：
+
+```javascript
+// 订阅者
+class Watcher{
+    /**
+     * 
+     * @param {*} vm 当前vm对象
+     * @param {*} expr 取值表达式
+     * @param {*} cb 回调函数，用于更新视图
+     */
+    constructor(vm,expr,cb){
+        this.vm = vm;
+        this.expr = expr;
+        this.cb = cb;
+        // 获取旧值,并保存
+        this.oldVal = this.getOldVal();
+    }
+    // 更新视图的函数
+    update(){
+        // 获取新值
+       const newVal =  compileUtil.getVal(this.expr,this.vm);
+        // 如果新值不等于旧值，利用回调将新值返回
+        if(newVal !== this.oldVal){
+            this.cb(newVal);
+        }
+    }
+    // 获取旧值
+    getOldVal(){
+        // 将当前的订阅者挂载到订阅器中
+        Dep.target = this;
+       const oldVal =  compileUtil.getVal(this.expr,this.vm);
+        // 销毁当前订阅者
+        Dep.target = null;   
+        return oldVal;
+    }
+}
+```
+
+
+
+**订阅者更新视图**
+
+在订阅者的代码中可以看到，在构造函数时需要传入回调，数据更新之后，订阅者获取到新值，利用传入的回调将新值进行返回，在订阅者的外部进行视图的更新操作。也就是在指令解析器中添加订阅者时，传入回调，获取新值，进行视图的更新。
+
+订阅者图示:
+
+![watcher](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/watcher.5o9lq45wd240.webp)
+
+
+
+#### 5. 双向数据绑定
+
+双向数据绑定是针对于表单控件的，给元素节点绑定类似于input、change事件，通过事件对象来获取新值，获取到新值之后来改变模型数据data中的数据。由于是给表单对象绑定对应的事件，所以我们在处理v-model指令时进行事件绑定，修改compileUtil类的model函数如下
+
+```javascript
+/**
+     * 处理 v-model 指令
+     * @param {*} node 当前元素节点
+     * @param {*} expr 表达式
+     * @param {*} vm 当前vm实例
+     */
+    model(node,expr,vm){
+        const value = this.getVal(expr,vm);
+        // 添加订阅者，对数据进行监听，数据如果发生了变化，调用updater进行更新视图，数据驱动视图
+        new Watcher(vm,expr,(newVal) => {
+            // 获取到新值之后，更新视图
+            this.updater.modelUpdater(node,newVal);
+        })
+        // 视图影响数据
+        node.addEventListener('input',(e) => {
+            // 拿到输入框的新值之后，去影响视图
+            this.setVal(expr,vm,e.target.value)
+        })
+        // 初始化视图
+        this.updater.modelUpdater(node,value);
+    },
+    /**
+     * 获取到新值之后，将新值保存到vm的模型数据中
+     * @param {*} expr 取值表达式
+     * @param {*} vm 当前vm实例
+     * @param {*} inputNewVal 通过input事件获取到的新的值
+     */
+    setVal(expr,vm,inputNewVal){
+        return expr.split('.').reduce((data,currentVal)=>{
+            // 旧值替换成新值
+            data[currentVal] = inputNewVal;
+        },vm.$data);
+    },
+```
+
+
+
+### 实现proxy代理
+
+大家在使用vue.js的时候，对数据进行操作时，都是以this.person.name = '张三’这样的形式进行操作的，而不是this.$data.person.name = '张三’的形式。想要使用我们常用的方式进行数据的操作，就要实现Proxy代理，使this代理成this.$data。修改入口类的代码如下:
+
+```javascript
+// 入口类
+class Myvue{
+    constructor(options){
+        this.$el = options.el;
+        this.$data = options.data;
+        this.$options = options;
+        if(this.$el){
+            // 1.实现数据观察者
+            new Observer(this.$data)
+            // 2.实现指令的解析器
+            new Compile(this.$el,this)
+            // 使用this代理this.$data
+            this.proxyData(this.$data)
+        }
+    }
+    // 使用this代理this.$data
+    proxyData(data){
+        for(const key in data){
+            Object.defineProperty(this,key,{
+                get(){
+                    return data[key];
+                },
+                set(newVal){
+                    data[key] = newVal;
+                }
+            })
+        }
+    }
+}
+```
+
+这里主要还是利用了`Object.defineProperty()`这个方法来劫持了vm实例对象的属性的读写权，使读写vm实例的属性转成读写了vm.$data的属性值。
+
+
+
+### 总结
+
+Watcher, Observer , Dep 的关系进行一下梳理:
+
+> 通过Observer来监听自己的model数据变化，通过Compile来解析编译模板指令，最终利用Watcher搭起Observer和Compile之间的通信桥梁，达到`数据驱动视图；视图影响数据`的双向绑定效果。
+
+**阐述你所理解的MVVM响应式原理**
+
+- 1.vue是采用数据劫持配合发布者-订阅者模式的方式，通过 `Object.defineProperty()`来劫持各个属性的getter和setter，在数据变动时，发布消息给依赖收集器，去通知观察者，调用更新视图回调函数，进行视图的更新。
+- 2.MVVM类作为绑定的入口，整合Oberser，Compile，Watcher三者，通过Obserser来监听model数据变化，通过Compile来解析编译模板指令，最终利用Watcher搭起Observer，Compile之间的通信桥梁，达到数据驱动视图，视图影响数据的双向绑定效果。
 
 
 
