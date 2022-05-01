@@ -1089,6 +1089,161 @@ Watcher, Observer , Dep 的关系进行一下梳理:
 
 
 
+## Vue实例
+
+### node.js安装配置
+
+具体查看同文件夹的`tools/Node`
+
+
+
+### 安装vue及脚手架
+
+#### 1.安装vue.js
+
+> npm i vue -g
+
+或者使用
+
+> cnpm i vue -g
+
+安装成功后,查看安装信息:
+
+> npm info vue / cnpm info vue
+
+查看安装的vue版本
+
+> npm list vue
+
+
+
+#### 2.安装webpack模板
+
+
+
+#### 3.安装脚手架vue-cli 2.x
+
+> npm i vue-cli -g
+
+略过,
+
+
+
+####  4.安装脚手架vue-cli 3.x
+
+##### 1.卸载旧版本
+
+卸载2.x版本 : `npm uninstall vue-cli -g`
+
+卸载3.x版本: `npm uninstall @vue/cli -g`
+
+##### 2.安装新版本
+
+默认安装最新版本: `npm i @vue/cli -g` 
+
+指定版本号: `npm i @vue/cli@3.12.1 -g` 
+
+
+
+##### 3.新建项目
+
+> vue create 项目名称
+
+![vueInstallConfig](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/vueInstallConfig.6p3ipm7t0w40.webp)
+
+配置介绍:
+
+> - Please pick a preset=》**选择一个配置:default默认有babel、eslint，Manually select features 手动配置。**
+>   选择手动配置，根据自己的需要选择，敲空格键配合方向键进行选择。
+> - where do you prefer placing config for …=》**配置放在哪里**
+>   In dedicated config files =》 **每项配置有单独的文件**
+>   In package.json =》**在package.json 文件中**
+> - Save this as a preset for future project? **=>是否为保存配置习惯文件**，存了后下次新建新项目选择配置时就会有此选项了
+> - Save preset as; =>**存个名字**
+> - Pick the package …=>**运行选择**npm或者yarn
+
+
+
+##### 4.运行项目
+
+在项目目录下使用 `npm run start`启动,在 `http://localhost:8080/`查看运行结果
+
+
+
+##### 5.cli3下拉去2.x项目
+
+> npm i -g @vue/cli-init
+
+依然可以新建2.x的项目 `vue init webpack my-vue`
+
+
+
+#### 5.修改配置
+
+项目中新建`vue.config.js`, 例如更改端口号:
+
+```javascript
+module.exports = {
+	configureWebpack: {
+    devServer: {
+      port: 8089, //更改端口
+      open: true, //自动启动浏览器
+      before(app) {
+        //....
+      }
+    }
+  }
+}
+```
+
+
+
+### vue项目结构
+
+#### 1. build 构建脚本目录
+
+* build.js 产生环境构建脚本
+* check-version.js 检查npm,node.js版本
+* utils.js 构建相关工具方法
+* vue-loader.conf.js 配置css加载器及编译css之后自动添加前缀
+* webpack.base.conf.js webpack基本配置
+* webpack.dev.conf.js webpack开发环境配置
+* webpack.prod.conf.js webpack生产环境配置
+
+#### 2.config项目配置
+
+* dev.env.js 开发环境配置
+* index.js 项目配置文件
+* prod.env.js 生产环境变量
+* node_modules npm加载的项目依赖模块
+* src 这里是要开发的目录,基本上要**做的事情都在这个目录里。里面包含了几个目录及文件：**
+  * assets 资源目录，放置一些图片或者公共js、公共css。但是因为它们属于代码目录下，所以可以用 webpack 来操作和处理。意思就是你可以使用一些预处理比如 Sass/SCSS 或者 Stylus。
+  * components 用来存放自定义组件的目录，目前里面会有一个示例组件。
+  * router  前端路由目录，我们需要配置的路由路径写在index.js里面；
+  * App.vue 根组件；这是 Vue 应用的根节点组件，往下看可以了解更多关注 Vue 组件的信息。
+  * main.js应用的入口文件。主要是引入vue框架，根组件及路由设置，并且定义vue实例，即初始化 Vue 应用并且制定将应用挂载到index.html 文件中的哪个 HTML 元素上。通常还会做一些注册全局组件或者添额外的 Vue 库的操作。
+  * static  **静态资源目录，如图片、字体等。不会被webpack构建**
+  * index.html **首页入口文件，可以添加一些 meta 信息等。 这是应用的模板文件，Vue 应用会通过这个 HTML 页面来运行，也可以通过 lodash 这种模板语法在这个文件里插值。 注意：这个不是负责管理页面最终展示的模板，而是管理 Vue 应用之外的静态 HTML 文件，一般只有在用到一些高级功能的时候才会修改这个文件。**
+  * package.json  **npm包配置文件，定义了项目的npm脚本，依赖包等信息**
+  * README.md **项目的说明文档，markdown 格式**
+  * .xxx **这些是一些配置文件，包括语法配置，git配置等**
+    * .babelrc: babel 编译参数
+    * .editorconfig 编辑器相关的配置,代码格式
+    * .eslintignore 配置需要忽略的路径, 一半build, config, dist, test等目录都会配置忽略
+    * .eslintrc.js 配置代码格式风格检查规则
+    * .gitignore git上传需要忽略的文件配置
+    * .postcssrc.js css转换工具
+
+
+
+
+
+
+
+
+
+
+
 ## 模板语法
 
 > Vue.js 使用了基于 HTML 的模板语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。所有 Vue.js 的模板都是合法的 HTML，所以能被遵循规范的浏览器和 HTML 解析器解析。
