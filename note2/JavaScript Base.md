@@ -4286,6 +4286,14 @@ After:              10100000000000000110000000000001
 function check(num) {
   return (num > 0 ) &&((num & (num-1)) === 0)
 }
+
+function check(num) {
+  return /^10$/.test(num.toString(2))
+}
+
+function check(num) {
+  return Number.isInteger(Math.log2(num))
+}
 ```
 
 
