@@ -490,6 +490,8 @@ add  和 commit 提交即可
 
 ### 基本操作
 
+#### 初始化及提交
+
 Git 的起始操作包括以下几个步骤
 
 1. 创建并进入空文件夹
@@ -722,6 +724,26 @@ git checkout -b name
 仓库不能嵌套.在外层使用git命令会报错,内层不会报错.
 
 分支在合并完之后,内容会是保留的
+
+
+
+#### commit信息
+
+> [How to Write a Git Commit Message (cbea.ms)](https://cbea.ms/git-commit/?continueFlag=5736f6f7a67304664b0f56b2e45e0238)
+
+
+
+**The seven rules of a great Git commit message**
+
+* Separate subject from body with a blank line
+* Limit the subject line to 50 characters
+* Capitalize the subject line 
+* Do not end the subject line with a period
+* Use the imperative mood in the subject line
+* Wrap the body at 72 characters
+* Use the body to explain waht and why vs. how
+
+
 
 
 
@@ -1147,6 +1169,12 @@ git push -u origin master
 
 
 ## VIM
+
+### 基本操作
+
+> [萌新的hhkb上手教程 | dOwOb](https://dowob.cn/2019/03/27/萌新的hhkb上手教程/)
+
+
 
 ### 记录与回放
 

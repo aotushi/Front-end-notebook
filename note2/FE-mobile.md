@@ -298,11 +298,11 @@ Viewport 的大小取决于屏幕的大小：
 
 **Window.innerWidth**
 
-是用 CSS pixels 单位表示的浏览器窗口 viewport 宽度，包括垂直滚动条(如果渲染的话)。
+是用 CSS pixels 单位表示的浏览器窗口 viewport 宽度，包括<span style="background: #ccc">垂直滚动条</span>(如果渲染的话)。
 
 **Window.outerWidth**
 
-包括了浏览器外边框的窗口宽度
+包括了浏览器<span style="background: #ccc">外边框的窗口宽度</span>
 
 
 
@@ -330,7 +330,7 @@ window.outerHeight /* 1040 */
 
 Web 浏览器包含两个 viewport，布局视口 (layout viewport) 和视觉视口 (visual viewport)。
 
-**布局视口 (layout viewport)**: `innerHeight` 和 `innerWidth` 所组成的区域,但浏览器的框架不被认为是 viewport 的一部分。
+**布局视口 (layout viewport)**: <span style="background: #ccc">`innerHeight` 和 `innerWidth` 所组成的区域</span>,但浏览器的框架不被认为是 viewport 的一部分。
 
 **视觉视口(visual viewport)**:  指浏览器里页面的当前可视部分，且是可以改变的。视觉视口是屏幕的可视部分，不包括屏幕键盘，缩放外的区域。视觉视口要么跟布局视口相同，要么更小
 
@@ -353,23 +353,38 @@ console.log('与浏览器无关，当前设备显示分辨率横向的值',scree
 
 ### 移动端视口
 
-​	移动端视口共包括三种：布局视口、视觉视口和理想视口
+移动端浏览器通常宽度是 240px~640px，而大多数为 PC 端设计的网站宽度至少为 800px，如果仍以浏览器窗口作为视口的话，网站内容在手机上看起来会非常窄。
+
+因此，引入了<u>布局视口、视觉视口和理想视口</u>三个概念，使得移动端中的视口与浏览器宽度不再相关联。
 
 
 
 #### 1. 布局视口
 
-布局视口(`layout viewport`)：当我们以百分比来指定一个元素的大小时，它的计算值是由这个<span style="color:blue">元素的包含块</span>计算而来的。当这个元素是最顶级的元素时，它就是基于布局视口来计算的。
+一般移动设备的浏览器都默认设置了一个 viewport 元标签，定义一个虚拟的布局视口（layout viewport），用于解决早期的页面在手机上显示的问题。iOS, Android 基本都将这个视口分辨率设置为 980px，所以 PC 上的网页基本能在手机上呈现，只不过元素看上去很小，一般默认可以通过手动缩放网页。
 
-所以，布局视口是网页布局的基准窗口，在`PC`浏览器上，布局视口就等于当前浏览器的窗口大小（不包括`borders` 、`margins`、滚动条）。
 
-获取:
+
+
+`在PC端上，布局视口宽度默认等于浏览器窗口的宽度。`而在移动端上，由于要使为PC端浏览器设计的网站能够完全显示在移动端的小屏幕里，此时的布局视口会远大于移动设备的屏幕，就会出现滚动条。
+
+DOM获取:
+
+默认的布局视口宽度为980px.
 
 ```javascript
 document.documentElement.clientWidth / clientHeight
 ```
 
+设置
 
+如果显式设置布局视口,可以使用HTML中的meta标签
+
+```javascript
+<meta name='viewport' content="width=400"
+```
+
+布局视口使移动端浏览器屏幕宽度与视口完全独立开来. CSS将根据它来进行计算,并被它约束.
 
  <img src="https://s1.ax1x.com/2020/06/28/NRoBg1.png" style="zoom: 50%;" />
 
@@ -377,15 +392,19 @@ document.documentElement.clientWidth / clientHeight
 #### 2. 视觉视口
 视觉视口(`visual viewport`)：用户通过屏幕真实看到的区域。
 
-视觉视口默认等于当前浏览器的窗口大小（包括滚动条宽度）。
+视觉视口默认等于当前浏览器的窗口大小<span style="background: #ccc">（包括滚动条宽度）</span>。
 
-当用户对浏览器进行缩放时，不会改变布局视口的大小，所以页面布局是不变的，但是缩放会改变视觉视口的大小。
+用户可以通过缩放操作视觉视口,同时不会影响布局视口.
 
 <u>例如：</u>
 
 用户将浏览器窗口放大了`200%`，这时浏览器窗口中的`CSS像素`会随着视觉视口的放大而放大，这时一个`CSS`像素会跨越更多的物理像素。
 
 所以，布局视口会限制你的`CSS`布局而视觉视口决定用户具体能看到什么。
+
+视觉视口和缩放比例的关系为:
+
+> 当前的缩放值 = 理想视口宽度 / 视觉视口宽度
 
 <u>获取:</u>
 
@@ -401,15 +420,25 @@ window.innerwidth / innerHeight
 
 #### 3. 理想视口标准
 
+理想视口的值其实就是<span style="color:blue">屏幕分辨率的值</span>,对应的像素叫做设备独立像素(dip).dip和设备像素无关,一个dip在任意像素密度的屏幕上都占据相同的空间.
+
+
+
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3c8562b88a6a4e6fb23c672b64cdcd40~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
 
 
 
-上面在介绍`CSS像素时`曾经提到`页面的缩放系数 = CSS像素 / 设备独立像素`，实际上说`页面的缩放系数 = 理想视口宽度 / 视觉视口宽度`更为准确。
+上面在介绍`CSS像素时`曾经提到`页面的缩放系数 = CSS像素 / 设备独立像素`，实际上说`页面的缩放系数 = 理想视口宽度 / 视觉视口宽度`更为准确。????
 
 所以，当页面缩放比例为`100%`时，`CSS像素 = 设备独立像素`，`理想视口 = 视觉视口`。
 
+移动设备一般具有固定的DPR,即在缩放100%时, 用多少个物理像素显示一个逻辑像素,在CSS中就是用多少个物理像素来显示一个CSS像素.
+
+> 理想视口宽度 = 移动设备横向分辨率 / DPR
+
 **获取**
+
+我们可以通过调用`screen.width / height ` 来获取理想视口大小
 
 ```javascript
 screen.width / height
@@ -417,91 +446,24 @@ screen.width / height
 
 
 
+**视口的设置**
 
- 
+移动设备的默认布局视口往往大于理想视口,会出现横向滚动条.使用meta标签将页面的布局视口设置为理想视口.
+
+meta-viewport 标签是苹果公司在 2007 年引进的，用于移动端布局视口的控制,对PC端是无效的.
 
 
 
-与屏幕（**设备独立像素**dip）等宽的**布局视口**，称之为理想视口，所以也可以说理想视口是一种标准：让布局视口宽度 与 屏幕等宽（设备独立像素宽度），靠meta标签实现。
+我们可以借助`<meta>`元素的`viewport`来帮助我们设置视口、缩放等，从而让移动端得到更好的展示效果。
 
-理想视口的特点：
-
-> * 布局视口和屏幕(视觉视口)等宽，以iPhone6为例，符合理想视口标准之后：设备独立像素：375px，**布局视口宽度：375px。**
-> * 用户不需要缩放、滚动就能看到网站的全部内容。
-> * 要为移动端设备单独设计一个移动端网站。
-
-设置理想视口的具体方法：
 ```html
-<meta name="viewport" content="width=device-width" />
-width //代表布局视口
-device-width//代表设备独立像素dip
+<meta name="viewport" 
+      content="width=device-width; initial-scale=1; maximum-scale=1; minimum-scale=1; user-scalable=no;"
 ```
 
 
 
-
-
-
-
-
-
-
-
-**【总结】：** 
-
-不写```meta```标签（不符合理想视口标准）：
-
->   1. 描述屏幕：物理像素：750px 、设备独立像素：375px、css像素：980px。
->   2. 优点：元素在不同设备上，呈现效果几乎一样，因都是通过布局容器等比缩小的，例如200宽的盒子：200/980
->   3. 缺点：元素太小，页面文字不清楚，用户体验不好。
-
-写```meta```标签（符合理想视口标准）：
-
->  1. 描述屏幕：物理像素：750px 、设备独立像素：375px、<span style='color:red'>css像素：375px</span>。
->
->  2. 优点：页面清晰展现，内容不再小到难以观察，用户体验较好。
->
->  3. 缺点：同一个元素，在不同屏幕（设备）上，呈现效果不一样，例如375宽的盒子： 375/375 和 375/414 (不是等比显示)
->
->  4. 如何解决：做适配。
-
-### <span style='color:blue'>缩放</span>
-
-#### <span style='color:blue'>PC 端缩放</span>
-放大时
-- 视口变小
-- 元素的 css 像素值不变，但一个css像素所占面积变大了。
-
-缩小时
-- 视口变大
-- 元素的 css 像素值不变，但一个css像素所占面积变小了。
-
-
-
-```js
-//pc端,resize监测视口(初始包含块)的变化
-//移动端, 布局视口
-window.onresize=()=>{
-    console.log(document.documentElement.clientWidth)
-}
-```
-
-
-
-#### 移动端缩放
-放大时
-- 布局视口不变
-- 视觉视口变小
-
-缩小时
-- 布局视口不变
-- 视觉视口变大
-
-<span style="color:#ee0b41">注意：移动端缩放不会影响页面布局，因为缩放的时候，布局视口大小没有变化</span>
-
-## viewport
-
-meta-viewport 标签是苹果公司在 2007 年引进的，用于移动端布局视口的控制。
+### 视口设置viewport
 
 使用示例：
 
@@ -520,7 +482,17 @@ viewport 相关选项
 
 #### 1. width 
 
+> 用来设置页面的布局视口宽度,属性值不带单位,默认单位为像素.其默认值在不同的浏览器中不同,但大多数为980.
+
 <span style="color:#ee0b41">width值可以是 device-width，也可以是具体值，但有些安卓手机是不支持具体值，IOS全系列都支持。</span>
+
+在w3schools.com中的解释是:
+
+> `width=device-width` part sets the width of the page to follow the screen-width of the device(which will vary depending on the device)
+>
+> 这里的 'the width of the page' 应该指的就是布局视口的宽度
+
+
 
 #### 2. initial-scale  
 
@@ -558,7 +530,96 @@ viewport 相关选项
 
 
 
-## 适配
+
+
+<span style="color:red">以下的内容没有看懂,保留不删除:</span>
+
+> 理想视口是一种标准：让布局视口宽度 与 屏幕等宽（设备独立像素宽度），靠meta标签实现。
+>
+> 与屏幕（**设备独立像素**dip）等宽的**布局视口**，称之为理想视口
+>
+> 理想视口的特点：
+
+> * 布局视口和屏幕(视觉视口)等宽，以iPhone6为例，符合理想视口标准之后：设备独立像素：375px，**布局视口宽度：375px。**
+> * 用户不需要缩放、滚动就能看到网站的全部内容。
+> * 要为移动端设备单独设计一个移动端网站。
+
+设置理想视口的具体方法：
+```html
+<meta name="viewport" content="width=device-width" />
+width //代表布局视口
+device-width//代表设备独立像素dip
+```
+
+
+
+**【总结】：** 
+
+不写```meta```标签（不符合理想视口标准）：
+
+>   1. 描述屏幕：物理像素：750px 、设备独立像素：375px、css像素：980px。
+>   2. 优点：元素在不同设备上，呈现效果几乎一样，因都是通过布局容器等比缩小的，例如200宽的盒子：200/980
+>   3. 缺点：元素太小，页面文字不清楚，用户体验不好。
+
+写```meta```标签（符合理想视口标准）：
+
+>  1. 描述屏幕：物理像素：750px 、设备独立像素：375px、<span style='color:red'>css像素：375px</span>。
+>2. 优点：页面清晰展现，内容不再小到难以观察，用户体验较好。
+>  3. 缺点：同一个元素，在不同屏幕（设备）上，呈现效果不一样，例如375宽的盒子： 375/375 和 375/414 (不是等比显示)
+>4. 如何解决：做适配。
+
+
+
+**其他注意事项**
+
+* viewport标签只针对移动端浏览器有效,对PC端是无效的
+* 当缩放比例为100%, dip宽度=CSS像素宽度=理想视口宽度=布局视口宽度
+* 单独设置`initial-scale`或`width`都会有兼容问题,所以设置布局视口为理想视口的最佳方法是同时设置这两个属性
+* 即使设置了`user-scalable=no` 在Android Chrome浏览器中也可以强制启动手动缩放
+
+
+
+
+
+
+
+### <span style='color:blue'>缩放</span>
+
+#### <span style='color:blue'>PC 端缩放</span>
+放大时
+- 视口变小
+- 元素的 css 像素值不变，但一个css像素所占面积变大了。
+
+缩小时
+- 视口变大
+- 元素的 css 像素值不变，但一个css像素所占面积变小了。
+
+
+
+```js
+//pc端,resize监测视口(初始包含块)的变化
+//移动端, 布局视口
+window.onresize=()=>{
+    console.log(document.documentElement.clientWidth)
+}
+```
+
+
+
+#### 移动端缩放
+放大时
+- 布局视口不变
+- 视觉视口变小
+
+缩小时
+- 布局视口不变
+- 视觉视口变大
+
+<span style="color:#ee0b41">注意：移动端缩放不会影响页面布局，因为缩放的时候，布局视口大小没有变化</span>
+
+
+
+## 移动端适配方案
 
 WEB端开发
 
@@ -569,7 +630,7 @@ WEB端开发
 `页面的缩放系数 = CSS像素 / 设备独立像素`。
 
 
- 
+
 
 移动端开发
 
@@ -582,7 +643,7 @@ WEB端开发
 
 
 **一、为什么要做适配？**
-			由于移动端设备的屏幕尺寸大小不一，会出现：同一个元素，在两个不同的手机上显示效果不一样（比例不同）。要想让同一个元素在不同设备上，显示效果一样，就需要适配，**无论采用何种适配方式，中心原则永远是：**<span style="color:#ee0b41">**等比**</span>！。
+由于移动端设备的屏幕尺寸大小不一，会出现：同一个元素，在两个不同的手机上显示效果不一样（比例不同）。要想让同一个元素在不同设备上，显示效果一样，就需要适配，**无论采用何种适配方式，中心原则永远是：**<span style="color:#ee0b41">**等比**</span>！。
 
 主流的适配方式有三种：
 
@@ -604,7 +665,51 @@ WEB端开发
 
 
 
-### <span style="color:#ee0b41">2.rem适配</span>
+
+
+### 2. flexible
+
+引入flexible后, 在页面上统一使用rem来布局.
+
+```javascript
+//set 1rem = viewWith / 10
+
+function setRemUnit() {
+  let rem = docEl.clientWidth / 10
+  docEl.style.fontSize = rem + 'px'
+}
+
+setRemUnit();
+
+
+//reset rem unit on page resize
+
+window.addEventListener('resize', setRemUnit)window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    setRemUnit()
+  }
+})
+```
+
+
+
+* 将html节点的font-size设置为页面`clientWidth`(布局视口)的1/10, 1rem等于页面布局视口的1/10, 这就意味着后面使用的rem都是按照页面比例来进行计算的.
+
+* 以iPhone6为例,布局视口为375px, 及1rem=37.5px, 这时UI给定的一个元素的宽为75px(设备独立像素),我们只需要将他设置为75 / 37.5 = 2rem.
+
+* 当然,每个布局都要计算非常繁琐,我们可以借助`PostCSS`的`px2rem`插件来帮助我们完成这个过程.
+
+下面的代码可以保证页面在大小变化时,布局可以自适应.当触发window的resize和pageshow事件之后自动调整html的fontSize大小.
+
+
+
+当viewport单位得到众多浏览器的兼容,上面这种方案已经被官方抛弃:
+
+> lib-flexible这个过渡方案已经可以放弃使用,不管是现在还是以前的版本,都存有一定的问题. 建议大家开始使用viewport来替代此方案
+
+
+
+### <span style="color:#ee0b41">3.rem适配</span>
 
 #### em 和 rem
 
@@ -697,12 +802,37 @@ less写法:
 4. <span style="color:#ee0b41">编写样式时，直接以rem为单位，值为：**设计值 / (设计稿宽度 / 10)**</span>   例如345px/(375px/10)\*rem(41.4px)
 5. 增加 JS 代码进行实时适配
 
+
+
+
+
 ### 3.vw适配(百分比)
+
+`vh、vw`方案即将视觉视口宽度 `window.innerWidth `和视觉视口高度 `window.innerHeight` 等分为 100 份. 下面的flexible就是模仿这种方案,因为早些时候vw还没有得到很好的兼容.
+
+
 
 vw和vh是两个相对单位
 
 - 1vw = 等于布局视口宽度的1%
 - 1vh = 等于布局视口高度的1%
+
+vmin: vw和vh中的较小值
+
+vmax: vw和vh中的较大值
+
+
+
+#### 如何使用
+
+如果视觉视口为375px,那么1vw=37.5px. UI给定一个元素是75px(设备独立像素),我们只需要将它设置为`75/3.75 = 20vw`.
+
+这里的比例关系不用我们自己换算,可以使用`PostCSS`的`postcss-px-to-viewport`插件帮我们完成这个过程.写代码时,我们只需要根据UI给的设置图写px单位即可.
+
+#### 问题
+
+* px转vw不一定能完全整除,因为有一定的像素差
+* 当容器使用vw,margin采用px时,很容易造成整体宽度超过100vw,从而影响整体布局效果.当然可以通过使用padding代替margin,结果calc()函数使用等.
 
 不过vw和vh有一定的兼容性问题：详见：[caniuse.com网站查询适配](https://www.caniuse.com/#search=vw)
 
@@ -711,6 +841,14 @@ vw和vh是两个相对单位
 
 
 
+
+
+
+
+
+
+
+## 适配问题及解决
 
 ### 4.(1物理像素边框)
 
