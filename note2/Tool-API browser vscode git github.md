@@ -1173,6 +1173,8 @@ git push -u origin master
 ### 基本操作
 
 > [萌新的hhkb上手教程 | dOwOb](https://dowob.cn/2019/03/27/萌新的hhkb上手教程/)
+>
+> [VS Code 与 Vim | Jingchao's Blog (chengjingchao.com)](https://chengjingchao.com/2020/06/13/VS-Code-与-Vim/)
 
 
 
@@ -1190,4 +1192,6 @@ git push -u origin master
 ```
 
 
+
+### 替换
 

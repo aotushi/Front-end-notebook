@@ -426,7 +426,7 @@ window.innerwidth / innerHeight
 
 ![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3c8562b88a6a4e6fb23c672b64cdcd40~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
 
-
+如上图，我们在描述设备独立像素时曾使用过这张图，在浏览器调试移动端时页面上给定的像素大小就是理想视口大小，它的单位正是设备独立像素。
 
 上面在介绍`CSS像素时`曾经提到`页面的缩放系数 = CSS像素 / 设备独立像素`，实际上说`页面的缩放系数 = 理想视口宽度 / 视觉视口宽度`更为准确。????
 
@@ -438,7 +438,7 @@ window.innerwidth / innerHeight
 
 **获取**
 
-我们可以通过调用`screen.width / height ` 来获取理想视口大小
+我们可以通过调用`screen.width / height ` 来获取理想视口大小 //获取方式和设备独立像素相同.
 
 ```javascript
 screen.width / height
@@ -465,11 +465,17 @@ meta-viewport 标签是苹果公司在 2007 年引进的，用于移动端布局
 
 ### 视口设置viewport
 
-使用示例：
+对于各种不同形状，不同设备像素比移动设备，其浏览器的视口（窗口中显示网页信息的区域）不一定与渲染页面大小相同。移动设备的视口的默认值为 980px，一般情况下都要比这些设备的屏幕尺寸要大。
+
+为了在移动端让页面获得更好的显示效果，我们必须让布局视口、视觉视口都尽可能等于理想视口。
+
+如果开发者想让移动端浏览器使用屏幕宽度作为视口替换默认的 980px 宽度视口，则可以在 HTML 的头部添加以下标签：
 
 ```html
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 ```
+
+
 
 viewport 相关选项
 
@@ -488,17 +494,35 @@ viewport 相关选项
 
 在w3schools.com中的解释是:
 
-> `width=device-width` part sets the width of the page to follow the screen-width of the device(which will vary depending on the device)
+> `width=device-width` part sets <span style="background: #ccc" >the width of the page</span> to follow <span style="background: #ccc">the screen-width of the device</span>(which will vary depending on the device)
 >
 > 这里的 'the width of the page' 应该指的就是布局视口的宽度
+>
+> 'the screen-width of the device'指的是设备独立像素
+
+width能决定布局视口的宽度,实际上并不是唯一决定性因素,设置initial-scale也能影响到布局视口,因为<span style="color: red">布局视口取得是`width`和`视觉视口宽度`的最大值.</span>
+
+例如: 若手机的理想视口宽度为400px, 设置`width=device-width`, `initial-scale=2`,此时`视觉视口宽度=理想视口宽度 / initial-scale` 即200px.布局视口取两者最大值即device-width 400px.
+
+若设置`width=device-width,initial-scale=0.5`,此时视觉视口 = 理想视口宽度 / initial-scale即800px,布局视口宽度取两者最大值即800px.
+
+
 
 
 
 #### 2. initial-scale  
 
+> mdn
+>
+> Possible: a positive number between 0.0 and 10.0
+>
+> des: defines the ratio between the <span style="background: #ccc">device width</span>(device-width in portrait mode or device-height in landscape mode) and <span style="background: #ccc">the viewport size</span>.
+
+根据上面的device-width的解释,其值为设备屏幕宽度,也就是设备独立像素,其值的获取方式是`screen.width`
+
 1. initial-scale 为页面初始化时的显示比例。  
 
-2. initial-scale = 屏幕宽度(设备独立像素)  /  布局视口宽度。
+2. initial-scale = 屏幕宽度(设备独立像素)  /  布局视口宽度。(理想视口宽度 / 视觉视口宽度
 
 3. 只写initial-scale = 1.0 也可以实现完美视口，但为了良好的兼容性，width=device-width, initial-scale=1.0一般一起写。
 
@@ -647,27 +671,144 @@ WEB端开发
 
 主流的适配方式有三种：
 
+* 媒体查询
+
 * viewport 适配
 * rem 适配（主流方式，几乎完美适配）
 * vw适配
 
-### 1.viewport 适配
 
-- 方法：拿到设计稿之后，设置**布局视口**宽度为设计稿宽度，然后直接按照设计稿给宽高进行布局即可。
-- 优点：不用复杂的计算，直接使用图稿上标注的px值
-- 缺点：
-  - 不能使用完整的meta标签，会导致在某些安卓手机上有兼容性问题。
-  - 不希望适配的东西，例如边框，也强制参与了适配
 
-```css
-<meta name="viewport" content="width=375">
+### 0.媒体查询
+
+#### 概述
+
+> 通过CSS的@media媒体查询设置不同的style.通过媒体查询,可以根据不同的屏幕设置不同样式,实现不同屏幕适配.
+
+link元素中的CSS媒体查询,不同屏幕加载不同样式文件
+
+```html
+<link rel='stylesheet' media="(max-width: 500px)" href="mobile.css"/>
+<link rel='stylesheet' media="(min-width: 980px)" href="pc.css" />
+```
+
+CSS样式表中的媒体查询:
+
+```html
+@media only screen and (max-width: 414px){
+	html{ font-size: 64px;}
+}
+@media only screen and (max-width: 375px) {
+	html{ font-size:58px}
+}
+@media only screen and (max-width:360px) {
+	html{ font-size: 56px}
+}
+@media only screen and (max-width: 320px) {
+	html{ font-size: 50px;}
+}
 ```
 
 
 
 
 
-### 2. flexible
+### 2. 淘宝flexible
+
+> [使用Flexible实现手淘H5页面的终端适配 · Issue #17 · amfe/article (github.com)](https://github.com/amfe/article/issues/17)
+
+#### 一些基本概念
+
+##### 视窗viewport
+
+viewport是严格等于浏览器的窗口.在桌面浏览器中,viewport就是浏览器窗口的宽度高度.但在移动设备上有点复杂.
+
+移动端的viewport太窄,为了更好为CSS布局服务,提供了两个viewport: 
+
+* 虚拟的viewportvisualviewport
+
+* 布局的viewportlayoutviewport
+
+虚拟视口和布局视口的相关资料:
+
+* George Cummins在Stack Overflow上[对这两个基本概念做了详细的解释](http://stackoverflow.com/questions/6333927/difference-between-visual-viewport-and-layout-viewport)。
+
+* 可以阅读[PPK写的相关教程](http://www.w3cplus.com/css/viewports.html)。
+
+##### 设备像素比
+
+简称dpr,其定义了物理像素和设备独立像素的对应关系.它的值可以按以下公式得到:
+
+> 设备像素比 = 物理像素 / 设备独立像素
+
+这个地方的理解: 是几个物理像素代表1个设备独立像素.
+
+
+
+##### 前端实现
+
+使用手淘`lib-flexible`的库, 这个库是制作H5适配的开源库,可以[点击这里](https://github.com/amfe/lib-flexible/archive/master.zip)下载相关文件，获取需要的JavaScript和CSS文件.也可以使用阿里的CDN:
+
+```javascript 
+<script src="http://g.tbcdn.cn/mtb/lib-flexible/{{version}}/??flexible_css.js,flexible.js"></script>
+```
+
+将代码中的`{{version}}`换成对应的版本号`0.3.4`.
+
+<u>使用方法:</u>
+
+[`lib-flexible`](https://github.com/amfe/lib-flexible)库的使用方法非常的简单，只需要在Web页面的`<head></head>`中添加对应的`flexible_css.js,flexible.js`文件：
+
+第一种方法是将文件下载到你的项目中，然后通过相对路径添加:
+
+```
+<script src="build/flexible_css.debug.js"></script>
+<script src="build/flexible.debug.js"></script>
+```
+
+或者直接加载阿里CDN的文件：
+
+```
+<script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>
+```
+
+另外强烈建议对JS做**内联处理**，在所有资源加载之前执行这个JS。执行这个JS后，会在`<html>`元素上增加一个`data-dpr`属性，以及一个`font-size`样式。JS会根据不同的设备添加不同的`data-dpr`值，比如说`2`或者`3`，同时会给`html`加上对应的`font-size`的值，比如说`75px`。
+
+如此一来，页面中的元素，都可以通过`rem`单位来设置。他们会根据`html`元素的`font-size`值做相应的计算，从而实现屏幕的适配效果。
+
+
+
+flexible的实质:
+
+`flexible`实际上就是能过JS来动态改写`meta`标签，代码类似这样：
+
+```javascript
+var metaEl = doc.createElement('meta')
+var scale = isRetina ? 0.5 : 1;
+metaEl.setAttribute('name', 'viewport')
+metaEl.setAttribute('content', 'initial-scale=' + scale + ', maximum-scale=' + scale + ', minimum-scale=' + scale + ', user-scalable=no');
+if (docEl.firstElementChild) {
+    document.documentElement.firstElementChild.appendChild(metaEl);
+} else {
+    var wrap = doc.createElement('div');
+    wrap.appendChild(metaEl);
+    documen.write(wrap.innerHTML);
+}
+```
+
+事实上他做了这几样事情：
+
+- 动态改写`<meta>`标签
+- 给`<html>`元素添加`data-dpr`属性，并且动态改写`data-dpr`的值
+- 给`<html>`元素添加`font-size`属性，并且动态改写`font-size`的值
+
+
+
+
+
+
+
+
 
 引入flexible后, 在页面上统一使用rem来布局.
 
@@ -801,6 +942,20 @@ less写法:
 2. <span style="color:#ee0b41">通过js设置根字体大小  = **当前设备横向独立像素值 / 10** </span>
 4. <span style="color:#ee0b41">编写样式时，直接以rem为单位，值为：**设计值 / (设计稿宽度 / 10)**</span>   例如345px/(375px/10)\*rem(41.4px)
 5. 增加 JS 代码进行实时适配
+
+
+
+### 1.viewport 适配
+
+- 方法：拿到设计稿之后，设置**布局视口**宽度为设计稿宽度，然后直接按照设计稿给宽高进行布局即可。
+- 优点：不用复杂的计算，直接使用图稿上标注的px值
+- 缺点：
+  - 不能使用完整的meta标签，会导致在某些安卓手机上有兼容性问题。
+  - 不希望适配的东西，例如边框，也强制参与了适配
+
+```css
+<meta name="viewport" content="width=375">
+```
 
 
 

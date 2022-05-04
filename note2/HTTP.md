@@ -2149,6 +2149,10 @@ session 保存数据理论上没有任何限制
 
 ### 前台数据存储
 
+> 作为 Web Storage API 的接口，**`Storage`** 提供了访问特定域名下的会话存储或本地存储的功能，例如，可以添加、修改或删除存储的数据项。
+>
+> 如果你想要操作一个域名的会话存储，可以使用 [`Window.sessionStorage`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/sessionStorage)；如果想要操作一个域名的本地存储，可以使用 [`Window.localStorage`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage)。
+
 #### 存储方式
 
 - cookie
@@ -2158,6 +2162,81 @@ session 保存数据理论上没有任何限制
 - localStorage
 
   注意: session后台数据存储
+
+
+
+#### cookie
+
+
+
+#### sessionStorage
+
+
+
+#### localStorage
+
+##### 概述
+
+> 只读的`localStorage` 属性允许你访问一个[`Document`](https://developer.mozilla.org/zh-CN/docs/Web/API/Document) 源（origin）的对象 [`Storage`](https://developer.mozilla.org/zh-CN/docs/Web/API/Storage)；存储的数据将保存在浏览器会话中。
+
+
+
+##### 实例
+
+访问当前域名下的本地Storage对象.
+
+
+
+##### 实际使用
+
+如何监听localStorage的变化
+
+> * storageEvent
+> * 封装localStorage
+
+storageEvent
+
+JavaScript原生就有一个监听localStorage变化的事件——**storage**，使用方法如下
+
+```javascript
+window.addEventListener('storage', () => {
+  //callbacks
+})
+```
+
+封装localStorage
+
+代理一下对localStorage进行多一层的封装，使得我们每次在操作localStorage的时候，都会多走一层函数，而我们就可以在这一层中去执行监听的事件了，下面是简单的代码例子：
+
+```javascript
+class CommonLocalStorage {
+  private storage: Storage
+  constructor() {
+    this.storage = window.localStorage
+  }
+
+	set(key: string, value: any) {
+    //执行监听的操作
+    return this.storage.setItem(`${prefix}${key}`, value)
+  }
+
+	get(key: string) {
+    //执行监听的操作
+    return this.storage.removeItem(`${prefix}${key}`)
+  }
+
+	clear() {
+    //执行监听的操作
+    this.storage.clear()
+  }
+}
+
+const commonStorage = new CommonLocalStorage()
+
+export default commonStorage
+```
+
+
 
 #### 区别 localStoarge与sessionStorage
 
