@@ -716,6 +716,8 @@ CSS样式表中的媒体查询:
 ### 2. 淘宝flexible
 
 > [使用Flexible实现手淘H5页面的终端适配 · Issue #17 · amfe/article (github.com)](https://github.com/amfe/article/issues/17)
+>
+> [amfe/lib-flexible: 可伸缩布局方案 (github.com)](https://github.com/amfe/lib-flexible)
 
 #### 一些基本概念
 
@@ -802,15 +804,47 @@ if (docEl.firstElementChild) {
 - 给`<html>`元素添加`data-dpr`属性，并且动态改写`data-dpr`的值
 - 给`<html>`元素添加`font-size`属性，并且动态改写`font-size`的值
 
+案例:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta content="yes" name="apple-mobile-web-app-capable">
+        <meta content="yes" name="apple-touch-fullscreen">
+        <meta content="telephone=no,email=no" name="format-detection">
+        <script src="http://g.tbcdn.cn/mtb/lib-flexible/0.3.4/??flexible_css.js,flexible.js"></script>
+        <link rel="apple-touch-icon" href="favicon.png">
+        <link rel="Shortcut Icon" href="favicon.png" type="image/x-icon">
+        <title>再来一波</title>
+    </head>
+    <body>
+        <!-- 页面结构写在这里 -->
+    </body>
+</html>
+```
 
 
 
+<u>把视觉稿中的px转换成rem</u>
+
+**手淘设计师常选择iPhone6作为基准设计尺寸，交付给前端的设计尺寸是按`750px \* 1334px`为准(高度会随着内容多少而改变)。前端开发人员通过一套适配规则自动适配到其他的尺寸。**
+
+目前Flexible会将视觉稿分成**`100份`**（主要为了以后能更好的兼容`vh`和`vw`），而每一份被称为一个单位`a`。同时`1rem`单位被认定为`10a`。针对我们这份视觉稿可以计算出：
+
+```shell
+1a = 7.5px
+1rem = 75px
+```
+
+那么我们这个示例的稿子就分成了`10a`，也就是整个宽度为`10rem`，`<html>`对应的`font-size`为`75px`：
+
+这样一来，对于视觉稿上的元素尺寸换算，只需要原始的`px值`除以`rem基准值`即可。例如此例视觉稿中的图片，其尺寸是`176px * 176px`,转换成为`2.346667rem * 2.346667rem`。
 
 
 
-
-
-引入flexible后, 在页面上统一使用rem来布局.
+引入flexible后, 在页面上统一使用rem来布局.它的核心代码:
 
 ```javascript
 //set 1rem = viewWith / 10
@@ -825,7 +859,8 @@ setRemUnit();
 
 //reset rem unit on page resize
 
-window.addEventListener('resize', setRemUnit)window.addEventListener('pageshow', function(e) {
+window.addEventListener('resize', setRemUnit)
+window.addEventListener('pageshow', function(e) {
   if (e.persisted) {
     setRemUnit()
   }
@@ -841,6 +876,46 @@ window.addEventListener('resize', setRemUnit)window.addEventListener('pageshow',
 * 当然,每个布局都要计算非常繁琐,我们可以借助`PostCSS`的`px2rem`插件来帮助我们完成这个过程.
 
 下面的代码可以保证页面在大小变化时,布局可以自适应.当触发window的resize和pageshow事件之后自动调整html的fontSize大小.
+
+**<span style="color:red">重要</span>**
+
+> 我一直觉得很难理解,各个教程就都是直说UI元素大小/rem基准值就得出结果.并没有说因为什么
+
+其实就是一个比例关系:
+
+```html
+假设设计稿宽度为640px, ui设计稿中某元素是240px*120px
+根据前面所说,布局视口(因为在meta中设置过,其值已为设备独立像素)宽度的百分之一的10倍为rem值,然后将根元素字体大小的值设置为rem.
+
+240/640 == x/10rem 
+
+以上公式可以简化为:
+240/64 = x/1rem
+3.75=x/1rem
+3.75*1rem = x
+
+
+
+10rem代表当下这个设备的布局视口宽度. 
+
+所以这个等式的含义是: UI元素所占设计稿的比例 等于 元素在其他机型上的宽度占当前机型的理想视口宽度的比例
+```
+
+$$
+\frac{设计值}{设计稿宽度} = \frac{x}{dip}\\
+\\
+故: \frac{设计值}{设计稿宽度} = \frac{x}{10rem}\\
+\\
+故: x = \frac{设计值}{设计稿宽度}*10rem
+\\
+故: x = \frac{设计值}{设计稿1/10宽度}*1rem
+$$
+
+
+
+
+
+
 
 
 
@@ -924,6 +999,31 @@ less写法:
 
 
 
+来让我们细化一下公式:
+
+```html
+还是相同占比的问题:
+
+设计值/设计稿宽度  = x/dip
+
+设计值/设计稿宽度*100 = x/dip*100
+
+```
+
+
+$$
+\frac{设计值}{设计稿宽度} = \frac{x}{dip} \\
+\\
+\frac{设计值}{设计稿宽度*100} = \frac{x}{dip*100} \\
+\\
+\frac{dip*100}{设计稿宽度} = \frac{x*100}{设计值} \\
+\\
+规定:1rem=\frac{dip*100}{设计稿宽度}
+\\
+故: 1rem = \frac{x*100}{设计值}
+\\
+故: x = \frac{设计值}{100}*1rem
+$$
 
 
 
