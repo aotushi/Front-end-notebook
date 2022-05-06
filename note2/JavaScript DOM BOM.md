@@ -2698,6 +2698,8 @@ boxNode.detachEvent('onclick', fn2);
 #### 概述
 
 > 该定时器在定时器到期后执行一个函数或指定的一段代码。
+>
+> 第一个参数是函数,没有参数.
 
 #### Syntax
 
@@ -2721,21 +2723,27 @@ setTimeout(functionRef, delay, arg1, arg2, /* ... ,*/ argN)
 
 `code` 
 
-> an alternative syntax that allows you to include a string instead of a function, which is compiled and executed when the timer expires.
+> an alternative syntax that allows you to include <u>a string instead of a function</u>, which is compiled and executed when the timer expires.
 >
-> this syntax is not recommended for the same reasons that make using `eval()` a security risk
+> this syntax <u>is not recommended</u> for the same reasons that make using `eval()` a security risk
 
 `delay` [Optional]
 
-> the time, in milliseconds that the timer should wait before the specified function or code is excuted.
+> the time, **in milliseconds** that the timer should wait before the specified function or code is excuted.
 >
 > 计时器在执行指定函数或代码之前应等待的时间（以毫秒为单位）
 >
-> If this parameter is omitted, a value of 0 is used, meaning execute 'immediately', or more accurately , the next event cycle. ???
+> **If this parameter is omitted**, a value of 0 is used, meaning execute 'immediately', or more accurately , the next event cycle. ???
 >
-> Note that in either case ,the actual delay may be longer than intended;see [Reasons for delays longer than specified](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#reasons_for_delays_longer_than_specified) below.
+> Note that in either case ,the actual delay **may be longer than intended**;see [Reasons for delays longer than specified](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#reasons_for_delays_longer_than_specified) below.
 >
 > also note that if the value isn't a number, implict <span style="color:blue"><u>type coercion</u></span> is silently done on the value to convert it to a number - which can lead to unexpected and suprising results; see [Non-number delay values are silently coerced into numbers](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#non-number_delay_values_are_silently_coerced_into_numbers) for an example.
+
+
+
+如果省略传给setTimeout()的第二个参数,则该参数默认值为0,并不意味着函数会立即被调用,只意味着这个函数会被注册到某个地方,将被'尽可能快地'调用.如果浏览器由于处理用户输入或其他事件而没有空闲,那么调用这个函数的时机可能在10毫秒甚至更长时间以后.
+
+
 
 `args1,...,argsN` [Optional]
 
@@ -2747,11 +2755,11 @@ Additional arguments which are passed through toe function specifiedby function
 
 the returned `timeoutId` is <span style="color:blue">a positive integer value</span> which identifies the timer created by the call to `setTimeout()`. 
 
-It is guaranteed that a `timeoutID` value will never be reused by a subsequent call to `setTimeout()` or `setInterval()` on the same object (a window or a worker). 
+It is guaranteed that a `timeoutID` value will never be reused by a subsequent call to `setTimeout()` or `setInterval()` on the same object (a window or a worker). ????
 
 However, different objects use separate pools of IDs.
 
-
+返回值在浏览器中一般是数字,在node中是对象.
 
 #### Desc
 
