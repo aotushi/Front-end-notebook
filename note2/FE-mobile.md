@@ -1553,6 +1553,8 @@ ngrok
 
 # 一、vue脚手架rem适配
 
+> [(4条消息) vue和react脚手架rem适配配置_張三同学的博客-CSDN博客_react rem适配](https://blog.csdn.net/weixin_46535880/article/details/123971379)
+
 1. 初始化vue脚手架
 
    ```
@@ -1581,7 +1583,7 @@ ngrok
    }
    ```
 
-4. src目录下建立rem.js，内容如下(给不同设备设置根字体大小)：
+4. `src/utils/` 目录下创建 `rem.js 或 adapter.js` (响应式判断设备大小，设置不同的根字体大小)，内容如下
 
    ```js
    function adapter (){
@@ -1592,6 +1594,21 @@ ngrok
    adapter()
    window.onresize = adapter
    ```
+
+5. 在 `scr/index.js` 入口文件中直接引入执行 `rem.js 或 adapter.js`
+
+   ```javascript
+   import '@/utils/rem.js'
+   //or
+   import '@/utils/adapter.js'
+   ```
+
+6. 在项目中的写法
+
+   ```vue
+   ```
+
+   
 
 
 
