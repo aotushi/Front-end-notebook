@@ -459,25 +459,39 @@ npm list -g --depth 0
  npm set <key> <value> [-g | --global]
  ```
 
-对于config这块用得最多应该是设置代理，解决npm安装一些模块失败的问题
+##### NPM设置代理及修改镜像
 
-例如我在公司内网，因为公司的防火墙原因，无法完成任何模块的安装，这个时候设置代理可以解决
+首先查看当前配置是否已经存在代理: 
 
-  ```javascript
-  npm config set proxy=http://dev-proxy.oa.com:8080
-  ```
+```javascript
+npm config ls   //ls <== list的缩写
+```
 
-设置简单镜像
+设置网络代理
 
- ```shell
- npm config set registry='http://r.cnpmjs.org'
- ```
+```bash
+npm config set proxy="代理路径" //一般从代理软件上获取
+```
 
-临时配置,如安装淘宝镜像
+将npm默认下载地址更改成国内淘宝镜像
 
- ```shell
- npm install -g cnpm --registry=https://registry.npm.taobao.org
- ```
+```bash
+npm config set registry https://registry.npmmirror.com
+```
+
+再次查看确认是否更改
+
+```bash
+npm config ls
+```
+
+更新
+
+```bash
+npm update
+```
+
+
 
 
 
@@ -567,7 +581,48 @@ npm tst [-- <args>]
 
 
 
-### npm package.json语法
+### 常见问题
+
+#### 初始化项目,node-sass下载失败
+
+> [node-sass安装失败解决方法汇总 · Issue #311 · iuap-design/blog (github.com)](https://github.com/iuap-design/blog/issues/311)
+
+##### 报错信息
+
+```bash
+Downloading binary from https://github.com/sass/node-sass/releases/download/v4.11.0/win32-x64-72_binding.node
+Cannot download "https://github.com/sass/node-sass/releases/download/v4.11.0/win32-x64-72_binding.node":
+
+HTTP error 404 Not Found
+
+Hint: If github.com is not accessible in your location
+      try setting a proxy via HTTP_PROXY, e.g.
+
+      export HTTP_PROXY=http://example.com:1234
+
+or configure npm proxy via
+
+      npm config set proxy http://example.com:8080
+```
+
+根据报错提示,可以通过添加代理的方式来解决问题.但是添加代理后依然会报错. 因为请求的地址返回的404, 这个页面是个空页面.
+
+稳重提到了3种解决方案,我们这里只采用第三种更改特定模块淘宝镜像的方法:
+
+```bash
+npm set sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
+
+//or
+
+npm i cnpm -g --registry=https://registry.npmmirror.com
+cnpm i node-sass
+```
+
+
+
+
+
+### package.json
 
 > 英文原版：https://docs.npmjs.com/files/package.json
 >

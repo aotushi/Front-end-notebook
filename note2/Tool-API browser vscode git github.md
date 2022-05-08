@@ -318,9 +318,9 @@ local 即是当前 clone 仓库 的配置文件(位于 clone 仓库下 .git/conf
 ```js
 https://ericclose.github.io/git-proxy-config.html
 
-//查看全局的http https代理
-git config --global --get http.proxy
-git config --global --get https.proxy
+//查看全局的http https代理 get前面好像没有横线
+git config --global get http.proxy
+git config --global get https.proxy
 
 
 
