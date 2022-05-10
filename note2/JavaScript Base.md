@@ -6504,19 +6504,23 @@ console.log(a); // 10
 
 ### 描述
 
+> 对象是一种复合值,它汇聚多个值(原始值或其他对象)并允许我们按名字存储和获取这些值.
+>
+> 对象是一个属性的无序集合,每个属性都有名字和值.属性名通常是字符串(也可以是符号),因此可以说是对象把字符串映射为值.
+>
+> 除了维持自己的属性之外,JS对象也可以从其他对象继承属性,这个其他对象被称为其'原型'.
+>
+> JS对象是动态的,即可以动态添加和删除属性.不过,也可以用对象来模拟静态类型语言中的静态对象和'结构体'.
+>
+> 对象属性有一个名字和值,属性名可以是任意字符串,包括空字符串(或任意符号),但对象不能包括两个同名的属性.值可以是任意JS值,或者是设置函数或获取函数(或两个函数同时存在).
+
 在JavaScript中，几乎所有的对象都是`Object`类型的实例，它们都会从`Object.prototype`继承属性和方法，虽然大部分属性都会被覆盖（shadowed）或者说被重写了（overridden）。 
 
 除此之外，`Object` 还可以被故意的创建，但是这个对象并不是一个“真正的对象”（例如：通过 `Object.create(null)`），或者通过一些手段改变对象，使其不再是一个“真正的对象”（比如说: `Object.setPrototypeOf`）。
 
-`Object` 构造函数为给定的参数创建一个包装类对象（object wrapper），具体有以下情况：
-
-* 如果给定值是 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，将会创建并返回一个<u>空对象</u>
-* 如果传进去的是一个基本类型的值，则会构造其<u>包装类型的对象</u>
-* 如果给定值是一个已经存在的对象，则会返回这个已经存在的值（相同地址）。
-
-当以非构造函数形式被调用时， `Object` 和 `new Object()`表现一致。
 
 
+对象的相关操作包括创建对象, 以及设置, 查询, 删除, 测试和枚举它们的值.
 
 ### 语法
 
@@ -6538,15 +6542,15 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 
 
-### 类数组对象
+#### 类数组对象
 
-#### 定义
+##### 定义
 
 > 拥有一个length属性和若干索引属性的对象
 
 
 
-#### 与数组的比较
+##### 与数组的比较
 
 * 在读写,长度,遍历上与数组相同
 * 无法直接调用数组方法, 可以借助Function.call方法间接调用
@@ -6570,7 +6574,7 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 
 
-#### 类数组转换成数组的 6 种方法
+##### 类数组转换成数组的 6 种方法
 
 * [].slice.call(arrayLike)
 
@@ -6588,48 +6592,302 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 
 
-### 1.基本认识
+### 对象3种创建方式
 
-```js
-* 对象是一种新的数据类型
-* 之前了解的数据类型是一个个独立的值,它们不适合表示一些更复杂的数据
-* 对象就相当于一个容器,在对象中可以存放多种不同类型的数据
-* 对象是一种复合数据类型
-* 使用typeof检查一个对象时,会返回object
-* 对象中可以存储不同类型的数据
-	- 对象中存储的数据被称为属性(property)
-```
+对象创建可以通过对象字面量, new关键字和`Object.create()`函数来创建.
 
 
 
-
-
-### 2.对象初始化
-
-#### 2.1 对象初始化的 3 种方式
+<u>**概述**</u>
 
 * `new Object()`   //`Object()`行为等同于`new Object()`
 * `Object.create()`
 * 字面量
 
-创建对象的方式及优缺点
 
-```js
-* 创建对象(3种方法)
-let obj = new Object(); //new字可以省略,当以非构造函数形式调用,Object行为等同于new Object()
-let ojb = {};       //对象字面量 构造函数的语法糖
-let obj = Object.create(null); 
 
+#### 对象字面量创建
+
+<u>定义及规范</u>
+
+创建JS对象最简单的方式. 对象字面量最简单的形式是包含一对花括号中的一组逗号分隔的"名: 值"对. 
+
+<span style="color: blue">属性名是JS标识符或字符串字面量(允许空字符串).</span>
+
+<span style="color: blue">属性值是任何JS表达式,这个表达式值(可以是原始值或对象值)会变成属性的值</span>
+
+
+
+<u>特点</u>
+
+* 对象字面量最后一个属性后面的**逗号**是合法的,有些编程风格指南鼓励添加这些逗号,以便将来在对象字面量末尾再增加新属性不会导致语法错误.
+* 对象字面量是一个表达式,每次求值都会创建并初始化一个新的/不一样的对象.
+  * 字面量每次被求值得时候,它的每个属性的值也会被求值.这意味着同一个对象字面量如果出现在循环体中,或出现在被重复调用的函数体内,可以创建很多新对象,且这些新对象属性的值可能不同.
+
+
+
+<u>对象字面量的扩展语法</u>
+
+新版本增加了很多对象字面量特性,如下:
+
+* 计算属性名
+* 符号作为属性名
+* 扩展操作符
+* 简写方法
+* 属性的设置方法和获取方法
+
+
+
+#### new操作符创建
+
+<u>概述</u>
+
+new操作符用于创建和初始化一个新对象. new关键字后面必须跟一个函数调用.以这种方式使用的函数被称为'构造函数(constructor)', 目的是初始化新创建的对象.
+
+JS为内置的类型提供了构造函数:
+
+```javascript
+let o = new Object(); //创建一个空对象, 与{}相同
+let a = new Array(); //创建一个空数组, 与[]相同
+let d = new Date(); //创建一个表示当前时间的日期对象
+let r = new Map(); //创建一个映射对象, 用于存储键/值映射
+```
+
+
+
+`Object` 构造函数为给定的参数创建一个包装类对象（object wrapper），具体有以下情况：
+
+* 如果给定值是 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/null) 或 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，将会创建并返回一个<u>空对象</u>
+* 如果传进去的是一个基本类型的值，则会构造其<u>包装类型的对象</u>
+* 如果给定值是一个已经存在的对象，则会返回这个已经存在的值（相同地址）。
+
+当以非构造函数形式被调用时， `Object` 和 `new Object()`表现一致。
+
+
+
+#### Object.create()创建
+
+**原型**
+
+介绍此种创建方式前, 首先需要了解JS中的原型知识:
+
+几个每一个JS对象都有一个另一个与之关联的对象.这另一个对象被称为原型(prototype),第一个对象从这个原型继承属性.
+
+通过对象字面量创建的所有对象都有相同的原型对象, 在JS代码中可以通过`Object.prototype`引用这个原型对象.使用new关键字和构造函数调用创建的对象, 使用构造函数prototype属性的值作为它们的原型.换句话说,使用`new Object()`创建的对象继承自`Object.prototype`, 与通过`{}`创建的对象一样.
+
+几乎所有对象都有原型,但是只有少数对象具有prototype属性,正是这些有prototype属性的对象为所有其他对象定义了原型.
+
+Object.prototype是为数不多没有原型的对象,因为它不继承任何属性.
+
+**Object.create**
+
+用于创建一个新对象,使用其第一个参数作为新对象的原型.
+
+传入null可以创建一个没有原型的新对象.这样创建的对象不会继承任何东西.
+
+如果想创建一个普通的空对象(类似`{}` 或 `new Object()`返回的对象), 传入`Object.prototype`:
+
+```javascript
+let o = Object.create(Object.prototype)
+```
+
+Object.create()的一个用途是防止对象被某个第三方库意外修改. 这种情况下不要直接把对象传给库函数,而要传入一个继承自它的对象. 如果函数读取这个对象的属性,可以读到继承的值. 而如果它设置这个对象的属性, 则修改不会影响原始对象.
+
+
+
+### 查询和设置属性
+
+
+
+#### 属性操作(访问/设置)
+
+左边应该是一个表达式,其值为一个对象.
+
+* `.`操作符  被称为'属性访问'.  右边必须是一个命名属性的简单标识符, 需要满足标识符的命名规范
+* `[]`操作符 被称为'键访问'.   方括号中的值必须是一个表达式,其结果为包含目的属性名的字符串.可以接受任意UTF-8/Unicode字符串作为属性名
+  * 更准确说法: 该表达式必须求值为一个字符串或一个可以转换为字符串或符号的值.
+
+
+```javascript
+let author = book.author;  //取得book的author属性
+let name = author.name; //取得author的'name'属性
+let title = book['main title']; //取得book的'main title'属性
+```
+
+要创建或设置属性,与查询属性一样,,使用点或方括号,但它们会放在赋值表达式的左边.
+
+```javascript
+book.edition = 8
+```
+
+
+
+属性名的类型
+
+* **字符串** 如果你使用string（字面量）以外的其他值作为属性名，那它首先会被转换为一个字符串。
+
+可计算属性名
+
+* 通过<u>表达式</u>来计算属性名,来获取相应的属性名.
+
+* 可计算属性名最常用的场景可能是ES6的符号（Symbol）
+
+```javascript
+let obj = {
+  [Symbol.Something] : 'hello world'
+}
+```
+
+
+
+#### 属性设置中的继承
+
+为对象o的属性x赋值,有三种情况:
+
+1. 如果o有一个名为x的自有(非继承)属性,赋值行为会修改已有x属性的值
+2. 如果o没有名为x的属性, 则会在对象o上创建一个名为x的属性
+3. 如果o之前继承了x,现在这个<span style="color:red">继承的属性</span>会被新赋值的同名属性<span style="color:red">覆盖.</span>
+
+属性赋值查询原型链只为确定是否允许赋值. 如果o继承了一个名为x的只读属性,则不允许赋值.注意: 如果允许赋值,则只会在原始对象上创建或设置属性,而不会修改原型链中的对象.
+
+<span style="color:red">查询属性时会用到原型链, 设置属性时不影响原型链是重要的JS特性</span>
+
+
+
+#### 属性访问错误
+
+**类型**
+
+属性访问表达式并不能总是会返回或设置值. 在null 或 undefined上设置属性也会导致TypeError.
+
+<span style="color:blue">查询不存在的属性不是错误</span>. 如果在o的自有属性和继承属性中都没有找到属性x, 则属性访问表达式`o.x`的求值结果为 `undefined`. 
+
+<span style="color:blue">查询不存在的对象的属性则是错误</span>.因为null或undefined没有属性,查询这两个值得属性是错误.
+
+##### 如何避免 3种
+
+```javascript
+//简单却麻烦写法
+let surname = undefined
+if (book) {
+  if (book.author) {
+    surname = book.author.surname
+  }
+}
+
+//取得surname,null或undefined的简洁惯用技术
+surname = book && book.author && book.author.surname
+
+//ES2020 可选链操作符 ?.
+let surname = book?.author?.suranme
+```
+
+
+
+##### **属性设置失败的情况**  ????
+
+在对象o上设置属性p在以下情况会失败:
+
+* o有一个只读自有属性p: 不能设置只读属性
+* o有一个只读继承属性p: 不能用同名自有属性隐藏只读继承属性
+* o没有自有属性p,o没有继承通过设置方法定义的属性p,o的extensible特性是false. 因为p在o上不存在,如果没有要调用的设置方法,那么p必须要添加到o上. 但如果o不可扩展(extensibl为false),则不能再它上面定义新属性.
+
+
+
+### 删除属性
+
+#### 概述
+
+delete操作符用于从对象中移除属性.它唯一的操作数应该是一个属性访问表达式. 它并不操作属性的值,而是操作属性本身.
+
+delete操作符只删除自有属性,不删除继承属性(要删除继承属性,必须从定义属性的原型对象上删除.这样做会影响继承该原型的所有对象)
+
+#### 返回值
+
+如果delete操作成功或没有影响(如删除不存在的属性),则delete表达式求值为true. 对非属性访问表达式(无意义地)使用delete,同样也会求值为true:
+
+```javascript
+let o = {x : 1}
+delete o.x //true 删除属性x
+delete o.x //true 什么也不做仍然返回true
+delete o.toStrin //true 什么也不做(toString不是自有属性)
+delete 1 // true. 无意义,仍然返回true
+```
+
+#### 其他情况
+
+##### configurable
+
+delete不会删除configurable属性为false的属性.
+
+<u>那些属性是不可配置的呢?</u>
+
+* 通过变量声明或函数声明创建的全局对象的属性
+* 某些内置对象的属性
+
+获取这些对象属性的configurable的值,可通过`Object.getOwnPropertyDescriptor()`来获取, 其值为布尔值.
+
+##### 严格模式与非严格模式
+
+* 在严格模式下,删除不可配置的属性会导致TypeError. 在非严格模式下,delete直接求值为false
+* 在非严格模式下删除全局对象可配置的属性时,可省略对全局对象的引用,只在delete操作符后面加上属性名
+* 在严格模式下,如果操作数是一个像x这样的非限定标识符,delete会抛出SyntaxError, 即必须写出完整的属性访问表达式.
+
+### 测试属性
+
+检查对象是否有一个给定名字的属性,
+
+* in操作符
+* hasOwnProperty()
+* propertyIsEnumerable()
+* 直接查询
+
+in**操作符**
+
+in操作符要求左边是一个属性名,右边是一个对象. 如果对象包含相应名字的自有属性或继承属性,将返回true.
+
+**hasOwnProperty()**
+
+用于测试对象是否有给定名字的属性, 对继承的属性它返回false
+
+**propertyIsEnumerable()**
+
+细化了hasOwnproperty()方法. 如果传入的属性是自有属性且这个属性的enumerable特性为true, 这个方法返回true.
+
+某些内置属性是不可枚举的,使用常规JS代码创建的属性都是可枚举的,除非使用Object.defineProperty创建不可枚举的属性.
+
+**最简单的方式**
+
+* in
+* 属性查询`obj.a !== undefined`
+
+```javascript
+let o = {x:1}
+o.x !== undefined //true o有属性x
+o.y !== undefined //false o没有属性y
+o.toString !== undefined //true  o继承了toString属性
+```
+
+
+
+两者的区别:
+
+in可以区分不存在的属性和存在但仍被设置为undefined的属性.
+
+```javascript
+let o = {x:undefined}
+o.x !== undefined //false 
+o.y !== undefined //false 属性y不存在
+'x' in o //true
+'y' in o //false
+delete o.x
+'x' in o //false
 
 ```
 
-#### 2.2 描述
-
-> 对象初始化是一个描述对象初始化过程的表达式. 对象初始化是由一组描述对象的属性组成.
->
-> 属性的值可以是原始类型,也可以是其他对象
 
 
+### 枚举属性
 
 
 
@@ -7450,34 +7708,6 @@ setter也是一个隐藏函数，会在设置属性值时调用。
 3．如果都不是，将该值设置为属性的值。
 
 如果属性不存在,  第五章.(你不知道的JS)
-
-
-
-#### 属性操作(访问/设置)的两种方式:
-
-* `.`操作符  被称为'属性访问'
-* `[]`操作符 被称为'键访问'
-
-#### 两种属性操作的区别:
-
-* `.`操作符要求属性名满足标识符的命名规范
-* `[]`语法可以接受任意UTF-8/Unicode字符串作为属性名
-
-#### 属性名的类型
-
-* **字符串** 如果你使用string（字面量）以外的其他值作为属性名，那它首先会被转换为一个字符串。
-
-#### 可计算属性名
-
-* 通过<u>表达式</u>来计算属性名,来获取相应的属性名.
-
-* 可计算属性名最常用的场景可能是ES6的符号（Symbol）
-
-```javascript
-let obj = {
-  [Symbol.Something] : 'hello world'
-}
-```
 
 
 
@@ -17720,6 +17950,8 @@ let newArr = arr.reduce((prev,current)=>{
     }
 },[])
 
+//简化
+arr.reduce((prev, crt) => !prev.includes(crt) ? prev.concat(crt) : prev [])
 ```
 
 
@@ -17848,6 +18080,16 @@ function groupBy(objArray, property) {
 
 let a = groupBy(people, 'age')
 console.log(a)
+
+//这个地方如果使用三元表达式的话,要比函数体的形式麻烦很多
+function groupBy(arr, key) {
+  return arr.reduce((acc, crt) => acc[crt[key]]?
+                    {...acc, crt[key]:acc[crt[key]].concat(crt)}:
+                    {...acc, crt[key]:[crt]}
+                    ,{})
+}
+//上面对象键要求是字符串,JS中的已使用的字符会造成解释器混乱报错
+
 
 {
   '20': [ { name: 'Max', age: 20 }, { name: 'Jane', age: 20 } ],
