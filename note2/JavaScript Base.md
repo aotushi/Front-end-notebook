@@ -6542,6 +6542,22 @@ ECMAScript 6规范清晰定义了每一个类别的对象
 
 
 
+```
+# 对象分类
+
+* 内建对象
+ - 由ES标准所定义的对象.例如string, number, boolean, Math, Date
+
+* 宿主对象
+ - 由JS的运行环境所提供的对象 //浏览器
+ - BOM, DOM(window, document, alert, ....)
+
+* 自定义对象
+ - 由我们自己定义的对象
+```
+
+
+
 #### 类数组对象
 
 ##### 定义
@@ -6794,6 +6810,66 @@ let surname = book?.author?.suranme
 
 
 
+
+
+#### 读取对象的属性发生了什么?
+
+在语句规范中, `obj.a`在obj上实际上是实现了[[Get]]操作(有点像函数调用: `[[Get]]()` ).
+
+* 对象默认的内置`[[Get]]`操作, 首先在对象中查找是否有名称相同的属性,如果有就返回属性的值.
+* 如果没有找到名称相同的属性,`[[Get]]`算法会从原型链上查找属性.
+* 如果找不到, 返回值undefined
+
+
+
+#### 赋值对象的属性发生了什么??
+
+如果已经存在这个属性，[[Put]]算法大致会检查下面这些内容。
+
+1．属性是否是访问描述符（参见3.3.9节）？如果是并且存在setter就调用setter。
+
+2．属性的数据描述符中writable是否是false？如果是，在非严格模式下静默失败，在严格模式下抛出TypeError异常。
+
+3．如果都不是，将该值设置为属性的值。
+
+如果属性不存在,  第五章.(你不知道的JS)
+
+
+
+#### 属性和方法的区别
+
+如果访问的对象属性是一个函数, 把对象内部引用的函数称为“方法”似乎有点不妥。
+
+严格来说，函数永远不会“属于”一个对象.
+
+> 来自 本文件中的this->隐式绑定
+
+* 因为JavaScript是基于函数作用域的(ES6中增加了块作用域),<span style="color:blue">JavaScript中的对象没有作用域的概念.</span>
+
+* <span style="color:blue">对象属性函数的作用域是全局对象</span>,你可以在其内部中访问全局变量,但是不能访问到对象中的属性, <span style="color:blue">也就是说属性函数的作用域链上并不包含这个对象</span>, 如果要访问对象中的属性,只能在函数里使用this.'属性'来访问,并且对函数的调用方式是obj.fn()
+
+
+
+#### 重复的对象字面量属性
+
+ECMAScript 5严格模式中加入了对象字面量重复属性的校验，当同时存在多个同名属性时会抛出错误。
+
+但是在ECMAScript6中重复属性检查被移除了，无论是在严格模式还是非严格模式下，代码不再检查重复属性，**对于每一组重复属性，都会选取最后一个取值**.
+
+```javascript
+//ES6
+'use strict'
+let person = {
+  name: 'Nicholas',
+  name: 'Greg'
+};
+console.log(person.name); //'Greg'
+```
+
+
+
+
+
 ### 删除属性
 
 #### 概述
@@ -6887,7 +6963,323 @@ delete o.x
 
 
 
+#### 判断属性存在与否
+
+例如,如何区分访问对象属性的值为undefined时,其是否是显式声明的undefined还是不存在?
+
+可以在不访问属性值的情况下判断对象中是否存在这个属性：
+
+* `in`操作符: 检查属性名是否在对象及其[[Prototype]]原型链中
+* `hasOwnProperty`只会检查属性是否在对象中,不检查原型链
+  * `Object.create(null)` 没有原型,无法使用`has...`
+  * 强制解决: `Object.prototype.hasOwnProperty.call(obj, 'a')`
+
+
+
+
+
 ### 枚举属性
+
+#### 5种方式
+
+遍历或获取对象的所有属性,有 5 种方式:
+
+* for...in
+* Object.keys()
+* Object.getOwnPropertyNames()
+* Object.getOwnPropertySymbols()
+* Reflect.ownkeys()
+
+##### for...in
+
+> for...in循环对指定对象的每个可枚举(自有或继承)属性都会运行一次循环体. 根据书中所指,这里的继承是指Object.create()继承了自己写的一个对象.
+>
+> 对象继承的内置方法是不可枚举的
+
+```javascript
+let o = {x:1, y:2, z:3}
+o.propertyIsEnumerable('toString') //false  toString不可枚举(也不是自有属性)
+for (let p in o) {
+  console.log(p);  //打印x,y,z, 但没有toString
+}
+```
+
+为防止for...in枚举继承的属性,可以在循环体内加一个显示测试
+
+```javascript
+for (let p in o) {
+  if (!o.hasOwnProperty(p)) continue //跳过继承属性
+}
+
+for (let p in o) {
+  if (typeof o[p] === 'function') continue //跳过所有方法
+}
+```
+
+
+
+除了使用for...in循环,有时候可以先获取对象所有属性名的数组,然后再通过for/of循环遍历数组. 有4个函数可以获取属性名数组:
+
+##### Object.keys()
+
+返回对象可枚举自有属性的数组. 不包含不可枚举属性, 继承属性或名字是符号的属性.
+
+
+
+##### Object.getOwnPropertyNames()
+
+与Object.keys()类似, 但也返回不可枚举自有属性名的数组, 只要他们的名字是字符串.
+
+##### Object.getOwnPropertySymbols()
+
+返回名字是符号的自有属性,无论是否可枚举.
+
+Reflect.wonkeys()
+
+返回所有属性名,包括可枚举和不可枚举属性,以及字符串属性和符号属性.
+
+#### 属性枚举顺序
+
+> ES6正式定义了枚举对象自有属性的顺序. 
+>
+> Object.keys(), Object.getOwnPropertyNames(), Object.getOwnPropertySymbols(), Reflect.ownKeys()及JSON.stringify()等相关方法都按照下面的顺序列出属性, 另外也受限于它们要列出不可枚举属性还是列出字符串属性或符号属性.
+
+1. 先列出名字非负整数的字符串属性, 按照数值顺序从最小到最大. 这条规则意味着数组和类数组对象的属性会按照顺序被枚举
+2. 在列出类数组索引的所有属性之后,再列出所有剩下的字符串名字(包括看来器想负数或浮点数的名字)的属性. 这些属性按照它们添加到对象的先后顺序列出. 对于在对象字面量中定义的属性,按照它们在字面量中出现的顺序列出.
+3. 最后, 名字为符号对象的属性按照它们添加到对象的先后顺序列出.
+
+
+
+for...in循环的枚举顺序并不像上述枚举函数那么严格,但实现通常会按照上面描述的顺序枚举自有属性, 然后再沿原型链上溯,以同样的顺序枚举每个原型对象的属性. 不过要注意, 如果已经有同名属性被枚举过了,甚至如果有一个同名属性是不可枚举的, 那么这个属性就不会枚举了.
+
+
+
+
+
+
+
+#### ES5和ES6属性枚举的区别
+
+>  ECMAScript 5中未定义对象属性的枚举顺序，由JavaScript引擎厂商自行决定。然而，ECMAScript6严格规定了对象的自有属性被枚举时的返回顺序，这会影响到Object.getOwnPropertyNames()方法
+>
+>  Reflect.ownKeys返回属性的方式，
+>
+>  Object.assign()方法处理属性的顺序.
+
+
+
+#### 自有属性枚举顺序规则
+
+* 所有数字键按升序排序
+* 所有字符串键按照他们被加入对象的顺序排序
+* 所有Symbol键按照他们被加入对象的顺序排序
+
+ ```javascript
+let obj = {
+  a: 1,
+  0: 1,
+  c: 1,
+  2: 1,
+  b: 1,
+  1: 1
+};
+
+obj.d = 1;
+
+console.log(Object.getOwnPropertyNames(obj).join('')); '012acbd'
+ ```
+
+**注意**
+
+对于for-in循环，由于并非所有厂商都遵循相同的实现方式，因此<span style="text-decoration:underline wavy">仍未指定一个明确的枚举顺序</span>；而<span style="text-decoration:underline double red;">Object.keys()方法和JSON.stringify()方法都指明与for-in使用相同的枚举顺序，因此它们的枚举顺序目前也不明晰。</span>
+
+#### for...in枚举
+
+`for...in`语句以任意顺序遍历一个对象的除了[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
+
+**数组迭代和for...in的关系**
+
+for...in不应该用于迭代一个关注索引顺序的Array
+
+`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`处理有`key-value`数据（比如属性用作“键”），需要检查其中的任何键是否为某值的情况时，还是推荐用`for ... in`
+
+**仅迭代自身的属性?**
+
+如果你只要考虑对象本身的属性，而不是它的原型，那么使用 [`Object.getOwnPropertyNames()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames) 或执行 [`Object.prototype.hasOwnProperty()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty) 来确定某属性是否是对象本身的属性（也能使用[`propertyIsEnumerable`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/propertyIsEnumerable)）
+
+
+
+```js
+//作用
+for-in 来枚举对象中的属性及原型上的属性
+//语法:
+	for(let 变量 in 对象){
+		语句...
+	}
+    
+//for...in无法对symbol私有属性遍历
+let sys = Symbol();
+const obj = {
+  name:'jack',
+  [symbol]:'objSymbol'
+}
+for(let i in obj){
+  console.log(i); //只能打印name属性
+}
+	
+//示例 for...in遍历自身及原型上的属性
+let obj ={a:1, b:2, c:3};
+function addObj(){
+	this.d = 4;
+}
+addObj.prototype = obj;
+let newObj = new addObj;
+for(let i in newObj){
+  console.log(i);  //d a b c
+};
+ 
+//示例 hasOwnProperty+for...in
+let obj = {a:1,b:2,c:3};
+function addObj(){
+  this.d = 4;
+}
+addObj.prototype = obj;
+let newObj = new addObj;
+for(let i in newObj){
+  if(newObj.hasOwnProperty(i)){
+    console.log(i); //d
+  }
+}
+```
+
+
+
+#### 遍历对象循环方式的比较
+
+> 枚举 enumerable  可数的,可列举的,可枚举的
+>
+> 遍历 traverse
+>
+> 迭代 iterator
+
+```js
+for循环 for..in    for..of  object.keys()
+
+forEach 是数组的一个方法，主要页是用来遍历数组的，效率最高，但是不可以使用continue和break
+for循环是js当中最简单的遍历方法  主要是针对数组进行遍历的，效率不高，但是可以使用continue和break
+for..in 循环主要是用来遍历对象的（遍历对象的可枚举属性的） 效率最低，原因是因为不但要遍历自身的属性还要遍历原型的
+
+for..of 是es6里面新加的一种遍历方法（前提必须是可迭代对象），效率没有forEach高（比其它的要高），也可以使用continue和break，for..of只能针对可迭代对象
+
+遍历对象最快的方法也是使用forEach 是把对象属性转化为数组然后进行遍历
+Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中存储的是这个对象所有的属性
+```
+
+
+
+### 扩展对象
+
+在JS程序中,把一个对象的属性复制到另一个对象上是很常见的,使用下面的代码很容易实现:
+
+```javascript
+let target = {x: 1}, source = {y:2, z:3}
+
+for (let key of Object.keys(source)) {
+  target[key] = source[key]
+}
+
+target //{x:1, y:2, z:3}
+```
+
+因为这是个常见操作,各个JS框架纷纷定义了辅助函数,一般定义为extend()函数. 在ES6中,这个能力以Object.assign()的形式进入核心JS语言.
+
+#### Object.assign
+
+**使用概述**
+
+object.assign接受两个或多个对象作为参数. 它会修改并返回第一个参数,第一个参数是目标对象,但不会修改第二个及后续参数,那些事来源对象. 对于每个来源对象,它会把该对象的<span style="color:red">可枚举自有属性(包括名字为符号的属性)</span>复制到目标对象. 它按照参数列表顺序逐个处理来源对象,第一个来源对象的属性会覆盖目标对象的同名属性,而第二个来源对象(如果有)的属性会覆盖第一个来源对象的同名属性.
+
+Object.assign以普通的属性获取和设置方式复制属性. 因此如果一个来源对象有获取方法或目标对象有设置方法, 则他们会在复制期间被调用, 但这些方法本身不会被复制.
+
+**使用原因**
+
+将属性从一个对象分配到另一个对象的一个原因是, 如果有一个默认对象为很多属性定义了默认值,并且如果该对象中不存在同名属性,可以将这些默认属性复制到另一个对象中.
+
+但是像下面这样简单的使用Object.assign不会达到目的:
+
+```javascript
+Object.assign(o, defaults) //用default覆盖o的所有属性
+```
+
+此时,需要一个新对象,先把默认值复制到新对象中,然后再使用o的属性覆盖那些默认值:
+
+```javascript
+o = Object.assign({}, default, o)
+```
+
+同时,ES6中新增了扩展操作符也可以表达这种对象复制和覆盖操作:
+
+```javascript
+o = {...defaults, ...o}
+```
+
+为了避免额外的对象创建和复制, 也可以重写Object.assign(), 只复制那些不存在的属性:
+
+```javascript
+// 与Object.assign类似,但不覆盖已经存在的属性
+// (同时也不处理符号属性)
+
+function merge(target, ...sources) {
+  for (let source of sources) {
+    for (let key of Object.keys(source)) {
+      if (!(key in target)) { //这里跟Object.assign不同
+        target[key] = source[key]
+      }
+    }
+  }
+  return target
+}
+```
+
+
+
+
+
+### 序列化对象
+
+**对象序列化(serialization)**是把对象的状态转换为字符串的过程,之后可以从中恢复对象的状态.
+
+函数JSON.stringify() 和 JSON.parse() 用于序列化和恢复JS对象. 这两个函数使用JSON数据交换格式. JSON表示JavaScript Object Notation(JavaScript 对象表示法), 其语法与JavaScript对象和数组字面量非常相似.
+
+```JavaScript
+let o = {x:1, y:{z:[false, null, '']}} //定义一个对象
+let s = JSON.stringify(o); //s == '{"X":1, "y":{"z": [false, null, ""]}}'
+let p = JSON.parse(s);     //p == {x:1, y:{z:[false, null, '']}}
+```
+
+#### JSON语法概述
+
+**概述**
+
+JSON语法是JS语法的子集,不能表示所有的JS的值. 可以序列化和恢复的值包括<span style="color:blue">对象/数组/字符串/有限数值/true/false/null</span>.
+
+<span style="color:red">NaN/Infinity/-Infinity</span>会被序列化成null. 
+
+日期对象会被序列化成ISO格式的日期字符串(参见Date.toJSON()函数),但JSON.parse()会保持其字符串形式,不会恢复原始的日期对象.
+
+<span style="color:red">函数/RegExp/Error对象/undefined值</span>不能被序列化或修复.
+
+JSON.stringify只序列化对象的可枚举自有属性. 如果属性值无法序列化,则该属性会从输出的字符串中删除.
+
+JSON.stringify()和JSON.parse()都接收可选的第二个参数,用于自定义序列化及恢复操作.
+
+
+
+
+
+
+
+
 
 
 
@@ -7005,7 +7397,7 @@ console.log(obj3.__proto__ === 17); //true
 
 
 
-### 创建对象的模式 ????
+### 创建实例对象的 8 种模式
 
 #### 1.工厂模式
 
@@ -7341,7 +7733,7 @@ console.log(person1.name); //daisy
 
 
 
-### 3.对象的属性+不变性
+### 对象的属性+不变性
 
 > 在JS中,对象属性分为两类: 数据属性和访问器属性. 
 
@@ -7440,9 +7832,103 @@ Object.defineProperty(person, 'name', {configurable: true});
 
 #### 2. 访问器属性 getter/setter
 
-> 这个属性不包含数据值，包含的是一对get和set方法，在读写访问器属性时，就是通过这两个方法来进行操作处理的。
+> 除了对象的**数据属性**(即有一个名字和普通的值)之外, JS还支持为对象定义**访问器属性**(accessor property), 这种属性不是一个值,而是一个或两个访问器方法: 一个获取方法(getter), 一个设置方法(setter).
 >
 > 访问器属性不能直接定义，要通过Object.defineProperty()这个方法来定义。
+
+当程序查询一个访问器属性的值时,JS会调用获取方法(不传参数). 这个方法的返回值就是属性访问表达式的值. 
+
+当程序设置一个访问器属性的值时,JS会调用设置方法,传入赋值语句右边的值. 设置方法的返回值会被忽略.
+
+如果一个属性既有获取方法也有设置方法,则该属性是一个<span style="color:blue">可读写属性. </span>
+
+如果只有一个获取方法,那它就是<span style="color:blue">只读属性</span>.
+
+如果只有一个设置方法,那它就是<span style="color:blue">只写属性</span>(这种属性通过数据属性是无法实现的),读取这种属性始终会得到undefined.
+
+
+
+对象默认的[[Put]]和[[Get]]操作分别可以控制属性值的设置和获取。
+
+在ES5中可以使用getter和setter部分改写默认操作，但是只能应用在单个属性上，无法应用在整个对象上。
+
+getter是一个隐藏函数，会在获取属性值时调用。
+
+setter也是一个隐藏函数，会在设置属性值时调用。
+
+**访问描述符**: 定义了getter、setter或者两者都有的一个属性. JS会忽略其value和writable,取而代之的是关心set和get,configurable,enumerable.
+
+**数据描述符**: 和上面相对,没有定义getter, setter
+
+如何定义getter/setter
+
+
+
+**定义**
+
+访问器属性可以通过对象字面量的一个扩展语法来定义(获取方法/设置方法是在ES5中引入的):
+
+```javascript
+let o = {
+  //一个普通的数据属性
+  dataProp: vaule,
+  
+  //通过一对函数定义的一个访问器属性
+  get accessorProp() { return this.dataProp },
+  set accessorProp(value) { this.dataProp = vaule }
+}
+```
+
+访问器属性是通过一个或两个方法来定义的,方法名就是属性名.除了前缀是get和set之外,这两个方法看起来就想用ES6简写语法定义的普通方法一样(在ES6中,也可以使用计算的属性名来定义获取方法和设置方法. )
+
+访问器属性的复杂操作
+
+```Javascript
+let p = {
+  //x y 是常规的可读写属性
+  x: 1.0,
+  y: 1.0,
+  
+  //r是由获取和设置方法定义的可读写访问器属性
+  get r() { return Math.hypot(this.x, this.y)},
+  set r(value) {
+    let oldvalue = Math.hypot(this.x, this.y)
+    let ratio = newvalue / oldvalue
+    this.x *= ratio
+    this.y *= ratio
+  },
+  
+  //theta是一个定义了获取方法的只读访问器属性
+  get theta() { return Math.atan2(this.y, this.x )}
+}
+
+p.r
+p.theta //
+```
+
+
+
+
+
+**继承**
+
+和数据属性一样, 访问器属性也是可以继承的.因此可以把上面定义的p对象作为其他对象的原型.
+
+
+
+**实例**
+
+<u>通过获取方法返回随机数</u>
+
+```javascript
+//给出一个0-255之间的随机数
+
+const random = {
+  get octet() { return Math.floor(Math.random()*256)},
+  get uint16() { return Math.floor(Math.random()*65536); },
+  get int16() { return Math.floor(Math.random()*65536) - 32768; }
+}
+```
 
 
 
@@ -7654,100 +8140,9 @@ Object.freeze(..)会创建一个冻结对象，这个方法实际上会在一个
 
 
 
-#### 4. 判断属性存在与否
-
-例如,如何区分访问对象属性的值为undefined时,其是否是显式声明的undefined还是不存在?
-
-可以在不访问属性值的情况下判断对象中是否存在这个属性：
-
-* `in`操作符: 检查属性名是否在对象及其[[Prototype]]原型链中
-* `hasOwnProperty`只会检查属性是否在对象中,不检查原型链
-  * `Object.create(null)` 没有原型,无法使用`has...`
-  * 强制解决: `Object.prototype.hasOwnProperty.call(obj, 'a')`
 
 
-
-
-
-### 4.操作对象属性
-
-#### getter/setter ([[Get]]/[[Put]])
-
-对象默认的[[Put]]和[[Get]]操作分别可以控制属性值的设置和获取。
-
-在ES5中可以使用getter和setter部分改写默认操作，但是只能应用在单个属性上，无法应用在整个对象上。
-
-getter是一个隐藏函数，会在获取属性值时调用。
-
-setter也是一个隐藏函数，会在设置属性值时调用。
-
-**访问描述符**: 定义了getter、setter或者两者都有的一个属性. JS会忽略其value和writable,取而代之的是关心set和get,configurable,enumerable.
-
-**数据描述符**: 和上面相对,没有定义getter, setter
-
-如何定义getter/setter
-
-#### 读取对象的属性发生了什么?
-
-在语句规范中, `obj.a`在obj上实际上是实现了[[Get]]操作(有点像函数调用: `[[Get]]()` ).
-
-* 对象默认的内置`[[Get]]`操作, 首先在对象中查找是否有名称相同的属性,如果有就返回属性的值.
-* 如果没有找到名称相同的属性,`[[Get]]`算法会从原型链上查找属性.
-* 如果找不到, 返回值undefined
-
-
-
-#### 赋值对象的属性发生了什么??
-
-如果已经存在这个属性，[[Put]]算法大致会检查下面这些内容。
-
-1．属性是否是访问描述符（参见3.3.9节）？如果是并且存在setter就调用setter。
-
-2．属性的数据描述符中writable是否是false？如果是，在非严格模式下静默失败，在严格模式下抛出TypeError异常。
-
-3．如果都不是，将该值设置为属性的值。
-
-如果属性不存在,  第五章.(你不知道的JS)
-
-
-
-#### 属性和方法的区别
-
-如果访问的对象属性是一个函数, 把对象内部引用的函数称为“方法”似乎有点不妥。
-
-严格来说，函数永远不会“属于”一个对象.
-
-> 来自 本文件中的this->隐式绑定
-
-* 因为JavaScript是基于函数作用域的(ES6中增加了块作用域),<span style="color:blue">JavaScript中的对象没有作用域的概念.</span>
-
-* <span style="color:blue">对象属性函数的作用域是全局对象</span>,你可以在其内部中访问全局变量,但是不能访问到对象中的属性, <span style="color:blue">也就是说属性函数的作用域链上并不包含这个对象</span>, 如果要访问对象中的属性,只能在函数里使用this.'属性'来访问,并且对函数的调用方式是obj.fn()
-
-
-
-#### 重复的对象字面量属性
-
-ECMAScript 5严格模式中加入了对象字面量重复属性的校验，当同时存在多个同名属性时会抛出错误。
-
-但是在ECMAScript6中重复属性检查被移除了，无论是在严格模式还是非严格模式下，代码不再检查重复属性，**对于每一组重复属性，都会选取最后一个取值**.
-
-```javascript
-//ES6
-'use strict'
-let person = {
-  name: 'Nicholas',
-  name: 'Greg'
-};
-console.log(person.name); //'Greg'
-```
-
-
-
-
-
-
-
-### 5 Object的属性
+### Object的属性
 
 #### Object.prototype.constructor
 
@@ -7874,7 +8269,19 @@ a.constructor === Number; //false
 
 
 
-### 6.对象中的方法
+### 对象原型方法
+
+ECMAScript其中一个设计目标是：不再创建新的全局函数，也不在Object.prototype上创建新的方法。
+
+从ECMAScript 5开始，避免创建新的全局方法和在Object.prototype上创建新的方法。 当开发者想向标准添加新方法时，他们会找一个适当的现有对象。
+
+而在ECMAScript 6中，为了使某些任务更易完成，在全局Object对象上引入了一些新方法。
+
+#### 实例方法
+
+
+
+
 
 ####   in
 
@@ -7938,38 +8345,19 @@ delete obj['property']
 
 **example**
 
+#### toJSON()
 
+Object.prototype并非定义toJSON()方法,但JSON.stringify()方法会从要序列化的对象上寻找toJSON()方法. 如果要序列化的对象上存在这个方法就会调用它,然后序列化该方法的返回值, 而不是原始对象.
 
-#### 2. 方法函数
+Date类定义了自己的toJSON()方法,返回一个表示日期的序列化字符串.
 
-```JavaScript
-* 对象的属性可以是一个函数
-* 当一个对象的属性是函数时,我们就称这个函数是当前对象的方法. 调用函数,称为调用对象的方法
-
-* 函数和方法只是称呼上的不同,没有什么太本质的区别
-```
-
-
-
-```JavaScript
-let obj = {};
-
-obj.name = '孙悟空';
-obj.age = 18;
-obj.sayHello = function(){     //没有设置函数名称
-    alert('大家好，我是孙悟空');
-};
-
-console.log(obj.sayHello); // 打印效果 是一个匿名函数
-
-ƒ (){ 
-    alert('大家好，我是孙悟空');
+```javascript
+let point = {
+  x: 1,
+  y: 2,
+  toString: function() {return `${this.x}, ${this.y}`},
+  toJSON: function() { return this.toString() }
 }
-
-obj.sayHello(); //运行alert函数
-
-
-
 ```
 
 
@@ -8002,6 +8390,10 @@ The following code illustrates this:
 const o = new Object();
 o.toString(); //[object Object]
 ```
+
+很多类都会重新定义自己的toString方法.例如,在把数组转换为字符串时,可以得到数组元素的一个列表,每个元素也都会转换为字符串; 把函数转换为字符串时,可以得到函数饿源代码.
+
+
 
 Note:
 
@@ -8116,6 +8508,8 @@ toString.call(true); //[object Boolean]
 
 > this method returns the **primite value** of the specified object
 
+与toString()类似,通常在对象转换为某些非字符串原始值(通常是数值)时被调用.内置的一些类定义了自己的valueOf()方法: Date类的valueOf()可以将日期转换为数值,这样就让日期对象可以通过`< 和 >`操作符进行比较.
+
 **Syntax**
 
 > valueOf()
@@ -8194,15 +8588,53 @@ Using uary plus
 
 
 
-### 7.Object的方法
 
-> ECMAScript其中一个设计目标是：不再创建新的全局函数，也不在Object.prototype上创建新的方法。
+
+#### Object.prototype.hasOwnProperty()
+
+##### define
+
+> the method returns a boolean indicating whether the object has the specified property as its own property(as opposed to inheriting it)
 >
-> 从ECMAScript 5开始，避免创建新的全局方法和在Object.prototype上创建新的方法。 当开发者想向标准添加新方法时，他们会找一个适当的现有对象。
->
-> 而在ECMAScript 6中，为了使某些任务更易完成，在全局Object对象上引入了一些新方法。
+> Note: `Object.hasOwn()` is recommended over `hasOwnProperty()`, in browsers where it it supported.
+
+##### Syntax
+
+> hasOwnProperty(prop)
+
+##### Parameters
+
+`prop`
+
+* The `String` name or `Symbol` of the property to test
+
+##### Return values
+
+> returns `true` if the object has the specified property as own property, `false` otherwise.
+
+##### Desc
+
+* the method returns `true` if the specified property is a direct property of the object --even if the value is `null` or `undefined`.
+* the method returns `false` if the property is inherited, or has not been declared at all.
+* Unlike the `in` operator, this method does not check for the specified property in the object's prototype chain.
+* the method can be called on most JS objects, because most objects descend from `Object`, and hence inherit its methods.
+* the method will not be available in objects where it is reimplemented, or on objects created using `Object.create(null)`(as these don't inherit from `Object.prototype`).
 
 
+
+#### Object.prototype.toLocalString()
+
+##### 概述
+
+这个方法返回对象的本地化字符串表示.Object定义的默认toLocalString()方法本身没有实现任何本地化,而是简单调用toString()并返回该值. Date和Number类定义了自己的toLocalString()方法, 尝试根据本地管理格式化数值/日期和时间.
+
+
+
+
+
+
+
+### 对象自身方法
 
 #### Object.is
 
@@ -9825,40 +10257,6 @@ Object.defineProperties(obj, {
 
 
 
-#### Object.prototype.hasOwnProperty()
-
-##### define
-
-> the method returns a boolean indicating whether the object has the specified property as its own property(as opposed to inheriting it)
->
-> Note: `Object.hasOwn()` is recommended over `hasOwnProperty()`, in browsers where it it supported.
-
-##### Syntax
-
-> hasOwnProperty(prop)
-
-##### Parameters
-
-`prop`
-
-* The `String` name or `Symbol` of the property to test
-
-##### Return values
-
-> returns `true` if the object has the specified property as own property, `false` otherwise.
-
-##### Desc
-
-* the method returns `true` if the specified property is a direct property of the object --even if the value is `null` or `undefined`.
-* the method returns `false` if the property is inherited, or has not been declared at all.
-* Unlike the `in` operator, this method does not check for the specified property in the object's prototype chain.
-* the method can be called on most JS objects, because most objects descend from `Object`, and hence inherit its methods.
-* the method will not be available in objects where it is reimplemented, or on objects created using `Object.create(null)`(as these don't inherit from `Object.prototype`).
-
-
-
-
-
 
 
 #### Object.hasOwn():pencil2:
@@ -10137,148 +10535,7 @@ a==1&&a==2&&a==3
 
 
 
-
-
-### 8.对象属性枚举for-in
-
-#### 0. ES5和ES6属性枚举的区别
-
->  ECMAScript 5中未定义对象属性的枚举顺序，由JavaScript引擎厂商自行决定。然而，ECMAScript6严格规定了对象的自有属性被枚举时的返回顺序，这会影响到Object.getOwnPropertyNames()方法
->
-> Reflect.ownKeys返回属性的方式，
->
-> Object.assign()方法处理属性的顺序.
-
-
-
-#### 1. 自有属性枚举顺序规则
-
-* 所有数字键按升序排序
-* 所有字符串键按照他们被加入对象的顺序排序
-* 所有Symbol键按照他们被加入对象的顺序排序
-
- ```javascript
- let obj = {
-   a: 1,
-   0: 1,
-   c: 1,
-   2: 1,
-   b: 1,
-   1: 1
- };
- 
- obj.d = 1;
- 
- console.log(Object.getOwnPropertyNames(obj).join('')); '012acbd'
- ```
-
-**注意**
-
-对于for-in循环，由于并非所有厂商都遵循相同的实现方式，因此<span style="text-decoration:underline wavy">仍未指定一个明确的枚举顺序</span>；而<span style="text-decoration:underline double red;">Object.keys()方法和JSON.stringify()方法都指明与for-in使用相同的枚举顺序，因此它们的枚举顺序目前也不明晰。</span>
-
-#### 2. for...in枚举
-
-`for...in`语句以任意顺序遍历一个对象的除了[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性.
-
-**数组迭代和for...in的关系**
-
-for...in不应该用于迭代一个关注索引顺序的Array
-
-`for ... in`是为遍历对象属性而构建的，不建议与数组一起使用，数组可以用`Array.prototype.forEach()`和`for ... of`处理有`key-value`数据（比如属性用作“键”），需要检查其中的任何键是否为某值的情况时，还是推荐用`for ... in`
-
-**仅迭代自身的属性?**
-
-如果你只要考虑对象本身的属性，而不是它的原型，那么使用 [`Object.getOwnPropertyNames()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames) 或执行 [`Object.prototype.hasOwnProperty()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty) 来确定某属性是否是对象本身的属性（也能使用[`propertyIsEnumerable`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/propertyIsEnumerable)）
-
-
-
-```js
-//作用
-for-in 来枚举对象中的属性及原型上的属性
-//语法:
-	for(let 变量 in 对象){
-		语句...
-	}
-    
-//for...in无法对symbol私有属性遍历
-let sys = Symbol();
-const obj = {
-  name:'jack',
-  [symbol]:'objSymbol'
-}
-for(let i in obj){
-  console.log(i); //只能打印name属性
-}
-	
-//示例 for...in遍历自身及原型上的属性
-let obj ={a:1, b:2, c:3};
-function addObj(){
-	this.d = 4;
-}
-addObj.prototype = obj;
-let newObj = new addObj;
-for(let i in newObj){
-  console.log(i);  //d a b c
-};
- 
-//示例 hasOwnProperty+for...in
-let obj = {a:1,b:2,c:3};
-function addObj(){
-  this.d = 4;
-}
-addObj.prototype = obj;
-let newObj = new addObj;
-for(let i in newObj){
-  if(newObj.hasOwnProperty(i)){
-    console.log(i); //d
-  }
-}
-```
-
-
-
-### 9.遍历对象的循环方式
-
-> 枚举 enumerable  可数的,可列举的,可枚举的
->
-> 遍历 traverse
->
-> 迭代 iterator
-
-```js
-for循环 for..in    for..of  object.keys()
-
-forEach 是数组的一个方法，主要页是用来遍历数组的，效率最高，但是不可以使用continue和break
-for循环是js当中最简单的遍历方法  主要是针对数组进行遍历的，效率不高，但是可以使用continue和break
-for..in 循环主要是用来遍历对象的（遍历对象的可枚举属性的） 效率最低，原因是因为不但要遍历自身的属性还要遍历原型的
-
-for..of 是es6里面新加的一种遍历方法（前提必须是可迭代对象），效率没有forEach高（比其它的要高），也可以使用continue和break，for..of只能针对可迭代对象
-
-遍历对象最快的方法也是使用forEach 是把对象属性转化为数组然后进行遍历
-Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中存储的是这个对象所有的属性
-```
-
-
-
-### 10.对象类型介绍
-
-```javascript
-# 对象分类
-
-* 内建对象
- - 由ES标准所定义的对象.例如string, number, boolean, Math, Date
-
-* 宿主对象
- - 由JS的运行环境所提供的对象 //浏览器
- - BOM, DOM(window, document, alert, ....)
-
-* 自定义对象
- - 由我们自己定义的对象
-```
-
-
-
-### 11.对象的引用和复制
+### 对象的引用和复制
 
 #### 1.引用类型和原始类型引用复制的区别
 
@@ -10468,89 +10725,9 @@ target.fn = proObj.fn.bind(target);
 
 
 
+### 对象字面量扩展语法
 
-
-### 12. 对象使用的实例
-
-#### 12.1 比较两个对象中的属性是否相同数量是否相等
-
-```js
-//Object.keys()或Object.assign()
-function (obj1, obj2) {
-  if (
-  	Object.keys({...obj1, ...obj2}).length === Object.keys(obj1)
-  		&&
-    Object.keys({...obj1, ...obj2}).length === Object.keys(obj2)
-  ) {
-    return '两个对象的属性名数量相等值相同'
-  }
-}
-
-
-//Set
-使用集合代替扩展运算符
-
-
-//
-```
-
-
-
-#### 12.2 两个对象的属性是否相等
-
-```js
-//
-function compareObj(obj1, obj2) {
-  //比较两个对象的长度
-  let obj1Len = Object.keys(obj1).length;
-  let obj2Len = Object.keys(obj2).length;
-  if (obj1Len === obj2Len) {  //对象属性都是原始数据类型
-    return Object.keys(obj1).every(item => obj2.hasOwnProperty(item) && obj1[item] === obj2[item]);
-  }
-}
-
-
-```
-
-
-
-```js
-//https://www.geeksforgeeks.org/how-to-check-two-objects-have-same-data-using-javascript/
-<script>
-	const obj1 = {
-		name: 'Ram',
-		age: 21,
-		hobbies: ['Cricket', 'Swimming']
-	};
-
-	const obj2 = {
-		name: 'Ram',
-		age: 21,
-		hobbies: ['Cricket', 'Swimming']
-	};
-	const haveSameData = function(obj1, obj2) {
-		const obj1Length = Object.keys(obj1).length;
-		const obj2Length = Object.keys(obj2).length;
-
-		if(obj1Length === obj2Length) {
-			return Object.keys(obj1).every(
-				key => obj2.hasOwnProperty(key)
-				&& obj2[key] === obj1[key]);
-		}
-		return false;
-	}
-	document.write(haveSameData(obj1, obj2));
-</script>
-```
-
-```js
-//https://stackoverflow.com/questions/201183/how-to-determine-equality-for-two-javascript-objects
-
-```
-
-
-
-### 13. ES6-属性初始值简写
+#### ES6-属性初始值简写
 
 在ECMAScript 5及更早版本中，对象字面量只是简单的<u>键值对集合</u>，这意味着初始化属性值时会有一些重复.
 
@@ -10580,9 +10757,11 @@ function createPerson(name, age) {
 
 
 
-### 14. ES6-对象方法简写
+#### ES6-对象方法简写
 
 在ECMAScript 6中，语法更简洁，消除了冒号和function关键字
+
+简写方法的属性名可以是对象字面量允许的任何形式.除了常规的JS标识符外,也可以使用字符串字面量和计算的属性名,包括符号属性名.
 
 ```javascript
 //ES5
@@ -10600,15 +10779,26 @@ let person = {
     console.log(this.name);
   }
 }
+
+//属性名称
+const METHOD_NAME = 'm'
+const symbol = Symbol()
+let weirdMethods = {
+  'method with Spaces'(x) { return x+1 },
+  [METHOD_NAME](x) {return x + 2},
+  [symbol](x) {return x + 3}
+}
 ```
 
 通过对象方法简写语法，在person对象中创建一个sayName()方法，该属性被赋值为一个匿名函数表达式，它拥有在ECMAScript 5中定义的对象方法所具有的全部特性。<span style="text-decoration:underline double red;">二者唯一的区别是，简写方法可以使用super关键字.</span>
 
+为了让对象可迭代(以便在for/of循环中使用), 必须使用符号Symbol.iterator为它定义一个方法.
 
 
-### 15. 可计算属性名
 
-#### ES5可计算属性名
+#### 可计算属性名
+
+##### ES5可计算属性名
 
 在ECMAScript 5及早期版本的对象实例中，如果想要通过计算得到属性名，就需要**用方括号代替点记法**。有些包括某些字符的字符串字面量作为标识符会出错，其和变量放在方括号中都是被允许的。
 
@@ -10635,7 +10825,7 @@ console.log(person['first name']); //'Nicholas'
 
 这种模式适用于属性名提前已知或可被字符串字面量表示的情况。然而，如果属性名称"firstname"被包含在一个变量中（就像之前示例中的那样），或者需要通过计算才能得到该变量的值，那么在ECMAScript 5中是无法为一个对象字面量定义该属性的。
 
-#### ES6可计算属性名
+##### ES6可计算属性名
 
 <u>而在ECMAScript 6中，可在对象字面量中使用可计算属性名称，其语法与引用对象实例的可计算属性名称相同，也是使用方括号</u>
 
@@ -10667,14 +10857,48 @@ console.log(person['last name']); //
 
 
 
-#### 数组支持`[]`访问形式
+##### 数组支持`[]`访问形式
 
 * 可以给数组添加命名属性
 * 添加了命名属性（无论是通过．语法还是[]语法），数组的length值并未发生变化。
 * 如果你试图向数组添加一个属性，但是属性名“看起来”像一个数字，那它会变成一个数值下标
 * 用对象来存储**键/值对**，只用数组来存储**数值下标/值对**。
 
+##### 符号作为属性名
 
+在ES6及之后, 属性名可以是字符串和符号. 如果把符号赋值给一个变量或常量,那么可以使用计算属性语法将符号作为属性名.
+
+```javascript
+const extension = Symbol('my extension symbol')
+let o = {
+  [extension]: {
+    //这个对象中存储扩展数据
+  }
+}
+
+o[extension].x = 0
+```
+
+**特点**
+
+* 创建新符号需要调用Symbol()工厂函数(符号是原始值,不是对象,因此Symbol()不是构造函数,不能使用new调用).
+* Symbol返回值不等于任何其他符号或其他值.
+* 可以给Symbol()传一个字符串,在把符号转换为字符串时会用到这个字符串. 这个字符串的作用仅限于辅助调试,使用相同字符串参数创建的两个符号依旧是不同的符号.
+* 使用符号不是为了安全,是为了对象定义安全的扩展机制
+  * 从第三方代码得到一个对象,需要给该对象添加一个属性,但不希望自己的属性和原有任何属性起冲突,那么可以使用符号作为属性名.也不担心第三方修改意外修改以符号命名的属性.
+  * 当然,第三方可以通过Object.getOwnPropertySymbols()找到你使用的符号,然后修改或删除你的属性.这也是符号不安全的原因之一.
+
+
+
+#### 扩展操作符
+
+在ES2018及之后,可以在对象字面量中使用'扩展操作符'(...)把已有对象的属性复制到新对象中.
+
+只有在对象字面量中,三个点才回产生把一个对象的属性复制到另一个对象中的插值行为.
+
+扩展操作符只扩展对象的自有属性,不扩展任何继承属性.
+
+注意: 扩展操作符可能给JS解释器带来巨大工作量.如果对象有n个属性,把这个属性扩展到另一个对象可能是一种`O(n)`操作. 这意味着,如果在循环或递归函数中通过...向一个大对象不断追加属性,则很可能是在写一个抵消的`O(n**2)`算法.随着n越来越大,这个算法可能成为性能瓶颈.
 
 
 
@@ -10905,6 +11129,84 @@ friend.getGreeting()方法的[[HomeObject]]属性值是friend，friend的原型�
 
 
 ### 17. 实际使用
+
+#### 比较两个对象中的属性是否相同数量是否相等
+
+```js
+//Object.keys()或Object.assign()
+function (obj1, obj2) {
+  if (
+  	Object.keys({...obj1, ...obj2}).length === Object.keys(obj1)
+  		&&
+    Object.keys({...obj1, ...obj2}).length === Object.keys(obj2)
+  ) {
+    return '两个对象的属性名数量相等值相同'
+  }
+}
+
+
+//Set
+使用集合代替扩展运算符
+
+
+//
+```
+
+
+
+#### 12.2 两个对象的属性是否相等
+
+```js
+//
+function compareObj(obj1, obj2) {
+  //比较两个对象的长度
+  let obj1Len = Object.keys(obj1).length;
+  let obj2Len = Object.keys(obj2).length;
+  if (obj1Len === obj2Len) {  //对象属性都是原始数据类型
+    return Object.keys(obj1).every(item => obj2.hasOwnProperty(item) && obj1[item] === obj2[item]);
+  }
+}
+
+
+```
+
+
+
+```js
+//https://www.geeksforgeeks.org/how-to-check-two-objects-have-same-data-using-javascript/
+<script>
+	const obj1 = {
+		name: 'Ram',
+		age: 21,
+		hobbies: ['Cricket', 'Swimming']
+	};
+
+	const obj2 = {
+		name: 'Ram',
+		age: 21,
+		hobbies: ['Cricket', 'Swimming']
+	};
+	const haveSameData = function(obj1, obj2) {
+		const obj1Length = Object.keys(obj1).length;
+		const obj2Length = Object.keys(obj2).length;
+
+		if(obj1Length === obj2Length) {
+			return Object.keys(obj1).every(
+				key => obj2.hasOwnProperty(key)
+				&& obj2[key] === obj1[key]);
+		}
+		return false;
+	}
+	document.write(haveSameData(obj1, obj2));
+</script>
+```
+
+```js
+//https://stackoverflow.com/questions/201183/how-to-determine-equality-for-two-javascript-objects
+
+```
+
+
 
 #### 0. 对象转换为数组
 
