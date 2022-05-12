@@ -6642,18 +6642,6 @@ Array.prototype.map.call(arrayLike, function(item) {
 
 
 
-<u>对象字面量的扩展语法</u>
-
-新版本增加了很多对象字面量特性,如下:
-
-* 计算属性名
-* 符号作为属性名
-* 扩展操作符
-* 简写方法
-* 属性的设置方法和获取方法
-
-
-
 #### new操作符创建
 
 <u>概述</u>
@@ -6770,7 +6758,7 @@ let obj = {
 
 
 
-#### 属性访问错误
+#### 访问不存在的属性
 
 **类型**
 
@@ -6826,7 +6814,7 @@ let surname = book?.author?.suranme
 
 如果已经存在这个属性，[[Put]]算法大致会检查下面这些内容。
 
-1．属性是否是访问描述符（参见3.3.9节）？如果是并且存在setter就调用setter。
+1．属性是否是访问属性(getter) ？如果是并且存在setter就调用setter。
 
 2．属性的数据描述符中writable是否是false？如果是，在非严格模式下静默失败，在严格模式下抛出TypeError异常。
 
@@ -6880,7 +6868,9 @@ delete操作符只删除自有属性,不删除继承属性(要删除继承属性
 
 #### 返回值
 
-如果delete操作成功或没有影响(如删除不存在的属性),则delete表达式求值为true. 对非属性访问表达式(无意义地)使用delete,同样也会求值为true:
+如果delete操作成功或没有影响(如删除不存在的属性),则delete表达式求值为true. 
+
+对非属性访问表达式(无意义地)使用delete,同样也会求值为true:
 
 ```javascript
 let o = {x : 1}
@@ -6913,10 +6903,11 @@ delete不会删除configurable属性为false的属性.
 
 检查对象是否有一个给定名字的属性,
 
+* 直接查询
+
 * in操作符
 * hasOwnProperty()
 * propertyIsEnumerable()
-* 直接查询
 
 in**操作符**
 
@@ -7755,7 +7746,7 @@ console.log(person1.name); //daisy
 
 * 即便属性是`configurable:false`，我们还是可以把writable的状态由true改为false，但是无法由false改为true。
 
-* 除了无法修改，configurable:false还会禁止删除这个属性：
+* 除了<span style="color:blue">无法修改</span>，configurable:false还会<span style="color:blue">禁止删除</span>这个属性：
 
 如果对象的某个属性是某个对象/函数的最后一个引用者，对这个属性执行delete操作之后，这个未引用的对象/函数就可以被垃圾回收。但是，不要把delete看作一个释放内存的工具（就像C/C++中那样），它就是一个删除对象属性的操作，仅此而已。
 
@@ -7777,7 +7768,7 @@ console.log(person1.name); //daisy
 
 writable决定是否可以修改属性的值。
 
-如果其值为 false, 那么更新对应的属性值,不会发生变化;如果在严格模式下,会报错.
+如果其值为 false, 那么更新对应的属性值,不会发生变化;如果在严格模式下重写会报错.
 
 可以把`writable:false`看作是属性不可改变，相当于你定义了一个空操作setter。严格来说，如果要和`writable:false`一致的话，你的setter被调用时应当抛出一个`TypeError`错误。
 
@@ -7993,7 +7984,7 @@ Object {enumearble: false, configurable: false, get:function, set:function}
 
 
 
-区分属性是否可枚举的方法
+**区分属性是否可枚举的方法**
 
 * `for...in`
 * `Object.prototype.propertyIsEnumerable('a')`
