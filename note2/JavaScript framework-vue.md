@@ -291,165 +291,6 @@ Vue.js 的核心是一个允许采用简洁的模板语法来声明式的将数�
 
 
 
-### vue的使用
-
-#### **1.在html页面上使用vue**
-
-1.引入script静态链接
-2.index.html中准备好容器`<div id="root"></div>`
-3.页面脚本script
- 3.1创建Vue的实例对象并传入配置<对象> const v=new Vue({}); 常量v可接可不接收.
-
-```js
-const v=new Vue({
- 		el:'#root', 
- 		data:{
-            world:'世界',
-            other:{
-                info:'aaa',
-                address:'beijing'
-            }
-        }, 
- 	})
-
-//el用于指定当前Vue实例为哪个容器服务.值是选择器字符串,选择器的写法类似于jQuery. el是element缩写 index.html是public文件夹中index.html
-
-//data是存储数据的地方,为root容器提供数据.值为一个对象,相当于react中的state.
-```
-
- 3.2 html中使用<双花括号>来接收数据. root容器中写的不是html,是Vue中的模板代码.
- 	 所谓的模板代码,类似于React中的jsx,是HTML+js的混合体;
- 	 {{xxx}},xxx会自动读取\<data>中的xxx的属性,方法,对象都可以.xxx当表达式去解析,只要是vc身上的都是可以读取的.
-     {{xxx+yyy}} 可以读取多个属性,使用+运算符,但不用逗号,只会读取逗号之前的第一个.使用&&只会读取都为true的第二个.
-
-```js
-<div id='root'>
-  <h1>hello, {{world}}</h1> 
-	<h2>{{other.info.toUpperCase()}}</h2>//读取的表达式可以直接使用JS语法
-</div>
-```
-
-
-
-4.HTML中可以有多个容器,相对应的js脚本中也应该有多个new Vue({}). el属性只能有一个参数.但一般是只有一个根容器.
-
-5.Vue中源码部分开启了严格模式.慎用箭头函数,实例调用的函数this指向实例,非实例对象调用的函数:箭头函数this指实例,普通函数指window,开启了'use strict'后指向undefined.
-
-6.data中的数据(属性)在data之外写:如果写在data之前,可以使用;如果使用在data之后,报错,但实例之后的属性,在vm._data中依然有被收集引用.
-
-```js
-<script>
-  let data={name:'甲'}
-	data.age=18
-	new Vue({
-        el:"#root";
-        data
-    })
-</script> 
-============之后写==============
-
- <script>
-  let data={name:'甲'}
-	new Vue({
-	    el:"#root";
-	    data
-	})
-	data.age=18  //报错
-
-</script>   
-```
-
-
-
-​     
-
-### 其他补充
-
-#### 2.其他补充
-
-```js
-//表达式
-{{other.info, other.address}}//输出other.info的值
-
-
-//逻辑与
-{{other.info && other.address}} //输出的是other.address,短路的与,找false的. 和三元表达式比较看情况使用
-
-=====================
-不加小括号取第1个,加小括号取最后一个.
-var a=1;
-var b=2;
-var c=3;
-var d=4;
-var z=a,b,c,d; //隐藏着重新定义,所以也不适用于const,let
-console.log(z);//1
-
-var a=1;
-var b=2;
-var c=3;
-var d=4;
-var z=(a,b,c,d);
-console.log(z);//4
-```
-
-
-
-#### 3.数据与方法
-
-> 当一个 Vue 实例被创建时，它将 `data` 对象中的所有的 property 加入到 Vue 的**响应式系统**中。当这些 property 的值发生改变时，视图将会产生“响应”，即匹配更新为新的值.
->
-> 只有当**实例被创建时**就已经存在于 `data` 中的 property 才是**响应式**的
->
-> 如果你知道你会在晚些时候需要一个 property，但是一开始它为空或不存在，那么你仅需要设置一些初始值
->
-> 这里唯一的例外是使用 `Object.freeze()`，这会阻止修改现有的 property，也意味着响应系统无法再*追踪*变化
-
-
-
-```js
-你比如在钩子函数created中向当前vue实例身上添加一个原始数据: this.testId = 2;
-那在mounted中更改这个数据的话,实例上是新值,页面上是旧值.
-
-//Object.freeze()
-
-let data = {a:'a'}
-Object.freeze(obj);
-new Vue({
-  el: '#app',
-  data: a
-})
-
-<div id="app">
-  <p>{{a}}</p> //这里的'a'不会更新
-  <button v-on:click=" foo = 'baz'">change it</button>
-</div>
-
-
-//注意: 如果我们在new vue里面冻结(freeze)这个数据会失效,点击之后依然会变化.即使在created中的钩子里.
-```
-
-
-
-除了数据 property，Vue 实例还暴露了一些有用的实例 property 与方法。它们都有前缀 `$`，以便与用户定义的 property 区分开来
-
-```js
-let data = {a:1}
-let vm = new Vue({
-  el: '#example',
-  data: data
-})
-
-vm.$data === data //true
-vm.$el === document.getElementById('example') //true
-
-//$watch是一个实例方法
-vm.$watch('a', function(newValue, oldValue) {
-  //这个回调将在'vm.a'改变后调用
-})
-```
-
-
-
 ## vue原理及MVVM响应式原理
 
 ### 什么是MVVM
@@ -1142,66 +983,6 @@ npm install vue -g`或者`cnpm install vue -g
 
 
 
-
-
-
-
-## Vue安装及配置
-
-### node.js安装配置
-
-具体查看同文件夹的`tools/Node`
-
-
-
-### 安装vue及脚手架
-
-> https://cli.vuejs.org/zh/guide/installation.html
-
-**1.卸载旧版本**
-
-卸载2.x版本 `npm uninstall vue-cli -g`
-
-卸载3.x版本  `npm uninstall @vue/cli -g`
-
-
-
-**2.安装新版本**
-
-> npm i @vue/cli@3.12.1 -g    //指定版本安装
->
-> npm i @vue/cli -g    //默认安装最新版
-
-**3.新建项目**
-
-> vue create 项目名称
-
-**4.启动项目**
-
-根据package.json中的启动命令启动
-
-
-
-5.**修改配置**
-
-项目中新建`vue.config.js`, 例如更改端口号:
-
-```javascript
-module.exports = {
-	configureWebpack: {
-    devServer: {
-      port: 8089, //更改端口
-      open: true, //自动启动浏览器
-      before(app) {
-        //....
-      }
-    }
-  }
-}
-```
-
-
-
 ### vue项目结构
 
 #### 1. build 构建脚本目录
@@ -1241,6 +1022,306 @@ module.exports = {
 
 
 
+
+## Vue实例
+
+
+
+### vue的使用
+
+#### 初始化
+
+> 每个Vue应用都是通过Vue函数创建一个新的Vue实例开始的
+
+```javascript
+let vm = new Vue({
+  //选项
+})
+```
+
+当创建一个 Vue 实例时，你可以传入一个**选项对象**。
+
+作为参考，你也可以在 [API 文档](https://cn.vuejs.org/v2/api/#选项-数据)中浏览完整的选项列表
+
+一个 Vue 应用由一个通过 `new Vue` 创建的**根 Vue 实例**，以及可选的嵌套的、可复用的组件树组成。举个例子，一个 todo 应用的组件树可以是这样的：
+
+```javascript
+根实例
+└─ TodoList
+   ├─ TodoItem
+   │  ├─ TodoButtonDelete
+   │  └─ TodoButtonEdit
+   └─ TodoListFooter
+      ├─ TodosButtonClear
+      └─ TodoListStatistics
+```
+
+
+
+​     
+
+#### **在html页面上使用vue**
+
+1.引入script静态链接
+2.index.html中准备好容器`<div id="root"></div>`
+3.页面脚本script
+ 3.1创建Vue的实例对象并传入配置<对象> const v=new Vue({}); 常量v可接可不接收.
+
+```js
+const v=new Vue({
+ 		el:'#root', 
+ 		data:{
+            world:'世界',
+            other:{
+                info:'aaa',
+                address:'beijing'
+            }
+        }, 
+ 	})
+
+//el用于指定当前Vue实例为哪个容器服务.值是选择器字符串,选择器的写法类似于jQuery. el是element缩写 index.html是public文件夹中index.html
+
+//data是存储数据的地方,为root容器提供数据.值为一个对象,相当于react中的state.
+```
+
+ 3.2 html中使用<双花括号>来接收数据. root容器中写的不是html,是Vue中的模板代码.
+
+* 所谓的模板代码,类似于React中的jsx,是HTML+js的混合体;
+* {{xxx}},xxx会自动读取\<data>中的xxx的属性,方法,对象都可以.xxx当表达式去解析,只要是vc身上的都是可以读取的.
+* {{xxx+yyy}} 可以读取多个属性,使用+运算符,但不用逗号,只会读取逗号之前的第一个.使用&&只会读取都为true的第二个.
+
+```js
+<div id='root'>
+  <h1>hello, {{world}}</h1> 
+	<h2>{{other.info.toUpperCase()}}</h2>//读取的表达式可以直接使用JS语法
+</div>
+```
+
+
+
+4.HTML中可以有多个容器,相对应的js脚本中也应该有多个new Vue({}). el属性只能有一个参数.但一般是只有一个根容器.
+
+5.Vue中源码部分开启了严格模式.慎用箭头函数,实例调用的函数this指向实例,非实例对象调用的函数:箭头函数this指实例,普通函数指window,开启了'use strict'后指向undefined.
+
+6.data中的数据(属性)在data之外写:如果写在data之前,可以使用;如果使用在data之后,报错,但实例之后的属性,在vm._data中依然有被收集引用.
+
+```js
+<script>
+  let data={name:'甲'}
+	data.age=18
+	new Vue({
+        el:"#root";
+        data
+    })
+</script> 
+============之后写==============
+
+ <script>
+  let data={name:'甲'}
+	new Vue({
+	    el:"#root";
+	    data
+	})
+	data.age=18  //报错
+
+</script>   
+```
+
+
+
+
+
+#### Vue实例的属性
+
+* $props 使用这个属性可以接收上级组件向下传递的数据
+* $options 获取vue实例属性,包含自定义属性
+* $el vue实例的根dom元素
+* $children 获取vue实例的直接子组件
+* $root 获取当前组件树的根vue实例
+* $attrs 可以获取组件的属性,不包括class, style,声明为props的属性
+
+##### **$props**
+
+```html
+<script>
+    Vue.component('my-component', {
+      template: `<p @click='fun'>传过来的数据是: {{txt}}</p>`,
+      props: ['txt', 'name'],
+      methods: {
+        fun() {
+          console.log(this.$props)
+        }
+      }
+    })
+    let vm = new Vue({
+      el: '#root',
+      data: {
+        msg: '我是要传过去的数据'
+      }
+    })
+  </script>
+```
+
+打印的`this.$props`结果:
+
+![20200521231726751.PNG (752×556) (csdnimg.cn)](https://img-blog.csdnimg.cn/20200521231726751.PNG)
+
+##### **$options**
+
+Vue实例初始化时,除了传入指定的属性,还可以传入自定义属性.自定义的属性可以是数组,对象,函数等,通过Vm.$options来获取.
+
+```html
+<div id="root">
+    <p>$options <small>获取vue实例属性, 包含自定义属性</small></p>
+    <button type="button" @click="show">查看</button>
+    {{mydata}}
+  </div>
+<script>
+  let vm = new Vue({
+    el: '#root',
+    cust: '我是自定义的属性',
+    data: {
+      msg: '我是要传过去的数据'
+    },
+    methods: {
+      show() {
+        console.log(this.$options)
+      }
+    },
+    created() {
+      this.mydata = this.$options.cust;
+    }
+  })
+</script>
+```
+
+![image](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/image.2oy6633dubu0.webp)
+
+
+
+##### **$el**
+
+$el是用来访问vm实例使用的根DOM元素
+
+```html
+<div id="root">
+    <!-- $el可以查看到这个div的所有内容-->
+    <p>vm.$el <small>vue实例的根dom元素</small></p>
+    <button @click="watch">查看</button>
+  </div>
+  <script>
+    let vm = new Vue({
+      el: '#root',
+      cust: '我是自定义的属性',
+      data: {
+        msg: '我是要传过去的数据'
+      },
+      methods: {
+        watch() {
+          console.log(this.$el)
+        }
+      }
+    })
+  </script>
+```
+
+![](https://img-blog.csdnimg.cn/2020052123322925.PNG)
+
+添加替换按钮,当前dom元素中的内容被替换成'我是替换后的内容'.
+
+```html
+ <div id="root">
+    <!-- $el可以查看到这个div的所有内容-->
+    <p>vm.$el <small>vue实例的根dom元素</small></p>
+    <button @click="watch">查看</button>
+    <button @cilck="change">替换</button>
+  </div>
+  <script>
+    let vm = new Vue({
+      el: '#root',
+      cust: '我是自定义的属性',
+      data: {
+        msg: '我是要传过去的数据'
+      },
+      methods: {
+        watch() {
+          console.log(this.$el)
+        },
+        change() {
+          this.$el.innerHTML = "<h1>我是替换后的内容</h1>"
+        }
+      }
+    })
+  </script>
+```
+
+
+
+##### $children
+
+获取vue实例的直接子组件
+
+
+
+
+
+
+
+
+
+#### 3.数据与方法
+
+> 当一个 Vue 实例被创建时，它将 `data` 对象中的所有的 property 加入到 Vue 的**响应式系统**中。当这些 property 的值发生改变时，视图将会产生“响应”，即匹配更新为新的值.
+>
+> 只有当**实例被创建时**就已经存在于 `data` 中的 property 才是**响应式**的
+>
+> 如果你知道你会在晚些时候需要一个 property，但是一开始它为空或不存在，那么你仅需要设置一些初始值
+>
+> 这里唯一的例外是使用 `Object.freeze()`，这会阻止修改现有的 property，也意味着响应系统无法再*追踪*变化
+
+
+
+```js
+你比如在钩子函数created中向当前vue实例身上添加一个原始数据: this.testId = 2;
+那在mounted中更改这个数据的话,实例上是新值,页面上是旧值.
+
+//Object.freeze()
+
+let data = {a:'a'}
+Object.freeze(obj);
+new Vue({
+  el: '#app',
+  data: a
+})
+
+<div id="app">
+  <p>{{a}}</p> //这里的'a'不会更新
+  <button v-on:click=" foo = 'baz'">change it</button>
+</div>
+
+
+//注意: 如果我们在new vue里面冻结(freeze)这个数据会失效,点击之后依然会变化.即使在created中的钩子里.
+```
+
+
+
+除了数据 property，Vue 实例还暴露了一些有用的实例 property 与方法。它们都有前缀 `$`，以便与用户定义的 property 区分开来
+
+```js
+let data = {a:1}
+let vm = new Vue({
+  el: '#example',
+  data: data
+})
+
+vm.$data === data //true
+vm.$el === document.getElementById('example') //true
+
+//$watch是一个实例方法
+vm.$watch('a', function(newValue, oldValue) {
+  //这个回调将在'vm.a'改变后调用
+})
+```
 
 
 
@@ -1637,50 +1718,7 @@ v-on:
 
 
 
-
-
-## MVVM模型
-
-<img src="https://i.loli.net/2021/01/12/TJDuSXlkyE9rbjK.png" alt="aa.png" style="zoom:80%;" />
-
-```js
-//如何理解MVVM模型? https://zhuanlan.zhihu.com/p/141473404
-在MVVM架构下，View 和 Model 之间并没有直接的联系，而是通过ViewModel进行交互，ViewModel与两者之间的交互是双向的， 因此使得View层和Model层的同步工作完全是自动的。。开发者只需关注业务逻辑，不需要手动操作DOM, 不需要关注数据状态的同步问题，复杂的数据状态维护完全由 MVVM 来统一管理.
-
-
-M:模型(Model):对应data中的数据
-V:视图(View):模板代码
-VM:视图模型(ViewModel): Vue实例对象 ****
-
-const vm=new Vue({
-    el:'#root',
-    data:{
-        msg:'甲乙丙丁',
-        address:'天南海北'
-    }
-})
-console.log(vm); data中的属性是放在vm这个实例对象身上的.
-
-const vm=new Vue({
-    el:'#root',
-    data:{
-        msg:'甲乙丙丁',
-        address:'天南海北'
-    }
-},1000)
-
-//观察发现：通过vm能看到data中的属性（注意不是看到data）
-setTimeout(()=>{
-    console.log(vm.msg);//通过vm可以读取data中的数据
-    vm.msg='魑魅魍魉';   //通过vm可以修改data中的数据,修改后页面会自动更新
-})
-
-
-```
-
-
-
-### el和data的两种写法
+## el和data的两种写法
 
 ```js
 //总结:
