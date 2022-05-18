@@ -4358,7 +4358,9 @@ Vue.component('my-component-name', { /* ... */ })
 1. 利用`Vue.component()`方法,传入自定义组件名称,然后传入组件的配置
 2. 在Vue实例挂载的DOM元素上使用它,以 *标签* 形式使用组件.
 
-**全局注册的**, 它们在注册之后可以用在任何新创建的 Vue 根实例 (`new Vue`) 的模板中
+**全局注册**
+
+它们在注册之后可以用在任何新创建的 Vue 根实例 (`new Vue`) 的模板中
 
 ##### 案例
 
@@ -5447,13 +5449,13 @@ this.$emit('update:title', newTitle)
 
 ## 插槽
 
-在 2.6.0 中，我们为具名插槽和作用域插槽引入了一个新的统一的语法 (即 `v-slot` 指令)。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在[文档中](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)的 attribute。
+在 2.6.0 中，我们为<u>具名插槽</u>和<u>作用域插槽</u>引入了一个新的统一的语法 (即 `v-slot` 指令)。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在[文档中](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)的 attribute。
 
 ### 1.插槽内容
 
 Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web Components 规范草案](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Slots-Proposal.md)，**将 `<slot>` 元素作为承载分发内容的出口**。
 
-插槽内可以插入任何模板代码/html,其他组件
+插槽内可以插入任何`模板代码`/`html`,`其他组件`
 
 它允许你这样合成组件
 
@@ -8589,7 +8591,19 @@ module.exports = {
     7). 组件间通信高级6: 作用域插槽slot-scope
     8). 组件间通信高级7: vuex
 
+#### 分类
 
+父子间通信: 
+
+* props 
+* $emit 
+* eventBus 
+* .sync 
+* $attrs&$listeners 
+* provide$inject 
+* $parent&$child 
+* $root 
+* vuex
 
 ### PubsubJs
 
@@ -8827,50 +8841,60 @@ vm.$emit('inc', '传递的数据')
 
 
 
-#### Vue全局事件总线
+#### Vue全局事件总线EventBus
 
-```js
-//
-全局事件总线:
-    理解:
-        Vue原型对象上有3个事件处理的方法: $on() / $emit() / $off()
-        组件对象的原型对象是vm对象: 组件对象可以直接访问Vue原型对象上的方法
-        实现任意组件间通信
-    编码实现:
-        将入口js中的vm作为全局事件总线对象: 
-            beforeCreate() {
-                Vue.prototype.$bus = this
-            }
-        分发事件/传递数据的组件: this.$bus.$emit('eventName', data)
-        处理事件/接收数据的组件: this.$bus.$on('eventName', (data) => {})
+##### 是什么
 
-//理解
-所有场合都可使用. 
+> 思路就是声明一个全局Vue实例变量EventBus，把所有的通信数据，事件监听都存储到这个变量上，这样就到达在组件间实现数据共享，有点类似Vuex。但是这种方式只适合极小的项目，复杂的项目还是推荐Vuex。
 
-全局事件总线的角色标准
-本质是一个对象
-1、所有的组件对象都可以看到它
-2、可以使用$on和$emit方法
+##### 实现
 
-怎么添加事件总线
-1、安装总线
-2、在接收数据的组件对象当中  获取总线给总线绑定自定义事件   this.$bus.$on
-3、在发送数据的组件对象当中  获取总线触发总线身上绑定的自定义事件   this.$bus.$emit
+*  Vue原型对象上有3个事件处理的方法: `$on() / $emit() / $off()`
+
+* 组件对象的原型对象是vm对象: 组件对象可以直接访问Vue原型对象上的方法
+
+
+```javascript
+//入口js中的vm作为全局事件总线对象: 
+beforeCreate() {
+  Vue.prototype.$bus = this
+}
+//分发事件/传递数据的组件: 
+this.$bus.$emit('eventName', data)
+
+
+//处理事件/接收数据的组件: 
+this.$bus.$on('eventName', (data) => {})
 ```
 
 
 
+```html
+//另一种形式 兄弟组件之间的通信
 
-
-
-
-
-
-
-
-
-
-
+<div id="app">
+  <a-name></a-name>
+  <b-name></b-name>
+</div>
+<script>
+	const bus = new Vue()
+  Vue.component('a-name', {
+    template: '<h1>我是前面的组件</h1>',
+    created() {
+      bus.$on('aa', result => { console.log(result)})
+    }
+  });
+  
+  Vue.component('b-name', {
+    template: '<h1 @click="click(2)">我是后面的组件</h1>',
+    created() {
+      click(id) {
+        bus.$emit('aa', id)
+      }
+    }
+  })
+</script>
+```
 
 
 
@@ -8987,7 +9011,56 @@ v-on: 的特别使用: `<button v-on="{ mousedown: doThis, mouseup: doThat }"></
 
 
 
+### provide/inject
 
+#### 是什么
+
+这对选项需要一起使用，以允许一个祖先组件向其所有子孙后代注入一个依赖，不论组件层次有多深，并在起上下游关系成立的时间里始终生效
+
+provide 和 inject 主要为高阶插件/组件库提供用例。并不推荐直接用于应用程序代码中。
+
+#### 代码
+
+```html
+<body>
+    <div id="app">
+        <son></son>
+    </div>
+    <script>
+        let Son = Vue.extend({
+            template: '<h2> son {{house}}--{{car}} ---{{money}}</h2>',
+            inject: {
+                house: {
+                    default: '没房'
+                },
+                car: {
+                    default: '没车'
+                },
+                money: {
+                    //长大工作了虽然有点钱 
+                    // 仅供生活费，需要向父母要 
+                    default: '￥4500'
+                }
+            },
+            created() {
+                console.log(this.house, this.car, this.money)  //直接获取
+                    // -> '房子', '车子', '￥10000' 
+            }
+        })
+        new Vue({
+            el: '#app',
+            provide: {
+                house: '父亲给的房子',
+                car: '父亲给的车子',
+                money: '父亲给的￥10000'
+            },
+            components: {
+                Son
+            }
+        })
+    </script>
+</body>
+```
 
 
 
