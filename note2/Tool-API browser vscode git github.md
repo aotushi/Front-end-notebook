@@ -99,6 +99,12 @@ Vim 是一款命令行下的文本编辑器，编辑方式跟图形化编辑器�
 
 
 
+### git传输协议
+
+> [通过 https / ssh 协议推拉代码 - Gitee.com](https://gitee.com/help/articles/4238#article-header0)
+
+
+
 ### 基本介绍
 
 #### .git 目录
@@ -742,8 +748,6 @@ git checkout -b name
 * Use the imperative mood in the subject line
 * Wrap the body at 72 characters
 * Use the body to explain waht and why vs. how
-
-
 
 
 
