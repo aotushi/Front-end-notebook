@@ -1043,3 +1043,60 @@ last 2 versions
 
 
 
+## 具体API
+
+### require.context
+
+**syntax**
+
+> the arguments must be literals
+
+```javascript
+require.context(
+  //组件目录的相对路径
+	directory,
+  //是否查询子目录
+  (useSubdirectories = true),
+  //匹配基础组件文件名的正则表达式
+  (regExp = /^\.\/.*$/),
+  //是否异步加载
+  (mode = 'sync')
+)
+
+//example
+require.context('./text', false, /\.test\.js$/);
+
+
+```
+
+#### API
+
+require.context()结果是一个函数, 有3个属性: 
+
+* `resolve` 是一个函数并返回解析request的模块id
+* `keys` 是一个函数,返回匹配成功模块的名字组成的数组
+* `id` 上下文模块的模块. ???
+
+
+
+```javascript
+//store/index.js
+
+const moduleFIles = require.context('./modules', true, /\.js$/)
+const modules = moduleFiles.keys().reduce((modules, modulePath) => {
+  let moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
+  //处理多层文件
+  if (moduleName.includes('/')) {
+    let moduleNameParts = moduleName.split('/')
+    for (let idx=1,len=moduleNameParts.length; idx<len; idx++) {
+      const item = moduleNameParts[idx]
+      moduleNameParts[idx] = item.slice(0, 1).toUpperCase() + item.slice(1)
+    }
+    moduleName = moduleNamePargs.join('')
+  }
+  const value = modulesFiles(modulePath)
+  modules[moduleName] = value.default
+  return modules
+}, {})
+```
+

@@ -4343,7 +4343,7 @@ Vue.component('my-component-name', { /* ... */ })
 
 ##### 使用PascalCase(首字母大写命名)
 
-"当使用 PascalCase (首字母大写命名) 定义一个组件时，你在引用这个自定义元素时两种命名法都可以使用。也就是说 `<my-component-name>` 和 `<MyComponentName>` 都是可接受的. 注意，尽管如此，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。
+"当使用 PascalCase (首字母大写命名) 定义一个组件时，你在引用这个自定义元素时<span style="color:blue">两种命名法都可以使用</span>。也就是说 `<my-component-name>` 和 `<MyComponentName>` 都是可接受的. 注意，尽管如此，直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。
 
 
 
@@ -4353,7 +4353,7 @@ Vue.component('my-component-name', { /* ... */ })
 
 #### 全局注册
 
-##### 注册使用流程
+##### 注册及使用
 
 1. 利用`Vue.component()`方法,传入自定义组件名称,然后传入组件的配置
 2. 在Vue实例挂载的DOM元素上使用它,以 *标签* 形式使用组件.
@@ -4383,10 +4383,10 @@ Vue.component('my-component-name', { /* ... */ })
 
 ##### 总结
 
-* 创建全局组件时，应该使用Vue对象的component方法，这个方法接收两个参数。第一个字符串：表示组件名称， 第二个为一个对象：表示组件内容
-* 组件要渲染的内容应该写在template选项中，作为其值进行处理
-* 注册时，推荐组件名称为【小写加分隔符链接的形式】，类似于css属性名的写法
-* 组件全局注册后，在任何vue实例中都可以使用，但前提是相关vue实例应该在注册后在声明; 在所有子组件中也是如此，也就是说这三个组件*在各自内部*也都可以相互使用。
+* 创建全局组件时，应该使用Vue对象的component方法，这个方法接收<span style="color:blue">两个参数</span>。第一个字符串：表示组件名称， 第二个为一个对象：表示组件内容
+* 组件要<span style="color:blue">渲染的内容</span>应该写在template选项中，作为其值进行处理
+* 注册时，<span style="color:blue">推荐组件名称</span>为【小写加分隔符链接的形式】，类似于css属性名的写法
+* 组件全局注册后，在任何vue实例中都可以使用，但前提是相关vue实例应该在注册后在声明; 在所有子组件中也是如此，也就是说<span style="color:blue">这三个组件*在各自内部*也都可以相互使用</span>。
 * 组件在使用时，应该以标签形式调用
 
 ##### 组件内容的其他选项
@@ -4397,7 +4397,7 @@ Vue.component('my-component-name', { /* ... */ })
 
 <u>HTML</u>限制
 
-在某些时候，vue组件会受到html的限制，比如table内就只能写行列，select内只能写option等，这个时候组件直接写进去就会无效，此时我们就可以使用is属性来实现
+在某些时候，vue组件会受到html的限制，比如table内就只能写行列，select内只能写option等，这个时候组件直接写进去就会无效，此时我们就可以使用<span style="color:blue">is属性</span>来实现
 
 ![](https://img-blog.csdnimg.cn/20190408200155622.png)
 
@@ -4448,10 +4448,6 @@ Vue.component('my-component-name', { /* ... */ })
 <u>组件的template选项</u>
 
 注意：组件中的template只能有一个根元素。
-
-<u>全局组件可以在其注册后创建的所有vue实例中使用</u>
-
-
 
 ```html
 <div id="app">	<!-- 在第一个vue实例中调用全局组件 -->
@@ -4508,9 +4504,9 @@ Vue.component('my-component-name', { /* ... */ })
 
 ##### 背景
 
-全局注册往往是不够理想的。比如，如果你使用一个像 webpack 这样的构建系统，全局注册所有的组件意味着即便你已经不再使用一个组件了，它仍然会被包含在你最终的构建结果中。这造成了用户下载的 JavaScript 的无谓的增加。
+全局注册往往是不够理想的。比如，如果你使用一个像 webpack 这样的构建系统，全局注册所有的组件意味着即便你已经不再使用这个组件了，它仍然会被包含在你最终的构建结果中。这造成了用户下载的 JavaScript 的无谓的增加。
 
-##### 实现
+##### 定义
 
 局部注册: 
 
@@ -4532,9 +4528,9 @@ new Vue({
 })
 ```
 
-对于 `components` 对象中的每个 property 来说，其 property 名就是自定义元素的名字，其 property 值就是这个组件的选项对象。注意**局部注册的组件在其子组件中不可用**
+对于 `components` 对象中的每个 property 来说，其 property 名就是自定义元素的名字，其 property 值就是这个组件的选项对象。注意<span style="color:blue">**局部注册的组件在其子组件中不可用**</span>
 
-##### 使用
+##### 使用形式
 
 <u>组件中嵌套</u>
 
@@ -4598,6 +4594,8 @@ div id="app">
 
 
 
+##### 在模板中使用
+
 <u>组件调用时可以直接使用单标签形式</u>
 
 当用单标签多次调用同一组件，只会产生组件一次
@@ -4611,11 +4609,11 @@ div id="app">
 
 
 
-#### 2.3 模块系统
+#### 模块系统
 
 如果你通过 `import`/`require` 使用一个模块系统，那么我们会为你提供一些特殊的使用说明和注意事项。
 
-##### 2.3.1 在模块系统中局部注册
+##### 在模块系统中局部注册
 
 使用了诸如 Babel 和 webpack 的模块系统。在这些情况下，我们推荐创建一个 `components` 目录，并将每个组件放置在其各自的文件中。然后你需要在局部注册之前导入每个你想使用的组件。
 
@@ -4638,13 +4636,17 @@ export default {
 
 
 
-##### 2.3.2 基础组件的自动化全局注册
+##### 基础组件的自动化全局注册
 
-组件只是包裹了一个输入框或按钮之类的元素，是相对通用的。我们有时候会把它们称为[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)，它们会在各个组件中被频繁的用到。
+**背景**
 
-所以会导致很多组件里都会有一个包含基础组件的长列表, 
+某些组件是相对通用的,有时候会把它们称为[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)，它们会在各个组件中被频繁的用到。所以会导致很多组件里都会有一个包含基础<span style="color:blue">组件的长列表</span>
 
-如果你恰好使用了 webpack (或在内部使用了 webpack 的 [Vue CLI 3+](https://github.com/vuejs/vue-cli))，那么就可以使用 `require.context` 只全局注册这些非常通用的基础组件。这里有一份可以让你在应用入口文件 (比如 `src/main.js`) 中全局导入基础组件的示例代码：
+如果你恰好使用了 webpack (或在内部使用了 webpack 的 [Vue CLI 3+](https://github.com/vuejs/vue-cli))，那么就可以使用 `require.context` 只在<span style="color:blue">全局注册通用的基础组件</span>。
+
+**案例**
+
+应用入口文件 (比如 `src/main.js`) 中全局导入基础组件的示例代码：
 
 ```js
 import Vue from 'vue';
@@ -4694,31 +4696,223 @@ https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/component
 
 
 
-组件的示例:
+
+
+### 动态组件
+
+#### 背景
+
+在不同组件之间进行动态切换是非常有用的，比如在一个多标签的界面里
+
+#### 语法
+
+通过Vue 的 `<component>` 元素加一个特殊的 `is` attribute 来实现
+
+```html
+<component v-bind:is="currentTabComponent"></component>
+```
+
+##### 属性值类型
+
+* 已注册组件的名字
+* 一个组件的选项对象
+
+##### 属性的处理
+
+> 这些元素将被视为组件，这意味着所有的 attribute **都应作为 DOM attribute 被绑定**
+>
+> 如何避免属性被当做值传递,例如input的value会传至输入框中??
+
+##### DOM property 与 attribute的差别  !!!!
+
+> [API — Vue.js (vuejs.org)](https://cn.vuejs.org/v2/api/#v-bind)
+>
+> [javascript - What is the difference between properties and attributes in HTML? - Stack Overflow](https://stackoverflow.com/questions/6003819/what-is-the-difference-between-properties-and-attributes-in-html#answer-6004028)
+
+###### property vs. attribute
+
+当你写HTML时,可以在HTML元素上定义*attributes*; 
+
+当浏览器解析代码,相关DOM节点将会被创建.这个节点是一个对象,它有*properties*.
+
+对于一个DOM节点对象,*properties*是这个对象的属性, *attributes*是对象的`attributes`属性的元素.
+
+当为一个给定HTML元素创建DOM节点时,很多它的*properties*都与有同样或相似名字的*attributes*相关,但不是一对一的关系.例如:
+
+```html
+<input id="the-input" type="text" value="Name:">
+```
+
+相关DOM节点有`id`, `type`, `value`属性(包括其他)
+
+* The `id` property is a *reflected property* for the `id` attribute: Getting the property reads the attribute value, and setting the property writes the attribute value. `id` is a *pure* reflected property, it doesn't modify or limit the value.
+* The `type` property is a *reflected property* for the `type` attribute: Getting the property reads the attribute value, and setting the property writes the attribute value. `type` isn't a pure reflected property because it's limited to *known values* (e.g., the valid types of an input). If you had `<input type="foo">`, then `theInput.getAttribute("type")` gives you `"foo"` but `theInput.type` gives you `"text"`.
+* In contrast, the `value` property doesn't reflect the `value` attribute. Instead, it's the *current value* of the input. When the user manually changes the value of the input box, the `value` property will reflect this change. So if the user inputs `"John"` into the input box, then:
+
+```javascript
+theInput.value //returns 'John'
+```
+
+whereas:
+
+```javascript
+theInput.getAttribute('value') //returns 'Name:'
+```
+
+The <span style="color:blue">`value` property </span>reflects the **current** text-context inside the input box, whereas the <span style="color:blue">`value` attribute</span> contains the **initial** text-context of the `value` attribute from the HTML source code.
+
+<span style="color:blue">你想知道现在文本框内的值, 读取*property*; 如果你想知道文本框的初始值, 读取*attribute*.</span>
+
+你可以使用*defaultValue* 属性,是*value* attribute的纯粹反映.
+
+```javascript
+theInput.value //returns 'John'
+theInput.getAttribute('value') // returns 'Name:'
+theInput.defaultValue  //returns 'Name:'
+```
+
+
+
+
+
+
+
+#### 两种示例
+
+<u>已注册组件的名字</u>
+
+```html
+<div id="root">
+  <button
+  	v-for="tab in tabs"
+    v-bind:key="tab"
+    v-on:click="currentTab=tab"
+  >
+    {{tab}}
+  </button>
+  
+  <component v-bind:is="currentTabComponents"></component>
+</div>
+
+<script>
+	Vue.component('tab-home', {
+    template: '<div>Home components</div>'
+  })
+  Vue.component("tab-posts", {
+    template: "<div>Posts component</div>"
+  });
+  Vue.component("tab-archive", {
+    template: "<div>Archive component</div>"
+  });
+  
+  new Vue({
+    el: '#root',
+    data: {
+      currentTab: 'Home',
+      tabs:['Home', 'Posts', 'Archive'],
+    },
+    computed: {
+      currentTabComponent: function() {
+        return 'tab-'+this.currentTab.toLowerCase()
+      }
+    }
+  })
+</script>
+```
+
+
+
+
+
+<u>一个组件的选项对象</u>
+
+```html
+<div id="root">
+  <button
+  	v-for="tab in tabs"
+    v-bind:key="tab.name"
+    v-on:click="currentTab=tab"
+  >
+    {{tab}}
+  </button>
+  <component v-bind:is="currentTab.component"></component>
+</div>
+
+<script>
+	let tabs = [
+    {
+     name: 'Home', 
+     components: {
+      template:'<div>Home component</div>'
+    	}
+    },
+    {
+      name:'Posts',
+      components: {
+        template:'<div>Posts component</div>'
+      }
+    },
+    {
+      name:'Archive',
+      components: {
+        template:'<div>Archive component</div>d'
+      }
+    }
+  ];
+  
+  new Vue({
+    el:'#root',
+ 		data: {
+      tabs,
+      currentTab: tabs[0]
+    }
+  })
+
+</script>
+```
+
+
+
+
+
+#### keep-alive
+
+##### 背景
+
+当在这些组件之间切换的时候，你有时会想保持这些组件的状态，以避免反复重渲染导致的性能问题。更希望那些标签的组件实例能够被在它们第一次被创建的时候缓存下来。为了解决这个问题，我们可以用一个 `<keep-alive>` 元素将其动态组件包裹起来
+
+```html
+//失活组件将会被缓存
+
+<keep-alive>
+	<component v-bind:is="currentTabComponent"></component>
+</keep-alive>
+```
+
+
+
+**注意事项** 注意这个 `<keep-alive>` 要求被切换到的组件都有自己的名字，不论是通过组件的 `name` 选项还是局部/全局注册。
+
+
+
+### 异步组件
+
+在大型应用中，我们可能需要将应用分割成小一些的代码块，并且只在需要的时候才从服务器加载一个模块。为了简化，Vue 允许你以一个工厂函数的方式定义你的组件，这个工厂函数会异步解析你的组件定义。Vue 只有在这个组件需要被渲染的时候才会触发该工厂函数，且会把结果缓存起来供未来重渲染。例如
 
 ```js
-//定义一个button-component的新组件
-Vue.component('button-component', {
-  data:function() {
-    return {
-      count:0
-    }
-  },
-  template:'<button v-on:click='count++'>you clicked me {{count}} times </button>'
+Vue.component('async-example', function(resolve, reject) {
+  setTimeout(function() {
+    //向resolve回调传递组件定义
+    resolve({
+      template: '<div>i am aysnc'</div>'
+    })
+  },1000)
 })
 ```
 
-**组件是可复用的 Vue 实例**，且带有一个名字：在这个例子中是 `<button-counter>`。我们可以在一个通过 `new Vue` 创建的 Vue 根实例中，把这个组件作为自定义元素来使用：
 
-```html
-<div id='components-demo'>
-  <button-component></button-component>
-</div>
 
-new Vue({el:'#components-demo'})
-```
 
-因为组件是可复用的 Vue 实例，所以它们与 `new Vue` 接收相同的选项，例如 `data`、`computed`、`watch`、`methods` 以及生命周期钩子等。**仅有的例外是像 `el` 这样根实例特有的选项**。
 
 
 
@@ -5451,11 +5645,49 @@ this.$emit('update:title', newTitle)
 
 在 2.6.0 中，我们为<u>具名插槽</u>和<u>作用域插槽</u>引入了一个新的统一的语法 (即 `v-slot` 指令)。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在[文档中](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)的 attribute。
 
+
+
+* * ### 特点
+
+    - 父组件中子组件起始标签和结束标签之间添加`模板, HTML, 其他组件`的方式来放置插槽内容
+    - 在子组件中的template模板中, 使用`<slot></slot>`来接收内容. 
+      - 如果有插槽没有`<slot></slot>`标签,则添加的内容不会显示;
+      - 如果没有插槽有<slot></slot>标签,其组件内`<slot>xxx</slot>`之间有内容`xxx`,则会显示.称之为默认内容
+    - 插槽的作用域是在父作用域内编译的,不能访问子作用域的内容;
+    - 具名插槽,可以提供多个插槽.
+      - 声明插槽: 用`<template v-slot:typicalName>xxx</template>`来声明且向具名插槽提供内容
+      - 接收插槽: 子组件内的`<slot>`使用`name`属性来接收: `<slot name="typicalName"></slot>`
+      - 默认插槽
+        - 没有包裹在带有 `v-slot` 的 `<template>` 中的内容, 使用`<slot></slot>`来接收
+        - 插槽也可以使用`<template v-slot:default>xx</template>`来声明默认插槽, 依然用`<slot></slot>`来接收
+    - 作用域插槽,插槽内容能访问子组件中的数据
+      - 实现: 
+        - 绑定: 将子组件中的数据作为`<slot>`元素的一个属性绑定上去 `<slot v-bind:user="user">`
+        - 获取: 父级作用域中,使用带值的`v-slot`来定义**插槽Prop**: `<template v-slot:default="slotProps">` //default代表默认插槽
+          - 将包含所有插槽prop的对象命名为`slotProps`,但没有限制
+        - 使用:  在子组件开始和结束标签之间, 访问`{{slotProps.user.name}}` .合法语法即可
+      - 默认插槽的缩写
+        - 省略`v-slot:default="slotProps"`中的`:default`
+        - 默认插槽缩写语法不能和具名插槽混用; 只有出现多个插槽,请始终未所有插槽使用完整的基于`<template>`的语法
+      - 解构插槽Prop
+        - Why 插槽内容包裹在一个拥有单个参数的函数里, `v-slot` 的值可为 JavaScript 表达式
+        - How `<cName v-slot="{user}"`
+        - prop重命名: `<cName v-slot="{user: person}"`
+        - 定义默认内容:  `<cName v-slot="{user = {name: 'guest'}"`
+    - 动态插槽名
+    - 具名插槽缩写
+      - 实现: 把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`
+      - 条件: 只在其有参数的时候才可用
+        - 警告: `<cName #="{user}">`
+        - How: `<cName #default="{user}">`
+    - 插槽转换为可复用模板, 其可以基于输入的prop渲染除不同的内容
+      - 场景: 设计封装数据逻辑同时允许父级组件自定义部分布局的可复用组件时
+
 ### 1.插槽内容
 
 Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web Components 规范草案](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Slots-Proposal.md)，**将 `<slot>` 元素作为承载分发内容的出口**。
 
-插槽内可以插入任何`模板代码`/`html`,`其他组件`
+插槽内可以插入任何`模板代码`,`html`,`其他组件`
 
 它允许你这样合成组件
 
@@ -5465,7 +5697,7 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 </navigation-link>
 ```
 
-然后你再`<navigation-link>`的模板中可能会写为:
+然后你在`<navigation-link>`的模板中可能会写为:
 
 ```html
 <a
@@ -5706,6 +5938,41 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 ### 5.作用域插槽
+
+#### 语法
+
+##### 定义插槽
+
+```html
+//匿名插槽
+<slot v-bind:data="变量名"></slot>
+
+//具名插槽
+<slot name="插槽名" v-bind:data="变量名"></slot>
+```
+
+##### 使用插槽
+
+通过`v-slot`获取传过来的值(data使用与定义时的保持一致)
+
+```html
+//匿名插槽
+<template v-slot="slotProps">
+	{{slotProps.data}}
+</template>
+
+//具名插槽
+<template v-slot:插槽名="slotProps">
+	{{slotProps.data}}
+</template>
+
+//v-slot缩写为#
+<template #default="slotProps">
+	{{slotProps.data}}
+</template>
+```
+
+
 
 有时让插槽内容能够访问子组件中才有的数据是很有用的. 也就是在父级组件中的插槽中访问子组件的内容??
 
@@ -5954,43 +6221,6 @@ function (sonProp) {
 <todo-list v-bind:todos = 'todos'>
 	<template v-slot:todo="{todo}"></template>
 </todo-list>
-```
-
-
-
-## 动态组件&异步组件
-
-### 1.动态组件上使用`keep-alive`
-
-当在这些组件之间切换的时候，你有时会想保持这些组件的状态，以避免反复重渲染导致的性能问题。更希望那些标签的组件实例能够被在它们第一次被创建的时候缓存下来。为了解决这个问题，我们可以用一个 `<keep-alive>` 元素将其动态组件包裹起来
-
-```html
-//失活组件将会被缓存
-
-<keep-alive>
-	<component v-bind:is="currentTabComponent"></component>
-</keep-alive>
-```
-
-
-
-**注意事项** 注意这个 `<keep-alive>` 要求被切换到的组件都有自己的名字，不论是通过组件的 `name` 选项还是局部/全局注册。
-
-
-
-### 2. 异步组件
-
-在大型应用中，我们可能需要将应用分割成小一些的代码块，并且只在需要的时候才从服务器加载一个模块。为了简化，Vue 允许你以一个工厂函数的方式定义你的组件，这个工厂函数会异步解析你的组件定义。Vue 只有在这个组件需要被渲染的时候才会触发该工厂函数，且会把结果缓存起来供未来重渲染。例如
-
-```js
-Vue.component('async-example', function(resolve, reject) {
-  setTimeout(function() {
-    //向resolve回调传递组件定义
-    resolve({
-      template: '<div>i am aysnc'</div>'
-    })
-  },1000)
-})
 ```
 
 

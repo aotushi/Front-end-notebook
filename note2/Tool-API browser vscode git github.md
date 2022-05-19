@@ -1179,6 +1179,16 @@ git push -u origin master
 > [萌新的hhkb上手教程 | dOwOb](https://dowob.cn/2019/03/27/萌新的hhkb上手教程/)
 >
 > [VS Code 与 Vim | Jingchao's Blog (chengjingchao.com)](https://chengjingchao.com/2020/06/13/VS-Code-与-Vim/)
+>
+> [VSCodeVim 最佳实践_gneveek的博客-CSDN博客](https://blog.csdn.net/gneveek/article/details/104014551)
+>
+> [VSCodeVim 最佳实践 | 周岩的 BLOG (zhouyanlt.github.io)](https://zhouyanlt.github.io/vim/2019/09/20/vscode-vim-best-practices.html)
+
+
+
+### 操作
+
+#### 对一个单词进行操作
 
 
 
@@ -1198,4 +1208,89 @@ git push -u origin master
 
 
 ### 替换
+
+
+
+### 搜索
+
+#### 快速搜索某个变量
+
+光标移到想搜索的那个函数名或变量名上，按`*`就可以搜索了，按`n`下一个，按`N`上一个
+
+##### 示例
+
+快速查询变量定义的位置
+
+* 先在这个变量上按下`*`键
+* 按`gg`回到首行
+* 按`n`到下一个它出现的位置
+* 按`zz`调整到屏幕中间,便于查看
+
+
+
+
+
+### 行级操作
+
+#### 删除一行
+
+`dd`
+
+#### 注释一行
+
+`gcc`   `gc` 是 `go comment`, 两个 c 表示注释一行
+
+#### 左移一行
+
+`<<`
+
+#### 右移一行
+
+`>>`
+
+
+
+### 多行操作
+
+1. 光标移到想要删除或注释的第一行
+2. 通过左边的相对行号，看一下想操作的最后一行的相对行号n
+3. 得出要操作的行数 m = n+1 (因为光标所在那行相当于第0行，所以要+1)
+4. 这时就可以用 Vim 的多行操作了，删除一行是 dd, **删除多行是 mdd**; 注释一行是 gcc, **注释多行是 mgcc**, 其他的类推
+
+
+
+### 调整光标所在的位置
+
+#### 快速调到某行号
+
+* `:行号数字`
+* `行号数字gg`
+
+
+
+
+
+#### 调整光标所在行在屏幕中的位置
+
+- `zz` 调整光标所在行到屏幕中间 (z 什么意思我也不知道，就硬记吧)
+- `zt` 调整光标所在行到屏幕最上方 (t == top)
+- `zb` 调整光标所在行到屏幕最下方 (b == bottom)
+
+
+
+
+
+
+
+### 高亮显示搜索项
+
+vscode中通过setting.json设置`vim.hlsearch: true`实现
+
+### 取消高亮
+
+`:noh`
+
+或
+
+`/aaa` 随便输入搜索内容,例如'aaa'
 
