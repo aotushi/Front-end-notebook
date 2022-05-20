@@ -1407,6 +1407,14 @@ $el是用来访问vm实例使用的根DOM元素
 
 ![](https://img-blog.csdnimg.cn/20200521235053427.PNG)
 
+#### vm.$refs
+
+##### 类型: `Object`
+
+#### 详细
+
+一个对象,持有注册过`ref` attribute的所有DOM元素和组件实例.
+
 
 
 ### 数据与方法
@@ -2899,7 +2907,7 @@ computed: {
 
 ## 侦听属性
 
-### why
+### 背景
 
 当需要在数据变化时**执行异步或开销较大**的操作时，使用侦听器
 
@@ -4506,13 +4514,16 @@ Vue.component('my-component-name', { /* ... */ })
 
 全局注册往往是不够理想的。比如，如果你使用一个像 webpack 这样的构建系统，全局注册所有的组件意味着即便你已经不再使用这个组件了，它仍然会被包含在你最终的构建结果中。这造成了用户下载的 JavaScript 的无谓的增加。
 
-##### 定义
+##### 2种引入方式
 
-局部注册: 
+**定义**
 
-* Vue实例中有个选项components可以注册局部组件，注册后就只在该实例作用域下有效
+Vue实例中有个选项components可以注册局部组件，注册后就只在该实例作用域下有效
 
-* 通过一个普通的 JavaScript 对象来定义组件,然后在 `components` 选项中定义你想要使用的组件
+**引入**
+
+* 通过一个普通的 JavaScript 对象来定义组件
+* 使用`import`函数返回`Promise`
 
 ```js
 var ComponentA = { /* ... */ }
@@ -4523,7 +4534,8 @@ new Vue({
   el:"#app",
   components: {
     'component-a':ComponentA,
-    'component-b':ComponentB
+    'component-b':ComponentB,
+    'component-d': () => import('./components/componentD')
   }
 })
 ```
@@ -4719,9 +4731,7 @@ https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/component
 
 ##### 属性的处理
 
-> 这些元素将被视为组件，这意味着所有的 attribute **都应作为 DOM attribute 被绑定**
->
-> 如何避免属性被当做值传递,例如input的value会传至输入框中??
+> 请留意，这个 attribute 可以用于常规 HTML 元素，但这些元素将被视为组件，这意味着所有的 attribute **都会作为 DOM attribute 被绑定**。对于像 `value` 这样的 property，若想让其如预期般工作，你需要使用 [`.prop` 修饰器](https://cn.vuejs.org/v2/api/#v-bind)。
 
 ##### DOM property 与 attribute的差别  !!!!
 
@@ -4766,6 +4776,9 @@ The <span style="color:blue">`value` property </span>reflects the **current** te
 你可以使用*defaultValue* 属性,是*value* attribute的纯粹反映.
 
 ```javascript
+//如何获取节点在vue中(ref; id/class)
+//或者直接使用事件对象 e.target.defaultValue e.target.getAttribute('value') e.target.value
+
 theInput.value //returns 'John'
 theInput.getAttribute('value') // returns 'Name:'
 theInput.defaultValue  //returns 'Name:'
@@ -4893,6 +4906,17 @@ theInput.defaultValue  //returns 'Name:'
 
 **注意事项** 注意这个 `<keep-alive>` 要求被切换到的组件都有自己的名字，不论是通过组件的 `name` 选项还是局部/全局注册。
 
+##### 实例
+
+[这个示例](https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-keep-alive-with-dynamic-components)
+
+<iframe src="https://codesandbox.io/embed/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-keep-alive-with-dynamic-components?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue-20-keep-alive-with-dynamic-components"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
 
 
 ### 异步组件
@@ -4910,11 +4934,245 @@ Vue.component('async-example', function(resolve, reject) {
 })
 ```
 
+#### 具体用法
+
+##### 异步组件和 [webpack 的 code-splitting 功能](https://webpack.js.org/guides/code-splitting/)一起配合使用
+
+```javascript
+Vue.component('async-webpack-example', function (resolve) {
+  // 这个特殊的 `require` 语法将会告诉 webpack
+  // 自动将你的构建代码切割成多个包，这些包
+  // 会通过 Ajax 请求加载
+  require(['./my-async-component'], resolve)
+})
+```
+
+##### 在工厂函数中返回一个 `Promise`
+
+```javascript
+Vue.component(
+  'async-webpack-example',
+  // 这个动态导入会返回一个 `Promise` 对象。
+  () => import('./my-async-component')
+)
+```
+
+
+
+#### 实例
+
+
+
+#### 特点
+
+* 可以实现组件的按需加载,性能优化,提高页面加载速度
+* '路由懒加载'就是使用异步组件的原理
+
+
+
+#### 处理加载状态????
+
+
+
+### 访问元素&组件
+
+#### 背景
+
+> 在绝大多数情况下，我们最好不要触达另一个组件实例内部或手动操作 DOM 元素。不过也确实在一些情况下做这些事情是合适的。
+
+#### 访问根实例
+
+> 在每个 `new Vue` 实例的子组件中，其根实例可以通过 `$root` property 进行访问
+>
+> 所有的子组件都可以将这个实例作为一个全局 store 来访问或使用。
+
+```javascript
+//Vue根实例
+new Vue({
+  data: {
+    foo: 1
+  },
+  computed: {
+    bar: function () { /* ... */ }
+  },
+  methods: {
+    baz: function () { /* ... */ }
+  }
+})
+
+//子组件中
+ //获取根组件数据
+this.$root.foo
+
+ //写入根组件的数据
+this.$root.foo = 2
+
+ //访问根组件的计算属性
+this.$root.bar
+
+ //调用根组件的方法
+this.$root.baz()
+```
+
+#### 最佳实践
+
+> 在demo或少量组件的应用使用. 中大型应用推荐使用vuex
+
+
+
+### 访问子级组件实例
+
+#### 背景
+
+在 JavaScript 里直接访问一个子组件, 而不是间接通过`prop` 和 `事件`
+
+#### ref
+
+##### 定义及调用
+
+> 通过`ref`这个attribute为**子组件或元素**赋予一个自定义ID引用, 使用`this.$refs.ID`来访问这个子组件
+
+
+
+##### 使用场景
+
+* ref加在普通元素上,`this.$refs.name`获取的是dom元素
+* ref加在子组件上, 获取的组件实例
+* 当v-for用于元素或组件,ref获取的将是一组数组或dom节点
+
+
+
+##### 实例
+
+<u>从父级组件自动聚焦到子组件的输入框</u>
+
+<iframe src="https://codesandbox.io/embed/vue-ref-40woi2?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/ref"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+<u>`ref`与`v-for`一起使用</u>
+
+当 `ref` 和 `v-for` 一起使用的时候，你得到的 ref 将会是一个包含了对应数据源的这些子组件的数组或dom节点数组. 这里的ref的值是固定值,所以`this.$refs.ID`获得是一个数组.
+
+同样,如果存在多个`v-for`循环,并且绑定在上面的`ref`的值相同,那么
+
+<iframe src="https://codesandbox.io/embed/boring-panna-3usu2q?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="boring-panna-3usu2q"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### 注意事项
+
+* `$refs` 只会在组件渲染完成之后生效，并且它们不是响应式的。其本身是作为渲染结果被创建的,在初始渲染的时候不能访问它们,还不存在.
+* 避免在模板或计算属性中访问 `$refs`, 因为不是响应式的
 
 
 
 
 
+### 访问父级组件实例
+
+#### $parent
+
+> 用来从一个子组件访问父组件的实例。替代将数据以 prop 的方式传入子组件的方式。
+
+
+
+#### 使用场景
+
+需要特别地共享一些组件库,例如 Google 地图组件. `<google-map>` 组件可以定义一个 `map` property，所有的子组件都需要访问它
+
+```html
+<google-map>
+  <google-map-markers v-bind:places="iceCreamShops"></google-map-markers>
+</google-map>
+```
+
+<iframe src="https://codesandbox.io/embed/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-accessing-parent-component-instance?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue-20-accessing-parent-component-instance"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+#### 存在问题
+
+组件层级变化,导致`this.$parent`访问的不是原来的组件.例如: 添加一个新的 `<google-map-region>` 组件
+
+```html
+<google-map>
+  <google-map-region v-bind:shape="cityBoundaries">
+    <google-map-markers v-bind:places="iceCreamShops"></google-map-markers>
+  </google-map-region>
+</google-map>
+```
+
+紧接着的处理方法:
+
+```javascript
+var map = this.$parent.map || this.$parent.$parent.map
+```
+
+
+
+#### 最佳实践-依赖注入
+
+
+
+### 依赖注入
+
+#### 背景
+
+子组件访问父组件实例使用`$parent`, 但是组件层级发生变化的话(例如之间插入一个新的组件,改变原先的父子关系),`$parent`取到的实例不会是原先的那个组件实例.
+
+#### provide
+
+`provide` 选项允许我们指定我们想要**提供**给后代组件的数据/方法
+
+```javascript
+provide: function() {
+  return {
+    getMap: this.getMap
+  }
+}
+```
+
+
+
+#### inject
+
+在任何后代组件中,都可以使用`inject`选项来接收指定的想要添加在这个实例上的 property
+
+```javascript
+inject: ['getMap']
+```
+
+**示例**
+
+<iframe src="https://codesandbox.io/embed/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-dependency-injection?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vuejs/vuejs.org"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+#### 存在的问题
+
+* 它将你应用程序中的组件与它们当前的组织方式耦合起来，使重构变得更加困难。
+* 所提供的 property 是非响应式的
 
 ### 3.Prop
 
@@ -8953,6 +9211,46 @@ module.exports = {
 
 
 
+###  `.sync 属性修饰符`
+
+#### 语法
+
+```html
+<my-component
+	v-bind:title.sync="doc.title"
+></my-component>
+
+//语法糖
+<my-component
+  v-bind:title="doc.title"
+  v-on:udpate:title="doc.title=$event"
+ ></my-component>
+```
+
+#### 特点
+
+* 绑定一个自定义事件监听, 用来接收子分组分发事件携带的数据来更新父组件的数据.
+
+* 功能与v-model相似,实现父子组件相互通信,更准确的是双向数据同步.
+
+* 语法本质:任意名称props与event的语法
+
+
+#### sync和v-model比较
+
+  相同: sync和v-model用在组件标签上,都可以达到父子组件数据同步
+  不同: sync达到数据同步: 子组件内部不是表单类元素; v-model达到数据同步: 子组件内部一定是表单类元素
+
+#### 利用sync能做什么呢?
+
+* 实现父子组件间数据双向同步;常用于封装可复用组件(需要更新父组件数据)
+* v-model一般用于带表单项的组件;sync一般用于不带表单项标签的组件
+* 代码实现 子组件中的数值改变后父组件中的值也跟着变化
+  ​ 
+  ​ 
+
+
+
 
 
 ### v-model
@@ -9128,46 +9426,6 @@ this.$bus.$on('eventName', (data) => {})
 
 
 
-### 3: `.sync 属性修饰符`
-
-#### 语法
-
-```html
-<my-component
-	v-bind:title.sync="doc.title"
-></my-component>
-
-//语法糖
-<my-component
-  v-bind:title="doc.title"
-  v-on:udpate:title="doc.title=$event"
- ></my-component>
-```
-
-#### 特点
-
-* 绑定一个自定义事件监听, 用来接收子分组分发事件携带的数据来更新父组件的数据.
-
-* 功能与v-model相似,实现父子组件相互通信,更准确的是双向数据同步.
-
-* 语法本质:任意名称props与event的语法
-
-
-#### sync和v-model比较
-
-  相同: sync和v-model用在组件标签上,都可以达到父子组件数据同步
-  不同: sync达到数据同步: 子组件内部不是表单类元素; v-model达到数据同步: 子组件内部一定是表单类元素
-
-#### 利用sync能做什么呢?
-
-* 实现父子组件间数据双向同步;常用于封装可复用组件(需要更新父组件数据)
-* v-model一般用于带表单项的组件;sync一般用于不带表单项标签的组件
-* 代码实现 子组件中的数值改变后父组件中的值也跟着变化
-  ​ 
-  ​ 
-
-
-
 ### 4: $attrs与$listeners
 
 #### 是什么
@@ -9243,11 +9501,39 @@ v-on: 的特别使用: `<button v-on="{ mousedown: doThis, mouseup: doThat }"></
 
 ### provide/inject
 
-#### 是什么
+#### 类型
 
-这对选项需要一起使用，以允许一个祖先组件向其所有子孙后代注入一个依赖，不论组件层次有多深，并在起上下游关系成立的时间里始终生效
+* provide: `Object | () => Object`
+  * `provide` 选项应该是一个对象或返回一个对象的函数,该对象包含可注入其子孙的 property
+  * 在该对象中可以使用Symbols 作为 key，但是只在原生支持 `Symbol` 和 `Reflect.ownKeys` 的环境下
+* inject: `Array<string> | {[key: string]: string | Symbol | Object}`
+  * `inject` 选项应该是：
+    * 一个字符串数组 或
+    * 一个对象: 对象的 key 是本地的绑定名，value 是：
+      * 在可用的注入内容中搜索用的 key (字符串或 Symbol)，或 
+      * 一个对象，该对象的的:
+        * `from` property 是在可用的注入内容中搜索用的 key (字符串或 Symbol)
+        * `default` property 是降级情况下使用的 value
 
-provide 和 inject 主要为高阶插件/组件库提供用例。并不推荐直接用于应用程序代码中。
+
+
+#### 注意事项
+
+* `provide` 和 `inject` 绑定并不是可响应的。这是刻意为之的。
+
+* 如果你传入了一个可监听的对象，那么其对象的 property 还是可响应的
+
+
+
+
+
+#### 详细
+
+这对选项需要一起使用，以允许一个祖先组件向其所有子孙后代注入一个依赖，不论组件层次有多深，并在其上下游关系成立的时间里始终生效。
+
+
+
+
 
 #### 代码
 
@@ -9344,7 +9630,7 @@ $parent：代表父组件对象
 
 
 
-### 6: 作用域插槽slot-scope
+### 作用域插槽slot-scope
 
 ```js
 命名插槽中的内容可被认作是默认值, 可以显示可以被覆盖
