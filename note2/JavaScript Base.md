@@ -15693,7 +15693,37 @@ const linkifyAndImagify = str => linkify(imagify(str))
 
 
 
-### 数组简介
+### 数组
+
+#### 特点
+
+* 数组是值得有序集合,其中的值叫做*元素*,每个元素有一个数值表示的位置,叫做*索引*.
+* JS数组是无类型限制的,即数组中的元素可以是任意类型
+* JS数组是基于零且使用32位数值索引的,第一个元素的索引是0,最大可能的索引是 `4 294 967 294 (2**32 - 2)`,即数组最大包含`4 294 967 295(2**32`个元素. 
+* JS数组是动态的,按需增大或缩小,无需再大小变化时重新为它们分配内存空间
+* JS数组可以是稀疏的,即元素不一定具有连续的索引,中间也可能有间隙.
+* 每个JS数组都有一个length属性. 
+  * 对稀疏数组, length大于所有元素的最高索引
+  * 对非稀疏数组, length属性保存数组中元素的个数
+* ES6新增定型数组(typed array).具有固定的长度和固定的元素类型.其具有极高性能,支持对二进制数据的字节级访问. ????
+
+
+
+
+
+
+
+#### 疑问
+
+为什么JS数组索引最大是`4 294 967 294`, 而不是`4 294 967 295`?
+
+> [Why is a JavaScript Array index at most 4294967294 but not 4294967295? - Stack Overflow](https://stackoverflow.com/questions/12766422/why-is-a-javascript-array-index-at-most-4294967294-but-not-4294967295)
+>
+> 数组长度是32位整数.所以数组长度可以从`0`到`Math.pow(2, 32) - 1` ,也就是`4 294 967 295`  ???
+>
+> 数组长度`n`表明其范围是从`0`到`n-1`. 所以JS数组最大的索引是`(Math.pow(2, 32)-1) - 1)` 或 `Math.pow(2, 32) - 2`, 也就是`4 294 967 294`.
+>
+> 所以JS数组可以包含最大`4 294 967 295`个元素,而不是`2 294 967 296`个元素.
 
 ```js
 # 数组Array    //A大写,是一个类,首字母需要大写
@@ -15855,7 +15885,7 @@ let arr = Array.apply(null,Array(3)); //等同于let arr = Array(undefined,undef
 
 
 
-### 创建数组3种方式
+### 创建数组 4 种方式
 
 > 在ECMAScript 6以前,创建数组有两种方式: 调用Array构造函数;数组字面量语法. 
 >
@@ -15863,20 +15893,26 @@ let arr = Array.apply(null,Array(3)); //等同于let arr = Array(undefined,undef
 >
 > 为了解决以上问题,ES6新增了Array.of()和Array.from()两个方法
 
-#### 1.Array构造函数
 
-```js
-let colors = new Array();
-```
 
-如果知道数组中元素的数量，那么可以给构造函数传入一个数值，然后length 属性就会被自动创建并设置为这个值.
+**方式列举**
 
-创建数组时可以给构造函数传一个值, 如果这个值是**数值**，则会创建一个长度为指定数值的数组；而如果这个值是**其他类型的**，则会创建一个只包含该特定值的数组
+* 数组字面量
+* Array()构造函数
+* 工厂方法 Array.of() Array.from()
+* 对可迭代对象使用`...`扩展操作符
 
-```js
-let colors = new Array(3);   //创建一个包含3 个元素的数组
-let names = new Array('Greg'); //创建一个只包含一个元素，即字符串"Greg"的数组
-```
+
+
+#### Array构造函数
+
+##### 3种调用方式:
+
+* 不传参调用: 创建一个没有元素的空数组
+* 传入一个整数,创建一个指定长度的空数组
+* 传入两个或多个数字,或传入一个非数值元素, 创建一个包含以上元素的数组
+
+
 
 ##### 1.1 Array构造函数的缺点
 
@@ -15889,9 +15925,13 @@ let names = new Array('Greg'); //创建一个只包含一个元素，即字符�
 
 
 
-#### 2.数组字面量表示法
+#### 数组字面量表示法
 
-数组字面量是在中括号中包含以逗号分隔的元素列表，如下面的例子所示
+* 数组字面量是在中括号中包含以逗号分隔的元素列表
+* 字面量中的值不需要是常量,可以是任意表达式
+* 可以包含对象字面量或其他数组字面量
+* 数组字面量中连续包含多个逗号,且逗号之间没有值,则这个数组就是稀疏的.省略了值得数组元素不存在,但是按索引查询时又会返回undefined.
+* 数组字面量语法允许末尾出现逗号.因为`[,,]`的长度是2不是3.
 
 ```js
 let colors = ["red", "blue", "green"]; // 创建一个包含3 个元素的数组
@@ -15903,49 +15943,33 @@ let values = [1,2,]; // 创建一个包含2 个元素的数组
 
 
 
-#### 3.ES6Array构造函数方法
+#### 扩展操作符
+
+* 可以使用扩展操作符`...`在一个数组中包含另一个数组的元素
+* 扩展操作符是创建数组(浅)副本的一种方式
+* 扩展操作符适用于任何可迭代对象(可迭代对象可使用for/of循环遍历).字符串是可迭代对象.
+
+```javascript
+let a = [1,2,3]
+let b = [0,...a,4] //[0,1,2,3,4]
+
+```
+
+
+
+
+
+
+
+
+
+#### Array.of()
 
 Array 构造函数还有两个ES6 新增的用于创建数组的静态方法：from()和of()。from()用于将类数组结构转换为数组实例，而of()用于将一组参数转换为数组实例。
 
+**背景**
 
-
-##### 3.1 Array.of()
-
-> 作用:
->
-> 1.解决Array构造函数生成数组传入参数的不统一问题(单一数值型参数为数组长度,多个值为数组元素)
->
-> 2.如果需要给一个函数传入Array的构造函数, 建议传入Array.of()来确保行为一致
->
-> 操作:
->
-> 要用Array.of()方法创建数组，只需传入你希望在数组中包含的值
->
-> 注意:
->
-> Array.of()方法不通过Symbol.species属性（见第9章 <深入理解ES6>）确定返回值的类型，它使用当前构造函数（也就是of()方法中的this值）来确定正确的返回数据的类型。
-
-```javascript
-//相同的调用,构造函数与of表现
-
-//如果给Array构造函数传入一个数值型的值，那么数组的length属性会被设为该值；如果传入多个值，此时无论这些值是不是数值型的，都会变为数组的元素。这个特性令人感到困惑，你不可能总是注意传入数据的类型，所以存在一定的风险。
-let items1 = new Array(2);
-consol.log(items1.length); //2
-console.log(items[0]); //undefined
-
-items = new Array("2");
-console.log(items1.length); //1
-console.log(itesms1[0]); //'2'
-
-items1 = new Array(1,2);
-console.log(items1.length); //2
-console.log(items1[0]); //2
-
-
-let items2 = Array.of(2);
-console.log(items2.length); //1
-console.log(items2[0]) //2
-```
+解决Array()构造函数无法创建一个只包含数值元素的数组
 
 
 
@@ -15961,13 +15985,19 @@ let items = createArray(Array.of, value);
 
 
 
-##### 3.2 Array.from()
+#### Array.from()
 
 > JavaScript不支持直接将非数组对象转换为真实数组，arguments就是一种类数组对象，如果要把它当作数组使用则必须先转换该对象的类型
 >
-> Array.from()方法可以接受**可迭代对象或类数组对象**作为第一个参数，最终返回一个新的数组.可迭代对象包括ES6新增的Set,Map类型
+> Array.from()方法可以接受**可迭代对象或类数组对象**作为第一个参数，最终返回一个新的数组.可迭代对象包 
 >
 > 注意: Array.from()方法也是通过this来确定返回数组的类型的。(?)
+
+**特点**
+
+* 该方法可接收一个可迭代对象或类数组对象,并返回包含该元素对象元素的新数组
+* 如果传入可迭代对象 / arguments对象, Array.from(iterable) 与`[...iterable]`一样.
+* 创建数组副本的一种方式
 
 **参数**
 
@@ -15985,11 +16015,11 @@ Array.from(arrayLike[, mapFn[, thisArg]]
 
 * 执行回调函数 `mapFn` 时 `this` 对象
 
-**返回值**
+##### **返回值**
 
 一个新的[`数组`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array)实例
 
-**描述**
+##### **描述**
 
 `Array.from()` 可以通过以下方式来创建数组对象
 
@@ -15998,7 +16028,7 @@ Array.from(arrayLike[, mapFn[, thisArg]]
 * `Array.from()` 方法有一个可选参数 `mapFn`，让你可以在最后生成的数组上再执行一次 [`map`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/map) 方法后再返回。也就是说` Array.from(obj, mapFn, thisArg) `就相当于` Array.from(obj).map(mapFn, thisArg),` 除非创建的不是可用的中间数组。 这对一些数组的子类`,`如 [typed arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays) 来说很重要, 因为中间数组的值在调用 map() 时需要是适当的类型。
 * `from()` 的 `length` 属性为 1 ，即 `Array.from.length === 1`。
 
-**实例**
+##### **实例**
 
 可迭代对象
 
@@ -16059,7 +16089,7 @@ console.log(combine(m,n));                     // [1, 2, 3]
 
 
 
-##### 3.2.1 ES5和ES6 在转换组数上的比较
+##### ES5和ES6 在转换组数上的比较
 
 1.ES5 将类数组对象转换为数组: 将函数中的arguments对象转换为数组
 
@@ -16086,6 +16116,7 @@ function doSomething() {
 //slice()方法 只需数值型索引和length属性就能够正确运行，所以任何类数组对象都能被转换为数组
 function makeArray(arrayLike) {
   return Array.prototype.slice.call(arrayLike);
+  // return [].slice.call(arrayLike)
 }
 
 function doSomething() {
@@ -16109,7 +16140,7 @@ function doSomething() {
 
 
 
-##### 3.2.2 Array.from() 映射转换
+##### Array.from() 映射转换
 
 > 如果想要进一步转化数组，可以提供一个映射函数作为Array.from()的第二个参数，这个函数用来将类数组对象中的每一个值转换成其他形式，最后将这些结果储存在结果数组的相应索引中
 
@@ -16159,7 +16190,7 @@ console.log(numbers2) //2,3,4
 
 > 注意： 如果一个对象既是类数组又是可迭代的，那么Array.from()方法会根据迭代器来决定转换哪个值。
 
-##### 3.2.3 使用
+##### 使用
 
 参数
 
@@ -16309,6 +16340,26 @@ function (obj) {
 
 
 ```
+
+
+
+数组操作
+
+### 读写数组元素
+
+使用`[]`操作访问数组元素: 方括号左侧是数组的引用,方括号内是一个具有非负整数值得表达式.
+
+只要使用小于`2**32 - 1`的非负整数作为属性名,数组就会自动为你维护length的属性的值.
+
+JS会将数值索引转换为字符串,然后再将这个字符串作为属性名.
+
+明确区分数组索引和对象属性名: 所有索引都是属性名,但只有介于`0`和`2**32 - 2`之间的整数属性名才是索引.
+
+在数组上可以以任意名字创建属性.如果这个属性是数组索引,数组自动按需更新其length属性
+
+使用负数或非整数值来索引数组,其数值会变成字符串,会被当做属性名.
+
+查询任何对象中不存在的属性都不会导致错误,只会返回undefined.
 
 
 
@@ -19552,7 +19603,7 @@ let e = Array.prototype.reverse.call(a);
 
 
 
-### 数组操作
+### 数组的一些实例
 
 
 

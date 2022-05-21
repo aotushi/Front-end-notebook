@@ -5174,6 +5174,25 @@ inject: ['getMap']
 * 它将你应用程序中的组件与它们当前的组织方式耦合起来，使重构变得更加困难。
 * 所提供的 property 是非响应式的
 
+
+
+#### 实例
+
+##### 使用provide与inject实现响应式数据更改
+
+<iframe src="https://codesandbox.io/embed/immutable-bash-ez3q1w?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="immutable-bash-ez3q1w"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+
+
 ### 3.Prop
 
 #### 3.1 Prop的大小写
@@ -9509,13 +9528,15 @@ v-on: 的特别使用: `<button v-on="{ mousedown: doThis, mouseup: doThat }"></
 * inject: `Array<string> | {[key: string]: string | Symbol | Object}`
   * `inject` 选项应该是：
     * 一个字符串数组 或
-    * 一个对象: 对象的 key 是本地的绑定名，value 是：
+    * 一个对象: 对象的 key 是<u>本地的绑定名</u>(写死的要和传递过来的一致)，value 是：
       * 在可用的注入内容中搜索用的 key (字符串或 Symbol)，或 
       * 一个对象，该对象的的:
         * `from` property 是在可用的注入内容中搜索用的 key (字符串或 Symbol)
         * `default` property 是降级情况下使用的 value
 
 
+
+> 以上地方没理解. ????
 
 #### 注意事项
 
@@ -9525,58 +9546,11 @@ v-on: 的特别使用: `<button v-on="{ mousedown: doThis, mouseup: doThat }"></
 
 
 
-
-
 #### 详细
 
 这对选项需要一起使用，以允许一个祖先组件向其所有子孙后代注入一个依赖，不论组件层次有多深，并在其上下游关系成立的时间里始终生效。
 
 
-
-
-
-#### 代码
-
-```html
-<body>
-    <div id="app">
-        <son></son>
-    </div>
-    <script>
-        let Son = Vue.extend({
-            template: '<h2> son {{house}}--{{car}} ---{{money}}</h2>',
-            inject: {
-                house: {
-                    default: '没房'
-                },
-                car: {
-                    default: '没车'
-                },
-                money: {
-                    //长大工作了虽然有点钱 
-                    // 仅供生活费，需要向父母要 
-                    default: '￥4500'
-                }
-            },
-            created() {
-                console.log(this.house, this.car, this.money)  //直接获取
-                    // -> '房子', '车子', '￥10000' 
-            }
-        })
-        new Vue({
-            el: '#app',
-            provide: {
-                house: '父亲给的房子',
-                car: '父亲给的车子',
-                money: '父亲给的￥10000'
-            },
-            components: {
-                Son
-            }
-        })
-    </script>
-</body>
-```
 
 
 
