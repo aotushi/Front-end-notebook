@@ -5180,6 +5180,8 @@ inject: ['getMap']
 
 ##### 使用provide与inject实现响应式数据更改
 
+传递一个响应式对象
+
 <iframe src="https://codesandbox.io/embed/immutable-bash-ez3q1w?fontsize=14&hidenavigation=1&theme=dark"
      style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
      title="immutable-bash-ez3q1w"
