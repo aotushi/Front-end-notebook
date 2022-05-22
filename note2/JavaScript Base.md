@@ -13911,7 +13911,7 @@ var boundGetX = retrieveX.bind(module);
 boundGetX(); // 81
 ```
 
-偏函数
+**偏函数**
 
 `bind()` 的另一个最简单的用法是使一个函数拥有预设的初始参数。只要将这些参数（如果有的话）作为 `bind()` 的参数写在 `this` 后面。当绑定函数被调用时，这些参数会被插入到目标函数的参数列表的开始位置，传递给绑定函数的参数会跟在它们后面。
 
@@ -16343,7 +16343,94 @@ function (obj) {
 
 
 
-数组操作
+### 稀疏数组(sparse arrays) 密集数组(dense arrays)
+
+> [JavaScript: sparse arrays vs. dense arrays (2ality.com)](https://2ality.com/2012/06/dense-arrays.html)
+
+#### 定义
+
+**稀疏数组**就是其元素没有从0开始的索引的数组.
+
+可以把稀疏数组当成包含undefined元素的非稀疏数组. 当你遍历它的时候,可以看到没有元素,JS跳过holes(空位置)
+
+```javascript
+let a = new Array(3) //[,,]
+a.length //3
+
+a[0] //undefined
+
+a.forEach((x, i) => { console.log(i + '.' + x)}) //没有打印结果
+a.map((x, i) => i) //[,,]
+```
+
+**密集数组**
+
+```html
+//一种创建密集数组的方法 因为文章是12年的,所以了解一下即可
+
+var a = Array.apply(null, Array(3))
+console.log(a); //[undefined, undefined, undefined]
+
+//等于
+Array(undefined, undefined, undefined)
+```
+
+
+
+#### 创建
+
+* 使用Array()构造函数创建
+* 给大于当前数组length的新数组索引赋值
+* 使用delete操作符创建
+
+```javascript
+let a = new Array(3) //[,,]
+a.length //3
+
+a[0] //undefined
+
+```
+
+
+
+#### other
+
+> [javascript - How does Function.prototype.call.bind work? - Stack Overflow](https://stackoverflow.com/questions/11121586/how-does-function-prototype-call-bind-work)
+
+```javascript
+Array.apply(null, Array(3)).map(Function.prototype.call.bind(Number))
+
+//相当于
+Array.apply(null, Array(3)).map(Number.call(param))
+
+//大概等于 这里有个点: map方法的回调函数并没有显式的传参(实现map方法,即可理解)
+Array.apply(null, Array(3)).map(
+	function(x,i,...) { return Number.call(x, i, ...) }
+)
+//记住'x'是调用的第一个参数且指明'this'的值.                     
+```
+
+
+
+#### 最佳实践
+
+在实践中,用上面的方式创建密集数组会让别人难以理解你的代码.使用工具函数例如`_.range()`是更好的选择.
+
+```javascript
+_.range(3) //[0,1,2]
+```
+
+用`map`来合并,使用提供的值填充一个数组
+
+```javascript
+_.range(3).map(() => 'a')
+```
+
+
+
+
+
+
 
 ### 读写数组元素
 
@@ -16395,6 +16482,23 @@ arr[10] = 14;
 ```
 
 
+
+### 数组的属性
+
+使用`Reflect.ownKeys(Array)`获取Array自身全部属性(可枚举,不可枚举,符号)
+
+```javascript
+['length', 'name', 'prototype', 'isArray', 'from', 'of', Symbol(Symbol.species)]
+```
+
+
+
+#### length
+
+数组(无论是否稀疏)中任何元素的索引都不会大于或等于数组的length.为了维持这种不变式(invariant), 数组有两个特殊行为.
+
+* 如果给一个索引为i的数组元素赋值,而i大于或等于数组当前的length,则数组的length属性会被设置为*i+1*
+* 如果将length属性设置为一个小于其当前值得非负整数n,则任何索引大于或等于n的数组元素都会从数组中删除.
 
 
 
@@ -19572,7 +19676,11 @@ for (let e of iterator) {
 
 
 
-### 数组方法在字符串上使用
+### 数组的一些实例
+
+
+
+#### 数组方法在字符串上使用
 
 !!!!
 
@@ -19600,10 +19708,6 @@ let e = Array.prototype.reverse.call(a);
 
 
 ```
-
-
-
-### 数组的一些实例
 
 
 
