@@ -4878,6 +4878,33 @@ container.onmousemove = throttle(getUserAction, 1000, {
 
 
 
+### 其他方案
+
+```javascript
+function throttle(fn, wait) {
+  let timeId
+  let prevTime
+  return function(...args) {
+    const currentTime = +Date.now()
+    const context = this
+    if (!prevTime) prevTime = currentTime
+    if (timeId) clearTimeout(timeId)
+    
+    if (currentTime - prevTime > delay) {
+      fn.apply(context, args)
+      prevTime = currentTime
+      clearTimeout(timeId)
+    }
+    
+    timeId = setTimeout(function() {
+      prevTime = +Date.now()
+      timeId = null
+      fn.apply(context, args)
+    }, delay)
+  }
+}
+```
+
 
 
 

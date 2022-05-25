@@ -2774,8 +2774,9 @@ directives: {
 
 
 
-
 ##### v-lazyLoad
+
+> 图片懒加载.  dom笔记
 
 背景：在类电商类项目，往往存在大量的图片，如 banner 广告图，菜单导航图，美团等商家列表头图等。图片众多以及图片体积过大往往会影响页面加载速度，造成不良的用户体验，所以进行图片懒加载优化势在必行。
 
@@ -2790,6 +2791,61 @@ directives: {
 图片懒加载有两种方式可以实现，一是绑定 srcoll 事件进行监听，二是使用 IntersectionObserver 判断图片是否到了可视区域，但是有浏览器兼容性问题。
 
 下面封装一个懒加载指令兼容两种方法，判断浏览器是否支持 IntersectionObserver API，如果支持就使用 IntersectionObserver 实现懒加载，否则则使用 srcoll 事件监听 + 节流的方法实现。
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### v-permission
+
+背景：在一些后台管理系统，我们可能需要根据用户角色进行一些操作权限的判断，很多时候我们都是粗暴地给一个元素添加 `v-if / v-show` 来进行显示隐藏，但如果判断条件繁琐且多个地方需要判断，这种方式的代码不仅不优雅而且冗余。针对这种情况，我们可以通过全局自定义指令来处理。
+
+需求：自定义一个权限指令，对需要权限判断的 Dom 进行显示隐藏。
+
+思路：
+
+1. 自定义一个权限数组
+2. 判断用户的权限是否在这个数组内，如果是则显示，否则则移除 Dom
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### vue-waterMarker
+
+> 这个方案实现的并不完善, 需要改善????
+
+需求：给整个页面添加背景水印
+
+思路：
+
+1. 使用 `canvas` 特性生成 `base64` 格式的图片文件，设置其字体大小，颜色等。
+2. 将其设置为背景图片，从而实现页面或组件水印效果
+
+
+
+
+
+##### v-draggable
+
+需求：实现一个拖拽指令，可在页面可视区域任意拖拽元素。
+
+思路：
+
+1. 设置需要拖拽的元素为相对定位，其父元素为绝对定位。
+2. 鼠标按下`(onmousedown)`时记录目标元素当前的 `left` 和 `top` 值。
+3. 鼠标移动`(onmousemove)`时计算每次移动的横向距离和纵向距离的变化值，并改变元素的 `left` 和 `top` 值
+4. 鼠标松开`(onmouseup)`时完成一次拖拽
 
 
 

@@ -4185,19 +4185,192 @@ methods: {
 
 
 
+### 图片懒加载
+
+> [my--article/前端性能优化之图片懒加载.md at master · Michael-lzg/my--article (github.com)](https://github.com/Michael-lzg/my--article/blob/master/other/前端性能优化之图片懒加载.md)
+
+#### 背景
+
+1. 减少资源的加载，页面启动只加载首屏的图片，这样能明显减少了服务器的压力和流量，也能够减小浏览器的负担。
+2. 防止并发加载的资源过多而阻塞 js 的加载，影响整个网站的启动。
+3. 能提升用户的体验，不妨设想下，用户打开页面的时候，如果页面上所有的图片都需要加载，由于图片数目较大，等待时间很长这就严重影响用户体验。
+
+#### 原理
+
+1. 拿到所有的图片 dome 。
+2. 遍历每个图片判断当前图片是否到了可视区范围内。
+3. 如果到了就设置图片的 src 属性。
+4. 绑定 window 的 `scroll` 事件，对其进行事件监听。
 
 
 
+#### 案例
+
+假设页面结构:
+
+```html
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lazyload</title>
+    <style>
+      img {
+        display: block;
+        margin-bottom: 50px;
+        height: 200px;
+        width: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <img src="./img/default.png" data-src="./img/1.jpg" />
+    <img src="./img/default.png" data-src="./img/2.jpg" />
+    <img src="./img/default.png" data-src="./img/3.jpg" />
+    <img src="./img/default.png" data-src="./img/4.jpg" />
+    <img src="./img/default.png" data-src="./img/5.jpg" />
+    <img src="./img/default.png" data-src="./img/6.jpg" />
+    <img src="./img/default.png" data-src="./img/7.jpg" />
+    <img src="./img/default.png" data-src="./img/8.jpg" />
+    <img src="./img/default.png" data-src="./img/9.jpg" />
+    <img src="./img/default.png" data-src="./img/10.jpg" />
+  </body>
+</html>
+```
+
+先获取所有图片的 dom，通过 `document.body.clientHeight` 获取可视区高度，再使用 `element.getBoundingClientRect()` API 直接得到元素相对浏览的 top 值， 遍历每个图片判断当前图片是否到了可视区范围内。代码如下：
+
+```javascript
+function lazyLoad() {
+  // 获取可视高度
+  let viewHeight = document.body.clientHeight
+  // 获取图片
+  let imgs = document.querySelectorAll('img[data-src]')
+  
+  imgs.forEach((item, index) => {
+    if (item.dataset.src === '') return
+    
+    // 用于获得页面中某个元素的左/上/右/下分别相对浏览器视窗的位置
+    let rect = item.getBoundingClientRect()
+    if (rect.bottom) >= 0 && rect.top < viewHeight) {
+      item.src = item.dataset.src
+      item.removeAttribute('data-src')
+    }
+  })
+}
+```
+
+最后给 window 绑定 `onscroll` 事件
+
+```javascript
+window.addEventListener('scroll', lazyLoad)
+```
 
 
 
+#### 存在的问题
+
+因为 `scroll` 事件会在很短的时间内触发很多次，严重影响页面性能，为了提高网页性能，我们需要一个节流函数来控制函数的多次触发，在一段时间内（如 200ms）只执行一次回调。
+
+```javascript
+function throttle(fn, delay) {
+  let timeId
+  let prevTime
+  return function(...args) {
+    let context = this
+    let currentTime = +Date.now()
+    
+    if (!prevTime) prevTime = currentTime
+    if (TimeId) clearTimeout(timeId)
+    
+    if (currentTime - prevTime > delay) {
+      fn.apply(context, args)
+      prevTime = currentTime
+      clearTimeout(timeId)
+    }
+    
+    timeId = setTimeout(function() {
+      fn.apply(context, args)
+      timeId = null
+      prevTime = +Date.now()
+    }, delay)
+  }
+}
+```
+
+然后修改一下 `srcoll` 事件
+
+```
+window.addEventListener('scroll', throttle(lazyload, 200))
+```
 
 
 
+##### IntersectionObserver
+
+通过上面例子的实现，我们要实现懒加载都需要去监听 `scroll` 事件，尽管我们可以通过函数节流的方式来阻止高频率的执行函数，但是我们还是需要去计算 `scrollTop`，`offsetHeight` 等属性，有没有简单的不需要计算这些属性的方式呢，答案就是 `IntersectionObserver`。
+
+`IntersectionObserver` 是一个新的 API，可以自动"观察"元素是否可见，Chrome 51+ 已经支持。由于可见（visible）的本质是，目标元素与视口产生一个交叉区，所以这个 API 叫做"交叉观察器"。我们来看一下它的用法：
+
+```javascript
+let io = new IntersectionObserver(callback, option)
+
+//开始观察
+io.observe(document.getElementById('example'))
+
+//停止观察
+io.unobserve(element)
+
+//关闭观察期
+io.disconnect()
+```
+
+`IntersectionObserver` 是浏览器原生提供的构造函数，接受两个参数：callback 是可见性变化时的回调函数，option 是配置对象（该参数可选）。
+
+目标元素的可见性变化时，就会调用观察器的回调函数 callback。callback 一般会触发两次。一次是目标元素刚刚进入视口（开始可见），另一次是完全离开视口（开始不可见）。
+
+```javascript
+let io = new IntersectionObserver((entries) => {
+  console.log(entries)
+})
+```
+
+- time：可见性发生变化的时间，是一个高精度时间戳，单位为毫秒
+- target：被观察的目标元素，是一个 DOM 节点对象
+- isIntersecting: 目标是否可见
+- rootBounds：根元素的矩形区域的信息，`getBoundingClientRect()`方法的返回值，如果没有根元素（即直接相对于视口滚动），则返回 null
+- boundingClientRect：目标元素的矩形区域的信息
+- intersectionRect：目标元素与视口（或根元素）的交叉区域的信息
+- intersectionRatio：目标元素的可见比例，即 `intersectionRect` 占 `boundingClientRect` 的比例，完全可见时为 1，完全不可见时小于等于 0
 
 
 
+<u>实现图片懒加载</u>
 
+```javascript
+const imgs = document.querySelectorAll('img[data-src]')
+const config = {
+  rootMargin: '0px',
+  threshold: 0
+}
+
+let observer = new IntersectionObserver((entries, self) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      let img = entry.target
+      let src = img.dataset.src
+      if (src) {
+        img.src = src
+        img.removeAttribute('data-src')
+      }
+      
+      //解除观察
+      self.unobserve(entry.target)
+    }
+  })
+}, config)
+
+
+```
 
 
 

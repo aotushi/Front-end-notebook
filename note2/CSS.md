@@ -105,6 +105,16 @@ height=height-border-padding
 
 
 
+## css规范
+
+百度FEX前端团队和腾讯AlloyTeam前端团队的CSS代码规范。
+
+> [styleguide/css.md at master · fex-team/styleguide (github.com)](https://github.com/fex-team/styleguide/blob/master/css.md)
+>
+> [Code Guide by @AlloyTeam](http://alloyteam.github.io/CodeGuide/)
+
+
+
 
 
 ## CSS

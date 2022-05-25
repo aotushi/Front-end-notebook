@@ -2,19 +2,47 @@
 
 ```javascript
 //获取文章列表
-let arr = document.getElementByClass('title-row');
+let arr = document.getElementsByClassName('title-row');
 let res = [];
 
-for (let i=0,len=arr.length; i<arr; i++) {
+for (let i=0,len=arr.length; i<len; i++) {
   res[i] = {
-    href: res[i].childNodes[7].href,
-    text: res[i].childNodes[7].innerText
+    href: arr[i].childNodes[7].href,
+    text: arr[i].childNodes[7].innerText
   }
 }
 
-res.map(item => `- [ ] [${item.href}](item.text)`).forEach(item => console.log(item))
+let result = res.map(item => `- [ ] [${item.text}](${item.href})`)
 
-//打印出来 去除多余字符 黏贴复制
+//以JSON形式保存到本地
+(function(console){
+
+    console.save = function(data, filename){
+
+        if(!data) {
+            console.error('Console.save: No data')
+            return;
+        }
+
+        if(!filename) filename = 'console.json'
+
+        if(typeof data === "object"){
+            data = JSON.stringify(data, undefined, 4)
+        }
+
+        var blob = new Blob([data], {type: 'text/json'}),
+            e    = document.createEvent('MouseEvents'),
+            a    = document.createElement('a')
+
+        a.download = filename
+        a.href = window.URL.createObjectURL(blob)
+        a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
+        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+        a.dispatchEvent(e)
+    }
+})(console)
+
+console.save(result, 'a.json')
 ```
 
 
@@ -118,8 +146,6 @@ res.map(item => `- [ ] [${item.href}](item.text)`).forEach(item => console.log(i
 
 
 
-#### 文章列表
-
 - [ ] [聊聊程序员面试时，那些必须注意的事情](https://juejin.cn/post/7064378348343918629)
 - [ ] [切勿习惯性加班](https://juejin.cn/post/6973828161662353439)
 - [ ] [我的 2020 总结，我在蚂蚁成长的这一年](https://juejin.cn/post/6919273190804062216)
@@ -163,3 +189,57 @@ res.map(item => `- [ ] [${item.href}](item.text)`).forEach(item => console.log(i
 - [ ] [Vue 进阶系列（一）之响应式原理及实现](https://juejin.cn/post/6844903697005150222)
 - [ ] [JavaScript常用八种继承方案](https://juejin.cn/post/6844903696111763470)
 - [ ] [2018大厂高级前端面试题汇总](https://juejin.cn/post/6844903695411314696)
+
+
+
+### lzg9527
+
+> [lzg9527 的个人主页 - 文章 - 掘金 (juejin.cn)](https://juejin.cn/user/2330620381629070/posts)
+
+
+
+- [ ] [这几个高级前端常用的API，你用到了吗？](https://juejin.cn/post/7028744289890861063),
+- [ ] [从零搭建一个前端cli脚手架并发布到npm](https://juejin.cn/post/7010673349571379231),
+- [ ] [前端性能优化——图片篇](https://juejin.cn/post/6965761736083243044),
+- [ ] [万恶的前端内存泄漏及万善的解决方案](https://juejin.cn/post/6914092198170460168),
+- [ ] [分享8个非常实用的Vue自定义指令](https://juejin.cn/post/6906028995133833230),
+- [ ] [前端性能优化之图片懒加载](https://juejin.cn/post/6903774214780616718),
+- [ ] [你必须知道的webpack插件原理分析](https://juejin.cn/post/6901210575162834958),
+- [ ] [webpack的异步加载原理及分包策略](https://juejin.cn/post/6895546761255845901),
+- [ ] [react基础知识总结（持续更新ing...）](https://juejin.cn/post/6872905077493858312),
+- [ ] [谈谈数据状态管理和实现一个简易版vuex](https://juejin.cn/post/6866964944634511368),
+- [ ] [解锁各种js数组骚操作，总有你想要的！](https://juejin.cn/post/6854818587820736526),
+- [ ] [code-review之前端代码优化](https://juejin.cn/post/6850037282419392526),
+- [ ] [code-review之前端代码规范](https://juejin.cn/post/6846687599281569800),
+- [ ] [总结18个webpack插件，总会有你想要的！](https://juejin.cn/post/6844904193589772301),
+- [ ] [你真的了解ES6的Set，WeakSet，Map和WeakMap吗？](https://juejin.cn/post/6844904191610060814),
+- [ ] [谈谈图片上传及canvas压缩的流程](https://juejin.cn/post/6844904185259884558),
+- [ ] [有趣的Canvas，你值得拥有！](https://juejin.cn/post/6844904196689362958),
+- [ ] [从零构建到优化一个类似vue-cli的脚手架](https://juejin.cn/post/6844904168868544525),
+- [ ] [搭建一个vue-cli4+webpack移动端框架（开箱即用）](https://juejin.cn/post/6844904152389124103),
+- [ ] [谈谈关于文件上传下载那些事](https://juejin.cn/post/6844904142251507720),
+- [ ] [你也许不知道的javascript高级函数](https://juejin.cn/post/6844904127948914701),
+- [ ] [从 javascript 事件循环看 Vue.nextTick 的原理和执行机制](https://juejin.cn/post/6844904117895168008),
+- [ ] [总结javascript处理异步的方法](https://juejin.cn/post/6844904101994561549),
+- [ ] [总结vue知识体系之高级应用篇](https://juejin.cn/post/6844904094692278286),
+- [ ] [总结vue知识体系之实用技巧](https://juejin.cn/post/6844904080960126989),
+- [ ] [总结vue知识体系之基础入门篇](https://juejin.cn/post/6844904079164964871),
+- [ ] [2020年你不能不知道的webpack基本配置](https://juejin.cn/post/6844904070956711943),
+- [ ] [总结移动端H5开发常用技巧（干货满满哦！）](https://juejin.cn/post/6844904066301050893),
+- [ ] [JS基础总结（5）—— JS执行机制与EventLoop](https://juejin.cn/post/6844904056159223816),
+- [ ] [JS基础总结（4）——this指向及call/apply/bind](https://juejin.cn/post/6844904054481485832),
+- [ ] [JS基础总结（3）——作用域和闭包](https://juejin.cn/post/6844904051998457869),
+- [ ] [JS基础总结（2）——原型与原型链](https://juejin.cn/post/6844904051390283783),
+- [ ] [JS基础总结（1）——数据类型](https://juejin.cn/post/6844904050903744519),
+- [ ] [总结几个vue-router的使用技巧](https://juejin.cn/post/6844904022281814023),
+- [ ] [几种常见的JS递归算法](https://juejin.cn/post/6844904014207795214),
+- [ ] [浅谈webscoket原理及其应用](https://juejin.cn/post/6844904009728262152),
+- [ ] [总结前端性能优化的方法](https://juejin.cn/post/6844904006297321480),
+- [ ] [总结几个webpack打包优化的方法](https://juejin.cn/post/6844904004825120782),
+- [ ] [教你一步步封装vue组件并发布到npm](https://juejin.cn/post/6844903991655022600),
+- [ ] [从一道面试题中总结JS作用域，this 指向和箭头函数](https://juejin.cn/post/6844903990291873806),
+- [ ] [浅谈JavaScript的防抖与节流](https://juejin.cn/post/6844904004850286605),
+- [ ] [搭建一个vue-cli的移动端H5开发模板](https://juejin.cn/post/6844904005265522696),
+- [ ] [从零开始构建一个webpack项目](https://juejin.cn/post/6844904005286494215),
+- [ ] [总结几个移动端H5软键盘的大坑及其解决方案](https://juejin.cn/post/6844904005286510599),
+- [ ] [一文读尽前端路由、后端路由、单页面应用、多页面应用](https://juejin.cn/post/6844903975309819911)
