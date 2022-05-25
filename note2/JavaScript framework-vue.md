@@ -1021,15 +1021,73 @@ npm install vue -g`或者`cnpm install vue -g
 
 
 
+## Vue架构设计/项目结构
 
 
-## Vue实例
 
 
 
-### vue的使用
 
-#### 初始化
+
+
+
+
+
+
+
+
+
+## Vue实例方法/全局API/实现原理
+
+### 实现原理
+
+#### 项目代码
+
+```javascript
+import { initMixin } from './init'
+import { stateMixin } from './state'
+import { renderMixin } from './render'
+import { eventsMixin } from './events'
+import { lifecycleMixin } from './lifecycle'
+import { warn } from '../util/index'
+
+function Vue(options) {
+  if (process.env.NODE_ENV !== 'production' && !(this instanceof Vue)) {
+    warn('Vue is a constructor and should be called with the `new` keyword')
+  }
+  
+  this._init(options)
+}
+
+
+initMixin(Vue)
+stateMixin(Vue)
+eventsMixin(Vue)
+lifecycleMixin(Vue)
+renderMixin(Vue)
+
+
+export default Vue
+```
+
+上面5个函数的作用是向Vue原型中挂载方法. 以函数initMixin为例,它的实现方式是:
+
+```javascript
+//当函数initMixin被调用时,会向Vue构造函数的prototype属性添加_init方法
+export function initMixin(Vue) {
+  Vue.prototype._init = function (options) {
+    //do something
+  }
+}
+```
+
+执行new Vue()时,会调用`_init()`方法,该方法实现了一系列初始化操作,包括整个生命周期的流程以及响应式系统流程的启动等.
+
+### Vue实例
+
+#### vue的使用
+
+##### 初始化
 
 > 每个Vue应用都是通过Vue函数创建一个新的Vue实例开始的
 
@@ -1058,7 +1116,7 @@ let vm = new Vue({
 
 
 
-####  Vue个版本的对比
+#####  Vue个版本的对比
 
 > [Vue各版本对比 - 掘金 (juejin.cn)](https://juejin.cn/post/6904573979554807815)
 
@@ -1166,7 +1224,7 @@ const v=new Vue({
 
 
 
-### Vue实例的属性
+### Vue实例的方法
 
 > [Component Instance | Vue.js (vuejs.org)](https://vuejs.org/api/component-instance.html)
 >
@@ -1183,7 +1241,7 @@ const v=new Vue({
 
 
 
-##### **$props**
+#### **$props**
 
 ```html
 <script>
@@ -1209,7 +1267,7 @@ const v=new Vue({
 
 ![20200521231726751.PNG (752×556) (csdnimg.cn)](https://img-blog.csdnimg.cn/20200521231726751.PNG)
 
-##### **$options**
+#### **$options**
 
 Vue实例初始化时,除了传入指定的属性,还可以传入自定义属性.自定义的属性可以是数组,对象,函数等,通过Vm.$options来获取.
 
@@ -1242,7 +1300,7 @@ Vue实例初始化时,除了传入指定的属性,还可以传入自定义属性
 
 
 
-##### **$el**
+#### **$el**
 
 $el是用来访问vm实例使用的根DOM元素
 
@@ -1300,7 +1358,7 @@ $el是用来访问vm实例使用的根DOM元素
 
 
 
-##### $children
+#### $children
 
 获取vue实例的直接子组件
 
@@ -1342,7 +1400,7 @@ $el是用来访问vm实例使用的根DOM元素
 
 
 
-##### **$root**
+#### **$root**
 
 用来获取当前组件树的根Vue实例，如果当前实例没有父实例，则获取到的是该实例本身
 
@@ -1374,7 +1432,7 @@ $el是用来访问vm实例使用的根DOM元素
 
 ![](https://img-blog.csdnimg.cn/20200521234717675.PNG)
 
-##### $attrs
+#### $attrs
 
 可以获取组件的属性，但其获取的属性中<u>不包含class、style以及被声明为props的属性</u>。
 
@@ -1483,6 +1541,158 @@ vm.$watch('a', function(newValue, oldValue) {
 
 
 
+### Vue全局API
+
+<span style="color:red">全局API和实例方法不同</span>,后再是在Vue的原型上挂载方法,也就是`Vue.prototype`上挂载方法,而前者是直接在Vue上挂载方法.
+
+#### Vue.extend()
+
+> [Vue中 Vue.extend() 详解及使用 - 掘金 (juejin.cn)](https://juejin.cn/post/6982558712149835790)
+>
+> [API — Vue.js (vuejs.org)](https://cn.vuejs.org/v2/api/#Vue-extend)
+
+##### 介绍
+
+使用基础 Vue 构造器，创建一个“子类”。参数是一个包含组件选项的对象。
+
+##### 应用场景
+
+在 vue 项目中，初始化的根实例后，所有页面基本上都是通过 router 来管理，组件也是通过 import 来进行局部注册，所以组件的创建不需要去关注，相比 extend 要更省心一点点。但是这样做会有几个缺点：
+
+1. 组件模板都是事先定义好的，如果我要从接口<u>动态渲染组件</u>怎么办？
+
+2. 所有内容都是在 #app 下渲染，注册组件都是在当前位置渲染。如果我要实现一个类似于` window.alert() 提示组件`, 要求像调用 JS 函数一样调用它，该怎么办？
+
+这时候，Vue.extend + vm.$mount 组合就派上用场了。
+
+##### extend函数
+
+```javascript
+let ctor = Vue.extend({组件对象})
+
+let aa = new ctor();
+
+
+document.body.appendChild(aa.$mount().$el)
+
+```
+
+
+
+##### 使用
+
+1.基础用法
+
+extend 创建的是 Vue 构造器，而不是我们平时常写的组件实例，所以不可以通过 new Vue({ components: testExtend }) 来直接使用，需要通过 `new Profile().$mount('#mount-point') `来挂载到指定的元素上。
+
+```html
+<div di="mount-point"></div>
+
+<script>
+	let Profile = Vue.extend({
+    template: '<p>{{firstName}} {{lastName}} aka {{alias}}</p>',
+    data: function() {
+      return {
+        firstName: 'walter',
+        lastName: 'white',
+        alias: 'heisenberg'
+      }
+    }
+  })
+  
+  //创建Profile实例,并挂载到一个元素上
+  new Profile().$mount('#mount-point')
+
+</script>
+```
+
+
+
+第二种写法
+
+创建实例时传入一个元素,生成的组件将会挂载到这个元素上.
+
+```javascript
+//定义一个vue模板
+let tem = {
+  template: '{{firstName}} {{lastName}} aka {{alias}}',
+  data: function() {
+    return {
+      firstName: 'walter',
+      lastName: 'white',
+      alias: 'heisenberg'
+    }
+  }
+}
+
+//调用
+cosnt TemConstructor = Vue.extend(tem)
+const instance = new TemConstructor({el: '#app'})
+```
+
+
+
+##### 使用案例
+
+封装toast组件  ????
+
+需要多看几遍
+
+> [Vue.extend实现全局Toast提示组件和Dialog对话框组件封装 - 掘金 (juejin.cn)](https://juejin.cn/post/6904541556938637325)
+
+<iframe src="https://codesandbox.io/embed/vue2-extend-6xuwrz?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue2/extend"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+实现Dialog对话框组件封装 ????
+
+> [Vue.extend实现全局Toast提示组件和Dialog对话框组件封装 - 掘金 (juejin.cn)](https://juejin.cn/post/6904541556938637325)
+
+> 在 components 目录下新建 Dialog 文件夹作为 Dialog 组件文件，新建 index.vue 和 index.js 文件进行组件封装，并在 main.js 中将组件挂载到 vue 原型上实现全局使用
+
+
+
+### Vue.nextTIck([callback, context])
+
+> 官网: 在下次DOM更新循环结束之后执行延迟回调. 在修改数据之后立即使用这个方法,获取更新后的DOM
+>
+> 简单理解: **当数据更新了，在dom中渲染后，自动执行该函数**
+
+```js
+//修改数据
+vm.msg = 'hello';
+//DOM还没有更新
+Vue.nextTick(function() {
+  //DOM更新了
+})
+
+//作为一个Promise使用
+Vue.nextTick()
+  .then(function() {
+  //DOM更新了
+})
+```
+
+
+
+```js
+//资料
+https://segmentfault.com/a/1190000020499713?utm_source=sf-similar-article
+
+JS的事件循环和任务队列是理解nextTick的关键(https://juejin.cn/post/6844903476527366151)
+                           
+
+```
+
+
+
+
+
 ## 模板语法
 
 > Vue.js 使用了基于 HTML 的模板语法，允许开发者声明式地将 DOM 绑定至底层 Vue 实例的数据。所有 Vue.js 的模板都是合法的 HTML，所以能被遵循规范的浏览器和 HTML 解析器解析。
@@ -1528,7 +1738,7 @@ vm.$watch('a', function(newValue, oldValue) {
 
 
 
-### 1.插值
+### 插值
 
 - 在vue语法**内部**，可以使用`{{}}`称为插值表达式; vue语法外部，使用不了插值表达式
 - 插值表达式内部，可以放置变量或者表达式或者函数
@@ -1759,7 +1969,7 @@ this.text2();
 
 
 
-### 2.指令
+### 指令
 
 > 指令 (Directives) 是带有 `v-` 前缀的特殊 attribute。指令 attribute 的值预期是**单个 JavaScript 表达式** (`v-for` 是例外情况)。指令的职责是，当表达式的值改变时，将其产生的连带影响，响应式地作用于 DOM.
 >
@@ -2362,55 +2572,226 @@ Vue.filter('dataFormater', function(value, str='YYYY-MM-DD'){
 
 ### 自定义指令
 
-```HTML
-对普通DOM元素进行底层操作
-//全局指令 局部指令
-指令禁止使用大写字母
+#### 背景
 
-//全局指令(不加s):
-Vue.directive('指令名称', function(ele, binding){}) 
-//ele是代表当前真实的DOM节点,binding是一个有绑定当前节点信息的对象,其中value属性是传入的'name'的值
+在 Vue2.0 中，代码复用和抽象的主要形式是组件。有的情况下，你仍然需要<span style="color:blue">对普通 DOM 元素进行底层操作</span>，这时候就会用到自定义指令。
 
-//局部指令(加s):
-<script>
-	new Vue({
-		el:'#root',
-        data:{name:'atBeiJing'},
-        directives:{
-            'upper-text'(ele,binding){
-            ele.innerText += binding.value.toUpperCase();
-        }}
+#### 分类
+
+指令分为**全局指令**和**局部指令**
+
+#### 全局指令
+
+##### 语法
+
+```javascript
+Vue.directive(id, [denfinition])
+```
+
+##### 参数
+
+* id  `{string}`
+* [denfinition] `{Function | Object}`
+
+##### 用法
+
+注册或获取全局指令
+
+```javascript
+//注册
+Vue.directive('my-directive', {
+  bind: function() {},
+  inserted: function() {},
+  update: function() {},
+  componentUpdated: function() {},
+  unbind: function() {}
 })
-</script>
+
+// 注册 (指令函数)
+Vue.directive('my-directive', function () {
+  // 这里将会被 `bind` 和 `update` 调用   ???why
+})
+
+// getter，返回已注册的指令
+var myDirective = Vue.directive('my-directive')
 ```
 
 
 
-```HTML
-//需求:
-需求: 自定义2个指令
-1. 功能类似于v-text, 但转换为全大写  v-upper-text
-2. 功能类似于v-text, 但转换为全小写  v-lower-text
 
-<div id='root'>
-    <h2 v-upper-text='name'></h2>    
-    <h2 v-Lower-text='name'></h2>    
-</div>
-<script>
-	Vue.directive('upper-text', function(ele,binding){
-        ele.innerText += binding.value.toUpperCase();
-    })
-    new Vue({
-        el:'#root',
-        data:{name:'atBeiJing'},
-        directives:{
-            'lower-text'(ele,binding){
-                ele.innerText=binding.value.toLowerCase();
-            }
-        }
-    })
-</script>
+
+
+
+#### 局部指令
+
+##### 语法
+
+组件中也接受一个 `directives` 的选项
+
+```javascript
+directives: {
+  
+}
 ```
+
+
+
+#### 钩子函数
+
+一个指令定义对象可以提供如下几个钩子函数 (均为可选)：
+
+* `bind`: 只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+* `inserted`：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
+* `update`：所在组件的 VNode 更新时调用，**但是可能发生在其子 VNode 更新之前**。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新 (详细的钩子函数参数见下)。
+* `componentUpdated`：指令所在组件的 VNode **及其子 VNode** 全部更新后调用。
+* `unbind`：只调用一次，指令与元素解绑时调用。
+
+
+
+#### 钩子函数参数
+
+- `el`：指令所绑定的元素，可以用来直接操作 DOM。
+- `binding`: 一个对象，包含以下 property：
+  - `name`：指令名，不包括 `v-` 前缀。
+  - `value`：指令的绑定值，例如：`v-my-directive="1 + 1"` 中，绑定值为 `2`。
+  - `oldValue`：指令绑定的前一个值，仅在 `update` 和 `componentUpdated` 钩子中可用。无论值是否改变都可用。
+  - `expression`：字符串形式的指令表达式。例如 `v-my-directive="1 + 1"` 中，表达式为 `"1 + 1"`。
+  - `arg`：传给指令的参数，可选。例如 `v-my-directive:foo` 中，参数为 `"foo"`。
+  - `modifiers`：一个包含修饰符的对象。例如：`v-my-directive.foo.bar` 中，修饰符对象为 `{ foo: true, bar: true }`。
+- `vnode`：Vue 编译生成的虚拟节点。移步 [VNode API](https://cn.vuejs.org/v2/api/#VNode-接口) 来了解更多详情。
+- `oldVnode`：上一个虚拟节点，仅在 `update` 和 `componentUpdated` 钩子中可用
+
+除了 `el` 之外，其它参数都应该是只读的，切勿进行修改。如果需要在钩子之间共享数据，建议通过元素的 [`dataset`](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/dataset) 来进行。
+
+#### 注意事项
+
+* 自定义指令中,不能直接使用this
+* 自定义指令中的update和componentUpdated相当于钩子函数中的mounted和updated. 其他项也类似
+
+
+
+**案例**
+
+<iframe src="https://codesandbox.io/embed/vue-directive-fipq1q?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directive"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+#### 实例
+
+##### 禁止使用大写字母
+
+<iframe src="https://codesandbox.io/embed/vue-directive-fipq1q?fontsize=12&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directive"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### 复制黏贴指令v-copy
+
+> [Michael-lzg/v-directives: vue自定义指令集合 (github.com)](https://github.com/Michael-lzg/v-directives)
+
+思路：
+
+1. 动态创建 textarea 标签，并设置 readOnly 属性及移出可视区域
+2. 将要 copy 的值赋给 textarea 标签的 value 属性，并插入到 body
+3. 选中值 textarea 并复制
+4. 将 body 中插入的 textarea 移除
+5. 在第一次调用时绑定事件，在解绑时移除事件
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&moduleview=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+##### 长按指令 v-longpress
+
+需求：实现长按，用户需要按下并按住按钮几秒钟，触发相应的事件
+
+思路：
+
+1. 创建一个计时器， 2 秒后执行函数
+2. 当用户按下按钮时触发 mousedown 事件，启动计时器；用户松开按钮时调用 mouseout 事件。
+3. 如果 mouseup 事件 2 秒内被触发，就清除计时器，当作一个普通的点击事件
+4. 如果计时器没有在 2 秒内清除，则判定为一次长按，可以执行关联的函数。
+5. 在移动端要考虑 touchstart，touchend 事件
+
+
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+##### v-debounce
+
+背景：在开发中，有些提交保存按钮有时候会在短时间内被点击多次，这样就会多次重复请求后端接口，造成数据的混乱，比如新增表单的提交按钮，多次点击就会新增多条重复的数据。
+
+需求：防止按钮在短时间内被多次点击，使用防抖函数限制规定时间内只能点击一次。
+
+思路：
+
+1. 定义一个延迟执行的方法，如果在延迟时间内再调用该方法，则重新计算执行时间。
+2. 将时间绑定在 click 方法上。
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### v-emoji
+
+背景：开发中遇到的表单输入，往往会有对输入内容的限制，比如不能输入表情和特殊字符，只能输入数字或字母等。
+
+我们常规方法是在每一个表单的@change 事件上做处理。
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+##### v-lazyLoad
+
+背景：在类电商类项目，往往存在大量的图片，如 banner 广告图，菜单导航图，美团等商家列表头图等。图片众多以及图片体积过大往往会影响页面加载速度，造成不良的用户体验，所以进行图片懒加载优化势在必行。
+
+需求：实现一个图片懒加载指令，只加载浏览器可见区域的图片。
+
+思路：
+
+1. 图片懒加载的原理主要是判断当前图片是否到了可视区域这一核心逻辑实现的
+2. 拿到所有的图片 dome ，遍历每个图片判断当前图片是否到了可视区范围内
+3. 如果到了就设置图片的 src 属性，否则显示默认图片
+
+图片懒加载有两种方式可以实现，一是绑定 srcoll 事件进行监听，二是使用 IntersectionObserver 判断图片是否到了可视区域，但是有浏览器兼容性问题。
+
+下面封装一个懒加载指令兼容两种方法，判断浏览器是否支持 IntersectionObserver API，如果支持就使用 IntersectionObserver 实现懒加载，否则则使用 srcoll 事件监听 + 节流的方法实现。
+
+
 
 
 
@@ -2490,6 +2871,12 @@ extension.install=function(Vue, options){//Vue, options是配置对象
 |      | 模块化                 | 组件化                                       |
 | ---- | ---------------------- | -------------------------------------------- |
 | 定义 | 应用的js都以模块来编写 | 应用是以多组件方式实现. 是组件化的应用和开发 |
+
+
+
+
+
+
 
 
 
@@ -4357,8 +4744,6 @@ Vue.component('my-component-name', { /* ... */ })
 
 ### 组件注册
 
-
-
 #### 全局注册
 
 ##### 注册及使用
@@ -4706,6 +5091,51 @@ https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/component
 
 **全局注册的行为必须在根 Vue 实例 (通过 `new Vue`) 创建之前发生**
 
+
+
+### 组件使用基本流程
+
+#### 定义组件 ?
+
+##### Vue.extend(obj)
+
+定义一个Xxx组件(首字母大写)
+	1.如何定义一个组件? 使用const Example=Vue.extend(options)去创建
+	2.Example的本质是一个构造函数,我们以后去写\<Example/>,Vue帮我们去new Example.
+	3.Vue.extend(options),options是一个配置对象,这个配置对象几乎和new Vue时的那个options一样.区别如下:
+      3.1 不能写el去指定容器,所有组件实例最终要被一个vm所管理,vm中会指定好el,即组件放入那个容器.
+	  3.2 data必须写成函数,返回值是对象.
+	  3.3 组件的模板结构要配置在template属性中:值为html字符串,且用模板字符串;模板结构必须只有一个根标签
+
+
+
+
+
+
+
+#### 注册组件
+
+> 所有的组件定以后,必须注册后才能使用. 注册分为全局,局部.
+
+
+
+##### 全局注册
+
+Vue.component('组件名', 组件)    
+
+##### 局部注册
+
+在vm中添加components属性 components:{组件名:组件}
+
+#### 写组件标签
+
+​    
+
+    5. 5.1 Example确实是构造函数,但不是我们亲自写的Example,是Vue.extend生成的.
+       5.2 Vue.extend调用的返回值是VueComponent构造函数,所以new Example()其实就是在new VueComponent()
+       5.3 所谓组件的实例就是VueComponent的实例.简称vc; 所谓Vue的实例,就是Vue创建的实例,简称vm.
+       5.4 组件的data函数以及methods中配置的函数中的this都是vc
+    6. 一个最重要的关系: VueComponent继承了Vue. 所以Vue.prototype上的属性和方法,vc都能看得见. ****
 
 
 
@@ -5130,7 +5560,7 @@ var map = this.$parent.map || this.$parent.$parent.map
 
 
 
-### 依赖注入
+### 依赖注入 ???
 
 #### 背景
 
@@ -5191,7 +5621,179 @@ inject: ['getMap']
 
 
 
+### 实例事件监听器???
 
+#### 背景
+
+Vue实例在事件接口中提供了如下方法:
+
+除了`$emit(eventName, [...args])`触发一个事件,参数传给监听器回调外, 事件监听器有:
+
+* 通过`$on(eventName, eventHandler)`侦听一个事件
+* 通过`$once(eventName, eventHandler)`一次性侦听一个事件
+* 通过`$off(eventName, eventHandler)`停止侦听一个事件
+
+#### 使用场景
+
+需要在一个组件实例上手动侦听事件时
+
+#### 案例
+
+将一个日期选择器附加到输入框上,同时在组件被销毁之前,也销毁这个日期选择器
+
+```javascript
+// 一次性将这个日期选择器附加到一个输入框上
+// 它会被挂载到 DOM 上。
+mounted: function () {
+  // Pikaday 是一个第三方日期选择器的库
+  this.picker = new Pikaday({
+    field: this.$refs.input,
+    format: 'YYYY-MM-DD'
+  })
+},
+// 在组件被销毁之前，
+// 也销毁这个日期选择器。
+beforeDestroy: function () {
+  this.picker.destroy()
+}
+```
+
+
+
+#### 存在问题???
+
+> 表述晦涩,较难理解
+
+- 它需要在这个组件实例中保存这个 `picker`，如果可以的话最好只有生命周期钩子可以访问到它。这并不算严重的问题，但是它可以被视为杂物。
+- 我们的建立代码独立于我们的清理代码，这使得我们比较难于程序化地清理我们建立的所有东西。
+
+
+
+#### 解决,程序化的侦听器
+
+```javascript
+mounted: function () {
+  var picker = new Pikaday({
+    field: this.$refs.input,
+    format: 'YYYY-MM-DD'
+  })
+
+  this.$once('hook:beforeDestroy', function () {
+    picker.destroy()
+  })
+}
+```
+
+使用了这个策略，我甚至可以让多个输入框元素同时使用不同的 Pikaday，每个新的实例都程序化地在后期清理它自己：
+
+```javascript
+mounted: function () {
+  this.attachDatepicker('startDateInput')
+  this.attachDatepicker('endDateInput')
+},
+methods: {
+  attachDatepicker: function (refName) {
+    var picker = new Pikaday({
+      field: this.$refs[refName],
+      format: 'YYYY-MM-DD'
+    })
+
+    this.$once('hook:beforeDestroy', function () {
+      picker.destroy()
+    })
+  }
+}
+```
+
+
+
+<iframe src="https://codesandbox.io/embed/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-programmatic-event-listeners?autoresize=1&fontsize=12&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue-20-programmatic-event-listeners"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+### 组件循环引用 (未完成)????
+
+#### 递归组件
+
+> 组件是可以在它们自己的模板中调用自身的。不过它们只能通过 `name` 选项来做这件事
+
+
+
+##### how
+
+如何获取组件name值?
+
+* 显示声明的name值
+* Vue.component全局注册的一个组件,全局ID自动设置为组件的name
+
+
+
+##### 潜在问题
+
+递归组件可能导致无限循环
+
+```javascript
+name: 'stack-overflow'
+template: '<div><stack-overflow></stack-overflow></div>'
+```
+
+类似上述的组件将会导致“max stack size exceeded”错误，所以请确保递归调用是条件性的 (例如使用一个最终会得到 `false` 的 `v-if`)。
+
+
+
+
+
+#### 组件之间的循环引用????
+
+
+
+### 模板定义的替代品(未完成)
+
+#### 内联模板
+
+> 当 `inline-template` 这个特殊的 attribute 出现在一个子组件上时，这个组件将会使用其里面的内容作为模板，而不是将其作为被分发的内容。这使得模板的撰写工作更加灵活。
+
+
+
+
+
+#### X-Template
+
+
+
+### 组件控制更新
+
+#### 强制更新
+
+> 如果你发现你自己需要在 Vue 中做一次强制更新，99.9% 的情况，是你在某个地方做错了事。
+>
+> 可能还没有留意到[数组](https://cn.vuejs.org/v2/guide/list.html#注意事项)或[对象](https://cn.vuejs.org/v2/guide/list.html#对象变更检测注意事项)的变更检测注意事项，或者你可能依赖了一个未被 Vue 的响应式系统追踪的状态。
+>
+> 通过 [`$forceUpdate`](https://cn.vuejs.org/v2/api/#vm-forceUpdate) 来做这件事。
+
+
+
+
+
+#### `v-once`创建低开销静态组件
+
+> 组件包含了**大量**静态内容。在这种情况下，你可以在根元素上添加 `v-once` attribute 以确保这些内容只计算一次然后缓存起来
+
+```vue
+Vue.component('terms-of-service', {
+  template: `
+    <div v-once>
+      <h1>Terms of Service</h1>
+      ... a lot of static content ...
+    </div>
+  `
+})
+```
 
 
 
@@ -5573,22 +6175,6 @@ vue中父组件向子组件传值时，其父子prop之间形成单向下行绑�
 #### 7.2.3 vuex
 
 虽然有两种方法可以实现子组件修改父组件值，但是官方是不推荐在子组件内修改通过prop传入的父组件的值，推荐使用[vuex](https://vuex.vuejs.org/zh/guide/)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -6504,391 +7090,6 @@ function (sonProp) {
 
 
 
-## 处理边界情况
-
-> 即一些需要对 Vue 的规则做一些小调整的特殊情况。不过注意这些功能都是有劣势或危险的场景的。
-
-### 1.访问元素&组件
-
-在绝大多数情况下，我们最好不要触达另一个组件实例内部或手动操作 DOM 元素。不过也确实在一些情况下做这些事情是合适的。
-
-#### 1.1 访问根实例
-
-> 在每个 `new Vue` 实例的子组件中，其根实例可以通过 `$root` property 进行访问
-
-```js
-//vue 根实例
-
-new Vue({
-  data: {foo: 1},
-  computed: {
-    bar: function() { /*...*/}
-  },
-  methods: {
-    baz: function() {/*...*/}
-  }
-})
-```
-
-所有的子组件都可以将这个实例作为一个全局 store 来访问或使用。
-
-```js
-//获取根组件的数据
-this.$root.foo
-
-//写入根组件的数据
-this.$root.foo = 2
-
-////访问根组件的计算属性
-this.$root.bar
-
-//调用根组件的方法
-this.$root.baz()
-```
-
-
-
-> 对于 demo 或非常小型的有少量组件的应用来说这是很方便的。不过这个模式扩展到中大型应用来说就不然了。因此在绝大多数情况下，我们强烈推荐使用 [Vuex](https://github.com/vuejs/vuex) 来管理应用的状态
-
-
-
-#### 1.2 访问父组件实例
-
-> 和 `$root` 类似，`$parent` property 可以用来从一个子组件访问父组件的实例。它提供了一种机会，可以在后期随时触达父级组件，以替代将数据以 prop 的方式传入子组件的方式
->
-> 在绝大多数情况下，触达父级组件会使得你的应用更难调试和理解，尤其是当你变更了父级组件的数据的时候。当我们稍后回看那个组件的时候，很难找出那个变更是从哪里发起的。
-
-
-
-
-
-#### 1.3 访问子组件实例或子元素
-
->  尽管存在 prop 和事件，有的时候你仍可能需要在 JavaScript 里直接访问一个子组件。为了达到这个目的，你可以通过 `ref` 这个 attribute 为子组件赋予一个 ID 引用。
-
-```js
-//定义
-<base-input ref='usernameInput'></base-input>
-
-//使用(在定义了这个ref的组件里)
-this.$refs.usernameInput
-
-//案例. 从父组件聚焦这个输入框
-1. 在子组件中的使用
-  <input ref='input'>
-
-2. 子组件中的方法
-  methods: {
-		//用来从父组件聚焦输入框
-    focus: function() {
-      this.$refs.input.focus()
-    }
-	}
-3. 父组件中的写法
-	//父组件中实现聚焦
-	this.$refs.usernameInput.focus()
-  
-```
-
-```html
-<body>
-  <div id='app'>
-    <base-input ref='usernameInput'></base-input>
-  </div>
-  <script>
-  	Vue.component('baseInput', {
-      methods: {
-        focus: function() {
-          this.$refs.input.focus()
-        }
-      },
-      
-    })
-    
-    new Vue({
-      el: '#app',
-      mounted() {
-        this.$refs.usernameInput.focus()
-      }
-    })
-  </script>
-</body>
-```
-
-
-
-
-
-
-
-
-
-
-
-### 2.组件的复用
-
-你可以将组件进行任意次数的复用：
-
-注意当点击按钮时，每个组件都会各自独立维护它的 `count`。因为你每用一次组件，就会有一个它的新**实例**被创建。
-
-```html
-<div id="components-demo">
-  <button-counter></button-counter>
-  <button-counter></button-counter>
-  <button-counter></button-counter>
-</div>
-```
-
-
-
-#### 2.1 data必须是一个函数
-
-**一个组件的 `data` 选项必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝：
-
-如果 Vue 没有这条规则，点击一个按钮就可能影响到其它所有实例
-
-注释: 可以从作用域方面理解.如果返回的是一个对象,那么当多个地方调用并有改变其值的行为发生时,其他引用这个对象中数据的地方也会发生改变;如果是一个函数,有独立的作用域,数据实现了间隔处理.
-
-
-
-### 3.组件的组织
-
-通常一个应用会以一棵**嵌套的组件树**的形式来组织：例如，你可能会有页头、侧边栏、内容区等组件，每个组件又包含了其它的像导航链接、博文之类的组件。
-
-为了能在模板中使用，这些组件**必须先注册以便 Vue 能够识别**。这里有两种组件的注册类型：**全局注册**和**局部注册**。
-
-#### 3.1 全局注册
-
-全局注册的组件可以用在其被注册之后的任何 (通过 `new Vue`) 新创建的 Vue 根实例，也包括其组件树中的所有子组件的模板中
-
-```vue
-Vue.component('my-component', {
-	//...options
-})
-```
-
-
-
-```HTML
-单文件组件: 一个文件就是一个组件,且文件的后缀是.vue. 开发中使用的.
-非单文件组件:所有组件都定义在一个文件中,文件的后缀不是.vue
-```
-
-
-
-#### 3.2 通过prop向子组件传递数据
-
-Prop 是你可以在组件上注册的一些自定义 attribute。当一个值传递给一个 prop attribute 的时候，它就变成了那个组件实例的一个 property。可以用一个 `props` 选项将其包含在该组件可接受的 prop 列表中.
-
-我们能够在组件实例中访问这个值，就像访问 `data` 中的值一样
-
-```js
-Vue.component('blog-post', {
-  props:['title'],
-  template:'<h3>title</h3>'
-})
-```
-
-一个组件默认可以拥有**任意数量**的 prop，任何值都可以传递给任何 prop。
-
-我们可以**使用 `v-bind` 来动态传递 prop**。这在你一开始不清楚要渲染的具体内容，比如[从一个 API 获取博文列表](https://codesandbox.io/s/github/vuejs/vuejs.org/tree/master/src/v2/examples/vue-20-component-blog-post-example)的时候，是非常有用的
-
-```html
-<blog-post
-	v-for='post in posts'
-  v-bind:key='post.id'
-  v-bind:title='post.title'
-  v-bind:content='post.publishedAt'
- ></blog-post>
-```
-
-
-
-#### 3.3 单个根元素
-
-**每个组件必须只有一个根元素**,你可以将模板的内容包裹在一个父元素内
-
-当组件变得越来越复杂的时候,重构一下这个 `<blog-post>` 组件了，让它变成接受一个单独的 `post` prop
-
-```html
-<blog-post
-	v-for='post in post'
-  v-bind:key='post.id'
-  v-bind:post='post'
-></blog-post>
-```
-
-#### 3.4 监听子组件事件
-
-在我们开发 `<blog-post>` 组件时，它的一些功能可能要求我们和父级组件进行沟通.例如我们可能会引入一个辅助功能来放大博文的字号，同时让页面的其它部分保持默认的字号。
-
-在其父组件中，我们可以通过添加一个 `postFontSize` 数据 property 来支持这个功能：
-
-```js
-Vue.component('blog-post', {
-  props: ['post'],
-  template: `
-    <div class="blog-post">
-      <h3>{{ post.title }}</h3>
-      <button>
-        Enlarge text
-      </button>
-      <div v-html="post.content"></div>
-    </div>
-  `
-})
-
-new Vue({
-  el:'#blog-posts-events-demo',
-  data: {
-    posts:[...],
-    postFontSize: 1
-  }
-})
-
-
-```
-
-当点击这个按钮时，我们需要告诉父级组件放大所有博文的文本.Vue 实例提供了一个自定义事件的系统来解决这个问题。父级组件可以像处理 native DOM 事件一样**通过 `v-on` 监听子组件实例的任意事件**
-
-```html
-<blog-post
-  v-on:enlarge-text='postFontSize +=0.1'
-></blog-post>
-```
-
-同时子组件可以通过调用内建的 [**`$emit`** 方法](https://cn.vuejs.org/v2/api/#vm-emit)并传入事件名称来触发一个事件：
-
-```html
-<button v-on:click=$emit('enlarge-text')>
-  Enlarge text
-</button>
-```
-
-
-
-#### 3.4.1 使用事件抛出一个值
-
-使用 `$emit` 的第二个参数来提供这个值,当在父级组件监听这个事件的时候，我们可以通过 `$event` 访问到被抛出的这个值
-
-```html
-<button v-on:click='$emit('enlarge-text', 0.1)'>
-  Enlarge text
-</button>
-```
-
-```html
-<blog-post
-  v-on:enlarge-text='postFontSize += $evnet'
-></blog-post>
-```
-
-或者，如果这个事件处理函数是一个方法,那么这个值将会作为第一个参数传入这个方法：
-
-```html
-<blog-post
-  v-on:enlarge-text='onEnlargeText'
-></blog-post>
-
-....
-
-methods: {
-	onEnlargeText(enlargeAmount) {
-		this.postFontSize += enlargeAmount;
-	}
-}
-```
-
-
-
-#### 3.4.2 在组件上使用v-model
-
-自定义事件也可以用于创建支持 `v-model` 的自定义输入组件
-
-```html
-<input v-model='searchText'>
-//等价于
-<input 
-  v-bind:value='searchText'
-  v-on:input='searchText=$event.target.value'
->
-       
-```
-
-当在组件上使用v-model则会这样:
-
-```html
-<custom-input
-  v-bind:value='searchText'
-  v-on:input='searchText=$evnet'  //更新父组件的searchText值
-></custom-input>
-
-//简写形式
-<custom-input
-  v-model='searchText'>
-</custom-input>
-```
-
-为了让它正常工作，这个组件内的 `<input>` 必须
-
-* 将其value attribute绑定到一个名叫value的prop上
-* 在其input事件被触发时,将新的值通过自定义的input事件抛出
-
-```js
-Vue.component('custom-input', {
-  props:['vlaue'],
-  template:`
-		<input
-			v-bind:value='value',
-			v-on:input="$emit('input', $event.target.value)"
-		>
-  `
-})
-```
-
- 
-
-### 4.插槽分发内容
-
-和 HTML 元素一样，我们经常需要向一个组件传递内容，Vue 自定义的 `<slot>` 元素让这变得非常简单
-
-slot标签用来接收父组件中子组件标签之间的内容.
-
-```html
-<alert-box>
-	something bad happened.
-</alert-box>
-
-Vue.component('alert-box', {
-	template:`
-		<div class='demo-alert-box'>
-      <strong>error</strong>
-      <slot></slot>  //用来接收父组件传递进子组件标签之间的内容
-		</div>
-  `
-})
-```
-
-
-
-### 5.动态组件
-
-动态组件在不同组件之间进行动态切换是非常有用的, 可以通过 Vue 的 `<component>` 元素加一个特殊的 `is` attribute 来实现
-
-```html
-<!-- 组件会在 `currentTabComponent` 改变时改变 -->
-<component v-bind:is="currentTabComponent"></component>
-```
-
-在上述示例中，`currentTabComponent` 可以包括
-
-- 已注册组件的名字，或
-- 一个组件的选项对象
-
-
-
-
-
 
 
 
@@ -6898,37 +7099,6 @@ Vue.component('alert-box', {
 #### 非单文件组件 ++
 
 ```js
-//组件使用基本流程:
- 1.定义组件
- 2.注册组件
- 	2.1 全局注册
-    2.2 局部注册
- 3.写组件标签
- 
- 
-//一.定义一个Xxx组件(首字母大写)
-	1.如何定义一个组件? 使用const Example=Vue.extend(options)去创建
-	2.Example的本质是一个构造函数,我们以后去写<Example/>,Vue帮我们去new Example.
-	3.Vue.extend(options),options是一个配置对象,这个配置对象几乎和new Vue时的那个options一样.区别如下:
-      3.1 不能写el去指定容器,所有组件实例最终要被一个vm所管理,vm中会指定好el,即组件放入那个容器.//其他可写
-	  3.2 data必须写成函数,返回值是对象.原因:为了确保多个Xxx组件中的数据互不干扰.//(每次调用函数,函数作用域不同.如果是对象,更改了一次,其他的调用也会更改.)
-	  3.3 组件的模板结构要配置在template属性中:值为html字符串,且用模板字符串;模板结构必须只有一个根标签
-    4. 所有的组件定以后,必须注册后才能使用. 注册分为全局,局部.
-    
-    5. 5.1 Example确实是构造函数,但不是我们亲自写的Example,是Vue.extend生成的.
-       5.2 Vue.extend调用的返回值是VueComponent构造函数,所以new Example()其实就是在new VueComponent()
-       5.3 所谓组件的实例就是VueComponent的实例.简称vc; 所谓Vue的实例,就是Vue创建的实例,简称vm.
-       5.4 组件的data函数以及methods中配置的函数中的this都是vc
-    6. 一个最重要的关系: VueComponent继承了Vue. 所以Vue.prototype上的属性和方法,vc都能看得见. ****
-//二.注册组件. 
-	1.全局注册      
-	Vue.component('组件名', 组件)
-	2.局部注册
-    在vm中添加components属性
-    components:{组件名:组件} //局部注册可以
-
-//其他:
-Student{} 表明是Student函数创造的实例对象
 
 ```
 
@@ -8988,44 +9158,6 @@ vue组件间通信方式:
 (3)	需要接收消息/数据的组件: 
 ①	在mounted()中: 得到总线对象, 调用其$on()绑定监听, 接收数据
 ②	在beforeDestroy()中: 得到总线对象, 调用其$off()解绑监听
-```
-
-
-
-
-
-## 全局API
-
-### 1.Vue.nextTIck([callback, context])
-
-> 官网: 在下次DOM更新循环结束之后执行延迟回调. 在修改数据之后立即使用这个方法,获取更新后的DOM
->
-> 简单理解: **当数据更新了，在dom中渲染后，自动执行该函数**
-
-```js
-//修改数据
-vm.msg = 'hello';
-//DOM还没有更新
-Vue.nextTick(function() {
-  //DOM更新了
-})
-
-//作为一个Promise使用
-Vue.nextTick()
-  .then(function() {
-  //DOM更新了
-})
-```
-
-
-
-```js
-//资料
-https://segmentfault.com/a/1190000020499713?utm_source=sf-similar-article
-
-JS的事件循环和任务队列是理解nextTick的关键(https://juejin.cn/post/6844903476527366151)
-                           
-
 ```
 
 

@@ -16450,6 +16450,27 @@ _.range(3).map(() => 'a')
 
 
 
+### 添加/删除数组元素
+
+#### 添加
+
+* push/unshift
+* arr[arr.length] = 'xxx'
+
+
+
+#### 删除
+
+* shift/pop
+* arr[length]
+* delete
+
+删除数组元素类似于(但不完全等同于)给该元素`undefined`的值. 
+
+对数组元素使用`delete`操作符不会修改length属性,也不会把高索引位的元素向下移动来填充被删除属性的空隙.
+
+从数组删除元素后,数组会变得稀疏.
+
 ### 二维数组|非连续数组
 
 ```JavaScript
@@ -23493,7 +23514,20 @@ parseInt(string, radix);
 
 **实例**
 
+##### JS中任意进制转换
 
+> [各种 2 到 62 任意进制之间的转换-蚊子-前端博客 (xiabingbao.com)](https://www.xiabingbao.com/post/algorithm/hex-covert-rb1w5l.html)
+
+在 JavaScript 中，有两个系统方法 parseInt 和 toString，综合运用这两个方法，可以实现 `36进制`内的任意进制的转换。
+
+- parseInt(string, radix): 将任意进制 radix(36 进制内)转为 10 进制的数字，radix 表示 string 本身是多少进制的；
+- num.toString(radix): 将 10 进制的数字转为任意进制 radix 的字符串，radix 表示要转换成多少进制的；
+
+```javascript
+const convert = (num:string, base:number,to:number) {
+  return parseInt(num, base).toString(to)
+}
+```
 
 
 
