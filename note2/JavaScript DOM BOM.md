@@ -2693,7 +2693,7 @@ boxNode.detachEvent('onclick', fn2);
 
 ## 定时器
 
-### setTimeout
+### setTimeout /未完成
 
 #### 概述
 
@@ -2747,7 +2747,7 @@ setTimeout(functionRef, delay, arg1, arg2, /* ... ,*/ argN)
 
 `args1,...,argsN` [Optional]
 
-Additional arguments which are passed through toe function specifiedby function
+Additional arguments which are passed through to the function specified by function
 
 
 

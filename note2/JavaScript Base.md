@@ -5772,7 +5772,7 @@ for (let [key, value] of Object.entries({a: 1, b: 2})) {
 
 
 
-### 可枚举性enumerable !!!!
+### 可枚举性enumerable ????
 
 #### 概述
 
@@ -5906,7 +5906,7 @@ JavaScript数据遍历循环的两个属性: 可枚举属性和可迭代对象
 
 <span style="color:blue">基本上，在 JavaScript 中，所有可迭代对象都是可枚举对象，但并非所有可枚举对象都是可迭代对象。</span>
 
-可迭代的内置类型包括 Array、String、Set 和 Map 对象不可迭代，因为它没有指定 @iterator 方法。
+可迭代的内置类型包括 Array、String、Set 和 Map.  对象不可迭代,因为它没有指定 @iterator 方法。
 
 
 
@@ -16504,6 +16504,270 @@ arr[10] = 14;
 
 
 
+### 迭代数组
+
+#### 方式
+
+到ES6为止,迭代数组的几种方式有:
+
+* for...of
+* forEach
+* for循环
+
+#### 特点
+
+* for/of使用数组内置数组迭代器按照升序返回数组的元素. 对于稀疏数组,这个循环没有特殊行为,凡是不存在的元素都返回`undefined`
+* forEach是数组提供的一种用于自身迭代的函数式方法. 因此需要给forEach传递一个函数.与for/of不同,forEach能感知稀疏数组,不会对没有的元素数组调用函数.
+* for循环,使用在嵌套循环或关注性能场景.如果不是密集数组(dense array),则需要添加判断
+
+**for 循环两种应用**
+
+```javascript
+//把数组长度保存到局部某良
+for (let i=0,len=arr.length; i<len; i++) {
+  //循环体
+}
+
+
+//从后向前迭代数组
+for (let i=arr.length; i>=0; i--) {
+  //循环体
+}
+
+
+//添加非密集数组判断
+for (let i=0,len=arr.length; i<len; i++) {
+  if (arr[i] === undefined) continue;
+  //循环体
+}
+```
+
+
+
+#### 迭代数组多种方法2
+
+##### 1. 遍历数组方法列举(8种,不全)
+
+1. 普通for循环
+
+```javascript
+for (let i = 0; i < arr.length; i++) {
+  
+}
+```
+
+简要说明: 最简单的一种，也是使用频率最高的一种，虽然性能不弱，但仍有优化空间
+
+2. 优化版for循环
+
+```javascript
+for (let i = 0, len = arr.length; i < len; i++) {
+  
+}
+```
+
+简要说明: 使用临时变量，将长度缓存起来，避免重复获取数组长度，当数组较大时优化效果才会比较明显。
+
+**这种方法基本上是所有循环遍历方法中性能最高的一种**
+
+3. 弱化版for循环
+
+```javascript
+for (let i = 0; arr[i] !== null; i++) {
+  
+}
+```
+
+这种方法其实严格上也属于for循环，只不过是没有使用length判断，而使用变量本身判断
+
+**实际上，这种方法的性能要远远小于普通for循环**
+
+4. forEach循环
+
+```javascript
+arr.forEach((item,index,arr) => {});
+```
+
+数组自带的foreach循环，使用频率较高，实际上性能比普通for循环弱
+
+5. forEach变种
+
+```javascript
+Array.prototype.forEach.call(arr, (item,index,arr) => {})
+```
+
+由于foreach是Array型自带的，对于一些非这种类型的，无法直接使用(如NodeList)，所以才有了这个变种，使用这个变种可以让类似的数组拥有foreach功能。
+
+实际性能要比普通foreach弱
+
+6. for...in循环
+
+```javascript
+for(let i in arr) {
+  
+}
+```
+
+众多循环中效率最低
+
+7. for...of循环
+
+```javascript
+for(let value of arr) {
+  
+}
+```
+
+es6里的，性能要好于forin，但仍然比不上普通for循环
+
+8. map循环
+
+```javascript
+arr.map((item,index,arr) => {})
+```
+
+
+
+##### 2. 遍历数组方法性能比较图
+
+以下截图中的数据是，在chrome (支持es6)中运行了100次后得出的结论(每次运行10次,一共10个循环，得到的分析结果)
+
+![遍历数组](https://dailc.github.io/jsfoundation-perfanalysis/staticresource/performanceAnalysis/demo_js_performanceAnalysis_jsarrayGoThrough_1.png)
+
+##### 3. 各方法详解
+
+##### for循环顺序
+
+```js
+for(let i=0; i<arr.length; i++){}
+
+for(let i=arr.length;i>0;i--){}
+```
+
+
+
+##### forEach
+
+**介绍**
+
+- forEach()是数组对象的方法,可以用来对数组进行遍历,它需要一个函数作为参数. //没有返回值
+- 传递给数组的函数会调用多次,数组中有几个元素就调用几次
+- 每次调用时,会将元素的信息以参数的形式传递进函数
+- forEach()不能遍历对象,可以使用for-in
+
+**返回值**
+
+forEach() 被调用时，不会改变原数组，也就是调用它的数组
+forEach返回值是undefined,没有返回值.
+
+**实例**
+
+```js
+forEach的回调函数有三个参数:
+第一个: item 当前遍历的元素
+第二个: index 当前遍历的元素的索引
+第三个: array 当前正在遍历的元素
+    
+数组.forEach(function(item, index, array){ //顺序很重要
+    console.log(item, index, array); 
+})
+```
+
+
+
+##### for...of
+
+`for…of` 是在 ES6（ECMAScript 6）中实现标准化的。它会对一个可迭代的对象（例如 `array`、`map`、`set`、`string` 等）创建一个循环
+
+```js
+const arr = [3, 5, 7];
+const str = 'hello';
+for (const i of arr) {
+   console.log(i); // 输出 3, 5, 7
+}
+for (const i of str) {
+   console.log(i); // 输出 'h', 'e', 'l', 'l', 'o'
+}
+
+
+
+使用for/of获取数组索引，可以这样写
+for(const[i,v] of arr.entries()) {
+  console.log(i,v);
+}
+```
+
+
+
+##### for...in
+
+**`for...in`语句**以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性，包括继承的可枚举属性.
+
+`for…in` 语句除返回数字索引外，还将返回用户定义的属性的名称。 
+
+因此，在遍历数组时最好使用带有数字索引的传统 `for` 循环, `for...of`。 
+
+```js
+// for…in 循环遍历对象的属性，而 for…of 循环遍历可迭代对象的值。
+let arr = [1,2,3];
+for(let i in arr){
+  console.log(i); //'0','1','2'
+}
+
+//数组具有一个可枚举的方法，也会被for-in遍历到
+let arr = [1,2,3];
+arr.name = 'test';
+for (let i in arr) {
+  console.log(i + ":" + arr[i])
+}
+//0:1
+//1:2
+//2:3
+//name: 'test'
+```
+
+
+
+#### 如何停止遍历数组
+
+##### 1. forEach()中无法return/break,
+
+**for循环, for-in, for...of**能正确响应break、continue和return语句，但forEach不行。 
+
+具体查看 `语句 > JS中如何跳出循环/结束遍历`中的内容
+
+```js
+//跳出for循环使用break, 但在数组中用forEach循环如果要退出使用break会报错,使用return只能跳出本次循环
+
+//原因:
+
+根据forEach的实现,回调函数只是执行而不使用返回值,函数中的return可以终止下面的语句执行,相当于跳出了本次循环.
+
+//如何终端forEach
+0. 使用for循环
+1. 使用some/every
+2. 使用try&catch
+```
+
+
+
+
+
+##### 2. map循环如何跳出?
+
+```js
+//前提: map无法跳出, 所以es6中才会添加for-of语法
+
+//原因: map是个迭代,不是循环
+
+//解决方法:
+1. try-catch  使用throw抛出错误.
+2. 使用for-of循环
+3. 使用some/every更合理
+```
+
+
+
 ### 数组的属性
 
 使用`Reflect.ownKeys(Array)`获取Array自身全部属性(可枚举,不可枚举,符号)
@@ -16764,231 +17028,74 @@ while( (i = names.shift()) !== undefined ) {
 
 
 
-### 遍历数组的多种方法
+### 数组方法
 
-#### 1. 遍历数组方法列举(8种,不全)
+#### 迭代器方法
 
-1. 普通for循环
+用于迭代数组元素,会按照顺序把数组每个元素传给我们提供的函数,可便于对数组进行迭代,映射,过滤,测试和归并.
 
-```javascript
-for (let i = 0; i < arr.length; i++) {
-  
-}
-```
+##### 特点
 
-简要说明: 最简单的一种，也是使用频率最高的一种，虽然性能不弱，但仍有优化空间
-
-2. 优化版for循环
-
-```javascript
-for (let i = 0, len = arr.length; i < len; i++) {
-  
-}
-```
-
-简要说明: 使用临时变量，将长度缓存起来，避免重复获取数组长度，当数组较大时优化效果才会比较明显。
-
-**这种方法基本上是所有循环遍历方法中性能最高的一种**
-
-3. 弱化版for循环
-
-```javascript
-for (let i = 0; arr[i] !== null; i++) {
-  
-}
-```
-
-这种方法其实严格上也属于for循环，只不过是没有使用length判断，而使用变量本身判断
-
-**实际上，这种方法的性能要远远小于普通for循环**
-
-4. forEach循环
-
-```javascript
-arr.forEach((item,index,arr) => {});
-```
-
-数组自带的foreach循环，使用频率较高，实际上性能比普通for循环弱
-
-5. forEach变种
-
-```javascript
-Array.prototype.forEach.call(arr, (item,index,arr) => {})
-```
-
-由于foreach是Array型自带的，对于一些非这种类型的，无法直接使用(如NodeList)，所以才有了这个变种，使用这个变种可以让类似的数组拥有foreach功能。
-
-实际性能要比普通foreach弱
-
-6. for...in循环
-
-```javascript
-for(let i in arr) {
-  
-}
-```
-
-众多循环中效率最低
-
-7. for...of循环
-
-```javascript
-for(let value of arr) {
-  
-}
-```
-
-es6里的，性能要好于forin，但仍然比不上普通for循环
-
-8. map循环
-
-```javascript
-arr.map((item,index,arr) => {})
-```
-
-
-
-#### 2. 遍历数组方法性能比较图
-
-以下截图中的数据是，在chrome (支持es6)中运行了100次后得出的结论(每次运行10次,一共10个循环，得到的分析结果)
-
-![遍历数组](https://dailc.github.io/jsfoundation-perfanalysis/staticresource/performanceAnalysis/demo_js_performanceAnalysis_jsarrayGoThrough_1.png)
-
-#### 3. 各方法详解
-
-##### for循环顺序
-
-```js
-for(let i=0; i<arr.length; i++){}
-
-for(let i=arr.length;i>0;i--){}
-```
-
-
+* 所有这些方法都接收一个函数作为第一个参数,并对数组每个元素(或某些元素)都调用一次这个函数.
+  * 如果数组是稀疏的,则不会对不存在的数组元素调用传入的这个函数
+  * 函数接收3个参数:数组元素的值,数组元素的索引,数组本身.
+* 多数迭代器方法接收可选第二个参数.其作用是更新第一个参数函数内部的this值.
+* 函数返回值通常不重要,,但不同方法会以不同方式处理这个值.
 
 ##### forEach
 
-**介绍**
+* 迭代数组每个元素,并对每个元素都调用一次指定的函数
 
-- forEach()是数组对象的方法,可以用来对数组进行遍历,它需要一个函数作为参数. //没有返回值
-- 传递给数组的函数会调用多次,数组中有几个元素就调用几次
-- 每次调用时,会将元素的信息以参数的形式传递进函数
-- forEach()不能遍历对象,可以使用for-in
+* forEach并未提供一种终止迭代的方式.没有与常规for循环中的break语句对等的机制
 
-**返回值**
+##### map
 
-forEach() 被调用时，不会改变原数组，也就是调用它的数组
-forEach返回值是undefined,没有返回值.
-
-**实例**
-
-```js
-forEach的回调函数有三个参数:
-第一个: item 当前遍历的元素
-第二个: index 当前遍历的元素的索引
-第三个: array 当前正在遍历的元素
-    
-数组.forEach(function(item, index, array){ //顺序很重要
-    console.log(item, index, array); 
-})
-```
+* 返回函数的返回值组成的数组,不修改调用它的数组.
+* 如果数组是稀疏的,则缺失元素不会调用函数,但返回的数组也会与原始数组一样稀疏:长度相同,缺失的元素也相同
 
 
 
-##### for...of
+##### filter
 
-`for…of` 是在 ES6（ECMAScript 6）中实现标准化的。它会对一个可迭代的对象（例如 `array`、`map`、`set`、`string` 等）创建一个循环
+* 返回一个数组,该数组为调用它的数组的子数组
+* 传给方法的函数是断言函数,既返回true或false的函数
+* 会跳过稀疏数组中缺失的元素,它返回的数组总是密集的,可以清理掉稀疏数组中的空隙
 
-```js
-const arr = [3, 5, 7];
-const str = 'hello';
-for (const i of arr) {
-   console.log(i); // 输出 3, 5, 7
-}
-for (const i of str) {
-   console.log(i); // 输出 'h', 'e', 'l', 'l', 'o'
-}
+```javascript
+//清除稀疏数组中缺失的元素
 
+arr.filter(item => item)
+arr.filter(() => true)
 
-
-使用for/of获取数组索引，可以这样写
-for(const[i,v] of arr.entries()) {
-  console.log(i,v);
-}
-```
-
-
-
-##### for...in
-
-**`for...in`语句**以任意顺序遍历一个对象的除[Symbol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol)以外的[可枚举](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Enumerability_and_ownership_of_properties)属性，包括继承的可枚举属性.
-
-`for…in` 语句除返回数字索引外，还将返回用户定义的属性的名称。 
-
-因此，在遍历数组时最好使用带有数字索引的传统 `for` 循环, `for...of`。 
-
-```js
-// for…in 循环遍历对象的属性，而 for…of 循环遍历可迭代对象的值。
-let arr = [1,2,3];
-for(let i in arr){
-  console.log(i); //'0','1','2'
-}
-
-//数组具有一个可枚举的方法，也会被for-in遍历到
-let arr = [1,2,3];
-arr.name = 'test';
-for (let i in arr) {
-  console.log(i + ":" + arr[i])
-}
-//0:1
-//1:2
-//2:3
-//name: 'test'
-```
-
-
-
-#### 4. 如何停止遍历数组???
-
-##### 1. forEach()中无法return/break,
-
-**for循环, for-in, for...of**能正确响应break、continue和return语句，但forEach不行。 
-
-具体查看 `语句 > JS中如何跳出循环/结束遍历`中的内容
-
-```js
-//跳出for循环使用break, 但在数组中用forEach循环如果要退出使用break会报错,使用return只能跳出本次循环
-
-//原因:
-
-根据forEach的实现,回调函数只是执行而不使用返回值,函数中的return可以终止下面的语句执行,相当于跳出了本次循环.
-
-//如何终端forEach
-0. 使用for循环
-1. 使用some/every
-2. 使用try&catch
+// 既清理空隙又删除值为undefined/null 的元素
+arr.filter(item => item!==undefined && item !== null)
 ```
 
 
 
 
 
-##### 2. map循环如何跳出?
-
-```js
-//前提: map无法跳出, 所以es6中才会添加for-of语法
-
-//原因: map是个迭代,不是循环
-
-//解决方法:
-1. try-catch  使用throw抛出错误.
-2. 使用for-of循环
-3. 使用some/every更合理
-```
 
 
 
-### 数组其他方法
+
+
+
+#### 栈和队列方法
+
+
+
+#### 子数组方法
+
+
+
+#### 搜索和排序方法
+
+
+
+
+
+
 
 #### 破坏性方法和非破坏性方法
 
