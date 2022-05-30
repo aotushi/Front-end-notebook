@@ -193,3 +193,194 @@ An HTML comment begins with `<!--`, and ends with `-->`, as shown in the example
 * The main container(`<html>` element)
 * The head section(`<head>` element)
 * The body section(`<body>` element)
+
+
+
+#### 文档声明类型
+
+##### 作用
+
+会通知浏览器即将处理的文档类型,允许它们相应的调整处理机制.这DTD插入一个特殊标签(<!DOCTYPE>),为每个文档采用特定形式.此声明只能出现在文档开始.
+
+
+
+#### main container: HTML元素
+
+##### 组成
+
+分成两部分: the `<head>` and  the `<body>`
+
+
+
+##### \<head>元素
+
+`<head>`部分是文档元信息(metadata)的容器.描述了文档的各种属性信息,包括文档标题,与其他文件的关系等.
+
+
+
+此元数据可以根据使用的元素分成5类.
+
+* The document's title: 简要描述文档中处理的主题.这是必要的一项,使用`<title>`元素插入.
+* Style declarations: Style组定义用在为文档中的元素设置描述性属性. 它使用`<style>`元素插入.
+* Client-side scripts: 插入程序以提供功能和交互. 用`<script>`元素来声明
+* Meta statement: 定义自定义的属性和值. 使用`<meta>`元素插入.
+* Relational information: 表示与文档以某种方式相关的资源. 使用`<link>`标签插入.
+
+
+
+##### \<body>元素
+
+文档`<body>`仅仅是可渲染部分的容器.从这开始写你自己的内容(添加标题,段落,图片等),当页面加载时候你的访客立即访问的部分.
+
+
+
+### meta标签
+
+#### 资料
+
+> [HTML meta标签总结与属性使用介绍 - SegmentFault 思否](https://segmentfault.com/a/1190000004279791)
+>
+> [HTML Standard (whatwg.org)](https://html.spec.whatwg.org/multipage/semantics.html#the-meta-element)
+
+
+
+#### 作用
+
+* meta常用于定义页面的说明，关键字，最后修改日期，和其它的元数据。
+* 这些元数据将服务于浏览器（如何布局或重载页面），搜索引擎和其它网络服务
+
+
+
+#### 组成
+
+`name` — Metadata name
+
+`http-equiv` — Pragma directive
+
+`content` — Value of the element
+
+`charset` — [Character encoding declaration](https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration)
+
+`media` — Applicable media
+
+
+
+#### name属性
+
+##### 作用
+
+* 与之对应的属性值为content，content中的内容是对name填入类型的具体描述，便于搜索引擎抓取
+* name属性主要用于描述网页，比如网页的关键词，叙述等。
+
+##### keywords
+
+```html
+<meta name="keywords" content="xx, xx, xxx, xxx">
+```
+
+
+
+##### description
+
+```html
+<meta name="description" content="xxx">
+```
+
+
+
+##### viewport
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1"
+```
+
+
+
+##### robots
+
+说明：robots用来告诉爬虫哪些页面需要索引，哪些页面不需要索引。
+content的参数有all,none,index,noindex,follow,nofollow。默认是all。
+
+```html
+<meta name="robots" content="none"> 
+```
+
+
+
+#### http-equiv属性
+
+http-equiv顾名思义，相当于http的文件头作用。equiv的全称是"equivalent"
+
+##### content-type
+
+说明：用于设定网页字符集，便于浏览器解析与渲染页面
+
+```html
+<meta http-equiv="content-Type" content="text/html;charset=utf-8">  //旧的HTML，不推荐
+
+<meta charset="utf-8"> //HTML5设定网页字符集的方式，推荐使用UTF-8
+```
+
+##### X-UA-Compatible(浏览器采取何种版本渲染当前页面)
+
+说明：用于告知浏览器以何种版本来渲染页面。（一般都设置为最新模式，在各大框架中这个设置也很常见。）
+
+```html
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/> //指定IE和Chrome使用最新版本渲染当前页面
+```
+
+#### cache-control(指定请求和响应遵循的缓存机制)
+
+###### 用法1.
+
+说明：指导浏览器如何缓存某个响应以及缓存多长时间。
+
+```html
+<meta http-equiv="cache-control" content="no-cache">
+```
+
+
+
+共有以下几种用法：
+
+1. no-cache: 先发送请求，与服务器确认该资源是否被更改，如果未被更改，则使用缓存。
+2. no-store: 不允许缓存，每次都要去服务器上，下载完整的响应。（安全措施）
+3. public : 缓存所有响应，但并非必须。因为max-age也可以做到相同效果
+4. private : 只为单个用户缓存，因此不允许任何中继进行缓存。（比如说CDN就不允许缓存private的响应）
+5. maxage : 表示当前请求开始，该响应在多久内能被缓存和重用，而不去服务器重新请求。例如：max-age=60表示响应可以再缓存和重用 60 秒。
+
+> [参考链接：HTTP缓存](https://link.segmentfault.com/?enc=g0wxoHT0Oi4trg%2F%2Ban326g%3D%3D.dEwDy5%2FLkodWzR2WjHO05GZuB6PtHxTtOBUB1IDUDaERHCm3hXiEiPVHJzbYOa8d8%2Bw1LuwSX3ne0BZ%2FPWKqZ1KNEXjrYZJH41veJo6QM4d%2B5RhdP27jIuR%2B89KmUlmlPVIMpMymxG96ffRTtVU9tat2pi6tP03mSJqyUn3cINY%3D)
+
+###### 用法2.(禁止百度自动转码)
+
+说明：用于禁止当前页面在移动端浏览时，被百度自动转码。虽然百度的本意是好的，但是转码效果很多时候却不尽人意。所以可以在head中加入例子中的那句话，就可以避免百度自动转码了。
+举例：
+
+```html
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+```
+
+#### expires
+
+说明:用于设定网页的到期时间，过期后网页必须到服务器上重新传输。
+
+```html
+<meta http-equiv="expires" content="Sunday 26 October 2016 01:00 GMT" />
+```
+
+
+
+#### Set-Cookie(cookie设定)
+
+如果网页过期。那么这个网页存在本地的cookies也会被自动删除。
+
+```html
+<meta http-equiv="Set-Cookie" content="name, date"> //格式
+
+<meta http-equiv="Set-Cookie" content="User=Lxxyx; path=/; expires=Sunday, 10-Jan-16 10:00:00 GMT"> //具体范例
+```
+
+
+
+### 面试
+
