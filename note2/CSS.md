@@ -1,25 +1,3 @@
-### 浏览器处理文件的基本步骤
-
-1. 浏览器载入HTML文件
-2. 将HTML文件转化成一个DOM(Document Ojbect Model),DOM是文件在计算机内存中的表现形式
-3. 浏览器拉取该HTML相关大部分内容，例如图片，视频和CSS样式.
-4. 浏览器拉取到CSS后进行解析.
-   1. 根据选择器不同类型分到不同的'桶'中
-   2. 将不算同的(基于选择器规则)规则应用在对应的DOM节点中
-   3. 添加节点依赖的样式
-5. 上述规则应用到渲染树后,渲染树会依照出现的结构进行布局.
-6. 着色: 网站展示在屏幕上.
-
-![](https://mdn.mozillademos.org/files/11781/rendering.svg)
-
-
-
-### 关于DOM
-
-一个DOM有一个树形结构，标记语言中的每一个元素、属性以及每一段文字都对应着结构树中的一个节点（Node/DOM或DOM node）。节点由节点本身和其他DOM节点的关系定义，有些节点有父节点，有些节点有兄弟节点（同级节点）。
-
-
-
 
 
 ### 块级盒子和内联盒子
@@ -99,318 +77,77 @@ height=height-border-padding
 
 
 
-## MaintainableCSS
-
-> [MaintainableCSS - 一种哲学，教你如何编写模块化，可扩展性，可维护性的CSS。 (owenyang0.github.io)](http://owenyang0.github.io/maintainablecss-cn/index.html)
-
-
-
-## css规范
-
-百度FEX前端团队和腾讯AlloyTeam前端团队的CSS代码规范。
-
-> [styleguide/css.md at master · fex-team/styleguide (github.com)](https://github.com/fex-team/styleguide/blob/master/css.md)
->
-> [Code Guide by @AlloyTeam](http://alloyteam.github.io/CodeGuide/)
-
-
-
-
-
 ## CSS
 
-### 零. 介绍
+### 语法
 
-```js
-https://developer.mozilla.org/zh-CN/docs/Web/CSS
-```
+CSS 规则集（rule-set）由选择器和声明块组成：
 
+![](https://www.w3school.com.cn/i/css/selector.gif)
 
+#### 具体规则:
 
+* 选择器指向需要设置样式的HTML元素
+* 声明块包含一条或多条用分号分隔的声明
+* 每条声明都包含一个CSS属性名和值,以冒号分隔
+  * 属性: 可读的标识符,指示想要改变的样式特征
+  * 值: 如何更改这些样式特性.大多数值是相对简单的关键字或数值，但也有一些可能的值以函数的形式出现
+* 多条CSS声明用分号分隔,声明块用花括号括起来
 
 
-### 一. 位置：
 
-head标签中的script
+#### 函数
 
-### 二. css样式：
+大多数值是相对简单的关键字或数值，但也有一些可能的值以函数的形式出现.例如calc()函数, rotate()函数.
 
-**标签选择器**
 
 
+#### @规则
 
-### 三. css中的颜色
+ `@rules` (pronounced "at-rules"). 这是一些特殊的规则，为 CSS提供了一些关于如何表现的指导。[链接](https://developer.mozilla.org/zh-CN/docs/Web/CSS/At-rule)
 
-#### 1. 颜色4种表现方式
 
-##### 关键词
 
+#### 注释
 
+CSS中的注释以`\*`开头，以`*/`结尾。
 
-**rgb**
+以与HTML相同的方式，浏览器往往忽略CSS中的大部分空白；许多空白只是为了提高可读性。
 
-文档: [CSS Color Module Level 4 (csswg.org)](https://drafts.csswg.org/css-color/#rgb-functions)
 
-```css
-//语法
-rgb() = rgb( <percentage>{3} [ / <alpha-value> ]? ) | rgb( <number>{3} [ / <alpha-value> ]? )
-<alpha-value> = <number> | <percentage>
-```
 
+#### 速记属性
 
+一些属性，如 [`font`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font), [`background`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background), [`padding`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/padding), [`border`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/border), and [`margin`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin) 等属性称为速记属性--这是因为它们允许您在一行中设置多个属性值，从而节省时间并使代码更整洁。
 
 
 
-**rgba**
+### CSS如何运行
 
+> [CSS如何运行 - 学习 Web 开发 | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/First_steps/How_CSS_works)
 
+当浏览器展示一个文件的时候，它必须兼顾文件的内容和文件的样式信息，下面我们会了解到它处理文件的标准的流程。
 
-**16进制**
+1. 浏览器<span style="color:blue">载入HTML文件</span>（比如从网络上获取）。
+2. 将HTML文件转化成一个<span style="color:blue">DOM（Document Object Model）</span>，DOM是文件在计算机内存中的表现形式，下一节将更加详细的解释DOM。
+3. 接下来，浏览器会<span style="color:blue">拉取</span>该HTML相关的大部分资源，比如嵌入到页面的图片、视频和CSS样式。JavaScript则会稍后进行处理，简单起见，同时此节主讲CSS，所以这里对如何加载JavaScript不会展开叙述。
+4. 浏览器拉取到CSS之后会进行<span style="color:blue">解析</span>，根据选择器的不同类型（比如element、class、id等等）把他们分到不同的“桶”中。浏览器基于它找到的不同的选择器，将不同的规则（基于选择器的规则，如元素选择器、类选择器、id选择器等）应用在对应的DOM的节点中，并添加节点依赖的样式（这个中间步骤称为渲染树）。
+5. 上述的规则应用于渲染树之后，渲染树会依照应该出现的结构进行<span style="color:blue">布局</span>
+6. 网页<span style="color:blue">展示</span>在屏幕上（这一步被称为着色）
 
+结合下面的图示更形象：
 
+![](https://mdn.mozillademos.org/files/11781/rendering.svg)
 
 
 
-#### 2.盒子的3种基本属性
 
-width height background背景色
 
-* 盒子：在网页中，每个标签都是由一个矩形的图形展示的，所以我们认为网页是由一个个盒子组成的。
-* 盒子指的是html标签
-* div是一个没有语义的盒子
 
 
+### CSS选择器
 
-#### 3.颜色介绍
-
-**互补色**: 色环是我们认识颜色关系的好工具。它是一个近色相邻、异色相离的圆环。 当两个颜色恰好在色环的两端时，这两个颜色就互为补色。 两个互为补色的颜色会在混合后变成灰色。 然而，补色搭配能形成强烈的视觉对比效果。
-
-```html
-红色（#FF0000）和蓝绿色 (#00FFFF)
-绿色（#00FF00）和品红色（#FF00FF）
-蓝色（#0000FF）和黄色（#FFFF00）
-```
-
-
-
-**三原色**
-
-电脑显示器和各类屏幕都是基于颜色叠加的模型：将红（R）、绿（G）、蓝（B）三原色的色光以不同的比例相加，就可以产生各种色彩光。 这在现代色彩理论中叫作三原色光模式（RGB Color Model）。 红色（R）、绿色（G）和蓝色（B）叫作三原色。 如果把两种原色相加，就可以产生二次色：蓝绿（G+B）、品红（R+B）和黄色（R+G）
-
-
-
-**三次色**
-
-三次色是由原色和二次色相加产生的颜色， 例如，在 RGB 颜色模型中，红色（原色）和黄色（二次色）相加产生橙色（三次色）。 将这六种颜色中相邻的颜色相加，便产生了十二色色环。
-
-设计里面有很多种颜色搭配方法。 涉及到三次色的一种配色方法是分裂补色搭配法。 选定主色之后，在色环上选择与它的补色相邻的两种颜色与之搭配。 此种搭配既有对比，又不失和谐。
-
-```html
-橙色	#FF7F00
-蓝绿色	#00FFFF
-树莓红	#FF007F
-```
-
-
-
-#### 4.调整颜色的色相
-
-颜色具有多种特性，包括色相、饱和度和亮度。 CSS3 引入了 `hsl()` 做为颜色的描述方式。
-
-**色相**是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。 以颜色光谱为例，光谱左边从红色开始，移动到中间的绿色，一直到右边的蓝色，色相值就是沿着这条线的取值。 在 `hsl()` 里面，色相用色环来代替光谱，色相值就是色环里面的颜色对应的从 0 到 360 度的角度值。
-
-**饱和度**是指色彩的纯度，也就是**颜色里灰色的占比**。 饱和度越高则灰色占比越少，色彩也就越纯；反之则完全是灰色。 饱和度的取值范围是表示灰色所占百分比的 0 至 100。
-
-**亮度**决定颜色的明暗程度，也就是颜色里白色或者黑色的占比。 其中，100% 的亮度表示纯白色， 0% 的亮度则表示纯黑色；而 50% 的亮度就表示在色相中选取的颜色。
-
-```html
-颜色	HSL
-红	hsl(0, 100%, 50%)
-黄	hsl(60, 100%, 50%)
-绿	hsl(120, 100%, 50%)
-蓝绿	hsl(180, 100%, 50%)
-蓝	hsl(240, 100%, 50%)
-品红	hsl(300, 100%, 50%)
-```
-
-
-
-
-
-### 四. 元素的显示模式
-
-按[新的 HTML 规范](https://www.zhihu.com/question/34952563/answer/60672228)，已经不按 inline 和 block 来区分元素类型了.
-
-待补充...
-
-#### 1. 块级元素
-
-* 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
-* 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
-
-#### 2. 行内元素
-
-* 特点: 无法设置宽高,转换成块元素或行内块元素宽高可起作用. ; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐).  
-
-* `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
-
-  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
-
-* 行内元素: **a b del  em i  ins span  strong s u  **
-
-```css
-多个span元素转换为inline-block后,会有一个左右间距. 可以span不换行解决这个问题.或者通过父元素添加font-size:0;
-span等行内元素是可以设置内边距 padding 的，只不过元素本身无法把父元素撑开，看上去就是设置的 padding 上下边距不起效了，而 margin 就只能设置 span 的左右边距。
-
-如果要给 span 设置边距，一般的方法就是给它设置一个 display: inline-block; ，把它变成行内块级元素就可以了
-
-```
-
-
-
-#### 3. 行内块
-
-* 特点: 可以设置宽高; 一行可有多个行内块元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距; (宽高默认由图片的原始大小决定;)
-
-* 行内块元素: **img  input等**
-
-#### 4.显示模式的转换
-
-1.其他模式元素转换为行内块元素
-
-​		display: inline-block
-
-2.其他模式元素转换为块元素
-
-​		display: block
-
-
-
-### 五. 案例问题
-
-#### 1.两个行内块元素无法对齐
-
-```html
-网址出处:https://www.cnblogs.com/qfly/p/8085125.html
-例如,两个转换为行内块的span,一个有文字,一个没有文字,在网页中发现两个盒子无法对齐.
-
-原因:文本基线不一致的原因.没有文字的span的基线已经变成了底部的margin底边缘,后面盒子有文字,所以该盒子的基线就是文字的基线,二值基线对齐形成这个效果.
-
-可以通过改变对齐方式来解决vertical-align:middle;
-```
-
-
-
-#### 2.行内块元素overflow:hidden带来的塌陷问题
-
-```js
-https://stackoverflow.com/questions/32078950/why-baseline-of-inline-block-element-with-overflowhidden-is-set-to-its-bott#
-
-https://blog.csdn.net/w390058785/article/details/80567583
-
-https://www.cnblogs.com/wgwyanfs/p/6985261.html
-
-https://www.cnblogs.com/AliceX-J/p/5731755.html
-```
-
-
-
-因为实现隐藏功能的时候，隐藏部分的内容的vertical-align变成了baseline;对齐了，这样也导致行内块元素高度被撑高了。而后续的行内块元素跟行内元素，是接在了隐藏部分的vertical-align的高度上了。只要改回后续行内块元素跟行内元素的vertical-align值就可以了。
-
-解决方法:
-
-1.重新设置所有行内元素的对齐方式为vertical-align:top或者bottom; (vertical-align属性针对行内元素和表格属性元素使用,在块元素中不起作用)
-
-2.设置所有行内元素的overflow不为visible
-
-3.设置flex布局
-
-失败版本:
-
-```js
-https://codepen.io/westover/pen/ExWLpqM
-```
-
-
-
-#### 3. 行内块和行内元素横向布局的问题
-
-* 说明: 为什么不用行内块元素横向布局代替浮动
-
-* **行内块元素横向布局的问题:**    由于行内块元素是和文本的基线对齐,也可以说是底对齐. 给行内块元素设置<font color="red">**垂直方向**</font>的内外边距时会影响周围的元素.[从案例上来看,就是content区域已经无法底部对齐  对齐的是它的border(实际上是padding或者margin和另外的行内块元素的border或者说是内容区域对齐)]
-
-
-
-
-
-* **行内元素横向布局的问题**:     由于行内元素是包裹文本的,文本在每行是沿着基线对齐,此时行内元素垂直方向的内外边距是不起作用的.
-
-  `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
-
-  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
-
-![](https://www.w3h5.com/zb_users/upload/2019/04/201904141555172075784072.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### 在页面上隐藏元素的方法
-
-```Markdown
-#  占位
-visibility:hidden;
-marign-left:-100%;
-opacity:0;
-transform: scale(0);
-
-
-# 不占位
-display:none;
-width:0;height:0;overflow:hidden;
-
-# 仅对块内文本元素
-text-indent:-9999px;   //首行缩进
-font-size:0;
-```
-
-
-
-行内块元素当有内容时,它位置会降低/下移
-
-```js
-https://stackoverflow.com/questions/13390220/why-does-an-inline-block-div-get-positioned-lower-when-it-has-content/
-
-http://jsfiddle.net/ye0fbg4n/
-```
-
-
-
-
-
-
-
-
-
-
-
-### 六. CSS选择器
-
-
-
-#### 零.介绍
+#### 概要
 
 | 选择器                                                       | 选择器名称       | 功能描述                                                     | 功能描述 | 权重 |
 | ------------------------------------------------------------ | :--------------- | :----------------------------------------------------------- | -------- | ---- |
@@ -435,9 +172,11 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-#### 一. 标签选择器
+#### 简单选择器(标签,id,类)
 
-格式:
+
+
+##### 标签选择器
 
 ```html
 <!-- 标签名{属性名:属性值; 属性名:属性值; .... -->
@@ -452,7 +191,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-#### 二. 类选择器
+##### 类选择器
 
 定义类名称: 以点开头+类名称{属性名:属性值; 属性名:属性值; .....}
 
@@ -482,7 +221,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-#### 三. id选择器
+##### id选择器
 
 * 定义id选择器: 以#开头+id名称
 * 调用id选择器: 用标签中的id属性值等于id名称
@@ -490,7 +229,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 
 
-#### 六. 关系选择器
+#### 关系选择器
 
 ##### 1. 后代选择器
 
@@ -504,7 +243,7 @@ http://jsfiddle.net/ye0fbg4n/
 
 ##### 6. 交集选择器
 
-#### 七. 属性选择器
+#### 属性选择器
 
 CSS2中引入了一些属性选择器，这些选择器可基于元素的属性来匹配元素，而CSS3在CSS2的基础上扩展了这些属性选择器，支持基于模式匹配来定位元素。
 
@@ -522,7 +261,7 @@ CSS2中引入了一些属性选择器，这些选择器可基于元素的属性�
 
 
 
-#### 八. 伪类选择器
+#### 伪类选择器
 
 ##### 1. 动态伪类选择器
 
@@ -557,6 +296,7 @@ CSS2中引入了一些属性选择器，这些选择器可基于元素的属性�
 
 
 
+
 ##### 2. 目标伪类选择器
 
 目标伪类选择器“:target”是众多实用的CSS3特性中的一个，用来匹配文档（页面）的URI[插图]中某个标志符的目标元素
@@ -578,6 +318,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
   目标伪类选择器</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>
 </iframe>
+
 
 
 
@@ -606,6 +347,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
+
 **实例-幻灯片 ++**
 
 第二个和第四个没有效果.
@@ -619,6 +361,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
+
 **实例-tab效果**
 
 <iframe height="300" style="width: 100%;" scrolling="no" title="目标伪类选择器-tab" src="https://codepen.io/westover/embed/xxdwRwX?defaultTab=html%2Cresult&theme-id=light" frameborder="no" loading="lazy" allowtransparency="true" allowfullscreen="true">
@@ -626,6 +369,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
   目标伪类选择器-tab</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>
 </iframe>
+
 
 
 
@@ -819,6 +563,7 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
 
 
+
 **浏览器兼容性**
 
 CSS3结构伪类选择器在主流浏览器下运行都非常的完美，只是在IE 9以下版本的浏览器中无法正常运行
@@ -870,6 +615,7 @@ n的值为:
 
 
 
+
 ##### 6. 否定伪类选择器
 
 否定选择器“:not()”是CSS3的新选择器，类似jQuery中的“:not()”选择器，主要用来定位不匹配该选择器的元素
@@ -884,7 +630,7 @@ n的值为:
 
 
 
-##### 九. 伪元素选择器
+#### 伪元素选择器
 
 伪元素可用于定位文档中包含的文本，但无法在文档树中定位。伪类一般反映无法在CSS中轻松或可靠地检测到的某个元素属性或状态；另一方面，伪元素表示DOM外部的某种文档结构
 
@@ -907,6 +653,7 @@ CSS3中对伪元素进行了一定的调整，在以前的基础上增加一个�
   ::first-letter -首字下沉</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>.
 </iframe>
+
 
 
 
@@ -959,37 +706,31 @@ a[href^=http]::after {
 
 
 
+### CSS选择器使用
+
+#### 外部CSS
+
+* 使用外部样式表
+* 在 head 部分的 \<link> 元素内包含对外部样式表文件的引用
+
+**案例**
+
+```css
+<link rel="stylesheet" type="text/css" href="mystyle.css" >
+```
+
+#### 内部CSS
+
+内部样式是在 head 部分的 \<style> 元素中进行定义
+
+#### 行内CSS
+
+* 行内样式（也称内联样式）可用于为单个元素应用唯一的样式
+* 行内样式通过将内容与呈现混合在一起,耦合性搞,难以维护
 
 
 
-
-
-
-### 七. css选择器3种书写位置
-
-#### 1.内嵌式
-
-* 含义:内嵌式: 将css代码嵌入到html文件中,书写比较方便,代码耦合度相对较低,维护较方便,在工作中偶尔使用,老刘在讲知识点时,为了方便,直观使用
-* 位置: head标签中的style标签内
-
-#### 2.行内式
-
-* 含义:将css代码掺杂在html标签中,书写很方便,代码耦合度极高,维护困难,造成代码冗余,权重高,在工作中偶尔使用
-* 位置: html代码标签内
-
-#### 3.外链式
-
-* 含义:将css代码单独写在css文件中,书写相对繁琐,代码耦合度极低,维护很方便,在工作中经常使用
-
-* 位置:   
-
-  ```html
-  <link rel="stylesheet" href="">
-  ```
-
-  
-
-### 八. css的层叠性
+### css的层叠性
 
 * 含义: 当给一个标签设置多个选择器(和属性)时,不同的属性可以叠加实现.  相同的属性,当**权重**相同时,后定义的会覆盖(层叠)先定义的, 当**权重**不同时, 权重高的发挥作用.
 * 权重顺序:  标签选择器<类选择器<id选择器<行内样式<!important
@@ -1384,6 +1125,263 @@ border-left:
 
 
 #### 盒子模型
+
+
+
+
+
+
+
+### CSS中的颜色
+
+#### 颜色4种表现方式
+
+##### 关键词
+
+**rgb**
+
+**rgba**
+
+**16进制**
+
+
+
+
+
+#### 2.盒子的3种基本属性
+
+width height background背景色
+
+* 盒子：在网页中，每个标签都是由一个矩形的图形展示的，所以我们认为网页是由一个个盒子组成的。
+* 盒子指的是html标签
+* div是一个没有语义的盒子
+
+
+
+#### 3.颜色介绍
+
+**互补色**: 色环是我们认识颜色关系的好工具。它是一个近色相邻、异色相离的圆环。 当两个颜色恰好在色环的两端时，这两个颜色就互为补色。 两个互为补色的颜色会在混合后变成灰色。 然而，补色搭配能形成强烈的视觉对比效果。
+
+```html
+红色（#FF0000）和蓝绿色 (#00FFFF)
+绿色（#00FF00）和品红色（#FF00FF）
+蓝色（#0000FF）和黄色（#FFFF00）
+```
+
+
+
+**三原色**
+
+电脑显示器和各类屏幕都是基于颜色叠加的模型：将红（R）、绿（G）、蓝（B）三原色的色光以不同的比例相加，就可以产生各种色彩光。 这在现代色彩理论中叫作三原色光模式（RGB Color Model）。 红色（R）、绿色（G）和蓝色（B）叫作三原色。 如果把两种原色相加，就可以产生二次色：蓝绿（G+B）、品红（R+B）和黄色（R+G）
+
+
+
+**三次色**
+
+三次色是由原色和二次色相加产生的颜色， 例如，在 RGB 颜色模型中，红色（原色）和黄色（二次色）相加产生橙色（三次色）。 将这六种颜色中相邻的颜色相加，便产生了十二色色环。
+
+设计里面有很多种颜色搭配方法。 涉及到三次色的一种配色方法是分裂补色搭配法。 选定主色之后，在色环上选择与它的补色相邻的两种颜色与之搭配。 此种搭配既有对比，又不失和谐。
+
+```html
+橙色	#FF7F00
+蓝绿色	#00FFFF
+树莓红	#FF007F
+```
+
+
+
+#### 4.调整颜色的色相
+
+颜色具有多种特性，包括色相、饱和度和亮度。 CSS3 引入了 `hsl()` 做为颜色的描述方式。
+
+**色相**是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。 以颜色光谱为例，光谱左边从红色开始，移动到中间的绿色，一直到右边的蓝色，色相值就是沿着这条线的取值。 在 `hsl()` 里面，色相用色环来代替光谱，色相值就是色环里面的颜色对应的从 0 到 360 度的角度值。
+
+**饱和度**是指色彩的纯度，也就是**颜色里灰色的占比**。 饱和度越高则灰色占比越少，色彩也就越纯；反之则完全是灰色。 饱和度的取值范围是表示灰色所占百分比的 0 至 100。
+
+**亮度**决定颜色的明暗程度，也就是颜色里白色或者黑色的占比。 其中，100% 的亮度表示纯白色， 0% 的亮度则表示纯黑色；而 50% 的亮度就表示在色相中选取的颜色。
+
+```html
+颜色	HSL
+红	hsl(0, 100%, 50%)
+黄	hsl(60, 100%, 50%)
+绿	hsl(120, 100%, 50%)
+蓝绿	hsl(180, 100%, 50%)
+蓝	hsl(240, 100%, 50%)
+品红	hsl(300, 100%, 50%)
+```
+
+
+
+
+
+### 元素的显示模式
+
+按[新的 HTML 规范](https://www.zhihu.com/question/34952563/answer/60672228)，已经不按 inline 和 block 来区分元素类型了.
+
+待补充...
+
+#### 1. 块级元素
+
+* 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
+* 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
+
+#### 2. 行内元素
+
+* 特点: 无法设置宽高,转换成块元素或行内块元素宽高可起作用. ; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐).  
+
+* `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
+
+  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
+
+* 行内元素: **a b del  em i  ins span  strong s u  **
+
+```css
+多个span元素转换为inline-block后,会有一个左右间距. 可以span不换行解决这个问题.或者通过父元素添加font-size:0;
+span等行内元素是可以设置内边距 padding 的，只不过元素本身无法把父元素撑开，看上去就是设置的 padding 上下边距不起效了，而 margin 就只能设置 span 的左右边距。
+
+如果要给 span 设置边距，一般的方法就是给它设置一个 display: inline-block; ，把它变成行内块级元素就可以了
+
+```
+
+
+
+#### 3. 行内块
+
+* 特点: 可以设置宽高; 一行可有多个行内块元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距; (宽高默认由图片的原始大小决定;)
+
+* 行内块元素: **img  input等**
+
+#### 4.显示模式的转换
+
+1.其他模式元素转换为行内块元素
+
+​		display: inline-block
+
+2.其他模式元素转换为块元素
+
+​		display: block
+
+
+
+### 实例问题
+
+#### 1.两个行内块元素无法对齐
+
+```html
+网址出处:https://www.cnblogs.com/qfly/p/8085125.html
+例如,两个转换为行内块的span,一个有文字,一个没有文字,在网页中发现两个盒子无法对齐.
+
+原因:文本基线不一致的原因.没有文字的span的基线已经变成了底部的margin底边缘,后面盒子有文字,所以该盒子的基线就是文字的基线,二值基线对齐形成这个效果.
+
+可以通过改变对齐方式来解决vertical-align:middle;
+```
+
+
+
+#### 2.行内块元素overflow:hidden带来的塌陷问题
+
+```js
+https://stackoverflow.com/questions/32078950/why-baseline-of-inline-block-element-with-overflowhidden-is-set-to-its-bott#
+
+https://blog.csdn.net/w390058785/article/details/80567583
+
+https://www.cnblogs.com/wgwyanfs/p/6985261.html
+
+https://www.cnblogs.com/AliceX-J/p/5731755.html
+```
+
+
+
+因为实现隐藏功能的时候，隐藏部分的内容的vertical-align变成了baseline;对齐了，这样也导致行内块元素高度被撑高了。而后续的行内块元素跟行内元素，是接在了隐藏部分的vertical-align的高度上了。只要改回后续行内块元素跟行内元素的vertical-align值就可以了。
+
+解决方法:
+
+1.重新设置所有行内元素的对齐方式为vertical-align:top或者bottom; (vertical-align属性针对行内元素和表格属性元素使用,在块元素中不起作用)
+
+2.设置所有行内元素的overflow不为visible
+
+3.设置flex布局
+
+失败版本:
+
+```js
+https://codepen.io/westover/pen/ExWLpqM
+```
+
+
+
+#### 3. 行内块和行内元素横向布局的问题
+
+* 说明: 为什么不用行内块元素横向布局代替浮动
+
+* **行内块元素横向布局的问题:**    由于行内块元素是和文本的基线对齐,也可以说是底对齐. 给行内块元素设置<font color="red">**垂直方向**</font>的内外边距时会影响周围的元素.[从案例上来看,就是content区域已经无法底部对齐  对齐的是它的border(实际上是padding或者margin和另外的行内块元素的border或者说是内容区域对齐)]
+
+
+
+
+
+* **行内元素横向布局的问题**:     由于行内元素是包裹文本的,文本在每行是沿着基线对齐,此时行内元素垂直方向的内外边距是不起作用的.
+
+  `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
+
+  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
+
+![](https://www.w3h5.com/zb_users/upload/2019/04/201904141555172075784072.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### 在页面上隐藏元素的方法
+
+```Markdown
+#  占位
+visibility:hidden;
+marign-left:-100%;
+opacity:0;
+transform: scale(0);
+
+
+# 不占位
+display:none;
+width:0;height:0;overflow:hidden;
+
+# 仅对块内文本元素
+text-indent:-9999px;   //首行缩进
+font-size:0;
+```
+
+
+
+行内块元素当有内容时,它位置会降低/下移
+
+```js
+https://stackoverflow.com/questions/13390220/why-does-an-inline-block-div-get-positioned-lower-when-it-has-content/
+
+http://jsfiddle.net/ye0fbg4n/
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -6602,4 +6600,30 @@ HTML：
 </div>
 
  ```
+
+
+
+
+
+
+
+
+
+## CSS最佳实践
+
+### MaintainableCSS
+
+> [MaintainableCSS - 一种哲学，教你如何编写模块化，可扩展性，可维护性的CSS。 (owenyang0.github.io)](http://owenyang0.github.io/maintainablecss-cn/index.html)
+
+
+
+### css规范
+
+百度FEX前端团队和腾讯AlloyTeam前端团队的CSS代码规范。
+
+> [styleguide/css.md at master · fex-team/styleguide (github.com)](https://github.com/fex-team/styleguide/blob/master/css.md)
+>
+> [Code Guide by @AlloyTeam](http://alloyteam.github.io/CodeGuide/)
+
+
 

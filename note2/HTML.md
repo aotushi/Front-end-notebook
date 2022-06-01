@@ -225,6 +225,7 @@ An HTML comment begins with `<!--`, and ends with `-->`, as shown in the example
 * Client-side scripts: 插入程序以提供功能和交互. 用`<script>`元素来声明
 * Meta statement: 定义自定义的属性和值. 使用`<meta>`元素插入.
 * Relational information: 表示与文档以某种方式相关的资源. 使用`<link>`标签插入.
+* base
 
 
 
@@ -253,15 +254,10 @@ An HTML comment begins with `<!--`, and ends with `-->`, as shown in the example
 
 #### 组成
 
-`name` — Metadata name
-
-`http-equiv` — Pragma directive
-
-`content` — Value of the element
-
-`charset` — [Character encoding declaration](https://html.spec.whatwg.org/multipage/semantics.html#character-encoding-declaration)
-
-`media` — Applicable media
+- 如果设置了 [`name`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/meta#attr-name) 属性，`meta` 元素提供的是文档级别（*document-level*）的元数据，应用于整个页面。
+- 如果设置了 [`http-equiv`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/meta#attr-http-equiv) 属性，`meta` 元素则是编译指令，提供的信息与类似命名的 HTTP 头部相同。
+- 如果设置了 [`charset`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/meta#attr-charset) 属性，`meta` 元素是一个字符集声明，告诉文档使用哪种字符编码。
+- 如果设置了 [`itemprop`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Global_attributes#attr-itemprop) 属性，`meta` 元素提供用户定义的元数据。
 
 
 
@@ -271,14 +267,6 @@ An HTML comment begins with `<!--`, and ends with `-->`, as shown in the example
 
 * 与之对应的属性值为content，content中的内容是对name填入类型的具体描述，便于搜索引擎抓取
 * name属性主要用于描述网页，比如网页的关键词，叙述等。
-
-##### keywords
-
-```html
-<meta name="keywords" content="xx, xx, xxx, xxx">
-```
-
-
 
 ##### description
 
@@ -303,7 +291,15 @@ content的参数有all,none,index,noindex,follow,nofollow。默认是all。
 
 ```html
 <meta name="robots" content="none"> 
+
+<meta name="robots" content="index,follow,max-snippet:200,max-image-preview:large">
+
+//max-snippet 谷歌搜索参数 最多只能使用 [number] 个字符作为此搜索结果的文字摘要。
+//max-image-preview:       设置此网页的图片预览在搜索结果中的尺寸上限。
+      
 ```
+
+
 
 
 
@@ -329,7 +325,7 @@ http-equiv顾名思义，相当于http的文件头作用。equiv的全称是"equ
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/> //指定IE和Chrome使用最新版本渲染当前页面
 ```
 
-#### cache-control(指定请求和响应遵循的缓存机制)
+##### cache-control(指定请求和响应遵循的缓存机制)
 
 ###### 用法1.
 
@@ -360,7 +356,7 @@ http-equiv顾名思义，相当于http的文件头作用。equiv的全称是"equ
 <meta http-equiv="Cache-Control" content="no-siteapp" />
 ```
 
-#### expires
+##### expires
 
 说明:用于设定网页的到期时间，过期后网页必须到服务器上重新传输。
 
@@ -370,7 +366,7 @@ http-equiv顾名思义，相当于http的文件头作用。equiv的全称是"equ
 
 
 
-#### Set-Cookie(cookie设定)
+##### Set-Cookie(cookie设定)
 
 如果网页过期。那么这个网页存在本地的cookies也会被自动删除。
 
@@ -382,5 +378,42 @@ http-equiv顾名思义，相当于http的文件头作用。equiv的全称是"equ
 
 
 
-### 面试
+#### 其他类型元数据
 
+Facebook和twitter提供的元数据协议
+
+```html
+<meta property="twitter:site" content="@FinancialTimes">
+<meta proeprty="fb:pages" content="8860325749">
+```
+
+
+
+### link标签
+
+#### 作用
+
+* 指明当前文档和外部资源的关系
+* 最常用连接到样式表, 网站icon图标(facivon, 移动端上的home屏幕或者app)
+
+
+
+#### 属性
+
+
+
+
+
+### script标签
+
+
+
+### style标签
+
+
+
+### title标签
+
+
+
+### base标签

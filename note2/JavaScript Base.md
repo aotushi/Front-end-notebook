@@ -781,6 +781,70 @@ function getValue(condition) {
 
 <u>变量value的声明被提升至函数顶部，而初始化操作依旧留在原处执行，这就意味着在else子句中也可以访问到该变量，且由于此时变量尚未初始化，所以其值为undefined.</u>   ECMAScript 6引入块级作用域来强化对变量生命周期的控制。
 
+
+
+#### 为什么let和const不存在变量提升
+
+> [为什么let和const不存在变量提升？ - 知乎 (zhihu.com)](https://www.zhihu.com/question/535442142/answer/2510328090)
+
+```
+很多 JS 问题的研究都可以按照下面的顺序由浅入深:
+
+1.引擎的表现是怎么样的？
+2.规范是如何规定的？
+3.为什么这么设计？
+```
+
+
+
+##### 背景
+
+一段代码在被真正的执行前，会有个专门用来声明变量的过程，俗语常把这个过程称为预解析/预处理。无论是用 var 还是用 let/const 声明的变量，都是在这个过程里被提前声明好的，俗语常把这种表现称为 hoisting。只是 var 和 let/const 有个区别，var 变量被声明的同时，就会被初始化成 undefined，而后两者不会。
+
+规范规定一个已经声明但未初始化的变量不能被赋值，甚至不能被引用.规范里用来声明 var/let 变量的内部方法是 CreateMutableBinding()，初始化变量用 InitializeBinding()，为变量赋值用 SetMutableBinding()，引用一个变量用 GetBindingValue()。在执行完 CreateMutableBinding() 后没有执行 InitializeBinding() 就执行 SetMutableBinding() 或者 GetBindingValue() 是会报错的，这种表现有个专门的术语（非规范术语）叫 TDZ（Temporal Dead Zone），通俗点说就是一个变量在声明后且初始化前是完完全全不能被使用的。
+因为 var 变量的声明和初始化（成 undefined ）都是在“预处理”过程中同时进行的，所以永远不会触发 TDZ 错误。let 的话，声明和初始化是分开的，只有真正执行到 let 语句的时候，才会被初始化。如果只声明不赋值，比如 let foo，foo 会被初始化成 undefined，如果有赋值的话，只有等号右侧的表达式求值成功（不报错），才会初始化成功。一旦错过了初始化的机会，后面再没有弥补的机会。这是因为赋值运算符 = 只会执行 SetMutableBinding()，并不会执行 InitializeBinding()，所以例子中的 map 变量被永远困在了 TDZ 里。
+
+
+
+##### 结论
+
+var 和 let/const 并没有那么大的差别，无非就是声明的同时是否有被初始化。hoist 本身就是个不规范的词汇，到底什么才算 hoist？我也可以说 let/const 也是存在提升的，因为它的确已经提前声明了，只是没初始化，从报错信息也可以看出，引擎已经提前感知到了它的存在。
+
+##### 原因
+
+想要解释 let/const 为什么不存在提升，那就得先知道 var 为什么要提升。其实没什么好的原因，Brendan Eich 解释过 var 的提升是没设计好，他的本意是只让函数声明可以提升。
+
+那如果就在声明前使用了，该怎么办。当时也考虑过可以让它指向外层作用域的变量，比如像 Rust：
+
+```rust
+fn main() {
+    let a = "outer";
+    {
+        println!("{}", a); // outer
+        let a = "inner";
+        println!("{}", a); // inner
+    } 
+}
+```
+
+也就是同一个作用域里的同名变量，可以有两个不同的绑定，这个因为一些原因被否掉了。
+
+剩下的选项就是**报错（dead zone）**。报错有两个方案，一个是根据空间上、词法上、源码的文本顺序来看，只要在声明前使用，就报错，这个叫 Lexical dead zone（词法死区），这个也被否掉了：
+
+```javascript
+f()
+let a = 1 
+function f() {alert(a)}
+```
+
+因为 a 的使用虽然从源码顺讯上是放在了 let a 后面，但从执行时间上却先求值了。所以只剩最后一个方案，**时间死区（Temporal dead zone）**，也就是最终到了 ES6 里的 TDZ，这里 temporal 不是暂时的意思，temporal 有”时间的“含义，和空间相对应，比如最新替代 Date 的规范也叫 Temporal。
+
+所以结尾总结一下，为什么 let 和 const 不存在变量提升，因为提升成一个 undefined 的设计并不好。
+
+
+
+
+
 #### 2. 块级声明
 
 > 块级声明用于声明在指定块的作用域之外无法访问的变量。块级作用域（亦被称为词法作用域）存在于：
@@ -899,6 +963,8 @@ if(condition) {
 ```
 
 <u>typeof是在声明变量value的代码块外执行的，此时value并不在TDZ中。这也就意味着不存在value这个绑定，typeof操作最终返回"undefined"。</u>
+
+
 
 #### 3. 循环中的块作用域绑定
 
