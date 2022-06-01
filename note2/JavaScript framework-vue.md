@@ -2733,6 +2733,8 @@ Object.defineProperty(vm, 'msg', {
 
 ## 生命周期
 
+### 概述
+
 > 每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。同时在这个过程中也会运行一些叫做**生命周期钩子**的函数，这给了用户在不同阶段添加自己的代码的机会
 >
 > 生命周期钩子的 `this` 上下文指向调用它的 Vue 实例
@@ -2743,7 +2745,9 @@ Object.defineProperty(vm, 'msg', {
 
 
 
-### 1.图片概况
+
+
+### 1.图示
 
 ![vue生命周期-2.png](https://i.loli.net/2021/01/15/JMm3HIuOPCYQwjB.png)
 
@@ -2776,6 +2780,27 @@ watch列表中immediate为true时，监听回调将在beforeCreate和created生�
 
 组件刚加载时，render函数在beforeMount和mounted之间执行，之后每次在数据发生更新时都会被执行，在beforeUpdate和updated之间执行
 ```
+
+
+
+### 阶段分类
+
+#### 初始化阶段
+
+从`new Vue()`到`created`之间的阶段
+
+这个阶段的主要目的是在Vue.js实例上<span style="color:blue">初始化一些属性,事件以及响应式数据</span>, 如props, methods, data, computed, watch, provide, inject等.
+
+
+
+#### 模板编译阶段
+
+在created到beforeMount之间的阶段.
+
+这个阶段的主要目的:
+
+* 将模板编译为渲染函数,只存在于完整版中
+* 如果只在包含运行时的构建版本中执行`new Vue()`,则不会存在这个阶段.
 
 
 
