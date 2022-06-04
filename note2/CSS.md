@@ -1,3 +1,10 @@
+```
+!! 待补充
+!!!! !!! 疑问
+
+?? 疑问
+```
+
 
 
 ### 块级盒子和内联盒子
@@ -189,6 +196,12 @@ CSS发生冲突遵循的规则有:
 
 一些设置在父元素上的css属性是可以被子元素继承的，有些则不能
 
+* 定义:后代元素可以继承父元素设置的**<font color="red">文本的属性</font>**
+
+* 继承的权重为0,优先继承离自己最近的父辈元素. 即使祖先元素使用 **!important**
+
+* **不能继承**: <font color="red">父辈元素的width, height, 背景图,背景色等其他</font>
+
 #### 控制继承
 
 CSS 为控制继承提供了四个特殊的通用属性值。每个css属性都接收这些值。
@@ -306,143 +319,349 @@ CSS选择器是元素和其他部分组合起来告诉浏览器哪个HTML元素�
 
 如果任何一个选择器无效 (存在语法错误)，那么整条规则都会被忽略。
 
-#### 选择器的种类
-
-##### 类型,类和ID选择器
 
 
 
-##### 标签属性选择器
+#### CSS选择器使用
 
+##### 外部CSS
 
+* 使用外部样式表
+* 在 head 部分的 \<link> 元素内包含对外部样式表文件的引用
 
-##### 伪类与伪元素
+**案例**
 
-
-
-##### 运算符
-
-
-
-
-
-#### 概要
-
-| 选择器                                                       | 选择器名称       | 功能描述                                                     | 功能描述 | 权重 |
-| ------------------------------------------------------------ | :--------------- | :----------------------------------------------------------- | -------- | ---- |
-| *                                                            | 通配符选择器     | 选择文档中所有HTML元素                                       |          |      |
-| E                                                            | 标签选择器       | 选择指定类型的HTML元素                                       |          |      |
-| .class                                                       | 类选择器         | 选择指定class属性值为'class'的任意类型的任意多个元素         |          |      |
-| #id                                                          | id选择器         | 选择指定ID属性值为'id'的任意类型元素                         |          |      |
-| selector1,selectorN                                          | 并集选择器       | 给所有选择器选中的标签设置属性                               |          |      |
-| selector1selectorN                                           | 交集选择器       | 给所有选择器选中的标签中, <br/>相交的那部分标签设置属性      |          |      |
-| F S                                                          | 后代选择器       | 匹配F元素内部的S元素                                         |          |      |
-| F>S                                                          | 子元素选择器     | 选择F元素内部子元素的S元素                                   |          |      |
-| E+F                                                          | 相邻兄弟选择器   | 选择匹配的F元素,且紧位于E元素之后                            |          |      |
-| E~F                                                          | 通用兄弟选择器   | 选择匹配的F元素,且位于E元素后所有的同级F元素                 |          |      |
-|                                                              | 属性选择器       |                                                              |          |      |
-| ::before ::after <br />::selection ::first-line <br />::first-letter | 伪元素选择器     |                                                              |          |      |
-| E:link E:visited E:hover E:active E:focus                    | 动态伪类选择器   |                                                              |          |      |
-| E:target                                                     | 目标伪类选择器   |                                                              |          | 3    |
-| E:lang                                                       | 语言伪类选择器   | 表示选择匹配E的所有元素,且匹配元素指定了lang属性,其值为language |          |      |
-| E:checked<br/>E:enabled<br/>E:disabled                       | UI状态伪类选择器 |                                                              |          |      |
-|                                                              | 结构伪类选择器   |                                                              |          |      |
-|                                                              | 否定伪类选择器   |                                                              |          |      |
-
-
-
-#### 简单选择器(标签,id,类)
-
-
-
-##### 标签选择器
-
-```html
-<!-- 标签名{属性名:属性值; 属性名:属性值; .... -->
-
-<style>
-    h2{
-        color:red;
-        font-size:10px;
-    }
-</style>
+```css
+<link rel="stylesheet" type="text/css" href="mystyle.css" >
 ```
 
+##### 内部CSS
 
+内部样式是在 head 部分的 \<style> 元素中进行定义
+
+##### 行内CSS
+
+* 行内样式（也称内联样式）可用于为单个元素应用唯一的样式
+* 行内样式通过将内容与呈现混合在一起,耦合性搞,难以维护
+
+
+
+### 选择器的种类
+
+#### 类型,类和ID选择器
+
+##### 类型选择器
+
+有时也叫做“标签名选择器*”*或者是”元素选择器“，因为它在文档中选择了一个HTML标签/元素的缘故
+
+##### 全局选择器
+
+全局选择器，是由一个星号（`*`）代指的，它选中了文档中的所有内容（或者是父元素中的所有内容，比如，它紧随在其他元素以及邻代运算符之后的时候）
+
+使用全局选择器,让选择器更易读
+
+```html
+article :first-child {} //用作<article>元素选择器的一个后代选择器
+
+article:first-child {}  //选择了作为其他元素的第一子元素的<article>元素
+  
+//解决
+  
+article *:first-child {} //选中<article>元素的任何第一子元素：
+```
 
 ##### 类选择器
 
-定义类名称: 以点开头+类名称{属性名:属性值; 属性名:属性值; .....}
+类选择器以一个句点（`.`）开头，会选择文档中应用了这个类的所有项.
 
-调用类名称: 用标签中的class属性来关联类名称
+指向特定元素的类
+
+使用附加了类的欲选元素的选择器做到这点，其间没有空格
 
 命名规范: 
 
 * 不能以数字开头, 可以用字母, 下划线开头,+数字+下划线+中划线+字母;
 * 建议使用驼峰命名法(小驼峰): 第一个单词首字母小写, 第二个单词首字母大写
 
-格式:
-
 ```html
-<style>
-    .yellowGreen{
-        color:yellowgreen;
-    }
-</style>
+span.highlight {}
+```
 
-.....
+多个类被指向一个元素
+
+你能对一个元素应用多个类，然后分别指向它们，或者仅仅在选择器中存在所有这些类的时候选择这一元素。???(难以理解)
+
+##### ID选择器
+
+ID选择器开头为`#`而非句点，不过基本上和类选择器是同种用法。
+
+在一篇文档中，一个ID只会用到一次。
+
+它能选中设定了`id`的元素，你能在ID前面加上类型选择器，只指向元素和ID都匹配的类。
 
 
-<p class="yellowGreen">
-    内容
-</p>
+
+#### 标签属性选择器
+
+##### 存否和值选择器
+
+这些选择器允许基于一个元素自身是否存在（例如`href`）或者基于各式不同的按属性值的匹配，来选取元素。
+
+| 选择器          | 示例                            | 描述                                                         |
+| :-------------- | :------------------------------ | :----------------------------------------------------------- |
+| `[attr]`        | `a[title]`                      | 匹配带有一个名为*attr*的属性的元素——方括号里的值。           |
+| `[attr=value]`  | `a[href="https://example.com"]` | 匹配带有一个名为*attr*的属性的元素，其值正为*value*——引号中的字符串。 |
+| `[attr~=value]` | `p[class~="special"]`           | 匹配带有一个名为*attr*的属性的元素 ，其值正为*value*，或者匹配带有一个*attr*属性的元素，其值有一个或者更多，至少有一个和*value*匹配。注意，在一列中的好几个值，是用<span style="color:blue">空格隔开</span>的。 |
+| `[attr|=value]` | `div[lang|="zh"]`               | 匹配带有一个名为*attr*的属性的元素，其值可正为*value*，或者开始为*value*，后面紧随着一个<span style="color:blue">连字符</span> (-) |
+
+使用案例:
+
+
+
+##### 子字符串匹配选择器
+
+| 选择器          | 示例                | 描述                                                         |
+| :-------------- | :------------------ | :----------------------------------------------------------- |
+| `[attr^=value]` | `li[class^="box-"]` | 匹配带有一个名为*attr*的属性的元素，其值开头为*value*子字符串。 |
+| `[attr$=value]` | `li[class$="-box"]` | 匹配带有一个名为*attr*的属性的元素，其值结尾为*value*子字符串 |
+| `[attr*=value]` | `li[class*="box"]`  | 匹配带有一个名为*attr*的属性的元素，其值的字符串中的任何地方，至少出现了一次*value*子字符串。 |
+
+
+
+使用案例:
+
+
+
+##### 大小写敏感
+
+如果你想在大小写不敏感的情况下，匹配属性值的话，<span style="color:blue">你可以在闭合括号(中括号)之前，使用`i`值</span>。这个标记告诉浏览器，要以大小写不敏感的方式匹配ASCII字符。没有了这个标记的话，值会按照文档语言对大小写的处理方式，进行匹配——HTML中是大小写敏感的。
+
+有一个更加新的`s`值，它会强制在上下文的匹配正常为大小写不敏感的时候，强行要求匹配时大小写敏感。不过，在浏览器中它不太受支持，而且在上下文为HTML时也没啥用。
+
+使用案例:
+
+```css
+li[class^='a' i] {
+  color: red;
+}
 ```
 
 
 
-##### id选择器
-
-* 定义id选择器: 以#开头+id名称
-* 调用id选择器: 用标签中的id属性值等于id名称
-* 注意事项:  id选择器的名称一个页面只能出现一次,(虽然出现相同的浏览器也能解析,但是从语法上来说是错误的.)
 
 
+#### 伪类与伪元素
 
-#### 关系选择器
+##### 什么是伪类?
 
-##### 1. 后代选择器
+<span style="text-decoration:underline red ">伪类是选择器的一种，它用于选择处于特定状态的元素</span>，比如当它们是这一类型的第一个元素时，或者是当鼠标指针悬浮在元素上面的时候。
 
-##### 2. 子元素选择器
+##### 语法
 
-##### 3. 相邻兄弟选择器
+```css
+:pseudo-class-name
+```
 
-##### 4. 通用兄弟选择器
 
-##### 5. 并集选择器
 
-##### 6. 交集选择器
+##### 简单伪类
 
-#### 属性选择器
+[`:first-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:first-child)伪类选择器
 
-CSS2中引入了一些属性选择器，这些选择器可基于元素的属性来匹配元素，而CSS3在CSS2的基础上扩展了这些属性选择器，支持基于模式匹配来定位元素。
+表示在一组兄弟元素中的第一个元素
+
+[`:last-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:last-child) 
+
+代表父元素的最后一个子元素
+
+
+
+[`:only-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:only-child)
+
+匹配没有任何兄弟元素的元素
+
+等效的选择器还可以写成 `:first-child:last-child`或者`:nth-child(1):nth-last-child(1)`,当然，前者的权重会低一点。
+
+
+
+
+
+[`:invalid`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:invalid)
+
+表示任意内容未通过验证的 [`<input>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/Input) 或其他 [`<form>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/form) 元素 
+
+
+
+```css
+/*可选定任意无效的<input> */
+
+input:invalid {
+  background-color: pink;
+}
+```
+
+
+
+注意:
+
+[单选钮（Radio buttons）](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:invalid#单选钮（radio_buttons）)
+
+若一组单选钮被设定为必须选定一个，在该组中没有按钮被选中的情况，:invalid 伪类被应用到该组中的所有按钮。（单选钮组按照 name 属性共享相同值。）
+
+[Gecko 默认](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:invalid#gecko_默认)
+
+默认情况下，Gecko 不应用 :invalid 伪类设置的样式。但是，Gecko 可以使用 [`:-moz-ui-invalid` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/:user-invalid) 伪类的样式（使用 [`box-shadow`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/box-shadow) 属性设置红色发光边框）来达到类似的效果，它可以被应用在:invalid 伪类的子集中。
+
+
+
+##### 用户行为伪类
+
+**用户行为伪类**，有时叫做**动态伪类**，表现得就像是一个类在用户和元素交互的时候加到了元素上一样。案例包括：
+
+- `:hover`——只会在用户将指针挪到元素上的时候才会激活，一般就是链接元素。
+- `:focus`——只会在用户使用键盘控制，选定元素的时候激活。
+
+
+
+
+
+##### 伪元素
+
+表现得是像你往标记文本中加入全新的HTML元素一样，而不是向现有的元素上应用类。伪元素开头为双冒号`::`
+
+
 
 **语法**
 
-| 选择器        | 功能描述                                                     |
-| ------------- | ------------------------------------------------------------ |
-| E[attr]       | 选择匹配具有属性attr的E元素.其中E可以省略,表示选择定义了attr属性的任意类型元素 |
-| E[attr=val]   | 选择匹配具有属性attr的E元素, 且attr属性值为val. <br />同样E元素省略时表示选择定义了attr属性为val的任意类型元素. |
-| E[attr\|=val] | 选择匹配E元素,且E元素定义了属性attr,<br />attr属性值是一个具有val或以val-开始的属性值.<br />常用于lang属性. 例如段落属性为lang='en-us'.<br />p[lang=en]将匹配定义为英语的任何段落,无论是英式英语还是美式英语. |
-| E[attr~=val]  | 选择匹配E元素,且元素定义了属性attr,attr属性值具有多个空格分隔的值,其中一个值等于val.<br />例如: .info[title~=more]将匹配元素具有类名info,且元素设置了一个属性title,同时title属性值包含了'more'的任何元素. \<a class='info' title='click here for more infomation'>\</a> |
-| E[attr*=val]  | 选择匹配元素E,且E元素定义了属性attr,其属性值任意位置包含了'val'.<br />即,字符串val与属性值中的任意位置相匹配. |
-| E[attr^=val]  | 选择匹配元素E,且E元素定义了属性attr,其属性值以val开头的任何字符串 |
-| E[attr$=val]  | 选择匹配元素E,且E元素定义了属性attr,其属性值以val结尾的任何字符串. |
+```css
+::pseudo-element-name
+
+//一些早期的伪元素曾使用单冒号的语法,现代的浏览器为了保持后向兼容，支持早期的带有单双冒号语法的伪元素。
+```
 
 
 
-#### 伪类选择器
+**案例**
 
-##### 1. 动态伪类选择器
+如果你想选中一段的第一行，你可以把它用一个`<span>`元素包起来，然后使用元素选择器；不过，如果包起来的单词/字符数目长于或者短于父元素的宽度，这样做会失败。由于我们一般不会知道一行能放下多少单词/字符——因为屏幕宽度或者字体大小改变的时候这也会变——通过改变HTML的方式来可预测地这么做是不可能的。
+
+`::first-line`伪元素选择器会值得信赖地做到这件事——即使单词/字符的数目改变，它也只会选中第一行。
+
+
+
+##### 伪类和伪元素结合
+
+
+
+**案例**
+
+第一段的第一行加粗，你需要把`:first-child`和`::first-line`选择器放到一起。
+
+```css
+article p:first-child::first-line {
+  font-size: 120%;
+  font-weight: bold;
+}
+```
+
+
+
+##### 生成带有`::before 和 ::after`内容
+
+有一组特别的伪元素，它们和[`content`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/content)属性一同使用，使用CSS将内容插入到你的文档中中
+
+伪元素的更推荐的用法是插入一个图标，例如下面的示例加入的一个小箭头，作为一个视觉性的提示，而且我们并不希望屏幕阅读器读出它。
+
+```css
+.box::after {
+    content: " ➥"
+}
+```
+
+`::before`和`::after`伪元素与`content`属性的共同使用，在CSS中被叫做“生成内容”，而且你会见到这种技术被用于完成各种任务。
+
+
+
+[CSS Arrow Please](http://www.cssarrowplease.com/)网站就是一个著名的示例，它帮你用CSS生成一个箭头。
+
+
+
+##### 伪类和伪元素列表
+
+[伪类](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/Selectors/Pseudo-classes_and_pseudo-elements#伪类)
+
+| 选择器                                                       | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [`:active`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:active) | 在用户激活（例如点击）元素的时候匹配。                       |
+| [`:any-link`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:any-link) | 匹配一个链接的`:link`和`:visited`状态。                      |
+| [`:blank`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:blank) | 匹配空输入值的[`<input>`元素](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input)。 |
+| [`:checked`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:checked) | 匹配处于选中状态的单选或者复选框。                           |
+| [`:current` (en-US)](https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API) | 匹配正在展示的元素，或者其上级元素。                         |
+| [`:default`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:default) | 匹配一组相似的元素中默认的一个或者更多的UI元素。             |
+| [`:dir`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:dir) | 基于其方向性（HTML`dir`属性或者CSS`direction`属性的值）匹配一个元素。 |
+| [`:disabled`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:disabled) | 匹配处于关闭状态的用户界面元素                               |
+| [`:empty`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:empty) | 匹配除了可能存在的空格外，没有子元素的元素。                 |
+| [`:enabled`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:enabled) | 匹配处于开启状态的用户界面元素。                             |
+| [`:first`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:first) | 匹配[分页媒体](https://developer.mozilla.org/en-US/docs/Web/CSS/Paged_Media)的第一页。 |
+| [`:first-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:first-child) | 匹配兄弟元素中的第一个元素。                                 |
+| [`:first-of-type`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:first-of-type) | 匹配兄弟元素中第一个某种类型的元素。                         |
+| [`:focus`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:focus) | 当一个元素有焦点的时候匹配。                                 |
+| [`:focus-visible`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:focus-visible) | 当元素有焦点，且焦点对用户可见的时候匹配。                   |
+| [`:focus-within`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:focus-within) | 匹配有焦点的元素，以及子代元素有焦点的元素。                 |
+| [`:future` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/:future) | 匹配当前元素之后的元素。                                     |
+| [`:hover`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:hover) | 当用户悬浮到一个元素之上的时候匹配。                         |
+| [`:indeterminate`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:indeterminate) | 匹配未定态值的UI元素，通常为[复选框](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox)。 |
+| [`:in-range`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:in-range) | 用一个区间匹配元素，当值处于区间之内时匹配。                 |
+| [`:invalid`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:invalid) | 匹配诸如`<input>`的位于不可用状态的元素。                    |
+| [`:lang`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:lang) | 基于语言（HTML[lang](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Global_attributes/lang)属性的值）匹配元素。 |
+| [`:last-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:last-child) | 匹配兄弟元素中最末的那个元素。                               |
+| [`:last-of-type`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:last-of-type) | 匹配兄弟元素中最后一个某种类型的元素。                       |
+| [`:left`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:left) | 在[分页媒体 (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Pages)中，匹配左手边的页。 |
+| [`:link`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:link) | 匹配未曾访问的链接。                                         |
+| [`:local-link` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/:local-link) | 匹配指向和当前文档同一网站页面的链接。                       |
+| [`:is()`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:is) | 匹配传入的选择器列表中的任何选择器。                         |
+| [`:not`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:not) | 匹配作为值传入自身的选择器未匹配的物件。                     |
+| [`:nth-child(an+b)`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:nth-child) | 匹配一列兄弟元素中的元素——兄弟元素按照an+b形式的式子进行匹配（比如2n+1匹配元素1、3、5、7等。即所有的奇数个）。 |
+| [`:nth-of-type`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:nth-of-type) | 匹配某种类型的一列兄弟元素（比如，`<p>`元素）——兄弟元素按照an+b形式的式子进行匹配（比如2n+1匹配元素1、3、5、7等。即所有的奇数个）。 |
+| [`:nth-last-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:nth-last-child) | 匹配一列兄弟元素，从后往前倒数。兄弟元素按照an+b形式的式子进行匹配（比如2n+1匹配按照顺序来的最后一个元素，然后往前两个，再往前两个，诸如此类。从后往前数的所有奇数个）。 |
+| [`:nth-last-of-type`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:nth-last-of-type) | 匹配某种类型的一列兄弟元素（比如，`<p>`元素），从后往前倒数。兄弟元素按照an+b形式的式子进行匹配（比如2n+1匹配按照顺序来的最后一个元素，然后往前两个，再往前两个，诸如此类。从后往前数的所有奇数个）。 |
+| [`:only-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:only-child) | 匹配没有兄弟元素的元素。                                     |
+| [`:only-of-type`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:only-of-type) | 匹配兄弟元素中某类型仅有的元素。                             |
+| [`:optional`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:optional) | 匹配不是必填的form元素。                                     |
+| [`:out-of-range`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:out-of-range) | 按区间匹配元素，当值不在区间内的的时候匹配。                 |
+| [`:past` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/:past) | 匹配当前元素之前的元素。                                     |
+| [`:placeholder-shown`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:placeholder-shown) | 匹配显示占位文字的input元素。                                |
+| [`:playing` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/:playing) | 匹配代表音频、视频或者相似的能“播放”或者“暂停”的资源的，且正在“播放”的元素。 |
+| [`:paused` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/:paused) | 匹配代表音频、视频或者相似的能“播放”或者“暂停”的资源的，且正在“暂停”的元素。 |
+| [`:read-only`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:read-only) | 匹配用户不可更改的元素。                                     |
+| [`:read-write`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:read-write) | 匹配用户可更改的元素。                                       |
+| [`:required`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:required) | 匹配必填的form元素。                                         |
+| [`:right`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:right) | 在[分页媒体 (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Pages)中，匹配右手边的页。 |
+| [`:root`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:root) | 匹配文档的根元素。                                           |
+| [`:scope`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:scope) | 匹配任何为参考点元素的的元素。                               |
+| [`:valid`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:valid) | 匹配诸如`<input>`元素的处于可用状态的元素。                  |
+| [`:target`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:target) | 匹配当前URL目标的元素（例如如果它有一个匹配当前[URL分段](https://en.wikipedia.org/wiki/Fragment_identifier)的元素）。 |
+| [`:visited`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:visited) | 匹配已访问链接。                                             |
+
+[伪元素](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/Selectors/Pseudo-classes_and_pseudo-elements#伪元素)
+
+| 选择器                                                       | 描述                                                 |
+| :----------------------------------------------------------- | :--------------------------------------------------- |
+| [`::after`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::after) | 匹配出现在原有元素的实际内容之后的一个可样式化元素。 |
+| [`::before`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::before) | 匹配出现在原有元素的实际内容之前的一个可样式化元素。 |
+| [`::first-letter`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::first-letter) | 匹配元素的第一个字母。                               |
+| [`::first-line`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::first-line) | 匹配包含此伪元素的元素的第一行。                     |
+| [`::grammar-error`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::grammar-error) | 匹配文档中包含了浏览器标记的语法错误的那部分。       |
+| [`::selection`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::selection) | 匹配文档中被选择的那部分。                           |
+| [`::spelling-error`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::spelling-error) | 匹配文档中包含了浏览器标记的拼写错误的那部分。       |
+
+
+
+
+
+##### 伪类选择器
+
+1. 动态伪类选择器
 
 动态伪类并不存在于HTML中，只有当用户和网站交互的时候才能体现出来。动态伪类包含两种，第一种是在链接中常看到的锚点伪类，另一种为用户行为伪类
 
@@ -476,7 +695,7 @@ CSS2中引入了一些属性选择器，这些选择器可基于元素的属性�
 
 
 
-##### 2. 目标伪类选择器
+2. 目标伪类选择器
 
 目标伪类选择器“:target”是众多实用的CSS3特性中的一个，用来匹配文档（页面）的URI[插图]中某个标志符的目标元素
 
@@ -497,6 +716,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
   目标伪类选择器</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>
 </iframe>
+
 
 
 
@@ -527,6 +747,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
+
 **实例-幻灯片 ++**
 
 第二个和第四个没有效果.
@@ -536,6 +757,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
   目标伪类选择器-幻灯片(未完成)</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>.
 </iframe>
+
 
 
 
@@ -555,7 +777,8 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
-##### 3.语言伪类选择器
+
+3.语言伪类选择器
 
 使用语言伪类选择器来匹配使用语言的元素是非常有用的，特别是用于多语言版本的网站，其作用更是明显。可以使用他来根据不同语言版本设置页面的字体风格。
 
@@ -602,7 +825,7 @@ URI中的标志符通常会包含一个井号（#），后面带有一个标志�
 
 
 
-##### 4. UI元素状态选择器
+4. UI元素状态选择器
 
 是CSS3选择器模块组中的一部分，主要用于form表单元素上，以提高网页的人机交互、操作逻辑以及页面的整体美观，使表单页面更具个性与品位，而且使用户操作页面表单更便利和简单
 
@@ -699,7 +922,7 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
 
 
 
-##### 5. 结构伪类选择器
+5. 结构伪类选择器
 
 伪类可以将一段并不存在的HTML当作独立元素来定位，或是找到无法使用其他简单选择器就能定位到的切实存在的元素。因此CSS3给伪类选择器引入一种“结构伪类选择器”。这种选择器可以根据元素在文档树中的某些特性（如相对位置）定位到它们。也就是说，**通过文档树结构的相互关系来匹配特定的元素**，从而减少HTML文档对ID或类名的定义，帮助你保持代码干净和整洁。
 
@@ -736,6 +959,7 @@ input[type='checkbox'][disabled] { //等效于 input[type='checkbox']:disabled
   结构伪类选择器-demo</a> by xxl (<a href="https://codepen.io/westover">@westover</a>)
   on <a href="https://codepen.io">CodePen</a>.
 </iframe>
+
 
 
 
@@ -794,7 +1018,8 @@ n的值为:
 
 
 
-##### 6. 否定伪类选择器
+
+6. 否定伪类选择器
 
 否定选择器“:not()”是CSS3的新选择器，类似jQuery中的“:not()”选择器，主要用来定位不匹配该选择器的元素
 
@@ -808,7 +1033,7 @@ n的值为:
 
 
 
-#### 伪元素选择器
+##### 伪元素选择器
 
 伪元素可用于定位文档中包含的文本，但无法在文档树中定位。伪类一般反映无法在CSS中轻松或可靠地检测到的某个元素属性或状态；另一方面，伪元素表示DOM外部的某种文档结构
 
@@ -818,7 +1043,7 @@ CSS3中对伪元素进行了一定的调整，在以前的基础上增加一个�
 
 
 
-##### ::first-letter
+::first-letter
 
 “::first-letter”用来选择文本块的第一个字母，除非在同一行中包含一些其他元素。“::first-letter”通常用于给文本元素添加排版细节，例如下沉字母或首字母，下面的代码是如何使用“::first-letter”创建首字下沉。
 
@@ -837,7 +1062,8 @@ CSS3中对伪元素进行了一定的调整，在以前的基础上增加一个�
 
 
 
-##### ::first-line
+
+::first-line
 
 “::first-line”的使用和“::first-letter”类似，也常用于文本排版方面，只不过“::firstline”用来匹配元素的第一行文本，可以应用一些特殊的样式，给文本添加一些细微的区别。“::first-line”将匹配block、inline-block、table-caption、table-cell等级别元素的第一行
 
@@ -845,7 +1071,7 @@ CSS3中对伪元素进行了一定的调整，在以前的基础上增加一个�
 
 
 
-##### ::before ::after
+::before ::after
 
 “:before”和“:after”，或许不会陌生，因为清除浮动就使用这两个伪类
 
@@ -864,7 +1090,7 @@ a[href^=http]::after {
 
 
 
-##### ::selection
+::selection
 
 “::selection”是用来匹配突出显示的文本。浏览器默认情况下，选择网站文本是深蓝的背景，白色的字体
 
@@ -884,91 +1110,201 @@ a[href^=http]::after {
 
 
 
-### CSS选择器使用
+#### 关系选择器
 
-#### 外部CSS
 
-* 使用外部样式表
-* 在 head 部分的 \<link> 元素内包含对外部样式表文件的引用
 
-**案例**
+##### 后代选择器
+
+后代选择器——典型用单个空格（` `）字符——组合两个选择器
+
+
+
+##### 子代关系选择器
+
+子代关系选择器是个大于号（`>`），只会在选择器选中<u>直接子元素</u>的时候匹配.继承关系上更远的后代则不会匹配。
+
+
+
+##### 相邻兄弟选择器
+
+邻接兄弟选择器（`+`）用来选中恰好处于另一个在继承关系上同级的元素同级的元素
+
+
+
+
+
+##### 通用兄弟选择器
+
+如果你想选中一个元素的兄弟元素，即使它们不直接相邻，你还是可以使用通用兄弟关系选择器（`~`）
+
+案例:
+
+选中所有的`<p>`元素后*任何地方*的`<img>`元素
 
 ```css
-<link rel="stylesheet" type="text/css" href="mystyle.css" >
+p~img
 ```
 
-#### 内部CSS
 
-内部样式是在 head 部分的 \<style> 元素中进行定义
 
-#### 行内CSS
-
-* 行内样式（也称内联样式）可用于为单个元素应用唯一的样式
-* 行内样式通过将内容与呈现混合在一起,耦合性搞,难以维护
+### 盒模型
 
 
 
-### css的层叠性
+#### 块级盒子和内联盒子
 
-* 含义: 当给一个标签设置多个选择器(和属性)时,不同的属性可以叠加实现.  相同的属性,当**权重**相同时,后定义的会覆盖(层叠)先定义的, 当**权重**不同时, 权重高的发挥作用.
-* 权重顺序:  标签选择器<类选择器<id选择器<行内样式<!important
+**块级**盒子 (**block box**) 和 **内联盒子** (**inline box**)**。**这两种盒子会在**页面流**（page flow）和**元素之间的关系**方面表现出不同的行为:
 
-* \<link>标签的位置决定了css文件代码的位置  与其他比较时候,类似一个\<style>标签
+一个被定义成块级的（block）盒子会表现出以下行为:
 
-
-
-#### 块元素和text-align
-
-块元素的默认宽度:  在不设置默认宽度时,跟随父元素宽度
-
-**text-align:center**
-
-* 作用标签: 能让标签内的文本, 行内元素, 行内块元素水平居中
-* 单纯给行内元素,行内块元素设置text-align,无意义.
-
-#### 后代选择器
-
-* 格式: 祖先元素 子孙元素{属性:属性值;......} (选择器 选择器{}),中间以空格间隔,1个或多个
+- 盒子会在内联的方向上扩展并占据父容器在该方向上的所有可用空间，在绝大数情况下意味着盒子会和父容器一样宽
+- 每个盒子都会换行
+- [`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width) 和 [`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height) 属性可以发挥作用
+- 内边距（padding）, 外边距（margin） 和 边框（border） 会将其他元素从当前盒子周围“推开”
 
 
 
+如果一个盒子对外显示为 `inline`，那么他的行为如下:
 
-#### css继承性(inherit)
+- 盒子不会产生换行。
+-  [`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width) 和 [`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height) 属性将不起作用。
+- 垂直方向的内边距、外边距以及边框会被应用但是不会把其他处于 `inline` 状态的盒子推开。
+- 水平方向的内边距、外边距以及边框会被应用且会把其他处于 `inline` 状态的盒子推开。
 
-* 定义:后代元素可以继承父元素设置的**<font color="red">文本的属性</font>**
-
-* 继承的权重为0,优先继承离自己最近的父辈元素. 即使祖先元素使用 **!important**
-
-* **不能继承**: <font color="red">父辈元素的width, height, 背景图,背景色等其他</font>
-
-* 案例
-
-  ```html
-  案例
-  ```
+用做链接的 `<a>` 元素、 `<span>`、 `<em>` 以及 `<strong>` 都是默认处于 `inline` 状态的。
 
 
 
-##### h标签和a标签的继承
+#### 内部和外部显示类型
 
-* h1-h6标签浏览器默认继承一定比例. 其中h1的font-size为2em, 也就是2个继承的font-size的大小, h2是1.5em
-* h和a标签默认分别自带字号和颜色属0性,会覆盖(层叠)继承的属性
+css的box模型有一个外部显示类型，来决定盒子是块级还是内联。
 
+同样盒模型还有内部显示类型，它决定了盒子内部元素是如何布局的。默认情况下是按照 **[正常文档流](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Normal_Flow)** 布局，也意味着它们和其他块元素以及内联元素一样(如上所述).
 
-
-
-
-##### 文本线属性(text-decoration)
-
-* 属性值: 
-  * overline 上划线
-  * line-through 中划线
-  * underline 下划线
-  * none 没有线
+但是，我们可以通过使用类似 `flex` 的 `display` 属性值来更改内部显示类型。 如果设置 `display: flex`，在一个元素上，外部显示类型是 `block`，但是内部显示类型修改为 `flex`。 该盒子的所有直接子元素都会成为flex元素，会根据 [弹性盒子（Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox) [）](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox)规则进行布局
 
 
 
-##### 鼠标样式属性(cursor)
+#### 什么是盒模型
+
+完整的 CSS 盒模型应用于块级盒子，内联盒子只使用盒模型中定义的部分内容。模型定义了盒的每个部分 —— margin, border, padding, and content —— 合在一起就可以创建我们在页面上看到的内容.
+
+#### 分类
+
+标准盒模型
+
+替代(IE)盒模型
+
+
+
+#### 盒模型组成部分
+
+CSS中组成一个块级盒子需要:
+
+- **Content box**: 这个区域是用来显示内容，大小可以通过设置 [`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width) 和 [`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height).
+- **Padding box**: 包围在内容区域外部的空白区域； 大小通过 [`padding`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/padding) 相关属性设置。
+- **Border box**: 边框盒包裹内容和内边距。大小通过 [`border`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/border) 相关属性设置。
+- **Margin box**: 这是最外面的区域，是盒子和其他元素之间的空白区域。大小通过 [`margin`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin) 相关属性设置。
+
+如图所示:
+
+![](https://mdn.mozillademos.org/files/16558/box-model.png)
+
+#### 标准盒模型
+
+在标准模型中，如果你给盒设置 `width` 和 `height`，实际设置的是 *content box*。 padding 和 border 再加上设置的宽高一起决定整个盒子的大小。
+
+margin 不计入实际大小 —— 当然，它会影响盒子在页面所占空间，但是影响的是盒子外部空间。盒子的范围到边框为止 —— 不会延伸到margin。
+
+盒子宽度 = width
+
+#### 替代(IE)盒模型
+
+盒子宽度(高度) = width + padding\*2 + border\*2
+
+
+
+#### 盒模型的切换
+
+默认浏览器会使用标准模型。如果需要使用替代模型，您可以通过为其设置 `box-sizing: border-box` 来实现。 
+
+如果你希望所有元素都使用替代模式，而且确实很常用，设置 `box-sizing` 在 `<html>` 元素上，然后设置所有元素继承该属性
+
+Internet Explorer默认使用替代盒模型，没有可用的机制来切换。（译者注：IE8+ 支持使用`box-sizing` 进行切换 
+
+```css
+html {
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+```
+
+如果想要深入理解，请看 [the CSS Tricks article on box-sizing](https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/)。 ?? 没太明白.
+
+
+
+外边距/内边距/边框
+
+#### 外边距!!!
+
+
+
+##### 外边距折叠
+
+如果你有两个外边距相接的元素，这些外边距将合并为一个外边距，即最大的单个外边距的大小。
+
+块的[上外边距 (margin-top)](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-top)和[下外边距 (margin-bottom)](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-bottom)有时合并 (折叠) 为单个边距，其大小为单个边距的最大值 (或如果它们相等，则仅为其中一个)，这种行为称为**边距折叠**。
+
+注意有设定[float](https://developer.mozilla.org/zh-CN/docs/Web/CSS/float)和[position=absolute](https://developer.mozilla.org/zh-CN/docs/Web/CSS/position#absolute)的元素不会产生外边距重叠行为
+
+
+
+##### 外边距重叠的 3 种情况
+
+<u>**同一层相邻元素之间**</u>
+
+相邻的两个元素之间的外边距重叠，除非后一个元素加上[clear-fix 清除浮动](https://developer.mozilla.org/zh-CN/docs/Web/CSS/clear)
+
+```html
+<style>
+  p:nth-child(1) {
+    margin-bottom: 13px;
+  }
+  p:nth-child(2) {
+    margin-top: 87px;
+  }
+</style>
+```
+
+
+
+
+
+<u>**空的块级元素**</u>
+
+当一个块元素上边界`margin-top` 直接贴到元素下边界`margin-bottom`时也会发生边界折叠。
+
+这种情况会发生在一个块元素完全没有设定边框`border`、内边距`padding`、高度`height`、最小高度`min-height` 、最大高度`max-height` 、内容设定为 inline 或是加上[clear-fix](https://developer.mozilla.org/zh-CN/docs/Web/CSS/clear)的时候.
+
+```html
+<style>
+p {
+  margin: 0;
+}
+div {
+  margin-top: 13px;
+  margin-bottom: 87px;
+}
+</style>
+
+<p>上边界范围是 87 ...</p>
+<div></div>
+<p>... 上边界范围是 87</p>
+```
 
 
 
@@ -976,73 +1312,141 @@ a[href^=http]::after {
 
 
 
-#### 状态伪类
 
-##### a标签的4种状态伪类
 
-* 顺序: `:link{} :visited{} :hover{} :active{} ` 简记: **lvha**
+**<u>没有内容将父元素和后代元素分开</u>** !!!!
 
-* ```html
-  :link 未访问状态
-  :visited 显示已经点击过的链接
-  :hover 鼠标移入状态
-  :active 显示鼠标按下时超链接的状态
-  
-  
-  hover和active, 其他元素也有这个属性
-  ```
+ 如果没有边框[`border`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/border)，内边距[`padding`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/padding)，行内内容，也没有创建[块级格式上下文](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Block_formatting_context)或[清除浮动](https://developer.mozilla.org/zh-CN/docs/Web/CSS/clear)来分开一个块级元素的上边界[`margin-top`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-top) 与其内一个或多个后代块级元素的上边界[`margin-top`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-top)；
 
-* 四个状态同时存在,需要安装 **lvha**的排列顺序 (love hate)
+或没有边框，内边距，行内内容，高度[`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height)，最小高度[`min-height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/min-height)或 最大高度[`max-height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/max-height) 来分开一个块级元素的下边界[`margin-bottom`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-bottom)与其内的一个或多个后代后代块元素的下边界[`margin-bottom`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-bottom).
 
-* 处于隐私的考虑,访问后的链接只能改变**颜色**,不能改变颜色
+则就会出现父块元素和其内后代块元素外边界重叠，重叠部分最终会溢出到父级块元素外面。
 
-* 多个\<a>,相同的选择器. 则点击1个以后,其他3个也会改变颜色(选择器中有颜色设置)
+```html
+<style type="text/css">
+    section    {
+        margin-top: 13px;
+        margin-bottom: 87px;
+    }
 
-* 排序错误类型:
+    header {
+        margin-top: 87px;
+    }
 
-  * 排序错误类型1： link hover active visited   点击后只有visited设置的一种颜色
-  * 排序错误类型2:    link active visited hover   点击后只有visited设置的一种颜色
+    footer {
+        margin-bottom: 13px;
+    }
+</style>
 
-* 伪类权重值和类权重值相同,都可以按照10计算.
+<section>
+    <header>上边界重叠 87</header>
+    <main></main>
+    <footer>下边界重叠 87 不能再高了</footer>
+</section>
+```
 
-  * 案例：`a:link{属性：属性值}`  权重值=标签选择器+伪类选择器=11
 
-    
 
-##### 默认2种状态
+以上这些内容都是发生在 Block-Level 的元素，设定 floating 和 absolutely positioned 的元素完全不用担心边界重叠的问题。
 
-* 常用link
 
-* hover
 
-* 案例:
+#### 边框
 
-  ```html
-  <!DOCTYPE html>
-  <html>
-  	<head>
-  		<meta charset="utf-8">
-  		<title></title>
-  		<style type="text/css">
-  			/* 
-  				常用两个状态
-  			 */
-  			.one{
-  				color: red;
-  				font-size: 80px;
-  			}
-  			.one:hover{
-  				color:yellowgreen;
-  			}
-  		</style>
-  	</head>
-  	<body>
-  		<a href="##" class="one">充气气球</a>
-  	</body>
-  </html>
-  ```
+边框是在边距和填充框之间绘制的。如果您正在使用标准的盒模型，边框的大小将添加到框的宽度和高度。如果您使用的是替代盒模型，那么边框的大小会使内容框更小，因为它会占用一些可用的宽度和高度。
 
-  
+可以使用[`border`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/border)属性一次设置所有四个边框的宽度、颜色和样式
+
+
+
+
+
+#### 内边距
+
+内边距位于边框和内容区域之间。与外边距不同，您不能有负数量的内边距，所以值必须是0或正的值。
+
+应用于元素的任何背景都将显示在内边距后面，内边距通常用于将内容推离边框。
+
+
+
+我们可以使用[`padding`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/padding)简写属性控制元素所有边，或者每边单独使用等价的普通属性：
+
+
+
+#### 盒子模型和内联盒子
+
+盒子模型的部分属性也可以应用于内联盒子，例如由`<span>`元素创建的那些内联盒子。
+
+案例: 
+
+我们在一个段落中使用了`<span>`，并对其应用了宽度、高度、边距、边框和内边距。
+
+* 宽度和高度被忽略了。
+* 外边距、内边距和边框是生效的，但它们不会改变其他内容与内联盒子的关系，因此内边距和边框会与段落中的其他单词重叠。
+
+
+
+<iframe src="https://codesandbox.io/embed/css-inline-box-czd0th?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="css/inline-box"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+#### 使用display: inline-block
+
+display有一个特殊的值，它在内联和块之间提供了一个中间状态。这对于以下情况非常有用:您不希望一个项切换到新行，但希望它可以设定宽度和高度，并避免上面看到的重叠。
+
+一个元素使用 `display: inline-block`，实现我们需要的块级的部分效果：
+
+- 设置`width` 和`height` 属性会生效。
+- `padding`, `margin`, 以及`border` 会推开其他元素。
+
+但是，它不会跳转到新行，如果显式添加`width` 和`height` 属性，它只会变得比其内容更大。
+
+
+
+使用场景:
+
+当您想要通过添加内边距使链接具有更大的命中区域时，这是很有用的。`<a>`是像`<span`>一样的内联元素；你可以使用`display: inline-block`来设置内边距，让用户更容易点击链接。
+
+
+
+### 处理不同方向的文本!!
+
+
+
+### 溢出的内容
+
+#### 概要
+
+CSS中万物皆盒，因此我们可以通过给[`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width)和[`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height)（或者 [`inline-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inline-size) 和 [`block-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/block-size)）赋值的方式来约束盒子的尺寸。
+
+
+
+#### overflow属性
+
+[`overflow`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow)属性是你控制一个元素溢出的方式，它告诉浏览器你想怎样处理溢出。`overflow`的默认值为`visible`，这就是我们的内容溢出的时候，我们在默认情况下看到它们的原因。
+
+可以使用[`overflow-y`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-y)属性，设置`overflow-y: scroll`来仅在`y`轴方向滚动。用[`overflow-x`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-x)，以在x轴方向上滚动，尽管这不是处理长英文词的好办法
+
+
+
+### CSS值和单位
+
+
+
+
+
+
+
+
+
+
+
+#### xxx
 
 #### 行高(line-height)
 
@@ -1087,6 +1491,124 @@ a[href^=http]::after {
     </body>
 </html>
 ```
+
+
+
+
+
+### 背景与边框
+
+#### 背景颜色
+
+[`background-color`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-color)属性定义了CSS中任何元素的背景颜色。属性接受任何有效的`<color>值`。背景色扩展到元素的内容和内边距的下面
+
+
+
+#### 背景图片
+
+[`background-image`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-image)属性允许在元素的背景中显示图像
+
+默认情况下，大图不会缩小以适应方框，而小图则是平铺以填充方框。
+
+**如果除了背景图像外，还指定了背景颜色，则图像将显示在颜色的顶部。**
+
+##### 控制背景平铺
+
+[`background-repeat`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-repeat)属性用于控制图像的平铺行为。可用的值是:
+
+- `no-repeat` — 不重复。
+- `repeat-x` —水平重复。
+- `repeat-y` —垂直重复。
+- `repeat` — 在两个方向重复
+
+
+
+##### 调整背景图像的大小
+
+可以使用 [`background-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-size)属性，来调整图像的大小以适应背景
+
+* 它可以设置长度或百分比值
+
+* 也可以使用关键字:
+
+  - `cover` —浏览器将使图像足够大，使它完全覆盖了盒子区，同时仍然保持其高宽比。在这种情况下，有些图像可能会跳出盒子外
+
+  - `contain` — 浏览器将使图像的大小适合盒子内。在这种情况下，如果图像的长宽比与盒子的长宽比不同，则可能在图像的任何一边或顶部和底部出现间隙。
+
+
+
+##### 背景图像定位
+
+[`background-position`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-position)属性允许您选择背景图像显示在其应用到的盒子中的位置。它使用的坐标系中，框的左上角是(0,0)，框沿着水平(x)和垂直(y)轴定位。**注意：**默认的背景位置值是(0,0)。
+
+`background-position`是[`background-position-x`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-position-x)和[`background-position-y`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-position-y)的简写，它们允许您分别设置不同的坐标轴的值。
+
+值:
+
+* 可以使用像`top`和`right`这样的关键字
+
+* 使用 [长度值](https://developer.mozilla.org/en-US/docs/Web/CSS/length), and [百分比](https://developer.mozilla.org/en-US/docs/Web/CSS/percentage)
+
+* 混合使用关键字，长度值以及百分比
+* 可以使用4-value语法来指示到盒子的某些边的距离
+
+
+
+```css
+.box {
+  background-image: url(star.png);
+  background-repeat: no-repeat;
+  background-position: top 20px right 10px;
+}
+```
+
+
+
+#### 渐变背景(待补充)!!
+
+当渐变用于背景时，也可以使用像图像一样的[`background-image`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background-image)属性设置
+
+您可以在MDN的`<gradient>`数据类型页面上，了解更多关于渐变的不同类型，以及使用它们可以做的事情。
+
+
+
+#### 多个背景图像!!
+
+可以有多个背景图像——在单个属性值中指定多个`background-image`值，用逗号分隔每个值。
+
+
+
+
+
+#### 背景附加!!
+
+
+
+
+
+#### background缩写 !!
+
+
+
+[background](https://developer.mozilla.org/zh-CN/docs/Web/CSS/background)
+
+
+
+#### 背景的可访问性!!
+
+
+
+
+
+#### 边框!!
+
+border
+
+
+
+##### 圆角 !!
+
+通过使用[`border-radius`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/border-radius)属性和与方框的每个角相关的长边来实现方框的圆角。可以使用两个长度或百分比作为值，第一个值定义水平半径，第二个值定义垂直半径。
 
 
 
