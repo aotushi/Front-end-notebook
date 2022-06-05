@@ -48,9 +48,9 @@ vue.js中文官网：http://cn.vuejs.org/
 
 #### 1.响应式数据绑定
 
-传统的js操作页面：在以前使用js操作页面，需要操作某个html元素的数据，就的使用js代码获取元素然后再处理业务逻辑
+传统的js操作页面：在以前使用js操作页面，需要操作某个html元素的数据，就的得使用js代码获取元素然后再处理业务逻辑
 
-响应式数据绑定的方式操作页面，可以直接使用像下面代码那样的写法就可以将数据填充到页面中
+而响应式数据绑定的方式操作页面，可以直接使用像下面代码那样的写法就可以将数据填充到页面中
 
 ```vue
 <template>
@@ -291,7 +291,7 @@ Vue.js 的核心是一个允许采用简洁的模板语法来声明式的将数�
 
 
 
-## vue原理及MVVM响应式原理
+## vue原理及MVVM响应式原理 ???
 
 ### 什么是MVVM
 
@@ -367,13 +367,13 @@ vue是通过数据劫持的方式来做数据绑定的，其中最核心的方�
 - 3、实现一个Watcher，作为连接Observer和Compile的桥梁，能够订阅并收到每个属性变动的通知，执行指令绑定的相应回调函数，从而更新视图
 - 4、mvvm入口函数，整合以上三者上述流程如图所示：
 
-![data-binding](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/data-binding.6mm44bq2ngs0.webp)
+![data-binding](https://fastly.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/data-binding.6mm44bq2ngs0.webp)
 
 #### 2. 指令解析器Compile实现
 
 `指令解析器`的主要作用就是对指令进行解析。例如：v-text，v-html，v-on，v-bind等。解析指令之后，将模板中的变量替换成数据，然后初始化渲染页面视图，并将每个指令对应的节点绑定更新函数，添加监听数据的订阅者，一旦数据有变动，收到通知，更新视图，如图所示：
 
-![compile](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/compile.77rqen6dm140.webp)
+![compile](https://fastly.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/compile.77rqen6dm140.webp)
 
 在创建指令解析器之前，我们要提供入口类，也就是vm，用来接受配置，协调其它三者：
 
@@ -1021,7 +1021,7 @@ npm install vue -g`或者`cnpm install vue -g
 
 
 
-## Vue架构设计/项目结构
+## Vue架构设计/项目结构???
 
 
 
@@ -1541,7 +1541,7 @@ vm.$watch('a', function(newValue, oldValue) {
 
 
 
-### Vue全局API
+### Vue全局API???
 
 <span style="color:red">全局API和实例方法不同</span>,后再是在Vue的原型上挂载方法,也就是`Vue.prototype`上挂载方法,而前者是直接在Vue上挂载方法.
 
@@ -1830,9 +1830,11 @@ Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,decodeURICom
 
 
 
-#### 1.5 [项目中定义全局(变量/函数)](https://www.cnblogs.com/kewenxin/p/8619240.html)
+#### 1.5 [项目中定义全局(变量/函数)]([在vue项目中 如何定义全局变量 全局函数 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903505832968199))
 
 > 在项目中，经常有些函数和变量是需要复用，比如说网站服务器地址，从后台拿到的：用户的登录token,用户的地址信息等，这时候就需要设置一波全局变量和全局函数
+
+> 存疑,为什么没有直接暴露js文件而暴露的是vue文件
 
 #### 1.5.1 定义全局变量
 
@@ -2801,6 +2803,10 @@ watch列表中immediate为true时，监听回调将在beforeCreate和created生�
 
 * 将模板编译为渲染函数,只存在于完整版中
 * 如果只在包含运行时的构建版本中执行`new Vue()`,则不会存在这个阶段.
+
+
+
+#### 
 
 
 
