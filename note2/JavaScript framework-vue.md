@@ -1555,6 +1555,26 @@ vm.$watch('a', function(newValue, oldValue) {
 
 使用基础 Vue 构造器，创建一个“子类”。参数是一个包含组件选项的对象。
 
+##### Vue.extend(obj)
+
+定义一个Xxx组件(首字母大写)
+	1.如何定义一个组件? 使用const Example=Vue.extend(options)去创建
+	2.Example的本质是一个构造函数,我们以后去写\<Example/>,Vue帮我们去new Example.
+	3.Vue.extend(options),options是一个配置对象,这个配置对象几乎和new Vue时的那个options一样.区别如下:
+      3.1 不能写el去指定容器,所有组件实例最终要被一个vm所管理,vm中会指定好el,即组件放入那个容器.
+	  3.2 data必须写成函数,返回值是对象.
+	  3.3 组件的模板结构要配置在template属性中:值为html字符串,且用模板字符串;模板结构必须只有一个根标签
+
+5. 5.1 Example确实是构造函数,但不是我们亲自写的Example,是Vue.extend生成的.
+   5.2 Vue.extend调用的返回值是VueComponent构造函数,所以new Example()其实就是在new VueComponent()
+   5.3 所谓组件的实例就是VueComponent的实例.简称vc; 所谓Vue的实例,就是Vue创建的实例,简称vm.
+   5.4 组件的data函数以及methods中配置的函数中的this都是vc
+6. 一个最重要的关系: VueComponent继承了Vue. 所以Vue.prototype上的属性和方法,vc都能看得见. ****
+
+
+
+
+
 ##### 应用场景
 
 在 vue 项目中，初始化的根实例后，所有页面基本上都是通过 router 来管理，组件也是通过 import 来进行局部注册，所以组件的创建不需要去关注，相比 extend 要更省心一点点。但是这样做会有几个缺点：
@@ -4463,7 +4483,240 @@ vue.js 则是采用数据劫持结合发布者-订阅者模式的方式，通过
 
 组件提供了一种抽象，让我们可以使用独立可复用的小组件来构建大型应用，任意类型的应用界面都可以抽象为一个组件树
 
+### 组件快速熟悉
+
+#### 基本示例
+
 组件是可复用的 Vue 实例，所以它们与 `new Vue` 接收相同的选项, 仅有的例外是像 `el` 这样根实例特有的选项。
+
+<iframe src="https://codesandbox.io/embed/vue-components1-l1u9fc?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/components1"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+#### 组件复用
+
+**一个组件的 `data` 选项必须是一个函数**，因此每个实例可以维护一份被返回对象的独立的拷贝
+
+<iframe src="https://codesandbox.io/embed/vue-components1-l1u9fc?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/components1"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+#### 组件的组织
+
+通常一个应用会以一棵嵌套的组件树的形式来组织：
+
+![](https://cn.vuejs.org/images/components.png)
+
+为了能在模板中使用，这些组件必须先注册以便 Vue 能够识别。这里有两种组件的注册类型：**全局注册**和**局部注册**。
+
+全局注册的组件可以用在其被注册之后的任何 (通过 `new Vue`) 新创建的 Vue 根实例，也包括其组件树中的所有子组件的模板中。
+
+#### 通过Prop向子组件传递数据
+
+##### 是什么
+
+Prop 是你可以在组件上注册的一些自定义 attribute。当一个值传递给一个 prop attribute 的时候，它就变成了那个组件实例的一个 property。
+
+在子组件上用一个 `props` 选项将其包含在该组件可接受的 prop 列表中.
+
+```vue
+Vue.component('blog-post', {
+	props: ['title'],
+	template: '<h3>{{title}}</h3>'
+})
+```
+
+
+
+##### 特点
+
+* 一个组件默认可以拥有任意数量的 prop，任何值都可以传递给任何 prop。
+* 能在组件实例中访问这个值，就像访问 `data` 中的值一样
+
+##### 向子组件传递自定义attribute的 2 种方式
+
+一个 prop 被注册之后，你就可以像这样把数据作为一个自定义 attribute 传递进来
+
+<u>传递静态attribute</u>
+
+```html
+<blog-post title="My journey with Vue"></blog-post>
+```
+
+
+
+<u>使用`v-bind`传递动态prop</u>
+
+无论何时为 `post` 对象添加一个新的 property，它都会自动地在 `<blog-post>` 内可用(响应式)
+
+```html
+<blog-post
+	v-for="post in posts"
+  v-bind:key="post.id"
+  v-bind:title="post.title"
+></blog-post>
+
+// 其他情况 简化接收一个对象
+<blog-post
+  v-for="post in posts"
+  v-bind:key="post.id"
+  v-bind:title="post.title"
+  v-bind:content="post.content"
+  v-bind:publishedAt="post.publishedAt"
+  v-bind:comments="post.comments"
+></blog-post>
+//简化
+<blog-post
+  v-for="post in posts"
+  v-bind:key="post.id"
+  v-bind:post="post"
+></blog-post>
+```
+
+
+
+#### 单个根元素
+
+当构建一个 `<blog-post>` 组件时, **每个组件必须只有一个根元素**
+
+```html
+<div class="blog-post">
+  <h3>{{ title }}</h3>
+  <div v-html="content"></div>
+</div>
+```
+
+
+
+#### 监听子组件事件
+
+通过监听子组件事件来和父组件进行沟通.
+
+案例: 引入一个辅助功能来放大博文的字号，同时让页面的其它部分保持默认的字号
+
+
+
+Vue 实例提供了一个自定义事件的系统:
+
+* 父级组件可以像处理 native DOM 事件一样通过 `v-on` 监听子组件实例的任意事件
+
+* 子组件可以通过调用内建的 [**`$emit`** 方法](https://cn.vuejs.org/v2/api/#vm-emit)并传入事件名称来触发一个事件
+
+<iframe src="https://codesandbox.io/embed/vue-components1-l1u9fc?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/components1"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+##### 使用事件抛出一个值
+
+使用 `$emit` 的第二个参数来提供这个值
+
+子组件中:
+
+```html
+<button v-on:click="$emit('enlarge-text', 0.1)">
+  Enlarge text
+</button>
+```
+
+父组件中:
+
+```html
+<blog-post
+  ...
+  v-on:enlarge-text="postFontSize += $event"
+></blog-post>
+```
+
+或者，如果这个事件处理函数是一个方法, 那么这个值将会作为第一个参数传入这个方法:
+
+```html
+<blog-post
+  ...
+  v-on:enlarge-text="onEnlargeText"
+></blog-post>
+
+methods: {
+  onEnlargeText: function (enlargeAmount) {
+    this.postFontSize += enlargeAmount
+  }
+}
+```
+
+
+
+##### 在组件上使用v-model
+
+自定义事件也可以用于创建支持 `v-model` 的自定义输入组件
+
+```html
+<input v-model="searchText">
+```
+
+等价于:
+
+```html
+<input
+	v-bind:value="searchText"
+  v-on:input="searchText=$event.target.value"
+>
+```
+
+当用在组件上时，`v-model` 则会这样：
+
+```html
+<custom-input
+	v-bind:value="searchText"
+  v-on:input="searchText=$event"              
+></custom-input>
+```
+
+为了让它正常工作，这个组件内的 `<input>` 必须
+
+- 将其 `value` attribute 绑定到一个名叫 `value` 的 prop 上
+- 在其 `input` 事件被触发时，将新的值通过自定义的 `input` 事件抛出
+
+写成代码之后是这样的：
+
+```javascript
+Vue.component('custom-input', {
+  props: ['value'],
+  template: `
+  	<input
+  		v-bind:value="value"
+  		v-on:input="$emit('input', $event.target.value)"
+  	>  
+  `
+})
+```
+
+
+
+
+
+#### 通过插槽分发内容
+
+
+
+#### 动态组件
+
+
+
+#### 解析DOM模板注意事项
+
+
+
+
 
 ### 组件名称
 
@@ -4836,23 +5089,291 @@ https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/component
 
 
 
+
+
+### Prop
+
+#### 基本使用
+
+> 详见 组件-->基本使用-->prop
+
+
+
+#### Prop的大小写(camelCase vs kebab-case)
+
+HTML 中的 attribute 名是大小写不敏感的，所以浏览器会把所有大写字符解释为小写字符。
+
+这意味着当你使用 DOM 中的模板时，**camelCase (驼峰命名法) 的 prop 名需要使用其等价的 kebab-case (短横线分隔命名) 命名**
+
+如果你使用字符串模板，那么这个限制就不存在了。
+
+```js
+Vue.component('blog-post', {
+  // 在 JavaScript 中是 camelCase 的
+  props: ['postTitle'],
+  template: '<h3>{{ postTitle }}</h3>'
+})
+```
+
+```html
+<!-- 在 HTML 中是 kebab-case 的 -->
+<blog-post post-title="hello!"></blog-post>
+```
+
+
+
+#### Prop类型
+
+##### 字符串数组形式
+
+```js
+props:['title', 'likes', 'author', 'callback']
+```
+
+
+
+##### 对象形式
+
+property的名称和**值**分别是prop各自的名称和**类型**:
+
+```js
+props: {
+  title:String,
+  likes: Number,
+  author: Object,
+  callback: Function,
+  contactsPromise: Promise //or any other constructor
+}
+```
+
+
+
+#### 传递静态/动态Prop
+
+*任何*类型的值都可以传给一个 prop
+
+给prop传递静态的值
+
+```js
+<blog-post title="My journey with Vue"></blog-post>
+```
+
+给prop传递动态的值
+
+```html
+<!-- 动态赋予一个变量的值 -->
+<blog-post v-bind:title="post.title"></blog-post>
+
+<!-- 动态赋予一个复杂表达式的值 -->
+<blog-post
+  v-bind:title="post.title + ' by ' + post.author.name"
+></blog-post>
+```
+
+
+
+
+
+#### 4.prop数据流
+
+所有的 prop 都使得其父子 prop 之间形成了一个**单向下行绑定**：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外变更父级组件的状态，从而导致你的应用的数据流向难以理解。
+
+**每次父级组件发生变更时，子组件中所有的 prop 都将会刷新为最新的值**。这意味着<span style="color:blue;">**你不应该在一个子组件内部改变 prop**</span>。如果你这样做了，Vue 会在浏览器的控制台中发出警告。
+
+**两种变更prop的情形及处理**
+
+1.用prop来传递一个初始值;这个子组件希望其作为本地的prop数据来使用.
+
+```js
+props:['initialCounter'],
+data:function() {
+  return {
+    counter: this.initialCounter
+  }
+}
+```
+
+2.prop以原始的值传入并且需要进行转换. 这种情况下,最好使用prop值来定义一个计算属性
+
+```js
+props:['size'],
+computed: {
+  normalizedSize: function() {
+    return this.size.trim().toLocalLowerCase();
+  }
+}
+```
+
+**注意**: <span style="color:red;">在 JavaScript 中**对象和数组是通过引用传入**的，所以对于一个数组或对象类型的 prop 来说，在子组件中改变变更这个对象或数组本身**将会**影响到父组件的状态。</span>
+
+
+
+#### 5.Prop验证
+
+可以为组件的 prop 指定验证要求，为了定制 prop 的验证方式，你可以为 `props` 中的值提供一个带有验证需求的对象，而不是一个字符串数组。例如：
+
+```js
+Vue.component('my-component', {
+  props: {
+    //基础的类型检查(null,undefined会通过任何类型检查)
+    propA: Number,
+    //多个可能的类型
+    propB: [String, Number],
+    //必填的字符串
+    propC: {
+      type: String,
+      required: true
+    },
+    //带有默认值的数字
+    propD: {
+      type: Number,
+      default: 100
+    },
+    //带有默认值的对象
+    propE: {
+      type: Object,
+      default: function() {
+        return {message: 'hello'}
+      }
+    },
+    //自定义验证函数
+    propF: {
+      validator: function(vlaue) {
+        //这个值必须匹配下列字符串中的一个
+        return ['success', 'warning', 'danger'].indexOf(value) !== -1;
+      }
+    }
+  }
+})
+```
+
+当 prop 验证失败的时候，(开发环境构建版本的) Vue 将会产生一个控制台的警告。
+
+**注意:**   prop 会在一个组件实例创建**之前**进行验证，所以实例的 property (如 `data`、`computed` 等) 在 `default` 或 `validator` 函数中是不可用的。
+
+```js
+经过测试,在beforeCreate中获取不到prop中的值,在created中可以获取到prop中的值.
+```
+
+5.1 类型检查    ?
+
+`type` 可以是下列原生构造函数中的一个：
+
+```js
+String
+Number
+Boolean
+Function
+Date
+Symbol
+Array
+Object
+自定义构造函数
+```
+
+额外的，`type` 还可以是一个自定义的构造函数，并且通过 `instanceof` 来进行检查确认。例如，给定下列现成的构造函数：
+
+```js
+function Person(firstName, lastName) {
+  this.firstName = firstName,
+  this.lastName = lastName
+}
+
+Vue.component('blog-post', {
+  props: {
+    author: Person
+  }
+})
+```
+
+
+
+#### 6.非prop的attribute
+
+一个非 prop 的 attribute 是指传向一个组件，但是该组件并没有相应 prop 定义的 attribute
+
+因为显式定义的 prop 适用于向一个子组件传入信息，然而组件库的作者并不总能预见组件会被用于怎样的场景。这也是为什么组件可以接受任意的 attribute，而这些 attribute 会被添加到这个组件的根元素上。
+
+```js
+<div id='app'>
+	<custom-input
+		:name = 'name'
+	></custom-input>  
+</div>
+
+Vue.component('custom-input', {
+  template:'<div><input></input></div>',
+  created() {
+    console.log(this.$attrs); //{name:'jack'}
+  }
+})
+
+new Vue({
+  el: '#app',
+  data: {name: 'jack'}
+})
+```
+
+
+
+6.1 替换/合并已有的attribute
+
+class与style的attribute会与组件根元素上设置的相结合,不会覆盖.其他类型的会被覆盖.
+
+对于绝大多数 attribute 来说，从外部提供给组件的值会替换掉组件内部设置好的值。所以如果传入 `type="text"` 就会替换掉 `type="date"` 并把它破坏！庆幸的是，`class` 和 `style` attribute 会稍微智能一些，即两边的值会被合并起来，从而得到最终的值：
+
+6.2 禁用attribute继承
+
+如果你**不**希望组件的根元素继承 attribute，你可以在组件的选项中设置 `inheritAttrs: false`
+
+```js
+Vue.component('my-component', {
+  inheritAttrs: false
+})
+```
+
+这尤其适合配合实例的 `$attrs` property 使用，该 property 包含了传递给一个组件的 attribute 名和 attribute 值，
+
+```js
+
+```
+
+有了 `inheritAttrs: false` 和 `$attrs`，你就可以手动决定这些 attribute 会被赋予哪个元素。在撰写[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)的时候是常会用到的：
+
+```js
+Vue.component('base-input', {
+  inheritAttrs: false,
+  props: ['label', 'value'],
+  template: `
+		<label>
+			{{label}}
+			<input
+				v-bind="$attrs"
+				v-bind:value="value"
+				v-on:input="$emit('input', $event.target.value)"
+		</label>
+	`
+})
+```
+
+**注意**:  `inheritAttrs: false` 选项**不会**影响 `style` 和 `class` 的绑定。
+
+这个模式允许你在使用基础组件的时候更像是使用原始的 HTML 元素，而不会担心哪个元素是真正的根元素：
+
+```html
+<base-input
+	label='Username'
+	v-model='username'
+	required
+  placeholder='Enter your name'
+></base-input>
+```
+
+
+
 ### 组件使用基本流程
 
 #### 定义组件 ?
-
-##### Vue.extend(obj)
-
-定义一个Xxx组件(首字母大写)
-	1.如何定义一个组件? 使用const Example=Vue.extend(options)去创建
-	2.Example的本质是一个构造函数,我们以后去写\<Example/>,Vue帮我们去new Example.
-	3.Vue.extend(options),options是一个配置对象,这个配置对象几乎和new Vue时的那个options一样.区别如下:
-      3.1 不能写el去指定容器,所有组件实例最终要被一个vm所管理,vm中会指定好el,即组件放入那个容器.
-	  3.2 data必须写成函数,返回值是对象.
-	  3.3 组件的模板结构要配置在template属性中:值为html字符串,且用模板字符串;模板结构必须只有一个根标签
-
-
-
-
 
 
 
@@ -4873,12 +5394,6 @@ Vue.component('组件名', 组件)
 #### 写组件标签
 
 ​    
-
-    5. 5.1 Example确实是构造函数,但不是我们亲自写的Example,是Vue.extend生成的.
-       5.2 Vue.extend调用的返回值是VueComponent构造函数,所以new Example()其实就是在new VueComponent()
-       5.3 所谓组件的实例就是VueComponent的实例.简称vc; 所谓Vue的实例,就是Vue创建的实例,简称vm.
-       5.4 组件的data函数以及methods中配置的函数中的this都是vc
-    6. 一个最重要的关系: VueComponent继承了Vue. 所以Vue.prototype上的属性和方法,vc都能看得见. ****
 
 
 
@@ -5536,348 +6051,6 @@ Vue.component('terms-of-service', {
     </div>
   `
 })
-```
-
-
-
-### 3.Prop
-
-#### 3.1 Prop的大小写
-
-HTML 中的 attribute 名是大小写不敏感的，所以浏览器会把所有大写字符解释为小写字符。这意味着当你使用 DOM 中的模板时，**camelCase (驼峰命名法) 的 prop 名需要使用其等价的 kebab-case (短横线分隔命名) 命名**：如果你使用字符串模板，那么这个限制就不存在了。
-
-```js
-Vue.component('blog-post', {
-  // 在 JavaScript 中是 camelCase 的
-  props: ['postTitle'],
-  template: '<h3>{{ postTitle }}</h3>'
-})
-```
-
-```html
-<!-- 在 HTML 中是 kebab-case 的 -->
-<blog-post post-title="hello!"></blog-post>
-```
-
-
-
-#### 3.2 Prop类型
-
-##### 3.2.1 字符串数组形式
-
-```js
-props:['title', 'likes', 'author', 'callback']
-```
-
-
-
-##### 3.2.2 对象形式(prop需要指定的类型)
-
-property的名称和值分别是prop各自的名称和类型:
-
-```js
-props: {
-  title:String,
-  likes: Number,
-  author: Object,
-  callback: Function,
-  contactsPromise: Promise //or any other constructor
-}
-```
-
-
-
-### 3.3 传递静态/动态Prop
-
-#### 3.3.1 传递静态/动态/表达式的值
-
-给prop传递静态的值
-
-```js
-<blog-post title="My journey with Vue"></blog-post>
-```
-
-给prop传递动态的值
-
-```js
-<!-- 动态赋予一个变量的值 -->
-<blog-post v-bind:title="post.title"></blog-post>
-```
-
-动态赋予一个复杂表达式的值
-
-```js
-<blog-post
-  v-bind:title="post.title + ' by ' + post.author.name"
-></blog-post>
-```
-
-#### 3.3.2 传入一个数字
-
-```js
-<!-- 即便 `42` 是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
-<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
-<blog-post v-bind:likes="42"></blog-post>
-
-<!-- 用一个变量进行动态赋值。-->
-<blog-post v-bind:likes="post.likes"></blog-post>
-```
-
-#### 3.3.3 传入一个布尔值
-
-```js
-<!-- 包含该 prop 没有值的情况在内，都意味着 `true`。-->
-<blog-post is-published></blog-post>
-
-<!-- 即便 `false` 是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
-<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
-<blog-post v-bind:is-published="false"></blog-post>
-
-<!-- 用一个变量进行动态赋值。-->
-<blog-post v-bind:is-published="post.isPublished"></blog-post>
-```
-
-#### 3.3.4 传入一个数组
-
-```js
-<!-- 即便数组是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
-<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
-<blog-post v-bind:comment-ids="[234, 266, 273]"></blog-post>
-
-<!-- 用一个变量进行动态赋值。-->
-<blog-post v-bind:comment-ids="post.commentIds"></blog-post>
-```
-
-#### 3.3.5 传入一个对象
-
-```js
-<!-- 即便对象是静态的，我们仍然需要 `v-bind` 来告诉 Vue -->
-<!-- 这是一个 JavaScript 表达式而不是一个字符串。-->
-<blog-post
-  v-bind:author="{
-    name: 'Veronica',
-    company: 'Veridian Dynamics'
-  }"
-></blog-post>
-
-<!-- 用一个变量进行动态赋值。-->
-<blog-post v-bind:author="post.author"></blog-post>
-```
-
-#### 3.3.6 传入一个对象多有的property
-
-如果你想要将一个对象的所有 property 都作为 prop 传入，你可以使用不带参数的 `v-bind` (取代 `v-bind:prop-name`)。例如，对于一个给定的对象 `post`
-
-```js
-post: {
-  id: 1,
-  title: 'my journey with vue'
-}
-
-//html
-<blog-post v-bind='post'></blog-post>
-等价于:
-<blog-post
-  v-bind:id='post.id'
-  v-bind:title='post.title'
-></blog-post>
-```
-
-
-
-### 4.prop数据流
-
-所有的 prop 都使得其父子 prop 之间形成了一个**单向下行绑定**：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外变更父级组件的状态，从而导致你的应用的数据流向难以理解。
-
-**每次父级组件发生变更时，子组件中所有的 prop 都将会刷新为最新的值**。这意味着<span style="color:blue;">**你不应该在一个子组件内部改变 prop**</span>。如果你这样做了，Vue 会在浏览器的控制台中发出警告。
-
-**两种变更prop的情形及处理**
-
-1.用prop来传递一个初始值;这个子组件希望其作为本地的prop数据来使用.
-
-```js
-props:['initialCounter'],
-data:function() {
-  return {
-    counter: this.initialCounter
-  }
-}
-```
-
-2.prop以原始的值传入并且需要进行转换. 这种情况下,最好使用prop值来定义一个计算属性
-
-```js
-props:['size'],
-computed: {
-  normalizedSize: function() {
-    return this.size.trim().toLocalLowerCase();
-  }
-}
-```
-
-**注意**: <span style="color:red;">在 JavaScript 中**对象和数组是通过引用传入**的，所以对于一个数组或对象类型的 prop 来说，在子组件中改变变更这个对象或数组本身**将会**影响到父组件的状态。</span>
-
-
-
-### 5.Prop验证
-
-可以为组件的 prop 指定验证要求，为了定制 prop 的验证方式，你可以为 `props` 中的值提供一个带有验证需求的对象，而不是一个字符串数组。例如：
-
-```js
-Vue.component('my-component', {
-  props: {
-    //基础的类型检查(null,undefined会通过任何类型检查)
-    propA: Number,
-    //多个可能的类型
-    propB: [String, Number],
-    //必填的字符串
-    propC: {
-      type: String,
-      required: true
-    },
-    //带有默认值的数字
-    propD: {
-      type: Number,
-      default: 100
-    },
-    //带有默认值的对象
-    propE: {
-      type: Object,
-      default: function() {
-        return {message: 'hello'}
-      }
-    },
-    //自定义验证函数
-    propF: {
-      validator: function(vlaue) {
-        //这个值必须匹配下列字符串中的一个
-        return ['success', 'warning', 'danger'].indexOf(value) !== -1;
-      }
-    }
-  }
-})
-```
-
-当 prop 验证失败的时候，(开发环境构建版本的) Vue 将会产生一个控制台的警告。
-
-**注意:**   prop 会在一个组件实例创建**之前**进行验证，所以实例的 property (如 `data`、`computed` 等) 在 `default` 或 `validator` 函数中是不可用的。
-
-```js
-经过测试,在beforeCreate中获取不到prop中的值,在created中可以获取到prop中的值.
-```
-
-#### 5.1 类型检查    ?
-
-`type` 可以是下列原生构造函数中的一个：
-
-```js
-String
-Number
-Boolean
-Function
-Date
-Symbol
-Array
-Object
-自定义构造函数
-```
-
-额外的，`type` 还可以是一个自定义的构造函数，并且通过 `instanceof` 来进行检查确认。例如，给定下列现成的构造函数：
-
-```js
-function Person(firstName, lastName) {
-  this.firstName = firstName,
-  this.lastName = lastName
-}
-
-Vue.component('blog-post', {
-  props: {
-    author: Person
-  }
-})
-```
-
-
-
-### 6.非prop的attribute
-
-一个非 prop 的 attribute 是指传向一个组件，但是该组件并没有相应 prop 定义的 attribute
-
-因为显式定义的 prop 适用于向一个子组件传入信息，然而组件库的作者并不总能预见组件会被用于怎样的场景。这也是为什么组件可以接受任意的 attribute，而这些 attribute 会被添加到这个组件的根元素上。
-
-```js
-<div id='app'>
-	<custom-input
-		:name = 'name'
-	></custom-input>  
-</div>
-
-Vue.component('custom-input', {
-  template:'<div><input></input></div>',
-  created() {
-    console.log(this.$attrs); //{name:'jack'}
-  }
-})
-
-new Vue({
-  el: '#app',
-  data: {name: 'jack'}
-})
-```
-
-
-
-#### 6.1 替换/合并已有的attribute
-
-class与style的attribute会与组件根元素上设置的相结合,不会覆盖.其他类型的会被覆盖.
-
-对于绝大多数 attribute 来说，从外部提供给组件的值会替换掉组件内部设置好的值。所以如果传入 `type="text"` 就会替换掉 `type="date"` 并把它破坏！庆幸的是，`class` 和 `style` attribute 会稍微智能一些，即两边的值会被合并起来，从而得到最终的值：
-
-#### 6.2 禁用attribute继承
-
-如果你**不**希望组件的根元素继承 attribute，你可以在组件的选项中设置 `inheritAttrs: false`
-
-```js
-Vue.component('my-component', {
-  inheritAttrs: false
-})
-```
-
-这尤其适合配合实例的 `$attrs` property 使用，该 property 包含了传递给一个组件的 attribute 名和 attribute 值，
-
-```js
-
-```
-
-有了 `inheritAttrs: false` 和 `$attrs`，你就可以手动决定这些 attribute 会被赋予哪个元素。在撰写[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)的时候是常会用到的：
-
-```js
-Vue.component('base-input', {
-  inheritAttrs: false,
-  props: ['label', 'value'],
-  template: `
-		<label>
-			{{label}}
-			<input
-				v-bind="$attrs"
-				v-bind:value="value"
-				v-on:input="$emit('input', $event.target.value)"
-		</label>
-	`
-})
-```
-
-**注意**:  `inheritAttrs: false` 选项**不会**影响 `style` 和 `class` 的绑定。
-
-这个模式允许你在使用基础组件的时候更像是使用原始的 HTML 元素，而不会担心哪个元素是真正的根元素：
-
-```html
-<base-input
-	label='Username'
-	v-model='username'
-	required
-  placeholder='Enter your name'
-></base-input>
 ```
 
 
@@ -6644,59 +6817,6 @@ this.$emit('update:title', newTitle)
 
 在 2.6.0 中，我们为<u>具名插槽</u>和<u>作用域插槽</u>引入了一个新的统一的语法 (即 `v-slot` 指令)。它取代了 `slot` 和 `slot-scope` 这两个目前已被废弃但未被移除且仍在[文档中](https://cn.vuejs.org/v2/guide/components-slots.html#废弃了的语法)的 attribute。
 
-
-
-### 特点
-
-- 父组件中子组件起始标签和结束标签之间添加`模板, HTML, 其他组件`的方式来放置插槽内容
-- 在子组件中的template模板中, 使用`<slot></slot>`来接收, 并将其替换成接受的内容
-  - 如果有组件中`template`中没有`<slot></slot>`标签,则组件标签之间的<span style="color:blue">内容会被抛弃</span>
-  - 父级组件中使用组件标签且不提供内容时,组件模板`template`内`<slot>xxx</slot>`之间的内容`xxx`会<span style="color:blue">默认显示</span>
-- 插槽的作用域是在父作用域内编译的,不能访问子作用域的内容;
-
-
-
-#### 具名插槽
-
-可以提供多个插槽.
-
-- 声明插槽: 用`<template v-slot:typicalName>xxx</template>`来声明且向具名插槽提供内容
-- 接收插槽: 子组件内的`<slot>`使用`name`属性来接收: `<slot name="typicalName"></slot>`
-- 默认插槽
-  - 没有包裹在带有 `v-slot` 的 `<template>` 中的内容, 使用`<slot></slot>`来接收
-  - 插槽也可以使用`<template v-slot:default>xx</template>`来声明默认插槽, 依然用`<slot></slot>`来接收
-
-#### 作用域插槽
-
-插槽内容能访问子组件中的数据
-
-- 实现: 
-  - 绑定: 将子组件中的数据作为`<slot>`元素的一个属性绑定上去 `<slot v-bind:user="user">`
-  - 获取: 父级作用域中,使用带值的`v-slot`来定义**插槽Prop**: `<template v-slot:default="slotProps">` //default代表默认插槽
-    - 将包含所有插槽prop的对象命名为`slotProps`,但没有限制
-  - 使用:  在子组件开始和结束标签之间, 访问`{{slotProps.user.name}}` .合法语法即可
-- 默认插槽的缩写
-  - 省略`v-slot:default="slotProps"`中的`:default`
-  - 默认插槽缩写语法不能和具名插槽混用; 只有出现多个插槽,请始终未所有插槽使用完整的基于`<template>`的语法
-- 解构插槽Prop
-  - Why 插槽内容包裹在一个拥有单个参数的函数里, `v-slot` 的值可为 JavaScript 表达式
-  - How `<cName v-slot="{user}"`
-  - prop重命名: `<cName v-slot="{user: person}"`
-  - 定义默认内容:  `<cName v-slot="{user = {name: 'guest'}"`
-
-
-
-动态插槽名
-
-具名插槽缩写
-- 实现: 把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`
-- 条件: 只在其有参数的时候才可用
-  - 警告: `<cName #="{user}">`
-  - How: `<cName #default="{user}">`
-
-- 插槽转换为可复用模板, 其可以基于输入的prop渲染除不同的内容
-  - 场景: 设计封装数据逻辑同时允许父级组件自定义部分布局的可复用组件时
-
 ### 1.插槽内容
 
 Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web Components 规范草案](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Slots-Proposal.md)，**将 `<slot>` 元素作为承载分发内容的出口**。
@@ -6785,9 +6905,60 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 
+### 特点
+
+- 父组件中子组件起始标签和结束标签之间添加`模板, HTML, 其他组件`的方式来放置插槽内容
+- 在子组件中的template模板中, 使用`<slot></slot>`来接收, 并将其替换成接收的内容
+  - 如果子组件中`template`中没有`<slot></slot>`标签,则组件标签之间的<span style="color:blue">内容会被抛弃</span>
+  - 父级组件中使用组件标签但不提供内容时,组件模板`template`内`<slot>xxx</slot>`之间的内容`xxx`会<span style="color:blue">默认显示</span>
+- 插槽的作用域是在父作用域内编译的,不能访问子作用域的内容;(父级模板里的所有内容都是在父级作用域中编译的；子模板里的所有内容都是在子作用域中编译的。)
+
+
+
+
+
+
+
+#### 作用域插槽
+
+插槽内容能访问子组件中的数据
+
+- 实现: 
+  - 绑定: 将子组件中的数据作为`<slot>`元素的一个属性绑定上去 `<slot v-bind:user="user">`
+  - 获取: 父级作用域中,使用带值的`v-slot`来定义**插槽Prop**: `<template v-slot:default="slotProps">` //default代表默认插槽
+    - 将包含所有插槽prop的对象命名为`slotProps`,但没有限制
+  - 使用:  在子组件开始和结束标签之间, 访问`{{slotProps.user.name}}` .合法语法即可
+- 默认插槽的缩写
+  - 省略`v-slot:default="slotProps"`中的`:default`
+  - 默认插槽缩写语法不能和具名插槽混用; 只有出现多个插槽,请始终未所有插槽使用完整的基于`<template>`的语法
+- 解构插槽Prop
+  - Why 插槽内容包裹在一个拥有单个参数的函数里, `v-slot` 的值可为 JavaScript 表达式
+  - How `<cName v-slot="{user}"`
+  - prop重命名: `<cName v-slot="{user: person}"`
+  - 定义默认内容:  `<cName v-slot="{user = {name: 'guest'}"`
+
+
+
+动态插槽名
+
+具名插槽缩写
+- 实现: 把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`
+- 条件: 只在其有参数的时候才可用
+  - 警告: `<cName #="{user}">`
+  - How: `<cName #default="{user}">`
+
+- 插槽转换为可复用模板, 其可以基于输入的prop渲染除不同的内容
+  - 场景: 设计封装数据逻辑同时允许父级组件自定义部分布局的可复用组件时
+
+
+
 ### 4.具名插槽+默认插槽
 
-前提: 有时候,一个组件需要多个插槽.例如如下一个带有如下模板的`<base-layout>`组件:
+#### 背景
+
+前提: 有时候,<span style="color:blue">一个组件需要多个插槽</span>.例如如下一个带有如下模板的`<base-layout>`组件:
+
+#### 实例
 
 ```html
 // base-layout组件 模板内容
@@ -6823,7 +6994,7 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 </div>
 ```
 
-在向具名插槽提供内容的时候，我们可以在一个 `<template>` 元素上使用 `v-slot` 指令，并以 `v-slot` 的参数的形式提供其名称：
+父组件中在向子组件中的具名插槽提供内容的时候，我们可以在一个 `<template>` 元素上使用 `v-slot` 指令，并以 `v-slot` 的参数的形式提供其名称：
 
 ```html
 <base-layout>
@@ -6845,7 +7016,7 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 </base-layout>
 ```
 
-现在 `<template>` 元素中的所有内容都将会被传入相应的插槽。任何没有被包裹在带有 `v-slot` 的 `<template>` 中的内容都会被视为**默认插槽**的内容。
+现在 `<template>` 元素中的所有内容都将会被传入相应的插槽。子组件标签内任何没有被包裹在带有 `v-slot` 的 `<template>` 中的内容都会被视为**默认插槽**的内容。
 
 如果你希望更明确一些，仍然可以在一个 `<template>` 中包裹默认插槽的内容：
 
@@ -6940,225 +7111,29 @@ Vue 实现了一套内容分发的 API，这套 API 的设计灵感源自 [Web C
 
 
 
+#### 具名插槽的特点
+
+* 可以满足一个组件需要多个插槽的需求
+* 子组件`template`模板中, 定义多个插槽: 
+  * `<slot>`使用`name`属性来接收相应的内容: `<slot name="typicalName"></slot>`
+  * 一个不带`name`的`<slot>`出口会带有隐含的名字"default".
+
+- 父组件内的子组件标签之间, 需要使用多个`<template v-slot=xxxx>`标签来发送内容:
+  - 使用`v-slot`指令: 用`<template v-slot:子组件中对应的name名(不加引号)>xxx</template>`来声明且向具名插槽提供内容
+
+- 默认插槽
+  - 没有包裹在带有 `v-slot` 的 `<template>` 中的内容, 使用`<slot></slot>`来接收
+  - 插槽也可以使用`<template v-slot:default>xx</template>`来声明默认插槽, 依然用`<slot></slot>`来接收
 
 
 
 
 
+#### 具名插槽的缩写
 
+跟 `v-on` 和 `v-bind` 一样，`v-slot` 也有缩写，即把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`。
 
-
-### 5.作用域插槽
-
-#### 语法
-
-##### 定义插槽
-
-```html
-//匿名插槽
-<slot v-bind:data="变量名"></slot>
-
-//具名插槽
-<slot name="插槽名" v-bind:data="变量名"></slot>
-```
-
-##### 使用插槽
-
-通过`v-slot`获取传过来的值(data使用与定义时的保持一致)
-
-```html
-//匿名插槽
-<template v-slot="slotProps">
-	{{slotProps.data}}
-</template>
-
-//具名插槽
-<template v-slot:插槽名="slotProps">
-	{{slotProps.data}}
-</template>
-
-//v-slot缩写为#
-<template #default="slotProps">
-	{{slotProps.data}}
-</template>
-```
-
-
-
-有时让插槽内容能够访问子组件中才有的数据是很有用的. 也就是在父级组件中的插槽中访问子组件的内容??
-
-为了让子组件中`user`在父组件的插槽内容中可用, 可以将`user`作为`slot`元素的一个attribute绑定上去:
-
-```html
-<span>
-	<slot v-bind:user='user'>
-  	{{user.lastName}}
-  </slot>
-</span>
-```
-
-绑定在`<slot>`元素上的attribute被称作**插槽prop**, 现在在父级作用域中, 可以使用带值的`v-slot`来定义提供的插槽prop的名字:
-
-我们选择将包含所有**插槽 prop 的对象**命名为 `slotProps`，但你也可以使用任意你喜欢的名字。 `v-slot:default`只能用一次, 重复不起作用
-
-```html
-<current-user>
-	<template v-slot:default = 'slotProps'>
-  	{{slotProps.user.firstName}}
-  </template>
-</current-user>
-```
-
-
-
-例子:
-
-```html
-<body>
-  <div id='app'>
-    <base-layout>
-    	<template v-slot:header>
-      	<h1>
-          here is about page title
-        </h1>
-      </template>
-      
-      <template v-slot:default2='thisNameCanCustom'>
-      	<p>
-          some content
-        </p>
-        <p>
-          my name is: [ {{thisNameCanCustom.user.name}} ]
-        </p>
-      </template>
-      
-      <template v-slot:footer>
-      	<p>
-          footer title
-        </p>
-      </template>
-      
-      <template v-slot:default='sonProp'>
-      	<span>
-        	{{sonProp.user.name}}
-        </span>
-      </template>
-    </base-layout>
-  </div>
-</body>
-<script>
-	Vue.component('baseLayout', {
-    data() {
-      return {
-        user: {name: 'zhangsan', age: 19}
-      }
-    },
-    template: `
-			<div id='container'>
-        <header>
-        	<slot name="header"></slot>
-        </header>
-        
-        <main>
-        	<slot name="default2" v-bind:user="user"></slot>
-        </main>
-  			
-        <footer>
-        	<slot name="footer"></slot>
-        </footer>
- 
-       	<span>
-        	<slot v-bind:user='user'>{{user.age}}</slot>
-        </span>
-  		</div>
-  })
-	`
-  new Vue({
-		el: "#app"
-	})
-</script>
-```
-
-
-
-#### 5.1 独占默认插槽的缩写语法
-
-在上述情况下，当被提供的内容*只有*默认插槽时，组件的标签才可以被当作插槽的模板来使用。这样我们就可以把 `v-slot` 直接用在组件上：
-
-```html
-<base-layout v-slot:default="sonProp">
-	{{sonProp.user.name}}
-</base-layout>
-```
-
-更简化的写法:
-
-就像假定未指明的内容对应默认插槽一样，不带参数的 `v-slot` 被假定对应默认插槽：
-
-```html
-<base-layout v-slot='sonProp'>{{sonProp.user.name}}</base-layout>
-```
-
-默认插槽的缩写语法**不能**和具名插槽混用，因为它会导致作用域不明确, 会导致警告
-
-只要出现多个插槽，请始终为*所有的*插槽使用完整的基于 `<template>` 的语法
-
-
-
-#### 5.2 解构插槽Prop
-
-作用域插槽的内部工作原理是将你的插槽内容包裹在一个拥有单个参数的函数里
-
-```js
-function (sonProp) {
-  //插槽内容
-}
-```
-
-这意味着 `v-slot` 的值实际上可以是任何能够作为函数定义中的参数的 JavaScript 表达式。所以在支持的环境下 ([单文件组件](https://cn.vuejs.org/v2/guide/single-file-components.html)或[现代浏览器](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#浏览器兼容))，你也可以使用 [ES2015 解构](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#解构对象)来传入具体的插槽 prop，如下：
-
-```html
-<base-layout v-slot="{user}">
-	{{user.name}}
-</base-layout>
-```
-
-这样可以使模板更简洁，尤其是在该插槽提供了多个 prop 的时候。它同样开启了 prop 重命名等其它可能，例如将 `user` 重命名为 `person`
-
-```html
-<base-layout v-slot="{user: person}">
-	{{person.name}}
-</base-layout>
-```
-
-你甚至可以定义后备内容，用于插槽 prop 是 undefined 的情形：
-
-```html
-<base-layout v-slot="{user = {name: 'jack'}}">
-	{{user.name}}
-</base-layout>
-```
-
-
-
-### 6. 动态插槽名
-
-[动态指令参数](https://cn.vuejs.org/v2/guide/syntax.html#动态参数)也可以用在 `v-slot` 上，来定义动态的插槽名：
-
-```html
-<base-layout>
-	<template v-slot:[dynamicSlotName]>
-  	...
-  </template>
-
-</base-layout>
-```
-
-
-
-### 7.具名插槽的缩写
-
-跟 `v-on` 和 `v-bind` 一样，`v-slot` 也有缩写，即把参数之前的所有内容 (`v-slot:`) 替换为字符 `#`。例如 `v-slot:header` 可以被重写为 `#header`：
+例如 `v-slot:header` 可以被重写为 `#header`：
 
 ```html
 <base-layout>
@@ -7198,7 +7173,140 @@ function (sonProp) {
 
 
 
-### 8.其他示例
+
+
+### 作用域插槽
+
+让插槽内容能够访问子组件中才有的数据.
+
+#### 定义插槽prop
+
+子组件中将传递的数据作为`<slot>`元素的属性绑定上去,绑定在 `<slot>` 元素上的 attribute 被称为**插槽 prop**
+
+```html
+//匿名插槽
+<slot v-bind:data="变量名"></slot>
+
+//具名插槽
+<slot name="插槽名" v-bind:data="变量名"></slot>
+```
+
+#### 获取插槽prop
+
+父级作用域中，可使用带值的 `v-slot` 来定义我们提供的插槽 prop 的名字,名称没有限制. 使用双花括号获取prop的值.
+
+```html
+//匿名插槽
+<template v-slot="slotProps">
+	{{slotProps.data}}
+</template>
+
+//具名插槽
+<template v-slot:插槽名="slotProps">
+	{{slotProps.data}}
+</template>
+
+//v-slot缩写为#
+<template #default="slotProps">
+	{{slotProps.data}}
+</template>
+```
+
+##### 独占默认插槽的缩写语法
+
+在上述情况下，当被提供的内容*只有*默认插槽时，组件的标签才可以被当作插槽的模板来使用。这样我们就可以把 `v-slot` 直接用在组件上：
+
+```html
+<base-layout v-slot:default="sonProp">
+	{{sonProp.user.name}}
+</base-layout>
+```
+
+更简化的写法:
+
+就像假定未指明的内容对应默认插槽一样，不带参数的 `v-slot` 被假定对应默认插槽：
+
+```html
+<base-layout v-slot='sonProp'>{{sonProp.user.name}}</base-layout>
+```
+
+默认插槽的缩写语法**不能**和具名插槽混用，因为它会导致作用域不明确, 会导致警告
+
+只要出现多个插槽，请始终为*所有的*插槽使用完整的基于 `<template>` 的语法
+
+```vue
+<current-user>
+	<template v-slot:default="slotProps">
+  	{{slotProps.user.firstName}}
+  </template>
+  
+  <template v-slot:other="otherSlotProps">
+  	...
+  </template>
+</current-user>
+```
+
+
+
+##### 解构插槽Prop
+
+**原因**
+
+作用域插槽的内部工作原理是将你的插槽内容包裹在一个拥有单个参数的函数里
+
+```js
+function (sonProp) {
+  //插槽内容
+}
+```
+
+**实现**
+
+这意味着 `v-slot` 的值实际上可以是任何能够作为函数定义中的参数的 JavaScript 表达式。所以在支持的环境下 ([单文件组件](https://cn.vuejs.org/v2/guide/single-file-components.html)或[现代浏览器](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#浏览器兼容))，你也可以使用 [ES2015 解构](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#解构对象)来传入具体的插槽 prop，如下：
+
+* 解构
+* 其他形式,例如重命名
+
+```html
+<base-layout v-slot="{user}">
+	{{user.name}}
+</base-layout>
+
+//重命名
+<base-layout v-slot="{user: person}">
+	{{person.name}}
+</base-layout>
+
+//定义后备内容 用于插槽 prop 是 undefined 的情形：
+<base-layout v-slot="{user = {name: 'jack'}}">
+	{{user.name}}
+</base-layout>
+```
+
+**作用**
+
+这样可以使模板更简洁，尤其是在该插槽提供了多个 prop 的时候。
+
+
+
+
+
+### 动态插槽名
+
+[动态指令参数](https://cn.vuejs.org/v2/guide/syntax.html#动态参数)也可以用在 `v-slot` 上，来定义动态的插槽名：
+
+```html
+<base-layout>
+	<template v-slot:[dynamicSlotName]>
+  	...
+  </template>
+
+</base-layout>
+```
+
+
+
+### 插槽prop示例-可复用模板
 
 **插槽 prop 允许我们将插槽转换为可复用的模板，这些模板可以基于输入的 prop 渲染出不同的内容。**这在设计封装数据逻辑同时允许父级组件自定义部分布局的可复用组件时是最有用的。
 
@@ -7229,18 +7337,40 @@ function (sonProp) {
 现在当我们使用 `<todo-list>` 组件的时候，我们可以选择为 todo 定义一个不一样的 `<template>` 作为替代方案，并且可以从子组件获取数据：
 
 ```html
-<todo-list v-bind:todos = 'todos'>
-	<template v-slot:todo="{todo}"></template>
+<todo-list v-bind:todos="todos">
+  <template v-slot:todo="{ todo }">
+    <span v-if="todo.isComplete">✓</span>
+    {{ todo.text }}
+  </template>
 </todo-list>
 ```
 
 
 
+<iframe src="https://codesandbox.io/embed/zuo-yong-yu-cha-cao-gnw3wj?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="作用域插槽"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+#### 作用域插槽示例1-[Vue Virtual Scroller](https://github.com/Akryum/vue-virtual-scroller)
+
+
+
+#### 作用域插槽示例2-[Vue Promised](https://github.com/posva/vue-promised) 
+
+
+
+#### 作用域插槽示例3- [Portal Vue](https://github.com/LinusBorg/portal-vue) 
 
 
 
 
 
+## sss
 
 #### 非单文件组件 ++
 

@@ -1412,3 +1412,89 @@ vscode中通过setting.json设置`vim.hlsearch: true`实现
 
 
 
+## VSCODE
+
+### vscode调试vue/react
+
+> https://mp.weixin.qq.com/s/ryBuaX6_KcBVEnd_whk8xw
+
+
+
+#### 调试vue的步骤
+
+##### 1. 新建`./vscode/launch.json`
+
+##### 2.内容
+
+```json
+{
+  "configurations": [
+    {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "url": "http://localhost:8080",
+      "sourceMapPathOverrides": {
+      	"webpack://test-vue-debug/src/App.vue?11c4 ": "${workspaceRoot}/src/*"
+    	}
+    }
+  ]
+}
+```
+
+##### 3.webpach设置output
+
+```javascript
+output: {
+  devtoolModuleFilenameTemplate: 'webpack调试://[resource-path]'
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
