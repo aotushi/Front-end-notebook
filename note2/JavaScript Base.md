@@ -1623,81 +1623,6 @@ let fraction = 0.123_456_789 //也可以用在小数部分
 
 
 
-##### JS中的算术
-
-> 加减乘除取余 Math对象上的函数
-
-JS中的算术在遇到<span style="background:#ccc">上溢出,下溢出或被零除时</span>不会发生错误.
-
-上溢出: 数值操作的结果超过最大可表示数值(上溢出), 结果是一个特殊的无穷值Infinity.
-
-下溢出: -Infinity.
-
-上溢出和下溢出的数值操作(加减乘除)还是无穷值.
-
-> [除以零 - 维基百科，自由的百科全书 (wikipedia.org)](https://zh.wikipedia.org/wiki/除以零)
->
-> 在数学中,被除数的除数(分母)是零或将某数除以零, 是没有意义的.
-
-```javascript
-
-0/2 //0
-2/0 //Infinity  被零除
-
-```
-
-例外: 0除以0是没有意义的值,结果是'非数值'(NaN,Not a Number); 无穷除无穷, 负数平方根或者无法转换为数值的非数值作为算术操作符的操作数,结果也是NaN.
-
-非数值在JS中与任何值都不相等,即使自身.不能通过相等/全等来判断,只能是`x !=x, isNaN(x)`来判断
-
-JS 预定义了全局常量Infinity和NaN以对应正无穷和非数值,这些值可以通过Number对象的属性获取:
-
-```javascript
-Infinity
-Number.POSITIVE_VALUE
-1/0 //Infinity
-Number.MAX_VALUE * 2 //Infinity
--Infinity
-Number.NEGATIVE_INFINITY
--1/0
--Number.MAX_VALUE * 2 //-Infinity
-
-NaN
-Number.NaN
-0/0 //NaN
-Infinity/Infinity //NaN
-
-Number.MIN_VALUE/2  //0 下溢出
--Number.MIN_VALUE/2 //-0 下溢出
--1/Infinity //-0
-
-//ES6定义的数值属性
-Number.parseInt()
-Number.parseFloat()
-Number.isNaN(x) //
-Number.isFinite(x) /判断x是数值还是无穷
-Number.isInteger(x) //判断x是不是整数
-Number.isSafeInteger(x)
-Number.MIN_SAFE_INTEGER //-(2**53 -1)
-Number.MAX_SAFE_INTEGER //2**53 -1
-```
-
-
-
-负零值与正零值即使在严格相等的条件下依然相等,这意味着除了作为除数使用,几乎无法区分.
-
-##### 二进制浮点数和舍入错误
-
-
-
-##### 通过BigInt表示任意进度整数
-
-
-
-##### 日期和时间
-
-
-
 * 在JS 中所有的数字包括整数和浮点数都是number类型
 * JS中大部分整数可以精确表示,超过一定范围后可能得到一个近似值
   * 再大就会使用科学计数法表示,超过一定范围会返回infinity.
@@ -6758,6 +6683,847 @@ function fn(a){
 fn(33);
 console.log(a); // 10
 ```
+
+
+
+
+
+## 数字Number ??
+
+### 0. 介绍
+
+JavaScript 的 **`Number`** 对象是经过封装的能让你处理数字值的对象。`Number` 对象由 `Number()` 构造器创建。
+
+JS使用IEEE754标准定义的64位浮点格式表示数值,这意味着JS可以表示的最大整数是
+$$
+\pm1.797\,693\,134\,862\,315\,7\,\times\,10^{308}
+$$
+最小整数是:
+$$
+\pm5\,\times\,10^{-324}
+$$
+JS可以准确表示的数值范围是:
+$$
+-\,9\,007\,199\,254\,740\,992\,(-2^{53}) \,-\,9\,007\,199\,254\,740\,992\,(2^{53})
+$$
+原因?
+
+
+
+
+
+### 1. 分类
+
+* JavaScript 中的常规数字以 64 位的格式 [IEEE-754](https://en.wikipedia.org/wiki/IEEE_754-2008_revision) 存储，也被称为“双精度浮点数”。
+* BigInt 数字，用于表示任意长度的整数。有时会需要它们，因为常规数字不能超过 2<sup>53</sup> 或小于 -2<sup>53</sup>
+
+
+
+### 2. 语法
+
+#### 整数字面量
+
+在JS程序中,基数为10的整数可以直接写成数字序列.同时JS也支持16进制的值,其字面量以`0x或0X`开头,后跟一个16进制数字字符串.16进制数字是0到9和字母A(a)到F(f), a到f表示10到15.
+
+在ES6及之后,也支持二进制和8进制表示整数,前缀分别使用`0b(B)`和`0o(O)`
+
+#### 浮点字面量
+
+浮点字面量可以包含小数,它们对实数使用传统语法. 实数值由数值的整数部分,小数点和数值的小数部分组成.
+
+浮点字面量也可以使用指数计数法表示, 即实数值后可以跟字母e(或E),跟一个可选的加号或减号,再跟一个整数指数. 这种计数法表示的是实数值乘以10的指数次幂.
+
+更简洁的语法形式:
+
+```javascript
+[digits][.digits][(E|e)[+|-]digits]
+```
+
+#### 分隔符
+
+可以用下划线将数值字面量分割为容易看清的数字段:
+
+```javascript
+let billion = 1_000_000_000; //以下划线作为千分位分隔符
+let bytes = 0X89_AB_CD_EF; //作为字节分隔符
+let bits = 0b0001_1101_0111; //作为半字节分隔符
+let fraction = 0.123_456_789; //
+```
+
+
+
+#### 其他
+
+**包装类实现**
+
+```javascript
+new Number(value);
+let a = new Number('123'); //a === 123 is false  a打印结果: Number {123}
+let b= Number('123'); //b === 123 is true
+a instanceof Number //true
+b instanceof Number //false
+```
+
+**科学计数法**
+
+在 JavaScript 中，我们通过在数字后附加字母 “e”，并指定零的数量来缩短数字
+
+`"e"` 把数字乘以 `1` 后面跟着给定数量的 0 的数字
+
+`e` 后面的负数表示除以 1 后面跟着给定数量的 0 的数字
+
+```javascript
+let billion = 1e9; //10亿,数字1后面跟9个0
+
+1e3 = 1* 1000
+1e-3 = 1 / 1000(= 0.001)  //-3 除以 1 后面跟着 3 个 0 的数字
+```
+
+
+
+**不同进制表示法**
+
+二进制和八进制数字支持使用 `0b` 和 `0o` 前缀
+
+[十六进制](https://en.wikipedia.org/wiki/Hexadecimal) 数字在 JavaScript 中被广泛用于表示颜色，编码字符以及其他许多东西。所以自然地，有一种较短的写方法：`0x`，然后是数字。
+
+
+
+### 3. 描述
+
+* 如果参数无法被转换为数字，则返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)
+* 在非构造器上下文中 (如：没有 [`new`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new) 操作符)，`Number` 能被用来执行类型转换
+
+### 4. 方法
+
+#### toString(base)
+
+方法 `num.toString(base)` 返回在给定 `base` 进制数字系统中 `num` 的字符串表示形式
+
+`base` 的范围可以从 `2` 到 `36`。默认情况下是 `10`
+
+常见的用例如下：
+
+- **base=16** 用于十六进制颜色，字符编码等，数字可以是 `0..9` 或 `A..F`。
+- **base=2** 主要用于调试按位操作，数字可以是 `0` 或 `1`。
+- **base=36** 是最大进制，数字可以是 `0..9` 或 `A..Z`。所有拉丁字母都被用于了表示数字。对于 `36` 进制来说，一个有趣且有用的例子是，当我们需要将一个较长的数字标识符转换成较短的时候，例如做一个短的 URL。可以简单地使用基数为 `36` 的数字系统表示：
+
+```javascript
+123456..toString(36); // 2n9c
+(123456).toString(36)
+```
+
+注意: 如果我们放置一个点：`123456.toString(36)`，那么就会出现一个 error，因为 JavaScript 语法隐含了第一个点之后的部分为小数部分。如果我们再放一个点，那么 JavaScript 就知道小数部分为空，现在使用该方法。
+
+也可以写成 `(123456).toString(36)`。
+
+**其他方法**
+
+* Number.isNaN()
+* Number.isFinite()
+* Number.isInteger()
+* Number.parseFloat()
+* Number.parseInt()
+
+#### isFinite() 
+
+**定义**
+
+该全局 **`isFinite()`** 函数用来判断被传入的参数值是否为一个有限数值（finite number）。在必要情况下，参数会首先转为一个数值
+
+**参数**
+
+```javascript
+isFinite(testValue)
+```
+
+**描述**
+
+* isFinite 是全局的方法，不与任何对象有关系
+* 你可以用这个方法来判定一个数字是否是有限数字。`isFinite` 方法检测它参数的数值。如果参数是 `NaN`，正无穷大或者负无穷大，会返回`false`，其他返回 `true`
+
+* 和全局的 [`isFinite()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/isFinite) 函数不同，`Number.isFinite()`方法不会强制将一个非数值的参数转换成数值，这就意味着，只有数值类型的值，且是有穷的（finite），才返回 `true`   !!!!
+* isFinite(value)` 将其参数转换为数字，如果是常规数字，则返回 `true`，而不是 `NaN/Infinity/-Infinity
+* 有时 `isFinite` 被用于验证字符串值是否为常规数字.
+* 
+
+```javascript
+isFinite(Infinity);  // false
+isFinite(NaN);       // false
+isFinite(-Infinity); // false
+
+isFinite(0);         // true
+isFinite(null);      // true, 在更强壮的Number.isFinite(null)中将会得到false
+
+
+isFinite("0");       // true, 在更强壮的Number.isFinite('0')中将会得到false
+
+
+Number.isFinite('1') ;//false
+isFinite('1'); //true
+
+alert( isFinite("str") ); // false，因为是一个特殊的值：NaN
+alert( isFinite(Infinity) ); // false，因为是一个特殊的值：Infinity
+
+Number.isFinite(''); //false
+isFinite(''); //true
+
+Number.isFinite(' '); //false
+isFinite(' '); //true
+```
+
+
+
+#### parseInt()
+
+**定义**
+
+**parseInt(string, radix)**  解析一个字符串并返回指定基数的**十进制整数**， `radix` 是2-36之间的整数，表示被解析字符串的基数。
+
+**参数**
+
+```javascript
+parseInt(string, radix);
+```
+
+`string`   要被解析的值。
+
+* 如果参数不是一个字符串，则将其转换为字符串(使用  `ToString `抽象操作)。字符串开头的空白符将会被忽略。
+
+`radix` **可选**
+
+* 从 `2` 到 `36`，表示字符串的基数。例如指定 16 表示被解析值是十六进制数。请注意，10不是默认值.
+
+**返回值**
+
+* 从给定的字符串中解析出的一个整数
+
+* `NaN`  (当基数小于2或者大于36,或第一个非空格字符串不能转换为数字)
+
+**描述**
+
+* `parseInt`函数将其第一个参数转换为一个字符串，对该字符串进行解析，然后返回一个整数或`NaN`
+* 如果 `parseInt `遇到的字符不是指定 `radix `参数中的数字，它将忽略该字符以及所有后续字符，并返回到该点为止已解析的整数值。 `parseInt` 将数字截断为整数值。 允许前导和尾随空格
+* 由于某些数字在其字符串表示形式中使用e字符（例如 `6.022×23` 表示` 6.022e23` ），因此当对非常大或非常小的数字使用数字时，使用 `parseInt` 截断数字将产生意外结果
+* `parseInt` 可以理解两个符号。`+` 表示正数，`-` 表示负数（从ECMAScript 1开始）。它是在去掉空格后作为解析的初始步骤进行的。如果没有找到符号，算法将进入下一步；否则，它将删除符号，并对字符串的其余部分进行数字解析。
+* 如果 `radix` 是 `undefined`、`0`或未指定的，JavaScript会假定以下情况：
+  * 如果输入的 `string`以 "`0x`"或 "`0x`"（一个0，后面是小写或大写的X）开头，那么radix被假定为16，字符串的其余部分被当做十六进制数去解析
+  * 如果输入的 `string`以 "`0`"（0）开头， `radix`被假定为`8`（八进制）或`10`（十进制）。具体选择哪一个radix取决于实现。ECMAScript 5 澄清了应该使用 10 (十进制)，但不是所有的浏览器都支持。**因此，在使用 `parseInt` 时，一定要指定一个 radix**。
+  * 如果输入的 `string` 以任何其他值开头， `radix` 是 `10` (十进制)
+* 如果第一个字符不能转换为数字，`parseInt`会返回 `NaN`
+* 要将一个数字转换为特定的 `radix` 中的字符串字段，请使用 `thatNumber.toString(radix)`函数
+* 警告: `parseInt`将 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt)转换为[`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)，并在这个过程中失去了精度。这是因为拖尾的非数字值，包括 "n"，会被丢弃。
+
+**实例**
+
+##### JS中任意进制转换
+
+> [各种 2 到 62 任意进制之间的转换-蚊子-前端博客 (xiabingbao.com)](https://www.xiabingbao.com/post/algorithm/hex-covert-rb1w5l.html)
+
+在 JavaScript 中，有两个系统方法 parseInt 和 toString，综合运用这两个方法，可以实现 `36进制`内的任意进制的转换。
+
+- parseInt(string, radix): 将任意进制 radix(36 进制内)转为 10 进制的数字，radix 表示 string 本身是多少进制的；
+- num.toString(radix): 将 10 进制的数字转为任意进制 radix 的字符串，radix 表示要转换成多少进制的；
+
+```javascript
+const convert = (num:string, base:number,to:number) {
+  return parseInt(num, base).toString(to)
+}
+```
+
+
+
+#### parseFloat()
+
+**定义**
+
+**`parseFloat()`** 函数解析一个参数（必要时先转换为字符串）并返回一个浮点数
+
+**参数**
+
+```javascript
+parseFloat(string)
+```
+
+`string`  需要被解析成为浮点数的值
+
+**返回值**
+
+给定值被解析成**浮点数**。如果给定值不能被转换成数值，则会返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)。
+
+**描述**
+
+* `parseFloat`是个全局函数,不属于任何对象
+* 如果 `parseFloat` 在解析过程中遇到了正号（`+`）、负号（`-` U+002D HYPHEN-MINUS）、数字（`0`-`9`）、小数点（`.`）、或者科学记数法中的指数（e 或 E）以外的字符，则它会忽略该字符以及之后的所有字符，返回当前已经解析到的浮点数
+* 第二个小数点的出现也会使解析停止（在这之前的字符都会被解析）
+* 参数首位和末位的空白符会被忽略。
+* 如果参数字符串的第一个字符不能被解析成为数字,`则` `parseFloat` 返回 `NaN`。
+* `parseFloat` 也可以解析并返回 [`Infinity`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Infinity)。
+* `parseFloat`解析 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt) 为 [`Numbers`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number), 丢失精度。因为末位 `n` 字符被丢弃。
+
+考虑使用 [`Number(*value*)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 进行更严谨的解析，只要参数带有无效字符就会被转换为 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN) 
+
+`parseFloat` 也可以转换一个已经定义了 `toString` 或者 `valueOf` 方法的对象，它返回的值和在调用该方法的结果上调用 `parseFloat` 值相同
+
+
+
+**实例**
+
+下面的例子都返回**3.14**
+
+```javascript
+parseFloat('3.0'); //3 结果是数字
+
+parseFloat(3.14);
+parseFloat('3.14');
+parseFloat('  3.14  ');
+parseFloat('314e-2');
+parseFloat('0.0314E+2');
+parseFloat('3.14some non-digit characters');
+parseFloat({ toString: function() { return "3.14" } });
+```
+
+大整数的返回值
+
+均返回 `900719925474099300`，当整数太大以至于不能被转换时将失去精度
+
+```javascript
+parseFloat(900719925474099267n);
+parseFloat('900719925474099267n');
+```
+
+
+
+### 5. 算术
+
+JS程序使用语言提供的算术操作符来操作数值,包括:
+
+* 表示加法的`+`,
+* 表示减法的`-`,
+* 表示除法的`/`
+* 表示取模(除法后的余数)的`%`
+* 表示取幂的`**`
+
+除了上述基本的算术操作符之外,JS还通过Math对象的属性提供了一组函数和常量,以支持更复杂的数学运算:
+
+| 名称                        | 结果             | 作用                    |
+| --------------------------- | ---------------- | ----------------------- |
+| Math.pow(2, 63)             | 9007199254740992 | 2的53次方               |
+| Math.round(.6)              | 1.0              | 舍入到最接近的整数      |
+| Math.ceil(.6)               | 1.0              | 向上舍入到一个整数      |
+| Math.floor(.6)              | 0.0              | 向下舍入到一个整数      |
+| Math .abs(-5)               | 5                | 绝对值                  |
+| Math.max(x,y,z)             |                  | 返回最大的参数          |
+| Math.min(x,y,z)             |                  | 返回最小的参数          |
+| Math.random()               |                  | 伪随机数x, 其中0<=x<1.0 |
+| Math.PI                     |                  | 圆周率                  |
+| Math.E                      |                  | 自然对数的底数          |
+| Math.sqrt(3)  (square root) | 3**0.5           | 3的平方根               |
+| Math .pow(3, 1/3)           | 3**(1/3)         | 3的立方根               |
+| Math.sin(0)                 |                  | 三角函数                |
+| Math.log(10)                |                  | 10的自然对数            |
+| Math.log(100)/Math.LN10     |                  | 以10位底数的100的对数   |
+| Math.log(512)/Math.LN2      |                  | 以2位底数的512的对数    |
+| Math.exp(3)                 |                  | Math.E的立方            |
+|                             |                  |                         |
+|                             |                  |                         |
+
+
+
+JS中的算术在遇到上溢出, 下溢出或被零除时不会发生错误.在数值操作的结果超过最大可表示数值时(上溢出),结果是一个特殊的无穷之Infinity.当某个负数的绝对值超过最大可表示负数的绝对值时,结果是负无穷值-Infinity.
+
+两个无穷值得行为: 任何加减乘除无穷值结果还是无穷值(只是符号可能相反).
+
+**处理0 或 -0**
+
+下溢出发生在数值操作的结果比最小可表示数值更接近0的情况下.此时JS返回0.
+
+如果下溢出来自负数,JS返回一个被称为'负零'的特殊值.这个值与常规的零几乎完全无法区分,一般也很少检测它.
+
+被零除在JS中不是错误,只会简单的返回无穷或负无穷.例外: 0除以0的结果是一个特殊的'非数值'(NaN, Not a Number).
+
+#### 零值
+
+负零值和正零相等(即使使用严格相等). 这意味着除了作为除数使用,几乎无法区分这两个值.
+
+```javascript
+let zeor = 0
+let negz = -0
+
+zero === negz //true
+1/zero === 1/negz  //false Infinity不等于 -Infinity
+```
+
+
+
+#### NaN
+
+##### 几种情况
+
+* 0除以0
+
+* 无穷除无穷
+
+* 负数平方根
+
+* 用无法转换为数值的非数值作为算术操作符的操作数
+
+##### 特点
+
+与任何值不相等,也不等于自身.
+
+这意味着必须使用`x != x` 或 `Number.isNaN(x)`来确定变量x是NaN.这两个表达式当且仅当x与全局常量NaN具有相同值时才返回true.
+
+
+
+
+
+#### 与全局常量Infinity, NaN对应的Number属性
+
+```javascript
+Infinity
+
+Number.POSITIVE_INFINITY
+1/0                         //Infinity
+Number.MAX_VALUE*2          //Infinity  上溢出
+
+-Infinity                   //因为太大无法表示的负数
+Number.NEGATIVE_INFINITY    //同上
+-1/0												// -Infinity
+-Number.MAX_VALUE*2					//-Infinity
+
+NaN
+Number.NaN
+0/0
+Infinity/Infinity
+
+Number.MIN_VALUE/2         //0 下溢出
+-Number.MIN_VALUE/2				 //-0 负零
+-1/Infinity								 //-0 负零
+
+```
+
+
+
+
+
+### 6. 不精确的计算
+
+实数有无限多个,但JS的浮点格式只能表示其中有限个(确切说,是`18 437 736 874 454 810 627`个).这意味着通过JS操作实数,数值表示的经常是实际数值的近似值.
+
+JS使用IEEE-754浮点表示法是一种二进制表示法,无法精确表示哪怕0.1这么简单的数,只能近似表示0.1.
+
+#### 0. 问题
+
+在内部，数字是以 64 位格式 [IEEE-754](http://en.wikipedia.org/wiki/IEEE_754-1985) 表示的，所以正好有 64 位可以存储一个数字：其中 52 位被用于存储这些数字，其中 11 位用于存储小数点的位置（对于整数，它们为零），而 1 位用于符号.
+
+1.如果一个数字太大，则会溢出 64 位存储，并可能会导致无穷大
+
+```javascript
+console.log(1e500); //Infinity
+```
+
+2.使用二进制数字系统无法 **精确** 存储 *0.1* 或 *0.2*，就像没有办法将三分之一存储为十进制小数一样
+
+```javascript
+alert( 0.1 + 0.2 ); // 0.30000000000000004
+```
+
+<u>IEEE-754 数字格式通过将数字舍入到最接近的可能数字来解决此问题</u>。这些舍入规则通常不允许我们看到“极小的精度损失”，但是它确实存在
+
+```javascript
+alert( 0.1.toFixed(20) ); // 0.10000000000000000555
+```
+
+<u>当我们对两个数字进行求和时，它们的“精度损失”会叠加起来。</u>这就是为什么 `0.1 + 0.2` 不等于 `0.3`. 许多其他编程语言也存在同样的问题。
+
+#### 1. 解决
+
+最可靠的方法是借助方法 [toFixed(n)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed) 对结果进行舍入.如果需要显示 `¥ 0.30`，这实际上很方便。对于其他情况，我们可以使用一元加号将其强制转换为一个数字：
+
+```javascript
+let sum = 0.1 + 0.2;
+alert( sum.toFixed(2) ); // 0.30
+
+let sum = 0.1 + 0.2;
+alert( +sum.toFixed(2) ); // 0.3
+```
+
+乘/除法可以减少误差，但不能完全消除误差
+
+```javascript
+alert( (0.1 * 10 + 0.2 * 10) / 10 ); // 0.3
+alert( (0.28 * 100 + 0.14 * 100) / 100); // 0.4200000000000001
+```
+
+#### 2. 实例
+
+**数字**
+
+```javascript
+// Hello！我是一个会自我增加的数字！
+alert( 9999999999999999 ); // 显示 10000000000000000
+
+
+9999999999999999..toString(2).length //54
+```
+
+出现了同样的问题：精度损失。有 64 位来表示该数字，其中 52 位可用于存储数字，但这还不够。所以最不重要的数字就消失了。JavaScript 不会在此类事件中触发 error。它会尽最大努力使数字符合所需的格式，但不幸的是，这种格式不够大到满足需求。
+
+```javascript
+Object.is(0, -0); //false
+
+0 === -0; //true
+```
+
+数字内部表示的另一个有趣结果是存在两个零：`0` 和 `-0`。
+
+这是因为在存储时，使用一位来存储符号，因此对于包括零在内的任何数字，可以设置这一位或者不设置。在大多数情况下，这种区别并不明显，因为运算符将它们视为相同的值。
+
+
+
+**6.35.toFixed(1) == 6.3**
+
+为什么 `6.35` 被舍入为 `6.3` 而不是 `6.4`?
+
+在内部，`6.35` 的小数部分是一个无限的二进制。在这种情况下，它的存储会造成精度损失。
+
+```javascript
+6.35.toFixed(20); // 6.34999999999999964473
+```
+
+精度损失可能会导致数字的增加和减小。在这种特殊的情况下，数字变小了一点，这就是它向下舍入的原因
+
+那么 `1.35` 会怎样呢？
+
+```javascript
+1.35.toFixed(20); // 1.35000000000000008882
+```
+
+在这里，精度损失使得这个数字稍微大了一些，因此其向上舍入.
+
+**如何以正确的方式进行舍入,解决`6.35`的问题?**
+
+`63.5` 完全没有精度损失。这是因为小数部分 `0.5` 实际上是 `1/2`。以 2 的整数次幂为分母的小数在二进制数字系统中可以被精确地表示，现在我们可以对它进行舍入
+
+```javascript
+(6.35 * 10).toFixed(20); //63.50000000000000000000
+
+
+Math.round(6.35 * 10) / 10; // 6.35 -> 63.5 -> 64(rounded) -> 6.4
+```
+
+#### 表示任意精度整数BigInt
+
+新数值类型BigInt. 
+
+
+
+### 7. 实例
+
+#### [重复，直到输入的是一个数字](https://zh.javascript.info/number#zhong-fu-zhi-dao-shu-ru-de-shi-yi-ge-shu-zi)
+
+> 创建一个函数 `readNumber`，它提示输入一个数字，直到访问者输入一个有效的数字为止。
+>
+> 结果值必须以数字形式返回。
+>
+> 访问者也可以通过输入空行或点击“取消”来停止该过程。在这种情况下，函数应该返回 `null`。
+
+```javascript
+function readNumber() {
+  let num;
+  do {
+    num = prompt('enter a number', 0);
+  } while(!isFinite(num))
+  if (num === null || num === '' || num === ' ') return null;
+  
+  return +num;
+}
+
+alert(`Read: ${readNumber()}`);
+
+
+function readNumber() {
+  let num = prompt('输入数字');
+  
+}
+```
+
+
+
+#### 舍入到具体的小数点多少位?
+
+* 乘除法
+* toFixed()  函数 [toFixed(n)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed) 将数字舍入到小数点后 `n` 位，并以字符串形式返回结果. 会向上或向下舍入到最接近的值，类似于 `Math.round`; 如果小数部分比所需要的短，则在结尾添加零
+
+```javascript
+//要将数字舍入到小数点后两位
+
+//1.乘除法
+let num = 1.23456;
+Math.floor(num * 100) / 100; // 1.23456 -> 123.456 -> 123 -> 1.23
+
+//2.toFixed(n)
+let num = 12.34;
+num.toFixed(1); //'12.3'
+
+let num = 12.36;
+num.toFixed(1); //'12.4'
+
+let num = 12.34;
+num.toFixed(5); //'12.34000'
+```
+
+### 
+
+### 8. 其他(笔记记得乱七八糟,需重记)
+
+> [前端应该知道的JavaScript浮点数和大数的原理 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/66949640)
+
+#### 1. IEEE 754标准
+
+**背景**
+
+计算机中如何存储整数和小数?
+
+> 计算机内部信息都是由二进制方式表示的,但由于**某些浮点数没办法用二进制准确的表示出来**，也就带来了一系列精度问题。当然这也**不是JS独有的问题**。
+
+计算机中如何将小数转换成二进制?
+
+十进制小数转换成二进制小数采用**乘2取整, 顺序排列**
+
+* 用2乘十进制小数,可以得到积,将积的整数部分取出,再用2乘余下的小数 部分，又得到一个积，再将积的整数部分取出，如此进行，直到积中的小数部分为零，或者达到所要求的精度为止。
+* 把取出的整数部分按顺序排列起来，先取的整数作为二进制小数的高位有效位，后取的整数作为低位有效位。
+
+```javascript
+//digital 0.68
+
+0.68 * 2 = 1.36 //1
+0.36 * 2 = 0.72 //0
+0.72 * 2 = 1.44 //1
+0.44 * 2 = 0.88 //0
+0.88 * 2 = 1.76 //1
+0.76 * 2 = 1.52 //1
+0.52 * 2 = 1.04 //1
+0.04 * 2 = 0.08 //0
+0.08 * 2 = 0.16 //0
+0.16 * 2 = 0.32 //0
+0.32 * 2 = 0.64 //0
+0.64 * 2 = 1.28 //1
+0.28 * 2 = 0.56 //0
+0.56 * 2 = 1.12 //1
+0.12 * 2 = 0.24 //0
+0.24 * 2 = 0.48 //0
+0.48 * 2 = 0.96 //0
+0.96 * 2 = 1.92 //1
+0.92 * 2 = 1.84 //1
+0.84 * 2 = 1.68 //1
+0.68 * 2 = 1.36 //1
+0.36 * 2 = 0.72 //0
+0.72 * 2 = 1.44 //1
+0.44 * 2 = 0.88 //0
+0.88 * 2 = 1.76 //1
+0.76 * 2 = 1.52 //1
+0.52 * 2 = 1.04 //1
+0.04 * 2 = 0.08 //0
+0.08 * 2 = 0.16 //0
+0.16 * 2 = 0.32 //0
+0.32 * 2 = 0.64 //0
+0.64 * 2 = 1.28 //1
+0.28 * 2 = 0.56 //0
+0.56 * 2 = 1.12 //1
+0.12 * 2 = 0.24 //0
+0.24 * 2 = 0.48 //0
+0.48 * 2 = 0.96 //0
+0.96 * 2 = 1.92 //1
+0.92 * 2 = 1.84 //1
+0.84 * 2 = 1.68 //1
+0.68 * 2 = 1.36 //1
+0.36 * 2 = 0.72 //0
+0.72 * 2 = 1.44 //1
+0.44 * 2 = 0.88 //0
+0.88 * 2 = 1.76 //1
+0.76 * 2 = 1.52 //1---
+0.52 * 2 = 1.04 //1
+0.04 * 2 = 0.08 //0
+0.08 * 2 = 0.16 //0
+0.16 * 2 = 0.32 //0
+0.32 * 2 = 0.64 //0
+0.64 * 2 = 1.28 //1
+0.28 * 2 = 0.56 //0
+0.56 * 2 = 1.12 //1
+0.12 * 2 = 0.24 //0
+```
+
+
+
+```javascript
+//如果将0.1转换成二进制后,发现无法精确标识0.1
+0.1的二进制表示是：0.000110011......0011...... (0011无限循环)
+```
+
+
+
+**标准内容**
+
+IEEE 754 标准是IEEE二进位浮点数算术标准(IEEE Standard for Floating-Point Arithmetic)的标准编号。IEEE 754 标准规定了计算机程序设计环境中的二进制和十进制的浮点数自述的交换、算术格式以及方法。
+
+根据IEEE754标准,任意一个二进制浮点数都可以表示成以下形式:
+$$
+V = (-1)^S×2^E×M
+$$
+
+公式解析:
+
+* S为数符,它表示浮点数的正负(0正1负);
+* M为有效位(尾数);
+* E为阶码,用移码表示,阶码的真值都被加上一个常数(偏移量);
+
+尾数部分M通常都是规格化表示,即非0的尾数其第一位总是1,而这一位也称隐藏位.因为存储时这一位是会被省略的.比如保存1.0011时候,只保存0011,等读取的时候才把第一位的1加上去.
+
+常用的浮点格式有:
+
+单精度
+
+> 32位浮点数,最高的1位是符号位S,后面的8位是指数E,剩下的23位为尾数(有效数字)M.
+
+其真值为 ????
+$$
+(-1)^{b_{31}}×(1.b_{22}b_{21}b_{20}...b_{0})_2×2^{({b_{30}b_{29}...b_{23}})_2-127}
+$$
+
+
+![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/v2-0dc93bca2609242e7019399b5f896d59_1440w.45jtwy5z5w80.webp)
+
+
+
+双精度
+
+> 64位浮点数,最高1位是符号位S,后面的11位是指数E,剩下的52位是尾数(有效数字)M.
+
+其真值位: ????
+$$
+(-1)^{sign}×(1.b_{51}b_{50}...b_{0})_2×2^{e-1023}
+$$
+
+
+![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/v2-48240f0e1e0dd33ec89100cbe2d30707_1440w.597k4ikq3uw0.webp)
+
+**双精度浮点数**
+
+JavaScript中的Number是以双精度浮点数的形式计算的,双精度浮点数总共有8个字节(byte),每字节有8比特(bit-位),即8bit/byte,所以总共占64位.
+
+根据IEEE-754的标准,双精度浮点数中的占位分为3个部分:
+
+![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/v2-2f3a24983e41196d4b4a73708638a790_1440w.6nzn3p49v740.webp)
+
+JavaScript中只有一种数字类型number,而number使用的是IEEE754双精度浮点格式.依据上述规则,如何存储0.1和0.2.
+
+> 0.1转二进制: 0.000110011001...(1100循环)
+>
+> 转位科学计数法: 1.10011001...(1100循环)*2^-4   ????
+>
+> 数据是无限循环的,但是可供使用的尾数位却是有限的,只有52位可以使用,53位及以后会被舍去
+
+所以0.1+0.2计算结果转换位十进制数字是0.30000000000000004. 0.1和0.2在计算机中的二进制存储会让它们本身损失掉一定的精度，而它们在计算机中的二进制存储转换成十进制时已经不是真正的0.1和0.2了，相加的结果也就自然不是0.3了
+
+既然0.1在计算机中的存储已经有了舍入误差，那为什么num=0.1能得到0.1呢？
+
+在控制台中使用[toPrecision](https://link.zhihu.com/?target=https%3A//developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toPrecision)看一下0.1在不同精度下的返回
+
+```javascript
+0.1.toPrecision(16) //0.1000000000000000
+0.1.toPrecision(17) //'0.10000000000000001'
+0.1.toPrecision(20) //
+0.1.toPrecision(30) //
+0.1.toPrecision(64) //0.1000000000000000055511151231257827021181583404541015625000000000
+```
+
+可以看出来其实0.1是截断了一部分精度后得到的结果，那么这个问题就可以转化为：双精度浮点数是按什么规则来截断的呢？
+
+
+
+**如果一个 IEEE 754 的双精度浮点数被转成至少含17位有效数字的十进制数字字符串，当这个字符串转回双精度浮点数时，必须要跟原来的数相同；换句话说，如果一个双精度的浮点数转为十进制的数字时，只要它转回来的双精度浮点数不变，精度取最短的那个就行。**
+
+拿0.1来举例子，0.1和0.10000000000000001转成双精度浮点数的存储是一样的，所以取最短的0.1就行了。
+
+**为什么1.005.toFixed(2)=1.00而不是1.01**
+
+因为在第一个问题中已经说了，一个十进制数字转为双精度浮点数然后再取出来时，跟原十进制数字可能会有误差，试一下1.005取20个精度
+
+```javascript
+1.005.toPrecision(20) //'1.004999999999..8934'
+```
+
+很明显1.005只是一个被截断后的数字，它的双精度浮点数代表的20位精度的数字是1.0049999999999998934，所以进行保留2位的四舍五入时，2位后的数字会被全部舍去
+
+为什么会有Number.MAX_VALUE和Number.MAX_SAFE_INTEGER这两个常量同时存在？
+
+控制台打印:
+
+```javascript
+Number.MAX_SAFE_INTEGER  /9007199254740991
+
+Number.MAX_VALUE //1.7976931348623157e+308
+
+Math.pow(2,53) - 1 //907199254740091
+```
+
+为什么最大安全数是2<sup>53</sup>-1? 前面提到Javascript浮点存储是52位尾数位,但是因为科学计数法小数点左侧的1会在存储时省去,所以52位尾数+省去的1位=53个可表示的位数.
+$$
+2^{53} - 1 = 9\;007\;199\;254\;740\;991
+$$
+
+
+那为什么2<sup>53</sup>-1是最大安全整数呢?比它大会怎样?   ????
+
+```javascript
+Math.pow(2,53) //9 007 199 254 740 992
+Math.pow(2,53) + 1; //9 007 199 254 740 992
+Math.pow(2,53) + 2; //9 007 199 254 740 994 ??
+```
+
+以2^53来说明一下为什么2^53-1是最大安全整数，安全在哪里
+
+> 2^53 转二进制 =====> 100000000000000000000000000000000000000000000000000000(53个0)
+> 转为科学计数法 =====>
+> 1.00000000000000000000000000000000000000000000000000000(53个0)*2^53
+> 存入计算机 =====> 尾数位只有52位所以截掉末尾的0只能存52个0
+> 2^53+1 转二进制 =====>
+> 100000000000000000000000000000000000000000000000000001(52个0)
+> 转为科学计数法 =====>
+> 1.00000000000000000000000000000000000000000000000000001(52个0)
+> 存入计算机 =====> 尾数位只有52位所以截掉末尾的1只能存52个0
+
+可以看出来，2^53和2^53+1在计算机中的存储尾数和指数都相同，所以两个不同的数在计算机中的存储是一样的，这样就非常的不安全了。
+
+所以2^53-1是JavaScript里面的最大安全整数。至于Number.MAX_VALUE，就是把尾数位和指数位都设为1再转为十进制就好了。
+
+**如何解决数字精度问题**
+
+> [JavaScript 浮点数运算的精度问题 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/191395766)
+
+1.类库
+
+* 使用[bignumber](https://link.zhihu.com/?target=http%3A//mikemcl.github.io/bignumber.js/%23valueOf)这个库来解决
+* Math.js
+* decimal.js
+* big.js
+
+2.其他
+
+* 整数, 使用String类型来取值或者传值,否则会丧失精度
+* 浮点数
+  * toFixed() 对结果进行四舍五入
+
+
+
+#### 2.浮点数取整的几种方式
+
+* Math.ceil() 向上取整
+* Math.floor() 向下取整
+* Math.random() 四舍五入取整
+* parseInt() 剔除小数部分
 
 
 
@@ -23893,677 +24659,6 @@ if (a < b) {
 ```
 
 使用从字符串实例继承而来的 [`localeCompare`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare) 方法也能达到同样的效果
-
-
-
-## 数字Number
-
-### 0. 介绍
-
-JavaScript 的 **`Number`** 对象是经过封装的能让你处理数字值的对象。`Number` 对象由 `Number()` 构造器创建。
-
-### 1. 分类
-
-* JavaScript 中的常规数字以 64 位的格式 [IEEE-754](https://en.wikipedia.org/wiki/IEEE_754-2008_revision) 存储，也被称为“双精度浮点数”。
-* BigInt 数字，用于表示任意长度的整数。有时会需要它们，因为常规数字不能超过 `253` 或小于 `-253`
-
-### 2. 语法
-
-**包装类实现**
-
-```javascript
-new Number(value);
-let a = new Number('123'); //a === 123 is false  a打印结果: Number {123}
-let b= Number('123'); //b === 123 is true
-a instanceof Number //true
-b instanceof Number //false
-```
-
-**科学计数法**
-
-在 JavaScript 中，我们通过在数字后附加字母 “e”，并指定零的数量来缩短数字
-
-`"e"` 把数字乘以 `1` 后面跟着给定数量的 0 的数字
-
-`e` 后面的负数表示除以 1 后面跟着给定数量的 0 的数字
-
-```javascript
-let billion = 1e9; //10亿,数字1后面跟9个0
-
-1e3 = 1* 1000
-1e-3 = 1 / 1000(= 0.001)  //-3 除以 1 后面跟着 3 个 0 的数字
-```
-
-
-
-**不同进制表示法**
-
-二进制和八进制数字支持使用 `0b` 和 `0o` 前缀
-
-[十六进制](https://en.wikipedia.org/wiki/Hexadecimal) 数字在 JavaScript 中被广泛用于表示颜色，编码字符以及其他许多东西。所以自然地，有一种较短的写方法：`0x`，然后是数字。
-
-
-
-### 3. 描述
-
-* 如果参数无法被转换为数字，则返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)
-* 在非构造器上下文中 (如：没有 [`new`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/new) 操作符)，`Number` 能被用来执行类型转换
-
-### 4. 方法
-
-#### toString(base)
-
-方法 `num.toString(base)` 返回在给定 `base` 进制数字系统中 `num` 的字符串表示形式
-
-`base` 的范围可以从 `2` 到 `36`。默认情况下是 `10`
-
-常见的用例如下：
-
-- **base=16** 用于十六进制颜色，字符编码等，数字可以是 `0..9` 或 `A..F`。
-- **base=2** 主要用于调试按位操作，数字可以是 `0` 或 `1`。
-- **base=36** 是最大进制，数字可以是 `0..9` 或 `A..Z`。所有拉丁字母都被用于了表示数字。对于 `36` 进制来说，一个有趣且有用的例子是，当我们需要将一个较长的数字标识符转换成较短的时候，例如做一个短的 URL。可以简单地使用基数为 `36` 的数字系统表示：
-
-```javascript
-123456..toString(36); // 2n9c
-(123456).toString(36)
-```
-
-注意: 如果我们放置一个点：`123456.toString(36)`，那么就会出现一个 error，因为 JavaScript 语法隐含了第一个点之后的部分为小数部分。如果我们再放一个点，那么 JavaScript 就知道小数部分为空，现在使用该方法。
-
-也可以写成 `(123456).toString(36)`。
-
-**其他方法**
-
-* Number.isNaN()
-* Number.isFinite()
-* Number.isInteger()
-* Number.parseFloat()
-* Number.parseInt()
-
-#### isFinite() 
-
-**定义**
-
-该全局 **`isFinite()`** 函数用来判断被传入的参数值是否为一个有限数值（finite number）。在必要情况下，参数会首先转为一个数值
-
-**参数**
-
-```javascript
-isFinite(testValue)
-```
-
-**描述**
-
-* isFinite 是全局的方法，不与任何对象有关系
-* 你可以用这个方法来判定一个数字是否是有限数字。`isFinite` 方法检测它参数的数值。如果参数是 `NaN`，正无穷大或者负无穷大，会返回`false`，其他返回 `true`
-
-* 和全局的 [`isFinite()`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/isFinite) 函数不同，`Number.isFinite()`方法不会强制将一个非数值的参数转换成数值，这就意味着，只有数值类型的值，且是有穷的（finite），才返回 `true`   !!!!
-* isFinite(value)` 将其参数转换为数字，如果是常规数字，则返回 `true`，而不是 `NaN/Infinity/-Infinity
-* 有时 `isFinite` 被用于验证字符串值是否为常规数字.
-* 
-
-```javascript
-isFinite(Infinity);  // false
-isFinite(NaN);       // false
-isFinite(-Infinity); // false
-
-isFinite(0);         // true
-isFinite(null);      // true, 在更强壮的Number.isFinite(null)中将会得到false
-
-
-isFinite("0");       // true, 在更强壮的Number.isFinite('0')中将会得到false
-
-
-Number.isFinite('1') ;//false
-isFinite('1'); //true
-
-alert( isFinite("str") ); // false，因为是一个特殊的值：NaN
-alert( isFinite(Infinity) ); // false，因为是一个特殊的值：Infinity
-
-Number.isFinite(''); //false
-isFinite(''); //true
-
-Number.isFinite(' '); //false
-isFinite(' '); //true
-```
-
-
-
-#### parseInt()
-
-**定义**
-
-**parseInt(string, radix)**  解析一个字符串并返回指定基数的**十进制整数**， `radix` 是2-36之间的整数，表示被解析字符串的基数。
-
-**参数**
-
-```javascript
-parseInt(string, radix);
-```
-
-`string`   要被解析的值。
-
-* 如果参数不是一个字符串，则将其转换为字符串(使用  `ToString `抽象操作)。字符串开头的空白符将会被忽略。
-
-`radix` **可选**
-
-* 从 `2` 到 `36`，表示字符串的基数。例如指定 16 表示被解析值是十六进制数。请注意，10不是默认值.
-
-**返回值**
-
-* 从给定的字符串中解析出的一个整数
-
-* `NaN`  (当基数小于2或者大于36,或第一个非空格字符串不能转换为数字)
-
-**描述**
-
-* `parseInt`函数将其第一个参数转换为一个字符串，对该字符串进行解析，然后返回一个整数或`NaN`
-* 如果 `parseInt `遇到的字符不是指定 `radix `参数中的数字，它将忽略该字符以及所有后续字符，并返回到该点为止已解析的整数值。 `parseInt` 将数字截断为整数值。 允许前导和尾随空格
-* 由于某些数字在其字符串表示形式中使用e字符（例如 `6.022×23` 表示` 6.022e23` ），因此当对非常大或非常小的数字使用数字时，使用 `parseInt` 截断数字将产生意外结果
-* `parseInt` 可以理解两个符号。`+` 表示正数，`-` 表示负数（从ECMAScript 1开始）。它是在去掉空格后作为解析的初始步骤进行的。如果没有找到符号，算法将进入下一步；否则，它将删除符号，并对字符串的其余部分进行数字解析。
-* 如果 `radix` 是 `undefined`、`0`或未指定的，JavaScript会假定以下情况：
-  * 如果输入的 `string`以 "`0x`"或 "`0x`"（一个0，后面是小写或大写的X）开头，那么radix被假定为16，字符串的其余部分被当做十六进制数去解析
-  * 如果输入的 `string`以 "`0`"（0）开头， `radix`被假定为`8`（八进制）或`10`（十进制）。具体选择哪一个radix取决于实现。ECMAScript 5 澄清了应该使用 10 (十进制)，但不是所有的浏览器都支持。**因此，在使用 `parseInt` 时，一定要指定一个 radix**。
-  * 如果输入的 `string` 以任何其他值开头， `radix` 是 `10` (十进制)
-* 如果第一个字符不能转换为数字，`parseInt`会返回 `NaN`
-* 要将一个数字转换为特定的 `radix` 中的字符串字段，请使用 `thatNumber.toString(radix)`函数
-* 警告: `parseInt`将 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt)转换为[`Number`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number)，并在这个过程中失去了精度。这是因为拖尾的非数字值，包括 "n"，会被丢弃。
-
-**实例**
-
-##### JS中任意进制转换
-
-> [各种 2 到 62 任意进制之间的转换-蚊子-前端博客 (xiabingbao.com)](https://www.xiabingbao.com/post/algorithm/hex-covert-rb1w5l.html)
-
-在 JavaScript 中，有两个系统方法 parseInt 和 toString，综合运用这两个方法，可以实现 `36进制`内的任意进制的转换。
-
-- parseInt(string, radix): 将任意进制 radix(36 进制内)转为 10 进制的数字，radix 表示 string 本身是多少进制的；
-- num.toString(radix): 将 10 进制的数字转为任意进制 radix 的字符串，radix 表示要转换成多少进制的；
-
-```javascript
-const convert = (num:string, base:number,to:number) {
-  return parseInt(num, base).toString(to)
-}
-```
-
-
-
-#### parseFloat()
-
-**定义**
-
-**`parseFloat()`** 函数解析一个参数（必要时先转换为字符串）并返回一个浮点数
-
-**参数**
-
-```javascript
-parseFloat(string)
-```
-
-`string`  需要被解析成为浮点数的值
-
-**返回值**
-
-给定值被解析成**浮点数**。如果给定值不能被转换成数值，则会返回 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN)。
-
-**描述**
-
-* `parseFloat`是个全局函数,不属于任何对象
-* 如果 `parseFloat` 在解析过程中遇到了正号（`+`）、负号（`-` U+002D HYPHEN-MINUS）、数字（`0`-`9`）、小数点（`.`）、或者科学记数法中的指数（e 或 E）以外的字符，则它会忽略该字符以及之后的所有字符，返回当前已经解析到的浮点数
-* 第二个小数点的出现也会使解析停止（在这之前的字符都会被解析）
-* 参数首位和末位的空白符会被忽略。
-* 如果参数字符串的第一个字符不能被解析成为数字,`则` `parseFloat` 返回 `NaN`。
-* `parseFloat` 也可以解析并返回 [`Infinity`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Infinity)。
-* `parseFloat`解析 [`BigInt`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt) 为 [`Numbers`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number), 丢失精度。因为末位 `n` 字符被丢弃。
-
-考虑使用 [`Number(*value*)`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) 进行更严谨的解析，只要参数带有无效字符就会被转换为 [`NaN`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/NaN) 
-
-`parseFloat` 也可以转换一个已经定义了 `toString` 或者 `valueOf` 方法的对象，它返回的值和在调用该方法的结果上调用 `parseFloat` 值相同
-
-
-
-**实例**
-
-下面的例子都返回**3.14**
-
-```javascript
-parseFloat('3.0'); //3 结果是数字
-
-parseFloat(3.14);
-parseFloat('3.14');
-parseFloat('  3.14  ');
-parseFloat('314e-2');
-parseFloat('0.0314E+2');
-parseFloat('3.14some non-digit characters');
-parseFloat({ toString: function() { return "3.14" } });
-```
-
-大整数的返回值
-
-均返回 `900719925474099300`，当整数太大以至于不能被转换时将失去精度
-
-```javascript
-parseFloat(900719925474099267n);
-parseFloat('900719925474099267n');
-```
-
-
-
-### 5. 舍入
-
-* Math.floor 向下舍入：`3.1` 变成 `3`，`-1.1` 变成 `-2`
-* Math.ceil 向上舍入：`3.1` 变成 `4`，`-1.1` 变成 `-1`
-* Math.round 向最近的整数舍入：`3.1` 变成 `3`，`3.6` 变成 `4`，`-1.1` 变成 `-1`
-* 舍入到具体的小数点多少位?
-  * 乘除法
-  * toFixed()  函数 [toFixed(n)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed) 将数字舍入到小数点后 `n` 位，并以字符串形式返回结果. 会向上或向下舍入到最接近的值，类似于 `Math.round`; 如果小数部分比所需要的短，则在结尾添加零
-
-```javascript
-//要将数字舍入到小数点后两位
-
-//1.乘除法
-let num = 1.23456;
-Math.floor(num * 100) / 100; // 1.23456 -> 123.456 -> 123 -> 1.23
-
-//2.toFixed(n)
-let num = 12.34;
-num.toFixed(1); //'12.3'
-
-let num = 12.36;
-num.toFixed(1); //'12.4'
-
-let num = 12.34;
-num.toFixed(5); //'12.34000'
-```
-
-### 6. 不精确的计算
-
-#### 0. 问题
-
-在内部，数字是以 64 位格式 [IEEE-754](http://en.wikipedia.org/wiki/IEEE_754-1985) 表示的，所以正好有 64 位可以存储一个数字：其中 52 位被用于存储这些数字，其中 11 位用于存储小数点的位置（对于整数，它们为零），而 1 位用于符号.
-
-1.如果一个数字太大，则会溢出 64 位存储，并可能会导致无穷大
-
-```javascript
-console.log(1e500); //Infinity
-```
-
-2.使用二进制数字系统无法 **精确** 存储 *0.1* 或 *0.2*，就像没有办法将三分之一存储为十进制小数一样
-
-```javascript
-alert( 0.1 + 0.2 ); // 0.30000000000000004
-```
-
-<u>IEEE-754 数字格式通过将数字舍入到最接近的可能数字来解决此问题</u>。这些舍入规则通常不允许我们看到“极小的精度损失”，但是它确实存在
-
-```javascript
-alert( 0.1.toFixed(20) ); // 0.10000000000000000555
-```
-
-<u>当我们对两个数字进行求和时，它们的“精度损失”会叠加起来。</u>这就是为什么 `0.1 + 0.2` 不等于 `0.3`. 许多其他编程语言也存在同样的问题。
-
-#### 1. 解决
-
-最可靠的方法是借助方法 [toFixed(n)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed) 对结果进行舍入.如果需要显示 `¥ 0.30`，这实际上很方便。对于其他情况，我们可以使用一元加号将其强制转换为一个数字：
-
-```javascript
-let sum = 0.1 + 0.2;
-alert( sum.toFixed(2) ); // 0.30
-
-let sum = 0.1 + 0.2;
-alert( +sum.toFixed(2) ); // 0.3
-```
-
-乘/除法可以减少误差，但不能完全消除误差
-
-```javascript
-alert( (0.1 * 10 + 0.2 * 10) / 10 ); // 0.3
-alert( (0.28 * 100 + 0.14 * 100) / 100); // 0.4200000000000001
-```
-
-#### 2. 实例
-
-**数字**
-
-```javascript
-// Hello！我是一个会自我增加的数字！
-alert( 9999999999999999 ); // 显示 10000000000000000
-
-
-9999999999999999..toString(2).length //54
-```
-
-出现了同样的问题：精度损失。有 64 位来表示该数字，其中 52 位可用于存储数字，但这还不够。所以最不重要的数字就消失了。JavaScript 不会在此类事件中触发 error。它会尽最大努力使数字符合所需的格式，但不幸的是，这种格式不够大到满足需求。
-
-```javascript
-Object.is(0, -0); //false
-
-0 === -0; //true
-```
-
-数字内部表示的另一个有趣结果是存在两个零：`0` 和 `-0`。
-
-这是因为在存储时，使用一位来存储符号，因此对于包括零在内的任何数字，可以设置这一位或者不设置。在大多数情况下，这种区别并不明显，因为运算符将它们视为相同的值。
-
-
-
-**6.35.toFixed(1) == 6.3**
-
-为什么 `6.35` 被舍入为 `6.3` 而不是 `6.4`?
-
-在内部，`6.35` 的小数部分是一个无限的二进制。在这种情况下，它的存储会造成精度损失。
-
-```javascript
-6.35.toFixed(20); // 6.34999999999999964473
-```
-
-精度损失可能会导致数字的增加和减小。在这种特殊的情况下，数字变小了一点，这就是它向下舍入的原因
-
-那么 `1.35` 会怎样呢？
-
-```javascript
-1.35.toFixed(20); // 1.35000000000000008882
-```
-
-在这里，精度损失使得这个数字稍微大了一些，因此其向上舍入.
-
-**如何以正确的方式进行舍入,解决`6.35`的问题?**
-
-`63.5` 完全没有精度损失。这是因为小数部分 `0.5` 实际上是 `1/2`。以 2 的整数次幂为分母的小数在二进制数字系统中可以被精确地表示，现在我们可以对它进行舍入
-
-```javascript
-(6.35 * 10).toFixed(20); //63.50000000000000000000
-
-
-Math.round(6.35 * 10) / 10; // 6.35 -> 63.5 -> 64(rounded) -> 6.4
-```
-
- 
-
-### 7. 实例
-
-[重复，直到输入的是一个数字](https://zh.javascript.info/number#zhong-fu-zhi-dao-shu-ru-de-shi-yi-ge-shu-zi)
-
-> 创建一个函数 `readNumber`，它提示输入一个数字，直到访问者输入一个有效的数字为止。
->
-> 结果值必须以数字形式返回。
->
-> 访问者也可以通过输入空行或点击“取消”来停止该过程。在这种情况下，函数应该返回 `null`。
-
-```javascript
-function readNumber() {
-  let num;
-  do {
-    num = prompt('enter a number', 0);
-  } while(!isFinite(num))
-  if (num === null || num === '' || num === ' ') return null;
-  
-  return +num;
-}
-
-alert(`Read: ${readNumber()}`);
-
-
-function readNumber() {
-  let num = prompt('输入数字');
-  
-}
-```
-
-
-
-
-
-### 8. 其他(笔记记得乱七八糟,需重记)
-
-> [前端应该知道的JavaScript浮点数和大数的原理 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/66949640)
-
-#### 1. IEEE 754标准
-
-**背景**
-
-计算机中如何存储整数和小数?
-
-> 计算机内部信息都是由二进制方式表示的,但由于**某些浮点数没办法用二进制准确的表示出来**，也就带来了一系列精度问题。当然这也**不是JS独有的问题**。
-
-计算机中如何将小数转换成二进制?
-
-十进制小数转换成二进制小数采用**乘2取整, 顺序排列**
-
-* 用2乘十进制小数,可以得到积,将积的整数部分取出,再用2乘余下的小数 部分，又得到一个积，再将积的整数部分取出，如此进行，直到积中的小数部分为零，或者达到所要求的精度为止。
-* 把取出的整数部分按顺序排列起来，先取的整数作为二进制小数的高位有效位，后取的整数作为低位有效位。
-
-```javascript
-//digital 0.68
-
-0.68 * 2 = 1.36 //1
-0.36 * 2 = 0.72 //0
-0.72 * 2 = 1.44 //1
-0.44 * 2 = 0.88 //0
-0.88 * 2 = 1.76 //1
-0.76 * 2 = 1.52 //1
-0.52 * 2 = 1.04 //1
-0.04 * 2 = 0.08 //0
-0.08 * 2 = 0.16 //0
-0.16 * 2 = 0.32 //0
-0.32 * 2 = 0.64 //0
-0.64 * 2 = 1.28 //1
-0.28 * 2 = 0.56 //0
-0.56 * 2 = 1.12 //1
-0.12 * 2 = 0.24 //0
-0.24 * 2 = 0.48 //0
-0.48 * 2 = 0.96 //0
-0.96 * 2 = 1.92 //1
-0.92 * 2 = 1.84 //1
-0.84 * 2 = 1.68 //1
-0.68 * 2 = 1.36 //1
-0.36 * 2 = 0.72 //0
-0.72 * 2 = 1.44 //1
-0.44 * 2 = 0.88 //0
-0.88 * 2 = 1.76 //1
-0.76 * 2 = 1.52 //1
-0.52 * 2 = 1.04 //1
-0.04 * 2 = 0.08 //0
-0.08 * 2 = 0.16 //0
-0.16 * 2 = 0.32 //0
-0.32 * 2 = 0.64 //0
-0.64 * 2 = 1.28 //1
-0.28 * 2 = 0.56 //0
-0.56 * 2 = 1.12 //1
-0.12 * 2 = 0.24 //0
-0.24 * 2 = 0.48 //0
-0.48 * 2 = 0.96 //0
-0.96 * 2 = 1.92 //1
-0.92 * 2 = 1.84 //1
-0.84 * 2 = 1.68 //1
-0.68 * 2 = 1.36 //1
-0.36 * 2 = 0.72 //0
-0.72 * 2 = 1.44 //1
-0.44 * 2 = 0.88 //0
-0.88 * 2 = 1.76 //1
-0.76 * 2 = 1.52 //1---
-0.52 * 2 = 1.04 //1
-0.04 * 2 = 0.08 //0
-0.08 * 2 = 0.16 //0
-0.16 * 2 = 0.32 //0
-0.32 * 2 = 0.64 //0
-0.64 * 2 = 1.28 //1
-0.28 * 2 = 0.56 //0
-0.56 * 2 = 1.12 //1
-0.12 * 2 = 0.24 //0
-```
-
-
-
-```javascript
-//如果将0.1转换成二进制后,发现无法精确标识0.1
-0.1的二进制表示是：0.000110011......0011...... (0011无限循环)
-```
-
-
-
-**标准内容**
-
-IEEE 754 标准是IEEE二进位浮点数算术标准(IEEE Standard for Floating-Point Arithmetic)的标准编号。IEEE 754 标准规定了计算机程序设计环境中的二进制和十进制的浮点数自述的交换、算术格式以及方法。
-
-根据IEEE754标准,任意一个二进制浮点数都可以表示成以下形式:
-$$
-V = (-1)^S×2^E×M
-$$
-
-公式解析:
-
-* S为数符,它表示浮点数的正负(0正1负);
-* M为有效位(尾数);
-* E为阶码,用移码表示,阶码的真值都被加上一个常数(偏移量);
-
-尾数部分M通常都是规格化表示,即非0的尾数其第一位总是1,而这一位也称隐藏位.因为存储时这一位是会被省略的.比如保存1.0011时候,只保存0011,等读取的时候才把第一位的1加上去.
-
-常用的浮点格式有:
-
-单精度
-
-> 32位浮点数,最高的1位是符号位S,后面的8位是指数E,剩下的23位为尾数(有效数字)M.
-
-其真值为 ????
-$$
-(-1)^{b_{31}}×(1.b_{22}b_{21}b_{20}...b_{0})_2×2^{({b_{30}b_{29}...b_{23}})_2-127}
-$$
-
-
-![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/v2-0dc93bca2609242e7019399b5f896d59_1440w.45jtwy5z5w80.webp)
-
-
-
-双精度
-
-> 64位浮点数,最高1位是符号位S,后面的11位是指数E,剩下的52位是尾数(有效数字)M.
-
-其真值位: ????
-$$
-(-1)^{sign}×(1.b_{51}b_{50}...b_{0})_2×2^{e-1023}
-$$
-
-
-![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/v2-48240f0e1e0dd33ec89100cbe2d30707_1440w.597k4ikq3uw0.webp)
-
-**双精度浮点数**
-
-JavaScript中的Number是以双精度浮点数的形式计算的,双精度浮点数总共有8个字节(byte),每字节有8比特(bit-位),即8bit/byte,所以总共占64位.
-
-根据IEEE-754的标准,双精度浮点数中的占位分为3个部分:
-
-![](https://cdn.jsdelivr.net/gh/aotushi/image-hosting@master/documentation/v2-2f3a24983e41196d4b4a73708638a790_1440w.6nzn3p49v740.webp)
-
-JavaScript中只有一种数字类型number,而number使用的是IEEE754双精度浮点格式.依据上述规则,如何存储0.1和0.2.
-
-> 0.1转二进制: 0.000110011001...(1100循环)
->
-> 转位科学计数法: 1.10011001...(1100循环)*2^-4   ????
->
-> 数据是无限循环的,但是可供使用的尾数位却是有限的,只有52位可以使用,53位及以后会被舍去
-
-所以0.1+0.2计算结果转换位十进制数字是0.30000000000000004. 0.1和0.2在计算机中的二进制存储会让它们本身损失掉一定的精度，而它们在计算机中的二进制存储转换成十进制时已经不是真正的0.1和0.2了，相加的结果也就自然不是0.3了
-
-既然0.1在计算机中的存储已经有了舍入误差，那为什么num=0.1能得到0.1呢？
-
-在控制台中使用[toPrecision](https://link.zhihu.com/?target=https%3A//developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toPrecision)看一下0.1在不同精度下的返回
-
-```javascript
-0.1.toPrecision(16) //0.1000000000000000
-0.1.toPrecision(17) //'0.10000000000000001'
-0.1.toPrecision(20) //
-0.1.toPrecision(30) //
-0.1.toPrecision(64) //0.1000000000000000055511151231257827021181583404541015625000000000
-```
-
-可以看出来其实0.1是截断了一部分精度后得到的结果，那么这个问题就可以转化为：双精度浮点数是按什么规则来截断的呢？
-
-
-
-**如果一个 IEEE 754 的双精度浮点数被转成至少含17位有效数字的十进制数字字符串，当这个字符串转回双精度浮点数时，必须要跟原来的数相同；换句话说，如果一个双精度的浮点数转为十进制的数字时，只要它转回来的双精度浮点数不变，精度取最短的那个就行。**
-
-拿0.1来举例子，0.1和0.10000000000000001转成双精度浮点数的存储是一样的，所以取最短的0.1就行了。
-
-**为什么1.005.toFixed(2)=1.00而不是1.01**
-
-因为在第一个问题中已经说了，一个十进制数字转为双精度浮点数然后再取出来时，跟原十进制数字可能会有误差，试一下1.005取20个精度
-
-```javascript
-1.005.toPrecision(20) //'1.004999999999..8934'
-```
-
-很明显1.005只是一个被截断后的数字，它的双精度浮点数代表的20位精度的数字是1.0049999999999998934，所以进行保留2位的四舍五入时，2位后的数字会被全部舍去
-
-为什么会有Number.MAX_VALUE和Number.MAX_SAFE_INTEGER这两个常量同时存在？
-
-控制台打印:
-
-```javascript
-Number.MAX_SAFE_INTEGER  /9007199254740991
-
-Number.MAX_VALUE //1.7976931348623157e+308
-
-Math.pow(2,53) - 1 //907199254740091
-```
-
-为什么最大安全数是2<sup>53</sup>-1? 前面提到Javascript浮点存储是52位尾数位,但是因为科学计数法小数点左侧的1会在存储时省去,所以52位尾数+省去的1位=53个可表示的位数.
-$$
-2^{53} - 1 = 9\;007\;199\;254\;740\;991
-$$
-
-
-那为什么2<sup>53</sup>-1是最大安全整数呢?比它大会怎样?   ????
-
-```javascript
-Math.pow(2,53) //9 007 199 254 740 992
-Math.pow(2,53) + 1; //9 007 199 254 740 992
-Math.pow(2,53) + 2; //9 007 199 254 740 994 ??
-```
-
-以2^53来说明一下为什么2^53-1是最大安全整数，安全在哪里
-
-> 2^53 转二进制 =====> 100000000000000000000000000000000000000000000000000000(53个0)
-> 转为科学计数法 =====>
-> 1.00000000000000000000000000000000000000000000000000000(53个0)*2^53
-> 存入计算机 =====> 尾数位只有52位所以截掉末尾的0只能存52个0
-> 2^53+1 转二进制 =====>
-> 100000000000000000000000000000000000000000000000000001(52个0)
-> 转为科学计数法 =====>
-> 1.00000000000000000000000000000000000000000000000000001(52个0)
-> 存入计算机 =====> 尾数位只有52位所以截掉末尾的1只能存52个0
-
-可以看出来，2^53和2^53+1在计算机中的存储尾数和指数都相同，所以两个不同的数在计算机中的存储是一样的，这样就非常的不安全了。
-
-所以2^53-1是JavaScript里面的最大安全整数。至于Number.MAX_VALUE，就是把尾数位和指数位都设为1再转为十进制就好了。
-
-**如何解决数字精度问题**
-
-> [JavaScript 浮点数运算的精度问题 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/191395766)
-
-1.类库
-
-* 使用[bignumber](https://link.zhihu.com/?target=http%3A//mikemcl.github.io/bignumber.js/%23valueOf)这个库来解决
-* Math.js
-* decimal.js
-* big.js
-
-2.其他
-
-* 整数, 使用String类型来取值或者传值,否则会丧失精度
-* 浮点数
-  * toFixed() 对结果进行四舍五入
-
-
-
-#### 2.浮点数取整的几种方式
-
-* Math.ceil() 向上取整
-* Math.floor() 向下取整
-* Math.random() 四舍五入取整
-* parseInt() 剔除小数部分
-
-
 
 
 
