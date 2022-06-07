@@ -5124,7 +5124,7 @@ Vue.component('blog-post', {
 
 #### Prop类型
 
-##### 字符串数组形式
+##### 数组字符串形式
 
 ```js
 props:['title', 'likes', 'author', 'callback']
@@ -5174,15 +5174,18 @@ props: {
 
 
 
-#### 4.prop数据流
+#### prop数据流
 
-所有的 prop 都使得其父子 prop 之间形成了一个**单向下行绑定**：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外变更父级组件的状态，从而导致你的应用的数据流向难以理解。
+所有的 prop 都使得其父子 prop 之间形成了一个**单向下行绑定**：
+
+* 父级 prop 的更新会向下流动到子组件中，但是反过来则不行。
+* 这样会防止从子组件意外变更父级组件的状态，从而导致你的应用的数据流向难以理解。
 
 **每次父级组件发生变更时，子组件中所有的 prop 都将会刷新为最新的值**。这意味着<span style="color:blue;">**你不应该在一个子组件内部改变 prop**</span>。如果你这样做了，Vue 会在浏览器的控制台中发出警告。
 
-**两种变更prop的情形及处理**
+**两种变更prop的情形**(prop为原始值)
 
-1.用prop来传递一个初始值;这个子组件希望其作为本地的prop数据来使用.
+1.用prop来传递一个初始值;这个子组件希望其作为<span style="text-decoration:underline blue">本地的prop数据</span>来使用.
 
 ```js
 props:['initialCounter'],
@@ -5193,7 +5196,7 @@ data:function() {
 }
 ```
 
-2.prop以原始的值传入并且需要进行转换. 这种情况下,最好使用prop值来定义一个计算属性
+2.prop以原始的值传入并且需要进行转换. 这种情况下,最好使<span style="text-decoration:underline blue">用prop值来定义一个计算属性</span>
 
 ```js
 props:['size'],
@@ -5204,31 +5207,54 @@ computed: {
 }
 ```
 
-**注意**: <span style="color:red;">在 JavaScript 中**对象和数组是通过引用传入**的，所以对于一个数组或对象类型的 prop 来说，在子组件中改变变更这个对象或数组本身**将会**影响到父组件的状态。</span>
+**注意**: 在 JavaScript 中**对象和数组是通过引用传入**的，所以对于一个数组或对象类型的 prop 来说，在子组件中改变变更这个对象或数组本身**将会**影响到父组件的状态。
 
 
 
-#### 5.Prop验证
+#### Prop验证
 
-可以为组件的 prop 指定验证要求，为了定制 prop 的验证方式，你可以为 `props` 中的值提供一个带有验证需求的对象，而不是一个字符串数组。例如：
+##### 获取prop的时机
+
+prop 会在一个组件实例创建**之前**进行验证，所以实例的 property (如 `data`、`computed` 等) 在 `default` 或 `validator` 函数中是不可用的
+
+在beforeCreate中获取不到prop中的值,在created中可以获取到prop中的值.
+
+##### 验证案例
+
+可以为组件的 prop 指定验证要求，例如你知道的这些类型。如果有一个需求没有被满足，则 Vue 会在浏览器控制台中警告你。
+
+为了定制 prop 的验证方式，你可以为 `props` 中的值提供一个带有验证需求的对象.
+
+type表示用来验证数据的类型
+
+default表示如果父组件没有向子组件传参，则使用默认值
+
+默认项和required不能同时声明
+
+如果prop是对象类型, 默认值应该是一个返回对应类型的函数`() =>({}) () => []`
 
 ```js
+
 Vue.component('my-component', {
   props: {
     //基础的类型检查(null,undefined会通过任何类型检查)
     propA: Number,
+    
     //多个可能的类型
     propB: [String, Number],
+    
     //必填的字符串
     propC: {
       type: String,
       required: true
     },
+    
     //带有默认值的数字
     propD: {
       type: Number,
       default: 100
     },
+    
     //带有默认值的对象
     propE: {
       type: Object,
@@ -5236,6 +5262,8 @@ Vue.component('my-component', {
         return {message: 'hello'}
       }
     },
+    
+    
     //自定义验证函数
     propF: {
       validator: function(vlaue) {
@@ -5249,29 +5277,24 @@ Vue.component('my-component', {
 
 当 prop 验证失败的时候，(开发环境构建版本的) Vue 将会产生一个控制台的警告。
 
-**注意:**   prop 会在一个组件实例创建**之前**进行验证，所以实例的 property (如 `data`、`computed` 等) 在 `default` 或 `validator` 函数中是不可用的。
 
-```js
-经过测试,在beforeCreate中获取不到prop中的值,在created中可以获取到prop中的值.
-```
 
-5.1 类型检查    ?
+##### 类型检查 type的值
 
-`type` 可以是下列原生构造函数中的一个：
+<u>原生构造函数</u>
 
-```js
-String
-Number
-Boolean
-Function
-Date
-Symbol
-Array
-Object
-自定义构造函数
-```
+- `String`
+- `Number`
+- `Boolean`
+- `Array`
+- `Object`
+- `Date`
+- `Function`
+- `Symbol`
 
-额外的，`type` 还可以是一个自定义的构造函数，并且通过 `instanceof` 来进行检查确认。例如，给定下列现成的构造函数：
+<u>一个自定义的构造函数，并且通过 `instanceof` 来进行检查确认。</u> ????
+
+例如，给定下列现成的构造函数：来验证 `author` prop 的值是否是通过 `new Person` 创建的。
 
 ```js
 function Person(firstName, lastName) {
@@ -5288,41 +5311,45 @@ Vue.component('blog-post', {
 
 
 
-#### 6.非prop的attribute
+#### 非prop的attribute
 
 一个非 prop 的 attribute 是指传向一个组件，但是该组件并没有相应 prop 定义的 attribute
 
-因为显式定义的 prop 适用于向一个子组件传入信息，然而组件库的作者并不总能预见组件会被用于怎样的场景。这也是为什么组件可以接受任意的 attribute，而这些 attribute 会被添加到这个组件的根元素上。
+因为显式定义的 prop 适用于向一个子组件传入信息，然而组件库的作者并不总能预见组件会被用于怎样的场景。这也是为什么组件可以接受任意的 attribute，而<span style="color:blue">这些非prop的 attribute 会被添加到这个组件的根元素上</span>。
 
-```js
-<div id='app'>
-	<custom-input
-		:name = 'name'
-	></custom-input>  
-</div>
+```html
+<!-- data-date-picker="activated" attribute 就会自动添加到 <bootstrap-date-input> 的根元素上。 -->
 
-Vue.component('custom-input', {
-  template:'<div><input></input></div>',
-  created() {
-    console.log(this.$attrs); //{name:'jack'}
-  }
-})
-
-new Vue({
-  el: '#app',
-  data: {name: 'jack'}
-})
+<bootstrap-date-input data-date-picker="activated"></bootstrap-date-input>
 ```
 
 
 
-6.1 替换/合并已有的attribute
+##### 替换/合并已有的attribute
 
-class与style的attribute会与组件根元素上设置的相结合,不会覆盖.其他类型的会被覆盖.
+* 对于绝大多数 attribute 来说，从外部提供给组件的值会替换掉组件内部设置好的值
+* `class` 和 `style` attribute 不会覆盖而是合并
 
-对于绝大多数 attribute 来说，从外部提供给组件的值会替换掉组件内部设置好的值。所以如果传入 `type="text"` 就会替换掉 `type="date"` 并把它破坏！庆幸的是，`class` 和 `style` attribute 会稍微智能一些，即两边的值会被合并起来，从而得到最终的值：
+例如: 组件`<bootstrap-date-input>`的模板如下:
 
-6.2 禁用attribute继承
+```html
+<input type="date" class="form-control">
+```
+
+在组件标签上绑定的attribute有:
+
+```html
+<bootstrap-data-input
+	data-date-picker="activated"
+  class="date-picker-theme-dark"
+></bootstrap-data-input>
+```
+
+两个class会合并,得到最终的值`form-control date-picker-theme-dark`
+
+
+
+##### 禁用attribute继承
 
 如果你**不**希望组件的根元素继承 attribute，你可以在组件的选项中设置 `inheritAttrs: false`
 
@@ -5333,10 +5360,6 @@ Vue.component('my-component', {
 ```
 
 这尤其适合配合实例的 `$attrs` property 使用，该 property 包含了传递给一个组件的 attribute 名和 attribute 值，
-
-```js
-
-```
 
 有了 `inheritAttrs: false` 和 `$attrs`，你就可以手动决定这些 attribute 会被赋予哪个元素。在撰写[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)的时候是常会用到的：
 
@@ -9865,7 +9888,7 @@ this.$bus.$on('eventName', (data) => {})
 
 **$attrs**
 
-> 父组件传递给子组件的属性,除了props已经声明接收的属性及父组件的style,class属性.
+> 包含了父作用域中不作为 prop 被识别 (且获取) 的 attribute 绑定 (`class` 和 `style` 除外)
 
 **$listeners**
 
@@ -9873,7 +9896,7 @@ this.$bus.$on('eventName', (data) => {})
 >
 > 在Vue3中已经被删除,放到$attrs中
 
-可以通过v-bind 一次性把父组件传递过来的属性添加给子组件 `v-bind="$attrs"`
+可以通过v-bind 一次性把父组件传递过来的属性添加给当前组件的子组件 `v-bind="$attrs"`
 可以通过v-on   一次性把父组件传递过来的事件监听添加给子组件 `v-on="$listeners"`
 
 v-bind: 的特别使用: `<div v-bind="{ id: someProp, 'other-attr': otherProp }"></div>`

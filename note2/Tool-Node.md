@@ -80,6 +80,122 @@ node config set cache  "D:\Promgram Files\nodejs\node_cache"
 
 
 
+## 使用nvm管理多个nodejs版本
+
+NVM就是一个比较好用node管理工具，切换node版本。 
+
+官网教程
+
+```bash
+https://github.com/nvm-sh/nvm#usage
+```
+
+
+
+### 配置教程
+
+#### 0. 下载nvm安装包
+
+* 安装版本使用最新
+* 点击执行exe文件, 注意修改nvm的安装根目录以及node的安装根目录，后者是以后管理多版本node的源文件储存地址
+
+#### 1.安装情况
+
+安装完成后, 在cmd命令行窗口中查看是否安装成功
+
+* `nvm version` 检查nvm是否安装成功
+
+
+
+
+
+#### 2.管理nodejs
+
+**注意:**在1.1.9版本中, 先前安装的版本没有删除,但是使用`nvm use 版本号`中会报错. 必须先卸载之前安装的nodejs,删除其安装文件夹. 
+
+##### 查看已安装的版本版本
+
+```bash
+nvm list
+```
+
+
+
+##### 查看可安装的版本
+
+```bash
+nvm list available
+```
+
+##### 安装指定版本
+
+```bash
+nvm install 版本号
+
+//如果只写大的版本号,那么会安装当前版本号的最新版本
+```
+
+
+
+##### 指定node版本
+
+```bash
+nvm use 版本号
+```
+
+
+
+##### 卸载指定的版本
+
+```bash
+nvm uninstall 版本号
+```
+
+
+
+#### 其他命令
+
+- nvm arch：表示node是运行在32位还是64位。
+- nvm on ：开启node.js版本管理。
+- nvm off：关闭node.js版本管理。
+- nvm list [available]：查看已安装的node版本。available可选参数，查看所有可安装的node版本。list可简化成ls。
+- nvm install [version]：安装指定的node版本。
+- nvm use [version] [arch]：使用指定版本的node。可指定32位或64位。
+- nvm uninstall <version>: 卸载指定版本的node。
+- nvm version：查看nvm版本号。version可简化为v。
+
+
+
+### 遇到的问题??? (待解决)
+
+在管理员权限下使用cmd窗口命令, 只有使用全局安装`-g`才能将下载的包安装到nvm设置的目录中.否则将安装在当前命令行位置下的目录.
+
+
+
+#### 安装yarn后,无法识别
+
+**全局安装yarn**
+
+```bash
+npm install yarn -g
+```
+
+**检查**
+
+```bash
+yarn -v
+```
+
+**解决**
+
+需要进行环境变量的配置（就是把yarn.cmd命令配置到环境变量中). 一般来说，这两个命令都在相应的bin目录下，但这里比较特殊，系统自动保存在了node_global目录下.
+
+重启cmd窗口,重新检查yarn版本
+
+
+
+
+
 ## NPM
 
 ### 介绍
