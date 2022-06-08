@@ -5392,6 +5392,17 @@ Vue.component('base-input', {
 ></base-input>
 ```
 
+### prop案例
+
+#### 1. v-bind=$attrs应用封装公共组件
+
+<iframe src="https://codesandbox.io/embed/vue-attrs-gl5inh?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/$attrs"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
 
 
 ### 组件使用基本流程
@@ -7393,13 +7404,178 @@ function (sonProp) {
 
 
 
-## sss
+## 工具??
 
-#### 非单文件组件 ++
+### 单文件组件
 
-```js
+#### 背景
+
+在很多 Vue 项目中，我们使用 `Vue.component` 来定义全局组件，紧接着用 `new Vue({ el: '#container '})` 在每个页面内指定一个容器元素.
+
+在更复杂的项目中，或者你的前端完全由 JavaScript 驱动的时候，下面这些缺点将变得非常明显：
+
+- **全局定义 (Global definitions)** 强制要求每个 component 中的命名不得重复
+- **字符串模板 (String templates)** 缺乏语法高亮，在 HTML 有多行的时候，需要用到丑陋的 `\`
+- **不支持 CSS (No CSS support)** 意味着当 HTML 和 JavaScript 组件化时，CSS 明显被遗漏
+- **没有构建步骤 (No build step)** 限制只能使用 HTML 和 ES5 JavaScript，而不能使用预处理器，如 Pug (formerly Jade) 和 Babel
+
+
+
+#### 单文件组件
+
+文件扩展名为 `.vue` 的 **single-file components (单文件组件)** 为以上所有问题提供了解决方法，并且还可以使用 webpack 或 Browserify 等构建工具。
+
+**特点**
+
+- [完整语法高亮](https://github.com/vuejs/awesome-vue#source-code-editing)
+- [CommonJS 模块](https://webpack.js.org/concepts/modules/#what-is-a-webpack-module)
+- [组件作用域的 CSS](https://vue-loader.vuejs.org/zh-cn/features/scoped-css.html)
+
+可以使用预处理器来构建简洁和功能更丰富的组件，比如 Pug，Babel (with ES2015 modules)，和 Stylus
+
+如果搭配 `vue-loader` 使用 webpack，它也能为 CSS Modules 提供头等支持 ????
+
+
+
+##### 关注点分离
+
+**关注点分离不等于文件类型分离。**在现代 UI 开发中，我们已经发现相比于把代码库分离成三个大的层次并将其相互交织起来，把它们划分为松散耦合的组件再将其组合起来更合理一些。在一个组件里，其模板、逻辑和样式是内部耦合的，并且把他们搭配在一起实际上使得组件更加内聚且更可维护。
+
+即便你不喜欢单文件组件，你仍然可以把 JavaScript、CSS 分离成独立的文件然后做到热重载和预编译。
+
+```vue
+<!-- my-component.vue -->
+<template>
+  <div>This will be pre-compiled</div>
+</template>
+<script src="./my-component.js"></script>
+<style src="./my-component.css"></style>
+```
+
+
+
+##### 案例-TODOlist
+
+
+
+#### 搭建工具 ???
+
+##### 脚手架工具-CLI3
+
+
+
+##### 从零搭建-Vue-Loader
+
+
+
+### 组件测试??
+
+
+
+### TypeScript支持??
+
+
+
+
+
+### 生产环境部署??
+
+以下大多数内容在你使用 [Vue CLI](https://cli.vuejs.org/zh/) 时都是默认开启的。该章节仅跟你自定义的构建设置有关。
+
+#### 开启生产环境模式
+
+开发环境下，Vue 会提供很多警告来帮你对付常见的错误与陷阱。而在生产环境下，这些警告语句却没有用，反而会增加应用的体积。此外，有些警告检查还有一些小的运行时开销，这在生产环境模式下是可以避免的。
+
+```javascript
+//main.js
+Vue.config.productionTip = false;
+```
+
+
+
+##### 不使用构建工具
+
+如果用 Vue 完整独立版本，即直接用 `<script>` 元素引入 Vue 而不提前进行构建，请记得在生产环境下使用压缩后的版本 (`vue.min.js`)。两种版本都可以在[安装指导](https://cn.vuejs.org/v2/guide/installation.html#直接用-lt-script-gt-引入)中找到。
+
+
+
+##### 使用构建工具
+
+当使用 webpack 或 Browserify 类似的构建工具时，Vue 源码会根据 `process.env.NODE_ENV` 决定是否启用生产环境模式，默认情况为开发环境模式。在 webpack 与 Browserify 中都有方法来覆盖此变量，以启用 Vue 的生产环境模式，同时在构建过程中警告语句也会被压缩工具去除。所有这些在 `vue-cli` 模板中都预先配置好了
+
+**webpack**
+
+在 webpack 4+ 中，你可以使用 `mode` 选项：
 
 ```
+module.exports = {
+  mode: 'production'
+}
+```
+
+但是在 webpack 3 及其更低版本中，你需要使用 [DefinePlugin](https://webpack.js.org/plugins/define-plugin/)：
+
+```
+var webpack = require('webpack')
+
+module.exports = {
+  // ...
+  plugins: [
+    // ...
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    })
+  ]
+}
+```
+
+
+
+**Browserify**
+
+了解
+
+**Gulp**
+
+了解下
+
+
+
+#### 模板预编译
+
+当使用 DOM 内模板或 JavaScript 内的字符串模板时，模板会在运行时被编译为渲染函数。通常情况下这个过程已经足够快了，但对性能敏感的应用还是最好避免这种用法。
+
+预编译模板最简单的方式就是使用[单文件组件](https://cn.vuejs.org/v2/guide/single-file-components.html)——相关的构建设置会自动把预编译处理好，所以构建好的代码已经包含了编译出来的渲染函数而不是原始的模板字符串。
+
+如果你使用 webpack，并且喜欢分离 JavaScript 和模板文件，你可以使用 [vue-template-loader](https://github.com/ktsn/vue-template-loader)，它也可以在构建过程中把模板文件转换成为 JavaScript 渲染函数。
+
+
+
+
+
+#### 提取组件的CSS
+
+当使用单文件组件时，组件内的 CSS 会以 `<style>` 标签的方式通过 JavaScript 动态注入。这有一些小小的运行时开销，如果你使用服务端渲染，这会导致一段“<span style="color:blue">无样式内容闪烁 (fouc)</span>”。
+
+将所有组件的 CSS 提取到同一个文件可以避免这个问题，也会让 CSS 更好地进行压缩和缓存。
+
+查阅这个构建工具各自的文档来了解更多：
+
+- [webpack + vue-loader](https://vue-loader.vuejs.org/zh-cn/configurations/extract-css.html) (`vue-cli` 的 webpack 模板已经预先配置好)
+- [Browserify + vueify](https://github.com/vuejs/vueify#css-extraction)
+- [Rollup + rollup-plugin-vue](https://vuejs.github.io/rollup-plugin-vue/#/en/2.3/?id=custom-handler)
+
+
+
+#### 跟踪运行时的错误
+
+如果在组件渲染时出现运行错误，错误将会被传递至全局 `Vue.config.errorHandler` 配置函数 (如果已设置)。
+
+利用这个钩子函数来配合错误跟踪服务是个不错的主意。比如 [Sentry](https://sentry.io/)，它为 Vue 提供了[官方集成](https://sentry.io/for/vue/)。
+
+
+
+
 
 
 
