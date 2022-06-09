@@ -1410,17 +1410,57 @@ vscode中通过setting.json设置`vim.hlsearch: true`实现
 
 
 
+### 折叠
+
+> [VS Code VIM 插件高效使用|OhYee 博客](https://www.ohyee.cc/post/note_vim)
+
+- zc 折叠代码块
+- zo 展开代码块
+- za 切换折叠
+- zR 展开所有
+- zM 折叠所有
+
 
 
 ## VSCODE
+
+### 基本配置
+
+
 
 ### vscode调试vue/react
 
 > https://mp.weixin.qq.com/s/ryBuaX6_KcBVEnd_whk8xw
 
+[第一次使用VS Code时你应该知道的一切配置 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903826063884296)
 
 
-#### 调试vue的步骤
+
+### 用户设置
+
+```
+editor.codeActionsOnSave中的source.organizeImports属性，这个属性能够在保存时，自动调整 import 语句相关顺序，能够让你的 import 语句按照字母顺序进行排列，推荐设置为true,即"editor.codeActionsOnSave": { "source.organizeImports": true }；
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 调试vue的步骤
 
 ##### 1. 新建`./vscode/launch.json`
 
