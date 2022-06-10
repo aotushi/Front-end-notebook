@@ -926,6 +926,27 @@ Watcher, Observer , Dep 的关系进行一下梳理:
 
 
 
+### 深入响应式原理
+
+Vue 最独特的特性之一，是其非侵入性的响应式系统。数据模型仅仅是普通的 JavaScript 对象。而当你修改它们时，视图会进行更新。这使得状态管理非常简单直接
+
+
+
+#### 如何追踪变化
+
+* 当你把一个普通的 JavaScript 对象传入 Vue 实例作为 `data` 选项
+* Vue 将遍历此对象所有的 property，并使用 [`Object.defineProperty`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty) 把这些 property 全部转为 [getter/setter](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Working_with_Objects#定义_getters_与_setters)。
+  * * `Object.defineProperty` 是 ES5 中一个无法 shim 的特性，这也就是 Vue 不支持 IE8 以及更低版本浏览器的原因。
+* 每个组件实例都对应一个 **watcher** 实例，它会在组件渲染的过程中把“接触”过的数据 property 记录为依赖。之后当依赖项的 setter 触发时，会通知 watcher，从而使它关联的组件重新渲染。
+
+
+
+#### 检测变化的注意事项
+
+
+
+#### xxx
+
 ## Vue安装及环境配置
 
 安装步骤如下:
@@ -5392,7 +5413,7 @@ Vue.component('base-input', {
 ></base-input>
 ```
 
-### prop案例
+### prop案例 !!!
 
 #### 1. v-bind=$attrs应用封装公共组件
 
@@ -6129,395 +6150,6 @@ vue中父组件向子组件传值时，其父子prop之间形成单向下行绑�
 
 
 
-
-
-
-
-
-
-
-## 可复用性&组合
-
-### 混入
-
-#### 是什么
-
-> 混入 (mixin) 提供了一种非常灵活的方式，来分发 Vue 组件中的可复用功能。一个混入对象可以包含任意组件选项。当组件使用混入对象时，所有混入对象的选项将被“混合”进入该组件本身的选项。
-
-
-
-#### 使用
-
-```javascript
-// 定义一个混入对象
-var myMixin = {
-  created: function () {
-    this.hello()
-  },
-  methods: {
-    hello: function () {
-      console.log('hello from mixin!')
-    }
-  }
-}
-
-// 定义一个使用混入对象的组件
-var Component = Vue.extend({
-  mixins: [myMixin]
-})
-
-var component = new Component() // => "hello from mixin!"
-```
-
-
-
-
-
-### 自定义指令
-
-#### 背景
-
-在 Vue2.0 中，代码复用和抽象的主要形式是组件。有的情况下，你仍然需要<span style="color:blue">对普通 DOM 元素进行底层操作</span>，这时候就会用到自定义指令。
-
-#### 分类
-
-指令分为**全局指令**和**局部指令**
-
-#### 全局指令
-
-##### 语法
-
-```javascript
-Vue.directive(id, [denfinition])
-```
-
-##### 参数
-
-* id  `{string}`
-* [denfinition] `{Function | Object}`
-
-##### 用法
-
-注册或获取全局指令
-
-```javascript
-//注册
-Vue.directive('my-directive', {
-  bind: function() {},
-  inserted: function() {},
-  update: function() {},
-  componentUpdated: function() {},
-  unbind: function() {}
-})
-
-// 注册 (指令函数)
-Vue.directive('my-directive', function () {
-  // 这里将会被 `bind` 和 `update` 调用   ???why
-})
-
-// getter，返回已注册的指令
-var myDirective = Vue.directive('my-directive')
-```
-
-
-
-
-
-
-
-#### 局部指令
-
-##### 语法
-
-组件中也接受一个 `directives` 的选项
-
-```javascript
-directives: {
-  
-}
-```
-
-
-
-#### 钩子函数
-
-一个指令定义对象可以提供如下几个钩子函数 (均为可选)：
-
-* `bind`: 只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
-* `inserted`：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
-* `update`：所在组件的 VNode 更新时调用，**但是可能发生在其子 VNode 更新之前**。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新 (详细的钩子函数参数见下)。
-* `componentUpdated`：指令所在组件的 VNode **及其子 VNode** 全部更新后调用。
-* `unbind`：只调用一次，指令与元素解绑时调用。
-
-
-
-#### 钩子函数参数
-
-- `el`：指令所绑定的元素，可以用来直接操作 DOM。
-- `binding`: 一个对象，包含以下 property：
-  - `name`：指令名，不包括 `v-` 前缀。
-  - `value`：指令的绑定值，例如：`v-my-directive="1 + 1"` 中，绑定值为 `2`。
-  - `oldValue`：指令绑定的前一个值，仅在 `update` 和 `componentUpdated` 钩子中可用。无论值是否改变都可用。
-  - `expression`：字符串形式的指令表达式。例如 `v-my-directive="1 + 1"` 中，表达式为 `"1 + 1"`。
-  - `arg`：传给指令的参数，可选。例如 `v-my-directive:foo` 中，参数为 `"foo"`。
-  - `modifiers`：一个包含修饰符的对象。例如：`v-my-directive.foo.bar` 中，修饰符对象为 `{ foo: true, bar: true }`。
-- `vnode`：Vue 编译生成的虚拟节点。移步 [VNode API](https://cn.vuejs.org/v2/api/#VNode-接口) 来了解更多详情。
-- `oldVnode`：上一个虚拟节点，仅在 `update` 和 `componentUpdated` 钩子中可用
-
-除了 `el` 之外，其它参数都应该是只读的，切勿进行修改。如果需要在钩子之间共享数据，建议通过元素的 [`dataset`](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/dataset) 来进行。
-
-#### 注意事项
-
-* 自定义指令中,不能直接使用this
-* 自定义指令中的update和componentUpdated相当于钩子函数中的mounted和updated. 其他项也类似
-
-
-
-**案例**
-
-<iframe src="https://codesandbox.io/embed/vue-directive-fipq1q?fontsize=11&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directive"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-
-#### 实例
-
-##### 禁止使用大写字母
-
-<iframe src="https://codesandbox.io/embed/vue-directive-fipq1q?fontsize=12&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directive"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-
-##### 复制黏贴指令v-copy
-
-> [Michael-lzg/v-directives: vue自定义指令集合 (github.com)](https://github.com/Michael-lzg/v-directives)
-
-思路：
-
-1. 动态创建 textarea 标签，并设置 readOnly 属性及移出可视区域
-2. 将要 copy 的值赋给 textarea 标签的 value 属性，并插入到 body
-3. 选中值 textarea 并复制
-4. 将 body 中插入的 textarea 移除
-5. 在第一次调用时绑定事件，在解绑时移除事件
-
-<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&moduleview=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directives"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-
-
-
-##### 长按指令 v-longpress
-
-需求：实现长按，用户需要按下并按住按钮几秒钟，触发相应的事件
-
-思路：
-
-1. 创建一个计时器， 2 秒后执行函数
-2. 当用户按下按钮时触发 mousedown 事件，启动计时器；用户松开按钮时调用 mouseout 事件。
-3. 如果 mouseup 事件 2 秒内被触发，就清除计时器，当作一个普通的点击事件
-4. 如果计时器没有在 2 秒内清除，则判定为一次长按，可以执行关联的函数。
-5. 在移动端要考虑 touchstart，touchend 事件
-
-
-
-<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directives"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-##### v-debounce
-
-背景：在开发中，有些提交保存按钮有时候会在短时间内被点击多次，这样就会多次重复请求后端接口，造成数据的混乱，比如新增表单的提交按钮，多次点击就会新增多条重复的数据。
-
-需求：防止按钮在短时间内被多次点击，使用防抖函数限制规定时间内只能点击一次。
-
-思路：
-
-1. 定义一个延迟执行的方法，如果在延迟时间内再调用该方法，则重新计算执行时间。
-2. 将时间绑定在 click 方法上。
-
-<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directives"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-
-##### v-emoji
-
-背景：开发中遇到的表单输入，往往会有对输入内容的限制，比如不能输入表情和特殊字符，只能输入数字或字母等。
-
-我们常规方法是在每一个表单的@change 事件上做处理。
-
-<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=14&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directives"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-
-
-##### v-lazyLoad
-
-> 图片懒加载.  dom笔记
-
-背景：在类电商类项目，往往存在大量的图片，如 banner 广告图，菜单导航图，美团等商家列表头图等。图片众多以及图片体积过大往往会影响页面加载速度，造成不良的用户体验，所以进行图片懒加载优化势在必行。
-
-需求：实现一个图片懒加载指令，只加载浏览器可见区域的图片。
-
-思路：
-
-1. 图片懒加载的原理主要是判断当前图片是否到了可视区域这一核心逻辑实现的
-2. 拿到所有的图片 dom ，遍历每个图片判断当前图片是否到了可视区范围内
-3. 如果到了就设置图片的 src 属性，否则显示默认图片
-
-图片懒加载有两种方式可以实现，一是绑定 srcoll 事件进行监听，二是使用 IntersectionObserver 判断图片是否到了可视区域，但是有浏览器兼容性问题。
-
-下面封装一个懒加载指令兼容两种方法，判断浏览器是否支持 IntersectionObserver API，如果支持就使用 IntersectionObserver 实现懒加载，否则则使用 srcoll 事件监听 + 节流的方法实现。
-
-<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directives"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-##### v-permission
-
-背景：在一些后台管理系统，我们可能需要根据用户角色进行一些操作权限的判断，很多时候我们都是粗暴地给一个元素添加 `v-if / v-show` 来进行显示隐藏，但如果判断条件繁琐且多个地方需要判断，这种方式的代码不仅不优雅而且冗余。针对这种情况，我们可以通过全局自定义指令来处理。
-
-需求：自定义一个权限指令，对需要权限判断的 Dom 进行显示隐藏。
-
-思路：
-
-1. 自定义一个权限数组
-2. 判断用户的权限是否在这个数组内，如果是则显示，否则则移除 Dom
-
-<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=14&hidenavigation=1&theme=dark"
-     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-     title="vue/directives"
-     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-   ></iframe>
-
-
-
-##### vue-waterMarker
-
-> 这个方案实现的并不完善, 需要改善????
-
-需求：给整个页面添加背景水印
-
-思路：
-
-1. 使用 `canvas` 特性生成 `base64` 格式的图片文件，设置其字体大小，颜色等。
-2. 将其设置为背景图片，从而实现页面或组件水印效果
-
-
-
-
-
-##### v-draggable
-
-需求：实现一个拖拽指令，可在页面可视区域任意拖拽元素。
-
-思路：
-
-1. 设置需要拖拽的元素为相对定位，其父元素为绝对定位。
-2. 鼠标按下`(onmousedown)`时记录目标元素当前的 `left` 和 `top` 值。
-3. 鼠标移动`(onmousemove)`时计算每次移动的横向距离和纵向距离的变化值，并改变元素的 `left` 和 `top` 值
-4. 鼠标松开`(onmouseup)`时完成一次拖拽
-
-
-
-
-
-
-
-### 自定义插件
-
-```HTML
-自定义插件: 
-插件就是一个集合
-
-1. 自定义的插件是一个对象,对象里有一个install方法
-2. 使用Vue.use(对象名称)来调用对象里的install方法
-3. 插件中可以自定义指令, 给Vue添加属性, 给Vue原型上添加数据供实例vm使用(原型上添加的属性或方法,一般之前添加$)
-
-使用Vue.use(插件名称)来调用里面的的install方法
-原型上添加方法/属性,建议添加$
-```
-
-
-
-```js
-//自定义插件 test.js
-
-const extension={};
-extension.install=function(Vue, options){//Vue, options是配置对象
-	//添加两个全局指令
-    Vue.directive('upper-text', function(ele, binding){
-        ele.innerText=binding.value.toUpperCase();
-    });
-    Vue.directive('lower-text', function(ele, binding){
-        ele.innerText = binding
-    });
-    //给Vue自身添加属性
-    Vue.projectName='管理系统';
-    Vue.version='1.0';
-    Vue.showInfo=function(){ console.log('xxxx') };
-    //给Vue原型上添加数据，供vm使用. 建议添加$符
-    Vue.prototype.$random=function(min, max){
-        return Max.floor(Math.random()*max+min);
-    }
-
-}
-
-//index.html
-<script src='./test.js'></script>
-<div id='root'>
-	<h2 v-upper-text='name'></h2>
-	<h2 v-lower-text='name'></h2>   
-	<h2>{{$random(2,8)}}</h2>
-</div>
-<script>
-	Vue.config.productionTip=false;
-	Vue.use(test);
-	new Vue({
-        el:'#root',
-        data:{name:'atBeiJing'},
-        
-    })
-</script>
-```
 
 
 
@@ -7342,6 +6974,8 @@ function (sonProp) {
 
 ### 插槽prop示例-可复用模板
 
+> 这么折腾, 还不够麻烦的呢
+
 **插槽 prop 允许我们将插槽转换为可复用的模板，这些模板可以基于输入的 prop 渲染出不同的内容。**这在设计封装数据逻辑同时允许父级组件自定义部分布局的可复用组件时是最有用的。
 
 例如，我们要实现一个 `<todo-list>` 组件，它是一个列表且包含布局和过滤逻辑：
@@ -7399,6 +7033,715 @@ function (sonProp) {
 
 
 #### 作用域插槽示例3- [Portal Vue](https://github.com/LinusBorg/portal-vue) 
+
+
+
+
+
+
+
+## 可复用性&组合 ?
+
+### 混入
+
+#### 是什么
+
+> 混入 (mixin) 提供了一种非常灵活的方式，来分发 Vue 组件中的可复用功能。一个混入对象可以包含任意组件选项。当组件使用混入对象时，所有混入对象的选项将被“混合”进入该组件本身的选项。
+
+
+
+#### 使用
+
+```javascript
+// 定义一个混入对象
+var myMixin = {
+  created: function () {
+    this.hello()
+  },
+  methods: {
+    hello: function () {
+      console.log('hello from mixin!')
+    }
+  }
+}
+
+// 定义一个使用混入对象的组件
+var Component = Vue.extend({
+  mixins: [myMixin]
+})
+
+var component = new Component() // => "hello from mixin!"
+```
+
+
+
+
+
+### 自定义指令
+
+#### 背景
+
+在 Vue2.0 中，代码复用和抽象的主要形式是组件。有的情况下，你仍然需要<span style="color:blue">对普通 DOM 元素进行底层操作</span>，这时候就会用到自定义指令。
+
+#### 分类
+
+指令分为**全局指令**和**局部指令**
+
+#### 全局指令
+
+##### 语法
+
+```javascript
+Vue.directive(id, [denfinition])
+```
+
+##### 参数
+
+* id  `{string}`
+* [denfinition] `{Function | Object}`
+
+##### 用法
+
+注册或获取全局指令
+
+```javascript
+//注册
+Vue.directive('my-directive', {
+  bind: function() {},
+  inserted: function() {},
+  update: function() {},
+  componentUpdated: function() {},
+  unbind: function() {}
+})
+
+// 注册 (指令函数)
+Vue.directive('my-directive', function () {
+  // 这里将会被 `bind` 和 `update` 调用   ???why
+})
+
+// getter，返回已注册的指令
+var myDirective = Vue.directive('my-directive')
+```
+
+
+
+
+
+
+
+#### 局部指令
+
+##### 语法
+
+组件中也接受一个 `directives` 的选项
+
+```javascript
+directives: {
+  
+}
+```
+
+
+
+#### 钩子函数
+
+一个指令定义对象可以提供如下几个钩子函数 (均为可选)：
+
+* `bind`: 只调用一次，指令第一次绑定到元素时调用。在这里可以进行一次性的初始化设置。
+* `inserted`：被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
+* `update`：所在组件的 VNode 更新时调用，**但是可能发生在其子 VNode 更新之前**。指令的值可能发生了改变，也可能没有。但是你可以通过比较更新前后的值来忽略不必要的模板更新 (详细的钩子函数参数见下)。
+* `componentUpdated`：指令所在组件的 VNode **及其子 VNode** 全部更新后调用。
+* `unbind`：只调用一次，指令与元素解绑时调用。
+
+
+
+#### 钩子函数参数
+
+- `el`：指令所绑定的元素，可以用来直接操作 DOM。
+- `binding`: 一个对象，包含以下 property：
+  - `name`：指令名，不包括 `v-` 前缀。
+  - `value`：指令的绑定值，例如：`v-my-directive="1 + 1"` 中，绑定值为 `2`。
+  - `oldValue`：指令绑定的前一个值，仅在 `update` 和 `componentUpdated` 钩子中可用。无论值是否改变都可用。
+  - `expression`：字符串形式的指令表达式。例如 `v-my-directive="1 + 1"` 中，表达式为 `"1 + 1"`。
+  - `arg`：传给指令的参数，可选。例如 `v-my-directive:foo` 中，参数为 `"foo"`。
+  - `modifiers`：一个包含修饰符的对象。例如：`v-my-directive.foo.bar` 中，修饰符对象为 `{ foo: true, bar: true }`。
+- `vnode`：Vue 编译生成的虚拟节点。移步 [VNode API](https://cn.vuejs.org/v2/api/#VNode-接口) 来了解更多详情。
+- `oldVnode`：上一个虚拟节点，仅在 `update` 和 `componentUpdated` 钩子中可用
+
+除了 `el` 之外，其它参数都应该是只读的，切勿进行修改。如果需要在钩子之间共享数据，建议通过元素的 [`dataset`](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement/dataset) 来进行。
+
+#### 注意事项
+
+* 自定义指令中,不能直接使用this
+* 自定义指令中的update和componentUpdated相当于钩子函数中的mounted和updated. 其他项也类似
+
+
+
+**案例**
+
+<iframe src="https://codesandbox.io/embed/vue-directive-fipq1q?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directive"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+#### 实例
+
+##### 禁止使用大写字母
+
+<iframe src="https://codesandbox.io/embed/vue-directive-fipq1q?fontsize=12&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directive"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+##### 复制黏贴指令v-copy
+
+> [Michael-lzg/v-directives: vue自定义指令集合 (github.com)](https://github.com/Michael-lzg/v-directives)
+
+思路：
+
+1. 动态创建 textarea 标签，并设置 readOnly 属性及移出可视区域
+2. 将要 copy 的值赋给 textarea 标签的 value 属性，并插入到 body
+3. 选中值 textarea 并复制
+4. 将 body 中插入的 textarea 移除
+5. 在第一次调用时绑定事件，在解绑时移除事件
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&moduleview=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+
+
+##### 长按指令 v-longpress
+
+需求：实现长按，用户需要按下并按住按钮几秒钟，触发相应的事件
+
+思路：
+
+1. 创建一个计时器， 2 秒后执行函数
+2. 当用户按下按钮时触发 mousedown 事件，启动计时器；用户松开按钮时调用 mouseout 事件。
+3. 如果 mouseup 事件 2 秒内被触发，就清除计时器，当作一个普通的点击事件
+4. 如果计时器没有在 2 秒内清除，则判定为一次长按，可以执行关联的函数。
+5. 在移动端要考虑 touchstart，touchend 事件
+
+
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### v-debounce
+
+背景：在开发中，有些提交保存按钮有时候会在短时间内被点击多次，这样就会多次重复请求后端接口，造成数据的混乱，比如新增表单的提交按钮，多次点击就会新增多条重复的数据。
+
+需求：防止按钮在短时间内被多次点击，使用防抖函数限制规定时间内只能点击一次。
+
+思路：
+
+1. 定义一个延迟执行的方法，如果在延迟时间内再调用该方法，则重新计算执行时间。
+2. 将时间绑定在 click 方法上。
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+##### v-emoji
+
+背景：开发中遇到的表单输入，往往会有对输入内容的限制，比如不能输入表情和特殊字符，只能输入数字或字母等。
+
+我们常规方法是在每一个表单的@change 事件上做处理。
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+
+##### v-lazyLoad
+
+> 图片懒加载.  dom笔记
+
+背景：在类电商类项目，往往存在大量的图片，如 banner 广告图，菜单导航图，美团等商家列表头图等。图片众多以及图片体积过大往往会影响页面加载速度，造成不良的用户体验，所以进行图片懒加载优化势在必行。
+
+需求：实现一个图片懒加载指令，只加载浏览器可见区域的图片。
+
+思路：
+
+1. 图片懒加载的原理主要是判断当前图片是否到了可视区域这一核心逻辑实现的
+2. 拿到所有的图片 dom ，遍历每个图片判断当前图片是否到了可视区范围内
+3. 如果到了就设置图片的 src 属性，否则显示默认图片
+
+图片懒加载有两种方式可以实现，一是绑定 srcoll 事件进行监听，二是使用 IntersectionObserver 判断图片是否到了可视区域，但是有浏览器兼容性问题。
+
+下面封装一个懒加载指令兼容两种方法，判断浏览器是否支持 IntersectionObserver API，如果支持就使用 IntersectionObserver 实现懒加载，否则则使用 srcoll 事件监听 + 节流的方法实现。
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=11&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+##### v-permission
+
+背景：在一些后台管理系统，我们可能需要根据用户角色进行一些操作权限的判断，很多时候我们都是粗暴地给一个元素添加 `v-if / v-show` 来进行显示隐藏，但如果判断条件繁琐且多个地方需要判断，这种方式的代码不仅不优雅而且冗余。针对这种情况，我们可以通过全局自定义指令来处理。
+
+需求：自定义一个权限指令，对需要权限判断的 Dom 进行显示隐藏。
+
+思路：
+
+1. 自定义一个权限数组
+2. 判断用户的权限是否在这个数组内，如果是则显示，否则则移除 Dom
+
+<iframe src="https://codesandbox.io/embed/vue-directives-3hj3o3?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vue/directives"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+##### vue-waterMarker
+
+> 这个方案实现的并不完善, 需要改善????
+
+需求：给整个页面添加背景水印
+
+思路：
+
+1. 使用 `canvas` 特性生成 `base64` 格式的图片文件，设置其字体大小，颜色等。
+2. 将其设置为背景图片，从而实现页面或组件水印效果
+
+
+
+
+
+##### v-draggable
+
+需求：实现一个拖拽指令，可在页面可视区域任意拖拽元素。
+
+思路：
+
+1. 设置需要拖拽的元素为相对定位，其父元素为绝对定位。
+2. 鼠标按下`(onmousedown)`时记录目标元素当前的 `left` 和 `top` 值。
+3. 鼠标移动`(onmousemove)`时计算每次移动的横向距离和纵向距离的变化值，并改变元素的 `left` 和 `top` 值
+4. 鼠标松开`(onmouseup)`时完成一次拖拽
+
+
+
+
+
+
+
+### 自定义插件
+
+```HTML
+自定义插件: 
+插件就是一个集合
+
+1. 自定义的插件是一个对象,对象里有一个install方法
+2. 使用Vue.use(对象名称)来调用对象里的install方法
+3. 插件中可以自定义指令, 给Vue添加属性, 给Vue原型上添加数据供实例vm使用(原型上添加的属性或方法,一般之前添加$)
+
+使用Vue.use(插件名称)来调用里面的的install方法
+原型上添加方法/属性,建议添加$
+```
+
+
+
+```js
+//自定义插件 test.js
+
+const extension={};
+extension.install=function(Vue, options){//Vue, options是配置对象
+	//添加两个全局指令
+    Vue.directive('upper-text', function(ele, binding){
+        ele.innerText=binding.value.toUpperCase();
+    });
+    Vue.directive('lower-text', function(ele, binding){
+        ele.innerText = binding
+    });
+    //给Vue自身添加属性
+    Vue.projectName='管理系统';
+    Vue.version='1.0';
+    Vue.showInfo=function(){ console.log('xxxx') };
+    //给Vue原型上添加数据，供vm使用. 建议添加$符
+    Vue.prototype.$random=function(min, max){
+        return Max.floor(Math.random()*max+min);
+    }
+
+}
+
+//index.html
+<script src='./test.js'></script>
+<div id='root'>
+	<h2 v-upper-text='name'></h2>
+	<h2 v-lower-text='name'></h2>   
+	<h2>{{$random(2,8)}}</h2>
+</div>
+<script>
+	Vue.config.productionTip=false;
+	Vue.use(test);
+	new Vue({
+        el:'#root',
+        data:{name:'atBeiJing'},
+        
+    })
+</script>
+```
+
+
+
+
+
+### 渲染函数 & JSX  ???  待完成
+
+#### 基础
+
+Vue 推荐在绝大多数情况下使用模板来创建你的 HTML。然而在一些场景中，你真的需要 JavaScript 的完全编程的能力。这时你可以用**渲染函数**，它比模板更接近编译器。
+
+案例: 要生成一些带锚点的标题,分别使用模板和渲染函数来实现, 对比实现的难易度:
+
+
+
+```html
+//实现效果
+<h1>
+  <a name="hello-world" href="#hello-world">
+    Hello world!
+  </a>
+</h1>
+```
+
+定义组件如下:
+
+```HTML
+<anchored-heading :level="1">Hello world!</anchored-heading>
+```
+
+
+
+**模板**
+
+存在的问题: 代码冗长，而且在每一个级别的标题中重复书写了 `<slot></slot>`，在要插入锚点元素时还要再次重复。
+
+```html
+<script type="text/x-template" id="anchored-heading-template">
+  <h1 v-if="level === 1">
+    <slot></slot>
+  </h1>
+  <h2 v-else-if="level === 2">
+    <slot></slot>
+  </h2>
+  <h3 v-else-if="level === 3">
+    <slot></slot>
+  </h3>
+  <h4 v-else-if="level === 4">
+    <slot></slot>
+  </h4>
+  <h5 v-else-if="level === 5">
+    <slot></slot>
+  </h5>
+  <h6 v-else-if="level === 6">
+    <slot></slot>
+  </h6>
+</script>
+```
+
+
+
+```javascript
+Vue.component('anchored-heading', {
+  template: '#anchored-heading-template',
+  props: {
+    level: {
+      type: Number,
+      required: true
+    }
+  }
+})
+```
+
+
+
+**渲染函数**
+
+```javascript
+Vue.component('anchored-heading', {
+  render: function (createElement) {
+    return createElement(
+      'h' + this.level,   // 标签名称
+      this.$slots.default // 子节点数组
+    )
+  },
+  props: {
+    level: {
+      type: Number,
+      required: true
+    }
+  }
+})
+```
+
+
+
+#### 节点, 树和虚拟DOM
+
+##### 浏览器工作原理了解
+
+```html
+<div>
+  <h1>My title</h1>
+  Some text content
+  <!-- TODO: Add tagline -->
+</div>
+```
+
+当浏览器读到这些代码时，它会建立一个[“DOM 节点”树](https://javascript.info/dom-nodes)来保持追踪所有内容，如同你会画一张家谱树来追踪家庭成员的发展一样。
+
+上述 HTML 对应的 DOM 节点树如下图所示：
+
+![](https://cn.vuejs.org/images/dom-tree.png)
+
+每个元素都是一个节点。每段文字也是一个节点。甚至注释也都是节点。一个节点就是页面的一个部分
+
+高效地更新所有这些节点会是比较困难的，不过所幸你不必手动完成这个工作。你只需要告诉 Vue 你希望页面上的 HTML 是什么，这可以是在一个模板里
+
+```html
+<h1>{{ blogTitle }}</h1>
+```
+
+或者一个渲染函数里：
+
+```javascript
+render: function (createElement) {
+  return createElement('h1', this.blogTitle)
+}
+```
+
+在这两种情况下，Vue 都会自动保持页面的更新，即便 `blogTitle` 发生了改变。
+
+
+
+##### 虚拟DOM
+
+Vue 通过建立一个**虚拟 DOM** 来追踪自己要如何改变真实 DOM。请仔细看这行代码：
+
+```javascript
+return createElement('h1', this.blogTitle)
+```
+
+`createElement` 返回的不是一个*实际的* DOM 元素。它更准确的名字可能是 `createNodeDescription`，因为它所包含的信息会告诉 Vue 页面上需要渲染什么样的节点，包括及其子节点的描述信息。
+
+我们把这样的节点描述为“虚拟节点 (virtual node)”，也常简写它为“**VNode**”。
+
+<span style="color:blue">“虚拟 DOM”是我们对由 Vue 组件树建立起来的整个 VNode 树的称呼。</span>
+
+
+
+
+
+#### createElement参数
+
+你需要熟悉的是如何在 `createElement` 函数中使用模板中的那些功能。这里是 `createElement` 接受的参数：
+
+```javascript
+// @returns {VNode}
+createElement(
+  // {String | Object | Function}
+  // 一个 HTML 标签名、组件选项对象，或者
+  // resolve 了上述任何一种的一个 async 函数。必填项。
+  'div',
+
+  // {Object}
+  // 一个与模板中 attribute 对应的数据对象。可选。
+  {
+    // (详情见下一节)
+  },
+
+  // {String | Array}
+  // 子级虚拟节点 (VNodes)，由 `createElement()` 构建而成，
+  // 也可以使用字符串来生成“文本虚拟节点”。可选。
+  [
+    '先写一些文字',
+    createElement('h1', '一则头条'),
+    createElement(MyComponent, {
+      props: {
+        someProp: 'foobar'
+      }
+    })
+  ]
+)
+```
+
+
+
+##### 深入数据对象
+
+有一点要注意：正如 `v-bind:class` 和 `v-bind:style` 在模板语法中会被特别对待一样，它们在 VNode 数据对象中也有对应的顶层字段。该对象也允许你绑定普通的 HTML attribute，也允许绑定如 `innerHTML` 这样的 DOM property (这会覆盖 `v-html` 指令)
+
+```javascript
+{
+  // 与 `v-bind:class` 的 API 相同，
+  // 接受一个字符串、对象或字符串和对象组成的数组
+  'class': {
+    foo: true,
+    bar: false
+  },
+  // 与 `v-bind:style` 的 API 相同，
+  // 接受一个字符串、对象，或对象组成的数组
+  style: {
+    color: 'red',
+    fontSize: '14px'
+  },
+  // 普通的 HTML attribute
+  attrs: {
+    id: 'foo'
+  },
+  // 组件 prop
+  props: {
+    myProp: 'bar'
+  },
+  // DOM property
+  domProps: {
+    innerHTML: 'baz'
+  },
+  // 事件监听器在 `on` 内，
+  // 但不再支持如 `v-on:keyup.enter` 这样的修饰器。
+  // 需要在处理函数中手动检查 keyCode。
+  on: {
+    click: this.clickHandler
+  },
+  // 仅用于组件，用于监听原生事件，而不是组件内部使用
+  // `vm.$emit` 触发的事件。
+  nativeOn: {
+    click: this.nativeClickHandler
+  },
+  // 自定义指令。注意，你无法对 `binding` 中的 `oldValue`
+  // 赋值，因为 Vue 已经自动为你进行了同步。
+  directives: [
+    {
+      name: 'my-custom-directive',
+      value: '2',
+      expression: '1 + 1',
+      arg: 'foo',
+      modifiers: {
+        bar: true
+      }
+    }
+  ],
+  // 作用域插槽的格式为
+  // { name: props => VNode | Array<VNode> }
+  scopedSlots: {
+    default: props => createElement('span', props.text)
+  },
+  // 如果组件是其它组件的子组件，需为插槽指定名称
+  slot: 'name-of-slot',
+  // 其它特殊顶层 property
+  key: 'myKey',
+  ref: 'myRef',
+  // 如果你在渲染函数中给多个元素都应用了相同的 ref 名，
+  // 那么 `$refs.myRef` 会变成一个数组。
+  refInFor: true
+}
+```
+
+
+
+完整实例  ????
+
+有了这些知识，我们现在可以完成我们最开始想实现的组件：
+
+```javascript
+var getChildrenTextContent = function (children) {
+  return children.map(function (node) {
+    return node.children
+      ? getChildrenTextContent(node.children)
+      : node.text
+  }).join('')
+}
+
+Vue.component('anchored-heading', {
+  render: function (createElement) {
+    // 创建 kebab-case 风格的 ID
+    var headingId = getChildrenTextContent(this.$slots.default)
+      .toLowerCase()
+      .replace(/\W+/g, '-')
+      .replace(/(^-|-$)/g, '')
+
+    return createElement(
+      'h' + this.level,
+      [
+        createElement('a', {
+          attrs: {
+            name: headingId,
+            href: '#' + headingId
+          }
+        }, this.$slots.default)
+      ]
+    )
+  },
+  props: {
+    level: {
+      type: Number,
+      required: true
+    }
+  }
+})
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -7789,6 +8132,214 @@ new Vue({
 })
 </script>
 ```
+
+
+
+
+
+## 规模化(路由/状态管理/服务端/安全)
+
+### 路由
+
+#### 官方路由
+
+对于大多数单页面应用，都推荐使用官方支持的 [vue-router 库](https://github.com/vuejs/vue-router)
+
+
+
+
+
+#### 简单路由
+
+如果你只需要非常简单的路由而不想引入一个功能完整的路由库，可以像这样动态渲染一个页面级的组件：
+
+```javascript
+const NotFound = { template: '<p>Page not found</p>' }
+const Home = { template: '<p>home page</p>' }
+const About = { template: '<p>about page</p>' }
+
+const routes = {
+  '/': Home,
+  '/about': About
+}
+
+new Vue({
+  el: '#app',
+  data: {
+    currentRoute: window.location.pathname
+  },
+  computed: {
+    ViewComponent () {
+      return routes[this.currentRoute] || NotFound
+    }
+  },
+  render (h) { return h(this.ViewComponent) }
+})
+```
+
+
+
+#### 整合第三方路由??
+
+如果你有更偏爱的第三方路由，如 [Page.js](https://github.com/visionmedia/page.js) 或者 [Director](https://github.com/flatiron/director)，整合起来也[一样简单](https://github.com/chrisvfritz/vue-2.0-simple-routing-example/compare/master...pagejs)。这里有一个使用了 Page.js 的[完整示例](https://github.com/chrisvfritz/vue-2.0-simple-routing-example/tree/pagejs)。
+
+
+
+### 状态管理
+
+由于状态零散地分布在许多组件和组件之间的交互中，大型应用复杂度也经常逐渐增长。为了解决这个问题，Vue 提供 [vuex](https://github.com/vuejs/vuex)
+
+
+
+#### 简单状态管理起步
+
+Vue 应用中原始 `data` 对象的实际来源——当访问数据对象时，一个 Vue 实例只是简单的代理访问。所以，如果你有一处需要被多个实例间共享的状态，可以简单地通过维护一份数据来实现共享
+
+```javascript
+var sourceOfTruth = {}
+
+var vmA = new Vue({
+  data: sourceOfTruth
+})
+
+var vmB = new Vue({
+  data: sourceOfTruth
+})
+```
+
+现在当 `sourceOfTruth` 发生变更，`vmA` 和 `vmB` 都将自动地更新它们的视图。子组件们的每个实例也会通过 `this.$root.$data` 去访问。现在我们有了唯一的数据来源，但是，<span style="color:blue">调试将会变为噩梦。任何时间，我们应用中的任何部分，在任何数据改变后，都不会留下变更过的记录</span>。
+
+为了解决这个问题，我们采用一个简单的 **store 模式**：
+
+```javascript
+var store = {
+  debug: true,
+  state: {
+    message: 'Hello!'
+  },
+  setMessageAction (newValue) {
+    if (this.debug) console.log('setMessageAction triggered with', newValue)
+    this.state.message = newValue
+  },
+  clearMessageAction () {
+    if (this.debug) console.log('clearMessageAction triggered')
+    this.state.message = ''
+  }
+}
+```
+
+需要注意，所有 store 中 state 的变更，都放置在 store 自身的 action 中去管理。
+
+这种集中式状态管理能够被更容易地理解哪种类型的变更将会发生，以及它们是如何被触发。当错误出现时，我们现在也会有一个 log 记录 bug 之前发生了什么。
+
+此外，每个实例/组件仍然可以拥有和管理自己的私有状态：
+
+```javascript
+var vmA = new Vue({
+  data: {
+    privateState: {},
+    sharedState: store.state
+  }
+})
+
+var vmB = new Vue({
+  data: {
+    privateState: {},
+    sharedState: store.state
+  }
+})
+```
+
+![](https://cn.vuejs.org/images/state.png)
+
+注意:
+
+* 注意你不应该在 action 中 替换原始的状态对象 - 组件和 store 需要引用同一个共享对象，变更才能够被观察到。
+
+* 组件不允许直接变更属于 store 实例的 state，而应执行 action 来分发 (dispatch) 事件通知 store 去改变.
+
+
+我们最终达成了 [Flux](https://facebook.github.io/flux/) 架构。这样约定的好处是，我们能够记录所有 store 中发生的 state 变更，同时实现能做到记录变更、保存状态快照、历史回滚/时光旅行的先进的调试工具。
+
+
+
+### 服务端渲染
+
+#### [SSR 完全指南](https://cn.vuejs.org/v2/guide/ssr.html#SSR-完全指南)
+
+在 2.3 发布后我们发布了一份完整的构建 Vue 服务端渲染应用的指南。这份指南非常深入，适合已经熟悉 Vue、webpack 和 Node.js 开发的开发者阅读。请移步 [ssr.vuejs.org](https://ssr.vuejs.org/zh/)。
+
+
+
+### 安全 ???
+
+#### 第一原则
+
+在使用 Vue 的时候最基本的安全规则是**永远不要将不可信任的内容作为模板内容使用**。
+
+这样做等价于允许在应用程序中执行任意的 JavaScript——甚至更糟的是如果在服务端渲染的话可能导致服务器被攻破。举个例子：
+
+```javascript
+new Vue({
+  el: '#app',
+  template: `<div>` + userProvidedString + `</div>` // 永远不要这样做
+})
+```
+
+Vue 的模板是被编译为 JavaScript 的，而其中的表达式会作为渲染流程的一部分执行。尽管该表达式是在一个特定的渲染上下文中进行运算的。考虑到潜在的全局运行环境的复杂性，作为类似 Vue 的框架，想要完全让代码远离潜在的恶意代码执行而不导致性能问题，是不切实际的。最直接的回避这类问题的方式就是确保 Vue 模板的内容始终是可信的且完全由你掌控。
+
+
+
+#### Vue的安全措施
+
+##### HTML内容
+
+##### Attribute绑定
+
+
+
+#### 潜在危险
+
+##### 注入HTML
+
+
+
+##### 注入URL
+
+
+
+##### 注入样式
+
+
+
+注入javascript
+
+
+
+#### 最佳实践
+
+通用的规则是只要允许执行未过滤的用户提供的内容 (不论作为 HTML、JavaScript 甚至 CSS)，你就可能令自己处于被攻击的境地。这些建议实际上不论使用 Vue 还是别的框架甚至不使用框架，都是成立的。
+
+除了上述关于[潜在危险](https://cn.vuejs.org/v2/guide/security.html#潜在危险)的建议，我们也推荐自行熟悉以下资料：
+
+- [HTML5 Security Cheat Sheet](https://html5sec.org/)
+- [OWASP’s Cross Site Scripting (XSS) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
+
+然后利用学到的知识，对那些包含了第三方组件或通过其它方式影响渲染到 DOM 的内容的依赖的源代码进行重新审查，以发现潜在的危险模式。
+
+
+
+#### 后端写作
+
+
+
+#### 服务端渲染
+
+
+
+## Vuex
+
+
 
 
 

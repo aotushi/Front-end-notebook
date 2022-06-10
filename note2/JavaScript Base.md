@@ -9654,6 +9654,21 @@ Using uary plus
 
 ### 对象自身方法
 
+#### polyfill和shim的比较
+
+> [Object.defineProperty是Es5中无法shim的特性 shim是什么？_夏目友人帐...的博客-CSDN博客_无法shim的特性](https://blog.csdn.net/xiaoyuer_2020/article/details/111364064)
+
+* shim
+  一个shim是一个库，它将一个新的API引入到一个旧的环境中，而且仅靠旧环境中已有的手段实现。
+
+* polyfill
+
+  一个polyfill是一段代码(或者插件)，提供了那些开发者们希望浏览器原生提供支持的功能
+
+通常的做法是，先检查当前浏览器是否支持某个[API](https://so.csdn.net/so/search?q=API&spm=1001.2101.3001.7020)，如果不支持的话就加载对应的polyfill，然后新旧浏览器就都可以使用这个API了
+
+
+
 #### Object.is
 
 当你想在JavaScript中比较两个值时，多使用全等运算符（===），从而避免在比较时触发强制类型转换的行为。
@@ -10132,6 +10147,8 @@ if (typeof Object.assign !== 'function') {
   })
 }
 ```
+
+
 
 
 
@@ -19253,6 +19270,12 @@ students.sort((firstItem, secondItem) => firstItem.grade - secondItem.grade);
 
 
 
+数组乱序
+
+```javascript
+const shuffleArr = arr => arr.sort(() => Math.random() - 0.5)
+```
+
 
 
 #### Array.prototype.map()
@@ -21017,6 +21040,12 @@ for (let e of iterator) {
 
 
 ### 数组的一些实例
+
+#### 数组乱序
+
+```javascript
+const shuffleArray = arr => arr.sort(() => Math.random() - 0.5)
+```
 
 
 

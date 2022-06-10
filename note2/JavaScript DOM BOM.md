@@ -3519,6 +3519,40 @@ clientTop:
 
 ## DOM案例及功能
 
+### 复制到剪贴板
+
+在Web应用程序中，复制到剪贴板因其对用户的便利性而迅速流行起来。
+
+注意：根据caniuse，该方法对93.08%的全球用户有效。所以必须检查用户的浏览器是否支持该API。为了支持所有用户，你可以使用一个输入并复制其内容。
+
+```javascript
+cosnt copyToClipboard = text => navigator.clipboard?.writeText && navigator.clipboard.writeText(text)
+```
+
+
+
+### 滚动到顶部/底部
+
+```javascript
+const scrollToTop = element => element.scrollIntoView({behavior: 'smooth', block:'start'})
+
+cosnt scrollToBottom = element => element.scrollIntoView({behavior: 'smooth', block:'end'})
+```
+
+
+
+### 生成随机颜色
+
+```javascript
+const generateRandomHexColor = () => `#${Math.floor(Math.random() * 0xffffff).toString(16)}`
+```
+
+
+
+
+
+
+
 ### 拖拽九宫格碰撞
 
 ```js
