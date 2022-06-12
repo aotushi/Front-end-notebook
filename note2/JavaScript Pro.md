@@ -4369,6 +4369,162 @@ var addEvent = (function(){
 ## 防抖函数
 
 > https://github.com/mqyqingfeng/Blog/issues/22
+>
+> [Implementing Debounce in Javascript | by Eldar Jahijagic | CodeX | Jun, 2022 | Medium](https://medium.com/codex/implementing-debounce-in-javascript-cf185cd2084b)
+
+
+
+### 了解
+
+#### Mechanical Bounce
+
+Bounce is a property of mechanical buttons and switches, which when pressed introduce electrical noise. This noise obscures the input signal, making the system read it incorrectly.
+
+![](https://miro.medium.com/max/1400/1*9zWmigqVxVd7t6ofj2waQA.png)
+
+
+
+#### software Bounce
+
+There is obviously the sofeware counterpart of the bounce issue and solutions for it.Some relate to the *software side* of microcontrollers, as the issue can be addressed in that approach as well*.*
+
+
+
+#### what does input signal bounce occur
+
+The most commons places that you may experience this are:
+
+- User input fields
+- Buttons and switches
+- Reading message queus
+
+In our case at hand, the signal itself will be produced by the user, for example on an input field that has a change listener.
+
+Components such as these can either experience noise, or a large amount of expected input, or they can simply be abused by the end-user.
+
+Let’s consider the following example:
+
+```javascript
+#html
+<input onKeyUp="inputChanged()" type="text" />
+  
+#JS
+function inputChanged() {
+  console.log('Input event detected')
+}
+```
+
+
+
+This is one of the usual cases when you want to listen to user input changes
+
+*Notice how* `*onChange*` *isn’t used, as it emits an event only when* `*focus*` *shifts from the input field.*
+
+In this sense, `onChange` is mitigating the issue on its own. However, it might not be that useful in cases when you want to react in real-time.
+
+The `onKeyUp` listener emits an event, whenever a user changes the input value. This is often useful for e.g. a real-time search feature.
+
+The issue here is that typing something into a field `onKeyUp` will produce a lot of events in a short time period rather.
+
+![](https://miro.medium.com/max/1044/1*0qM3-JkwhMVHkSx1Nti_Og.gif)
+
+
+
+
+
+If you are filtering some results, the UI will possibly get stuttery and your performance will be affected.
+
+
+
+we want to implement a timeout between two event signals, a time period which if elapses, triggers our batch read. ??
+
+> 我们想在两个事件信号之间执行一个超时, 如果经过这个时间段, 触发我们的批处理读取.
+
+
+
+#### solution
+
+With the above said, illustrating debounce, events and the timeout period between two receiving event signals would look like the following.
+
+![](https://miro.medium.com/max/1400/1*RfsnGce8LCoIjO6pVACxKA.png)
+
+For a debounce method, we need a timeout or threshold time, and we want to **trigger an event only once this expires**.
+
+
+
+
+
+An easy way how to implement a debounce method is by making use of `setTimeout` as illustrated in the following snippet:
+
+```javascript
+# HTML
+<input id="input-field" onKeyUp="inputChanged()" type="text"/>
+# JS
+const inputField = document.getElementById("input-field");
+function getResult() {
+   console.log("Input event detected.");
+   console.log(inputField.value);
+   // Do something with the input
+}
+const debounce = {
+   isWaiting: false,
+   
+   submit: function (func) {
+      if (!this.isWaiting) {
+        this.isWaiting = true;
+         
+         setTimeout(() => {
+             func.apply();
+             this.isWaiting = false;
+         }, 1000);
+      }
+   }
+}
+function inputChanged() {
+ debounce.submit(getResult);
+}
+```
+
+
+
+A more sophisticated approach requires us to track the time elapsed between events, as we want to trigger a function only once that period *expires*.
+
+A vanilla Javascript approach looks like the following:
+
+```javascript
+# HTML
+<input id="input-field" onKeyUp="inputChanged()" type="text"/>
+# JS
+const inputField = document.getElementById("input-field");
+function getResult() {
+   console.log("Input event detected.");
+   console.log(inputField.value);
+   // Do something with the input
+}
+const debounce = {
+   timerId: 0,
+   timeout: 1000,
+   
+   submit: function (func) {
+       this.cancel();
+       
+       this.timerId = setTimeout(() => {
+           func.apply(this);
+       }, this.timeout);
+   },
+   
+   cancel: function() {
+       clearTimeout(this.timerId);
+   }
+}
+function inputChanged() {
+ debounce.submit(getResult);
+}
+```
+
+
+
+
 
 ### 前言
 

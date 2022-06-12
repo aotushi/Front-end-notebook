@@ -6,6 +6,16 @@
 
 > 是一套构建用户界面的**渐进式**（用到哪一块就用哪一块，不需要全部用上）前端框架，Vue 的核心库只关注视图层
 
+
+
+### 渐进式框架
+
+> 所谓的渐进式框架,就是把框架分层.
+>
+> 最核心的部分是视图层渲染,然后往外是组件机制,在这个基础上再加入路由机制,再加入状态管理,最外层是构建工具.
+>
+> 所谓分层,就是说你既可以只用最核心的视图层渲染功能来快速开发一些需求,也可以使用一整套全家桶来开发大型应用.
+
 ### Vue兼容性及资源
 
 #### 版本
@@ -943,9 +953,184 @@ Vue 最独特的特性之一，是其非侵入性的响应式系统。数据模�
 
 #### 检测变化的注意事项
 
+由于 JavaScript 的限制，Vue **不能检测**数组和对象的变化。尽管如此我们还是有一些办法来回避这些限制并保证它们的响应性。 ?
+
+##### 对于对象
+
+Vue 无法检测 property 的添加或移除。由于 Vue 会在初始化实例时对 property 执行 getter/setter 转化，所以 property 必须在 `data` 对象上存在才能让 Vue 将它转换为响应式的。例如：
+
+```javascript
+var vm = new Vue({
+  data:{
+    a:1
+  }
+})
+
+// `vm.a` 是响应式的
+
+vm.b = 2
+// `vm.b` 是非响应式的
+```
+
+对于已经创建的实例，Vue 不允许动态添加根级别的响应式 property。但是，可以使用2种方法<span style="color:blue">向嵌套对象添加响应式 property</span>。
+
+*  `Vue.set(object, propertyName, value)` 
+* vm.$set
+
+```javascript
+Vue.set(vm.seomObject, 'b', 2)
+
+this.$set(this.someObj, 'b', 2)
+```
 
 
-#### xxx
+
+<span style="color:blue">为已有对象赋值多个新 property</span>，比如使用 `Object.assign()` 或 `_.extend()`。但是，这样添加到对象上的新 property 不会触发更新。在这种情况下，你应该用原对象与要混合进去的对象的 property 一起创建一个新的对象.
+
+```javascript
+// 代替 `Object.assign(this.someObject, { a: 1, b: 2 })`
+this.someObject = Object.assign({}, this.someObject, { a: 1, b: 2 })
+```
+
+
+
+##### 对于数组
+
+Vue 不能检测以下数组的变动：
+
+1. 当你利用索引直接设置一个数组项时，例如：`vm.items[indexOfItem] = newValue`
+2. 当你修改数组的长度时，例如：`vm.items.length = newLength`
+
+举个例子：
+
+```javascript
+var vm = new Vue({
+  data: {
+    items: ['a', 'b', 'c']
+  }
+})
+vm.items[1] = 'x' // 不是响应性的
+vm.items.length = 2 // 不是响应性的
+```
+
+
+
+<u>解决第一类问题: 利用索引设置数组项失效</u>
+
+方法: 
+
+* Vue.set(vm.items, indexOfItem, newValue) / vm.$set(vm.items, indexOfItem, newValue)
+
+
+
+<u>解决第二类为题: 修改数组长度</u>
+
+方法:
+
+* splice
+
+```javascript
+vm.items.splice(newLength)
+```
+
+
+
+#### 声明响应式property
+
+由于 Vue 不允许动态添加根级响应式 property，所以你必须在初始化实例前声明所有根级响应式 property，哪怕只是一个空值：
+
+```javascript
+var vm = new Vue({
+  data: {
+    // 声明 message 为一个空值字符串
+    message: ''
+  },
+  template: '<div>{{ message }}</div>'
+})
+// 之后设置 `message`
+vm.message = 'Hello!'
+```
+
+如果你未在 `data` 选项中声明 `message`，Vue 将警告你渲染函数正在试图访问不存在的 property。
+
+
+
+#### 异步更新队列
+
+Vue 在更新 DOM 时是**异步**执行的。
+
+只要侦听到数据变化，Vue 将开启一个队列，并缓冲在同一事件循环中发生的所有数据变更。
+
+如果同一个 watcher 被多次触发，只会被推入到队列中一次。这种在缓冲时去除重复数据对于避免不必要的计算和 DOM 操作是非常重要的。然后，在下一个的事件循环“tick”中，Vue 刷新队列并执行实际 (已去重的) 工作。
+
+Vue 在内部对异步队列尝试使用原生的 `Promise.then`、`MutationObserver` 和 `setImmediate`，如果执行环境不支持，则会采用 `setTimeout(fn, 0)` 代替。
+
+
+
+例如，当你设置 `vm.someData = 'new value'`，该组件不会立即重新渲染。当刷新队列时，组件会在下一个事件循环“tick”中更新。如果你想基于更新后的 DOM 状态来做点什么，这就可能会有些棘手.
+
+为了在数据变化之后等待 Vue 完成更新 DOM，可以在数据变化之后立即使用 `Vue.nextTick(callback)`。这样回调函数将在 DOM 更新完成后被调用
+
+```html
+<div id="example">{{message}}</div>
+
+<script>
+  var vm = new Vue({
+    el: '#example',
+    data: {
+      message: '123'
+    }
+  })
+  vm.message = 'new message' // 更改数据
+  vm.$el.textContent === 'new message' // false
+  Vue.nextTick(function () {
+    vm.$el.textContent === 'new message' // true
+  })
+</script>
+```
+
+在组件内使用 `vm.$nextTick()` 实例方法特别方便，因为它不需要全局 `Vue`，并且回调函数中的 `this` 将自动绑定到当前的 Vue 实例上：
+
+```javascript
+Vue.component('example', {
+  template: '<span>{{ message }}</span>',
+  data: function () {
+    return {
+      message: '未更新'
+    }
+  },
+  methods: {
+    updateMessage: function () {
+      this.message = '已更新'
+      console.log(this.$el.textContent) // => '未更新'
+      this.$nextTick(function () {
+        console.log(this.$el.textContent) // => '已更新'
+      })
+    }
+  }
+})
+```
+
+因为 `$nextTick()` 返回一个 `Promise` 对象，所以你可以使用新的 [ES2017 async/await](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function) 语法完成相同的事情：
+
+```javascript
+methods: {
+  updateMessage: async function () {
+    this.message = '已更新'
+    console.log(this.$el.textContent) // => '未更新'
+    await this.$nextTick()
+    console.log(this.$el.textContent) // => '已更新'
+  }
+}
+```
+
+
+
+
+
+
+
+
 
 ## Vue安装及环境配置
 
@@ -1490,9 +1675,131 @@ $el是用来访问vm实例使用的根DOM元素
 
 ##### 类型: `Object`
 
-#### 详细
+详细
 
 一个对象,持有注册过`ref` attribute的所有DOM元素和组件实例.
+
+
+
+#### vm.$watch
+
+**参数**
+
+* `{ string | Function } expOrFn`
+* `{ Function | Object } callback`
+* `{Object} [options]`
+  * `{boolean} deep`
+  * `{boolean} immediate`
+
+
+
+**返回值**
+
+`{Function} unwatch`
+
+`vm.$watch` 返回一个取消观察函数，用来停止触发回调：
+
+```javascript
+var unwatch = vm.$watch('a', cb)
+// 之后取消观察
+unwatch()
+```
+
+
+
+**使用方法**
+
+* 观察 Vue 实例上的一个表达式或者一个函数计算结果的变化。
+* 回调函数得到的参数为新值和旧值。
+* 表达式只接受简单的键路径。对于更复杂的表达式，用一个函数取代。
+
+注意：在变更 (不是替换) 对象或数组时，旧值将与新值相同，因为它们的引用指向同一个对象/数组。Vue 不会保留变更之前值的副本。
+
+
+
+**示例**
+
+```javascript
+// 键路径
+vm.$watch('a.b.c', function (newVal, oldVal) {
+  // 做点什么
+})
+
+// 函数
+vm.$watch(
+  function () {
+    // 表达式 `this.a + this.b` 每次得出一个不同的结果时
+    // 处理函数都会被调用。
+    // 这就像监听一个未被定义的计算属性
+    return this.a + this.b
+  },
+  function (newVal, oldVal) {
+    // 做点什么
+  }
+)
+```
+
+
+
+**选项：deep**
+
+为了发现对象内部值的变化，可以在选项参数中指定 `deep: true`。注意监听数组的变更不需要这么做。
+
+```
+vm.$watch('someObject', callback, {
+  deep: true
+})
+vm.someObject.nestedValue = 123
+// callback is fired
+```
+
+
+
+**选项：immediate**
+
+在选项参数中指定 `immediate: true` 将立即以表达式的当前值触发回调：
+
+```
+vm.$watch('a', callback, {
+  immediate: true
+})
+// 立即以 `a` 的当前值触发回调
+```
+
+注意在带有 `immediate` 选项时，你不能在第一次回调时取消侦听给定的 property。
+
+```
+// 这会导致报错
+var unwatch = vm.$watch(
+  'value',
+  function () {
+    doSomething()
+    unwatch()
+  },
+  { immediate: true }
+)
+```
+
+如果你仍然希望在回调内部调用一个取消侦听的函数，你应该先检查其函数的可用性：
+
+```
+var unwatch = vm.$watch(
+  'value',
+  function () {
+    doSomething()
+    if (unwatch) {
+      unwatch()
+    }
+  },
+  { immediate: true }
+)
+```
+
+
+
+
+
+
 
 
 
@@ -1555,6 +1862,8 @@ vm.$watch('a', function(newValue, oldValue) {
   //这个回调将在'vm.a'改变后调用
 })
 ```
+
+
 
 
 
@@ -2637,138 +2946,60 @@ Vue.filter('dataFormater', function(value, str='YYYY-MM-DD'){
 
 ## el和data的两种写法
 
-```js
-//总结:
-1.el有两种写法：
-(1). new Vue时候直接传递el属性 ---- 常用
-(2). 先new Vue(),再通过vm.$mount('#root')指定容器 ---- 不常用
-2.data有两种写法：
-(1).对象: 非组件编码可以写对象，也可以写函数。
-(2).函数：组件化编码必须使用函数式的data。对象属性为函数可以简写.
+### new Vue时参数el和data的两种写法
 
-Vue中最重要的一个原则:由Vue所调用的函数都不要写成箭头函数,一旦写成箭头函数,this就会错误(或是window,或undefined)
+#### el
 
-//el的第一种写法(常用):
-new Vue({
-    el:'#root',
-    data:{
-        msg:'甲乙丙丁',
-        address:'天南海北'
-    }
-})
-//el的第二种写法(不常用):
-const vm=new Vue({
-    data:{
-        msg:'甲乙丙丁',
-        address:'天南海北'
-    }
-})
-vm.$mount('#root')
+* 直接传递el属性
+* 通过`实例.$mount('#root')`指定容器
 
-//data的第一种写法, data是一个对象:
+```javascript
 new Vue({
-    el:'#root',
-    data:{
-        msg:'甲乙丙丁',
-        address:'天南海北'
-    }
+  el: '#root',
 })
-//data的第二种写法(组件中用的多),data是一个函数,返回数据对象,组件中必须使用函数式data:
-//特别注意: 
-1.若使用函数式data,Vue会帮我们调用data函数.Vue就会得到返回的数据对象,从而使用,this是Vue的实例对象.
-2.data不要写成箭头函数,要写成普通函数.否则this的指向就是window.
-//官网不建议写箭头函数,this或指向window或undefined,取决于是否开启严格模式,而非实例对象;对象属性值为函数的简写,去掉:function
-new Vue({
-    el:'#root',
-    data:function(){ 
-        return {
-        msg:'甲乙丙丁',
-        address:'天南海北'
-    	}
-    }
-})
+
+
+new Vue().$mount('#root')
 ```
 
 
 
 
 
+#### data
+
+* 对象 非组件实例可以是对象,也可以是函数
+* 函数  组件实例必须使用函数
+
+组件内的data数据必须是一个函数的原因?
+
+> 
 
 
-## 数据代理
 
-```js
-关于Vue中的数据代理：
-1.什么是数据代理？
+
+
+#### 数据代理
+
+##### 1.什么是数据代理？
+
 (1).配置对象data中的数据，会被收集到vm._data中，然后通过Object.defineProperty让vm上拥有data中所有的属性。
 (2).当访问vm的msg时，返回的是_data当中同名属性的值
 (3).当修改vm的msg时，修改的是_data当中同名属性的值
-2.为什么要数据代理？
+
+##### 2.为什么要数据代理？
+
 为了更加方便的读取和修改_data中的数据，不做数据代理，就要：vm._data.xxx访问原始数据
-3.扩展思考？—— 为什么要先收集在_data中，然后再代理出去呢？
+
+##### 3.扩展思考？—— 为什么要先收集在_data中，然后再代理出去呢？
+
 更高效的监视数据（直接收集到vm上会导致监视效率太低）
-```
-
-
-
-```js
-https://cn.vuejs.org/v2/api/#data
-
-# data
-类型:Object|Function
-限制:组件的定义只接受function
-实例创建后,可以通过vm.$data访问原始数据对象.Vue实例也代理了data对象上所有的property,因此访问vm.a等价于访问vm.$data.a
-以_或$开头的property不会被Vue实例代理.可以使用例如vm.$data._property的方式访问这些property.
-
-
-
-const vm=new Vue({
-    data:{
-        name:'甲乙丙丁',
-        address:'天南海北',
-        _name:'贾宝玉'
-    }
-});
-vm.name===vm._data.name===vm.$data.name; //true
-vm._data===vm.$data;//true
-
-```
 
 
 
 
 
-### 复习:Object.defineProperty
 
-```js
-let person={};
-//set和get中的this是当前对象
-Object.defineProperty(person, 'name', {
-	set(value){//当修改person.name时,set被调用.set会收到:新的值
-        
-    },
-	get(){//当读取person.name时,get被调用,get的返回值就是name的值.
-        
-    }
-})
-
-
-
-  <script>
-    let _data={msg:'甲乙丙丁'};
-
-let vm={}
-Object.defineProperty(vm, 'msg', {
-    set(value){
-        _data.msg=value;
-    },
-    get(){
-        return _data.msg;
-    }
-})
-
-</script>
-```
 
 
 
@@ -2913,28 +3144,7 @@ https://juejin.cn/post/6844903904585449486
 
 ### 概述
 
-#### what
-
-在computed中定义一个函数(看起来是一个函数,其实是一个属性),命名按照属性规范命名(一般为名词)
-
-```vue
-new Vue({
-	computed: {}
-})
-```
-
-#### 特点
-
-* 计算属性computed：要显示的数据不存在，要通过计算得来,只要是/* vc */身上有的都可以加工.可读可改的数据
-* 函数底层用到的是对象setter和getter方法
-* 执行的时机：
-  * 初始显示会执行一次，得到初始值去显示。
-  * 当依赖的数据发生改变时会被再次调用。
-* 优势：与methods实现相比，内部有缓存机制，效率更高。
-* 计算属性是用于直接读取使用的，不要加().因为本质是一个属性. ??
-* 在watch中修改源数据,会导致原数据的丢失.这种场景适合使用计算属性 **
-
-#### why?
+#### 背景
 
 模板内的表达式(插值和指令)非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护.
 
@@ -2946,7 +3156,69 @@ new Vue({
 
 在这个地方，模板不再是简单的声明式逻辑.对于任何复杂逻辑,你都应当使用**计算属性**。
 
-### how
+#### 语法
+
+```javascript
+{ [key: string]: Function | {get: Function, set: Function }}
+```
+
+```javascript
+export default {
+  computed: {
+    //仅读取
+    keyString: function() {
+      return this.a * 2
+    },
+    //读取的简写,适用于对象方法的简写
+    keyString() {
+      return this.a * 2
+    }
+    
+    //读取和设置
+    aPlus: {
+      get: function() {
+        return this.xxx
+      },
+      set: function(val) {
+        this.a = val - 1
+      }
+    }
+  }
+}
+```
+
+
+
+#### 详细
+
+计算属性将被混入到 Vue 实例中。所有 getter 和 setter 的 this 上下文自动地绑定为 Vue 实例。
+
+注意如果你为一个计算属性使用了箭头函数，则 `this` 不会指向这个组件的实例，不过你仍然可以将其实例作为函数的第一个参数来访问。
+
+```javascript
+computed: {
+  aDouble: vm => vm.a * 2
+}
+```
+
+
+
+
+
+
+
+#### 特点
+
+* 计算属性computed：要显示的数据不存在，要通过计算得来,只要是/* vc */身上有的都可以加工.可读可改的数据
+* 函数底层用到的是对象setter和getter方法
+* 执行的时机：
+  * 初始显示会执行一次，得到初始值去显示。
+  * 当依赖的数据发生改变时会被再次调用。
+* 优势：与methods实现相比，内部有缓存机制，效率更高。
+* 计算属性是用于直接读取使用的，不要加`()`.因为本质是一个属性. ??
+* 在watch中修改源数据,会导致原数据的丢失.这种场景适合使用计算属性 **
+
+
 
 #### 基本使用
 
@@ -2987,55 +3259,6 @@ computed 则是通过【依赖追踪】实现的，在 computed 求值时引用�
   })
 </script>
 ```
-
-#### 计算属性的写法
-
-##### 完整写法
-
-```javascript
-// ...
-computed: {
-  fullName: {
-    // getter
-    get: function () {
-      return this.firstName + ' ' + this.lastName
-    },
-    // setter
-    set: function (newValue) {
-      var names = newValue.split(' ')
-      this.firstName = names[0]
-      this.lastName = names[names.length - 1]
-    }
-  }
-}
-// ...
-```
-
-##### 只有get方法
-
-```javascript
-computed: {
-  totalPrice: function() {
-    //
-  }
-}
-```
-
-
-
-##### 简化写法-语法糖
-
-计算属性默认只有 getter，不过在需要时你也可以提供一个 setter
-
-```javascript
-computed: {
-	totalPrice() {
-
-	}
-}
-```
-
-
 
 
 
@@ -3078,40 +3301,94 @@ computed: {
 
 ## 侦听属性
 
-### 背景
+### 概述
+
+#### 背景
 
 当需要在数据变化时**执行异步或开销较大**的操作时，使用侦听器
 
+#### 语法
 
-
-
-
-```js
-监视属性watch：
-1.属性必须先存在，才能进行监视！！
-2.当被监视的属性(data中的属性)变化时, 回调函数自动调用, 进行相关操作
-3.监视的两种写法：
- (1). new Vue时传入watch配置 (精简写法是函数, 完整写法是对象)
- (2). 通过vm.$watch监视
-4.深度监视 deep:true  1.18日案例
-5.在watch中修改源数据,会导致原数据的丢失.这种场景适合使用计算属性 **
-  
-
-
-computed和watch之间的区别：
-1.只要是computed能完成的功能，watch都可以完成
-2.watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
-3.computed依赖缓存,值不变前提下多次读取使用缓存;watch多次读取会多次调用
-
-
-备注：
-1.所有被Vue所调用（管理）的函数，都不要写箭头函数 ----- 例如：watch中的函数、computed中的函数
-2.所有不是被Vue所调（管理）的函数，都要写成箭头函数 --- 例如：定时器的回调、ajax的回调等等
-3.watch就是Vue给我提供的一个监测数据改变的手段，至于数据发生改变后，要做什么，得看具体的业务了逻辑。
-例如：
-需要新的值、旧的值作比较，决定接下来要干什么
-不要值，只要数据改变了，就要发请求等等
+```javascript
+{
+  [key: string]: string | Function | Object | Array
+}
 ```
+
+多种写法
+
+```javascript
+var vm = new Vue({
+  data: {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: 4,
+    e: {
+      f: {
+        g: 5
+      }
+    }
+  },
+  watch: {
+    a: function (val, oldVal) {
+      console.log('new: %s, old: %s', val, oldVal)
+    },
+    // 方法名
+    b: 'someMethod',
+    // 该回调会在任何被侦听的对象的 property 改变时被调用，不论其被嵌套多深
+    c: {
+      handler: function (val, oldVal) { /* ... */ },
+      deep: true
+    },
+    // 若其值为true,则handler在初始化会调用一次,firstName改变调用一次
+    d: {
+      handler: 'someMethod',
+      immediate: true
+    },
+    // 你可以传入回调数组，它们会被逐一调用
+    e: [
+      'handle1',
+      function handle2 (val, oldVal) { /* ... */ },
+      {
+        handler: function handle3 (val, oldVal) { /* ... */ },
+        /* ... */
+      }
+    ],
+    // watch vm.e.f's value: {g: 5}
+    'e.f': function (val, oldVal) { /* ... */ }
+  }
+})
+vm.a = 2 // => new: 2, old: 1
+```
+
+
+
+#### 详细
+
+* 一个对象，键是需要观察的表达式，值是对应回调函数。
+* 值也可以是方法名，或者包含选项的对象。
+* Vue 实例将会在实例化时调用 `$watch()`，遍历 watch 对象的每一个 property。
+
+
+
+#### 特点
+
+* 属性必须先存在，才能进行监视！！
+* 当被监视的属性(data中的属性)变化时, 回调函数自动调用, 进行相关操作
+* 监视的两种写法：
+  * new Vue时传入watch配置 (精简写法是函数, 完整写法是对象)
+  * 通过vm.$watch监视
+* 深度监视 deep:true
+* 在watch中修改源数据,会导致原数据的丢失.这种场景适合使用计算属性 **
+
+
+
+### computed和watch之间的区别
+
+* 只要是computed能完成的功能，watch都可以完成
+* watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
+* computed依赖缓存,值不变前提下多次读取使用缓存;watch多次读取会多次调用
 
 
 
@@ -3165,7 +3442,7 @@ computed和watch之间的区别：
 
 
 
-
+### 实例方法 vm.$watch
 
 
 
