@@ -1602,11 +1602,19 @@ RGBA颜色——它们的工作方式与RGB颜色完全相同，因此您可以�
 
 当给元素指定尺寸（然后其内容需要适合该尺寸）时，我们将其称为**外部尺寸**。
 
+正如我们在[上一课](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Building_blocks/Overflowing_content)有关溢出的内容中所发现的，如果内容的数量超出了元素可容纳的空间，则设置的高度会导致内容溢出。
+
+<iframe width="100%" height="600" src="https://mdn.github.io/css-examples/learn/sizing/height.html" loading="lazy" __idm_id__="20201473"></iframe>
+
+
+
 ##### 使用百分数
 
 当使用百分数时，你需要清楚，它是**什么**东西的百分数。对于一个处于另外一个容器当中的盒子，如果你给予了子盒子一个百分数作为宽度，那么它指的是父容器宽度的百分数。
 
 这是因为百分数是以包含盒子的块为根据解析的。如果我们的`<div>`没有被指定百分数的值，那么它会占据100%的可用空间，因为它是块级别的元素。如果我们给了它一个百分数作为宽度，那么这就是它原来情况下可以占据空间的百分数。
+
+<iframe width="100%" height="600" src="https://mdn.github.io/css-examples/learn/sizing/percent-width.html" loading="lazy"></iframe>
 
 
 
@@ -1662,17 +1670,44 @@ RGBA颜色——它们的工作方式与RGB颜色完全相同，因此您可以�
 
 #### 调整图像大小
 
+如果你把一张图片放在一个盒子里，它的原始长和宽都比盒子的小或大，它要么比盒子显得小，要么从盒子里面溢出出去。你需要决定怎么处理溢出。
+
+在下面的示例中，我们有两个盒子，大小均为 200 像素：
+
+- 一个包含了一张小于 200 像素的图像，它比盒子小，所以不会拉伸以充满盒子。
+- 另一张图像大于 200 像素，从盒子里面溢出。
+
+<iframe width="100%" height="1000" src="https://mdn.github.io/css-examples/learn/images/size.html" loading="lazy"></iframe>
+
+**尝试向上面的示例中的`<img>`元素加入`max-width: 100%`，你会看到，小的图像不变，而大的变小了，能够放在盒子里。**
+
 一个常用的技术是将一张图片的[`max-width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/max-width)设为100%。这将会允许图片尺寸上小于但不大于盒子。这个技术也会对其他替换元素（例如`<video>`，或者`<iframe>`）起作用。
 
 可以对容器内的图像作其他选择. 例如，你可能想把一张图像调整到能够完全盖住一个盒子的大小。
 
 [`object-fit`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/object-fit)属性可以在这里帮助你(需要搭配width+height使用)。当使用`object-fit`时，替换元素可以以多种方式被调整到合乎盒子的大小。
 
+下面，我们已经使用了值`cover`，缩小了图像，维持了图像的比例，所以图像可以整齐地充满盒子，同时由于比例保持不变，图像的一部分将会被盒子裁切掉。
+
+<iframe width="100%" height="1000" src="https://mdn.github.io/css-examples/learn/images/object-fit.html" loading="lazy"></iframe>
+
+
+
+
+
 
 
 #### 布局中的替换元素
 
-替换元素在成为网格或者弹性布局的一部分时，有不同的默认行为，这很必要，避免了他们被布局奇怪地拉伸
+在替换元素使用各式 CSS 布局技巧时，你可能深切地体会到他们的展现略微与其他元素不同，例如，在一个 flex 或者 grid 布局中，元素默认会把拉伸到充满整块区域。图像不会拉伸，而是会被对齐到网格区域或者弹性容器的起始处。
+
+你可以看到这在下面的示例中发生了，下面的示例有个两列两行的网格容器，里面有四个物件。所有的`<div>`元素有自己的背景色，拉伸到了充满行和列的地步。但是，图像并没有被拉伸。
+
+<iframe width="100%" height="1000" src="https://mdn.github.io/css-examples/learn/images/layout.html" loading="lazy"></iframe>
+
+
+
+只要记住替换元素在成为网格或者弹性布局的一部分时，有不同的默认行为，这很必要，避免了他们被布局奇怪地拉伸。
 
 为了强制图像拉伸，以充满其所在的网格单元，你必须仿照下面做点事情：
 
@@ -1683,7 +1718,7 @@ img {
 }
 ```
 
-
+这将会无条件地拉伸图像，所以很可能不会是你想要的。
 
 #### form元素
 
@@ -1738,6 +1773,149 @@ img {
     </body>
 </html>
 ```
+
+
+
+### 样式化表格
+
+
+
+### 调试CSS
+
+#### 如何使用浏览器开发者工具
+
+
+
+### 组织CSS!!
+
+#### CSS整洁技巧
+
+##### 1.将CSS格式化可读形式
+
+CSS 不会管你使用哪种方式来进行格式化, 将每个属性值对放在新的一行会更好读。
+
+
+
+##### 2.为你的CSS添加注释
+
+* 在你的样式表里面的逻辑段落之间，加入一块注释
+* 使用了一个不存在于代码里面的字符串，你可以从段落到段落间跳转，只需要搜索一下，例如是`||`。
+
+* 为了对旧浏览器保持兼容，你用某种特殊方法使用了一种 CSS 属性，示例：
+
+<div class="code-example"><pre class="brush: css notranslate"><code><span class="token selector">.box</span> <span class="token punctuation">{</span>
+  <span class="token property">background-color</span><span class="token punctuation">:</span> red<span class="token punctuation">;</span> <span class="token comment">/* fallback for older browsers that don't support gradients */</span>
+  <span class="token property">background-image</span><span class="token punctuation">:</span> <span class="token function">linear-gradient</span><span class="token punctuation">(</span>to right<span class="token punctuation">,</span> #ff0000<span class="token punctuation">,</span> #aa0000<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre><button type="button" class="icon copy-icon"><span class="visually-hidden">Copy to Clipboard</span></button><span class="copy-icon-message visually-hidden" role="alert" style="top: 52px;"></span></div>
+
+
+
+##### 3.在你的样式表里加入逻辑段落
+
+在样式表里面先给一般的东西加上样式是个好想法。这也就是除了你想特定对某个元素做点什么以外，所有将会广泛生效的样式。例如:
+
+- `body`
+- `p`
+- `h1`, `h2`, `h3`, `h4`, `h5`
+- `ul`和`ol`
+- `table`属性
+- 链接
+
+
+
+在这段之后，我们可以定义一些**实用类**，例如一个用来移除默认列表样式的类，我们打算将其展示为灵活样式或者其他样式。
+
+```css
+/* || UTILITIES */
+
+.nobullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+...
+```
+
+然后我们可以加上在整个站点都会用到的所有东西，这可能是像基础页面布局、抬头或者导航栏样式之类的东西。
+
+```css
+/* || SITEWIDE */
+
+.main-nav { ... }
+
+.logo { ... }
+```
+
+最后我们可以在 CSS 里面加上**特指的东西**，将它们分成上下文、页面甚至它们使用的组件。
+
+```css
+/* || STORE PAGES */
+
+.product-listing { ... }
+
+.product-box { ... }
+```
+
+
+
+##### 4.避免太过特定的选择器
+
+如果你创建了很特定的选择器，你经常会发现，你需要在你的 CSS 中复用一块代码，以将同样的规则应用到其他元素上。
+
+没写解决方案,只是说这么写会比较繁琐
+
+
+
+##### 5.将大样式表分成几个小的样式表
+
+尤其在你对站点的不同部分设置了很不同的样式的时候，你会想要有个包含了所有普适规则的样式表，还有包含了某些段落所需要的特定规则的更小的样式表。
+
+
+
+这可以让你更容易保持 CSS 的组织性，也意味着如果有多人在写 CSS，你会更少遇到有两个人需要同时编写相同的样式表的情况，防止在源代码的控制上产生冲突。
+
+
+
+#### 其他工具
+
+CSS 本身没有什么内置的组织方式，所以你需要自己完成建立编写 CSS 时维持统一性和规则的工作。Web 社区也已经开发了多种工具和方法，帮助你管理大些的 CSS 项目
+
+##### CSS方法论
+
+不必需要自己制定编写 CSS 的规则，你可以选择接纳一个已经已经由社群设计、经由诸多项目检验的方法，并从中获益。这些方法论都是有着结构化的编写和组织 CSS 途径的 CSS 代码指南。
+
+**OOCSS** ??
+
+你会遇到的大多数方式都有一部分归功于面向对象的 CSS（OOCSS）的概念，这是一种因[Nicole Sullivan 的努力](https://github.com/stubbornella/oocss/wiki)而流行的方式。OOCSS 的基本理念是将你的 CSS 分解成可复用的对象，于是你可以在你的站点上任何需要的地方使用。OOCSS 的标准示例是在[The Media Object](https://developer.mozilla.org/en-US/docs/Web/CSS/Layout_cookbook/Media_objects)中所描述的排布。
+
+
+
+
+
+**BEM**
+
+BEM 即为块级元素修饰字符（Block Element Modifier）。在 BEM 中，一个块，例如一个按钮、菜单或者标志，就是独立的实体。一个元素就像一个列表项或者标题一样，被绑定到它所在的块。修饰字符是标记到一个块或者元素的标识，能够改变样式或者行为。
+
+你能认出使用 BEM 的代码，因为代码中在 CSS 的类里使用了多余的一个下划线和连字符。例如看看这个来自关于[BEM 命名常规](http://getbem.com/naming/)的页面里面的 HTML 所应用的类：
+
+```css
+<form class="form form--theme-xmas form--simple">
+  <input class="form__input" type="text" />
+  <input
+    class="form__submit form__submit--disabled"
+    type="submit" />
+</form>
+```
+
+
+
+##### CSS构建体系
+
+另一种组织 CSS 的方法是利用一些对于前端开发者可用的工具，它们让你可以稍微更程式化地编写 CSS。有很多工具，我们将它们分成**预处理工具**和**后处理工具**。预处理工具以你的原文件为基础运行，将它们转化为样式表；后处理工具使用你已完成的样式表，然后对它做点手脚——也许是优化它以使它加载得更快。
+
+
 
 
 
