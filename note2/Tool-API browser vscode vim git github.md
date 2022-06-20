@@ -1188,6 +1188,15 @@ git push -u origin master
 
 ### 光标移动
 
+#### 快速跳到下一个空格
+
+* 大写E+小写l
+* f+`<space>` 或 f+`<tab>`
+
+
+
+
+
 
 
 ### 操作
@@ -1406,6 +1415,15 @@ vscode中通过setting.json设置`vim.hlsearch: true`实现
   复制当前光标所在的一整行
 - 4yy
   复制当前光标所在的行、以及后面三行，总共四行
+
+
+
+**复制到空格之前的位置**
+
+* y+E
+* y+f+`<space> 或 <tab>`
+
+
 
 
 

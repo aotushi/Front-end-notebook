@@ -12576,47 +12576,28 @@ console.log(typeof doSomething); //'function'
 
 在这个示例中，doSomething()函数被提升至全局作用域，所以在if代码块外也可以访问到。ECMAScript 6将这个行为标准化了，移除了之前存在于各浏览器间不兼容的行为，所以所有ECMAScript 6的运行时环境都将执行这一标准。
 
-### new介绍
-
-> the `new` operator lets developers create an instance of a user-defined object type or one of the built-in object types that has a constructor function.
 
 
 
-#### Syntax
 
-> new constructor [ ([arguments])]
+### 函数调用
 
-#### Parameters
+定义一个函数并不会自动的执行它。定义了函数仅仅是赋予函数以名称并明确函数被调用时该做些什么。**调用**函数才会以给定的参数真正执行这些动作.
 
-`constructor`
+函数一定要处于调用它们的域中,因为函数的声明可以被提升,所以可以在声明之前调用.函数提升只适用于函数声明,而不适应于函数表达式.
 
-A class or function that specifies the type of the object instance
+如果一个函数中没有使用return语句，则它默认返回`undefined`。要想返回一个特定的值，则函数必须使用 `return` 语句来指定一个要返回的值。(使用[new](https://developer.mozilla.org/zh-cn/docs/JavaScript/Reference/Operators/new)关键字调用一个[构造函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)除外)
 
-`arguments`
-
-A list of values that the `constructor` will be called with
-
-#### Desc
-
-**the `new` keyword does the following things:**
-
-1.create <span style="color:blue">a blank, plain JavaScript object</span>
-
-2.Adds a property to the new object(`__proto`__) that links to the constructor function's prototype object.
-
-3.Binds the newly created object instance as the `this` context(i.e. all references to `this` in the constructor function now refer to the object created in the first step)
-
-4.Returns `this` if the function doesn't return an object
+```JavaScript
+//it's work;
+cosole.log(square(5))
+function square(n){return n*n};
 
 
-
-**when the code `new Foo(...)` is executed, the following things happen:**
-
-1.A new object is created, inherited from `Foo.prototype`
-
-2.the constructor function `Foo` is called with the specified arguments, and with `this` bound to the newly created object. `new Foo` is equivalent to `new Foo()`. i.e. if no argument list is specified, `Foo` is called without arguments.
-
-3.the object(not null, false, 3.1415 or other primitive types) returned by the constructor function becomes the result of the whole `new` expression. If the constructor function doesn't explicitly return an object, the object created in step 1 is used instead (normally constructors don't return a value, but they can choose to do s<u>o if they want to override the normal object createion process</u>) 没太明白,中文版翻译可以理解
+console.log(square); //square is hoisted with an initial value undefined;
+console.log(square(5)); //Uncaught TypeError: square is not a function
+const square = function(n){return n*n};
+```
 
 
 
@@ -14262,27 +14243,6 @@ let anotherPerson = new anotherPerson('Nicholas'); //抛出错误
 
 
 
-### 函数调用
-
-定义一个函数并不会自动的执行它。定义了函数仅仅是赋予函数以名称并明确函数被调用时该做些什么。**调用**函数才会以给定的参数真正执行这些动作.
-
-函数一定要处于调用它们的域中,因为函数的声明可以被提升,所以可以在声明之前调用.函数提升只适用于函数声明,而不适应于函数表达式.
-
-如果一个函数中没有使用return语句，则它默认返回`undefined`。要想返回一个特定的值，则函数必须使用 `return` 语句来指定一个要返回的值。(使用[new](https://developer.mozilla.org/zh-cn/docs/JavaScript/Reference/Operators/new)关键字调用一个[构造函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/constructor)除外)
-
-```JavaScript
-//it's work;
-cosole.log(square(5))
-function square(n){return n*n};
-
-
-console.log(square); //square is hoisted with an initial value undefined;
-console.log(square(5)); //Uncaught TypeError: square is not a function
-const square = function(n){return n*n};
-```
-
-
-
 ### 函数属性与方法
 
 ECMAScript 中的函数是对象，因此有属性和方法。**每个函数都有两个属性：length和prototype**。其中，length 属性保存函数定义的命名参数的个数,剩余参数的加入不会影响length属性的值.
@@ -15171,147 +15131,6 @@ console.log(fn.valueOf());
 ```
 
 
-
-
-
-### 闭包
-
-你可以在一个函数里面嵌套另外一个函数。嵌套（内部）函数对其容器（外部）函数是私有的。它自身也形成了一个闭包。一个闭包是一个可以自己拥有独立的环境与变量的表达式（通常是函数). 嵌套函数可以”继承“容器函数的参数和变量。换句话说，内部函数包含外部函数的作用域。
-
-由于内部函数可以访问外部函数的作用域，因此当内部函数生存周期大于外部函数时，外部函数中定义的变量和函数的生存周期将比内部函数执行时间长。当内部函数以某一种方式被任何一个外部函数作用域访问时，一个闭包就产生了
-
-可以总结如下:
-
-* 允许函数嵌套
-
-- 内部函数只可以在外部函数中访问
-- 内部函数形成了一个闭包：它可以访问外部函数的所有参数和变量及外部函数能访问的所有变量和函数，但是外部函数却不能使用它的参数和变量。
-
-
-
-#### 概要
-
-```JavaScript
-- 闭包就是能访问到外部函数变量的内部函数
-- 闭包可以用来将一些不愿意被别人访问的变量隐藏起来 //闭包的作用就是藏东西,暴露的东西使用返回值返回,缺点就是内存占用,可忽略
-- 闭包构成要素:
- 1. 必须有函数的嵌套
- 2. 内部函数要引用外部函数的变量
- 3. 必须将内部函数作为返回值返回  //不正确
- 
- 
-- 闭包的生命周期
- 闭包在外部函数调用时创建,调用一次产生一个
- 相同对象调用,形成闭包.
- 闭包在内部函数被垃圾回收时销毁.
-```
-
-
-
-```js
-//https://www.zhihu.com/question/460940032
-
-function createIncrement() {
-  let count = 0;
-  function increment() { 
-    count++;
-  }
-
-  let message = `Count is ${count}`;
-  function log() {
-    console.log(message);
-  }
- 
-  return [increment, log];
-}
-
-const [increment, log] = createIncrement();
-increment(); 
-increment(); 
-increment(); 
-log(); // 0
-
-
-在①处调用 createIncrement 时，②处的 message 实际上已经创建出来了，那就相当于是字符串不变量了
-把函数log写成:
-function log(){
-  console.log(`Count is ${count}`)
-}
-```
-
-![](https://pic1.zhimg.com/80/v2-c518a99960e698edba1c3dca36e11804_720w.jpg?source=1940ef5c)
-
-
-
-
-
-
-
-#### 保存变量
-
-一个闭包必须保存它可见作用域中所有参数和变量。因为每一次调用传入的参数都可能不同，每一次对外部函数的调用实际上重新创建了一遍这个闭包。只有当返回的嵌套函数没有再被引用时，内存才会被释放.
-
-
-
-#### 多层嵌套函数
-
-函数可以被多层嵌套。例如，函数A可以包含函数B，函数B可以再包含函数C。B和C都形成了闭包，所以B可以访问A，C可以访问B和A。因此，闭包可以包含多个作用域；他们递归式的包含了所有包含它的函数作用域。这个称之为**作用域链**
-
-```js
-function A(x){
-  function B(y){
-    function C(z){
-      console.log(x+y+z)
-    }
-    C(3);
-  }
-  B(2);
-}
-A(1)
-```
-
-#### 命名冲突🔸
-
-如果一个闭包的函数定义了一个和外部函数的某个变量名称相同的变量，那么这个闭包将无法引用外部函数的这个变量.
-
-当同一个闭包作用域下两个参数或者变量同名时，就会产生命名冲突。更近的作用域有更高的优先权，所以最近的优先级最高，最远的优先级最低。这就是作用域链。链的第一个元素就是最里面的作用域，最后一个元素便是最外层的作用域。
-
-```js
-function outside(){
-  var x = 5;
-  return function inside(x){
-    return x*2;
-  }
-}
-outside()(10); //20
-
-//解析:
-命名冲突发生在return x上，inside的参数x和outside变量x发生了冲突。这里的作用链域是{inside, outside, 全局对象}。因此inside的x具有最高优先权，返回了20（inside的x）而不是10（outside的x）
-```
-
-
-
-
-
-#### 案例
-
-```JavaScript
-创建一个函数,函数每次调用时,都显示它执行的叠加次数
-
-function outer(){
-    let times = 0;
-    function inner(){
-        times++;
-        alert(times);
-    }
-    return inner;  //返回值是内部函数,而不是调用内部函数
-}
-
-let result = outer()
-result();//outer()(); outer()()执行的是内部函数,故每次均为1;result()执行的是闭包函数,叠加
-
-result = null; //内部函数会被垃圾回收
-```
 
 
 
@@ -16210,6 +16029,52 @@ function creatPerson(name, age, gender){
 
 
 
+### new介绍
+
+> the `new` operator lets developers create an instance of a user-defined object type or one of the built-in object types that has a constructor function.
+
+
+
+#### Syntax
+
+> new constructor [ ([arguments])]
+
+#### Parameters
+
+`constructor`
+
+A class or function that specifies the type of the object instance
+
+`arguments`
+
+A list of values that the `constructor` will be called with
+
+#### Desc
+
+**the `new` keyword does the following things:**
+
+1.create <span style="color:blue">a blank, plain JavaScript object</span>
+
+2.Adds a property to the new object(`__proto`__) that links to the constructor function's prototype object.
+
+3.Binds the newly created object instance as the `this` context(i.e. all references to `this` in the constructor function now refer to the object created in the first step)
+
+4.Returns `this` if the function doesn't return an object
+
+
+
+**when the code `new Foo(...)` is executed, the following things happen:**
+
+1.A new object is created, inherited from `Foo.prototype`
+
+2.the constructor function `Foo` is called with the specified arguments, and with `this` bound to the newly created object. `new Foo` is equivalent to `new Foo()`. i.e. if no argument list is specified, `Foo` is called without arguments.
+
+3.the object(not null, false, 3.1415 or other primitive types) returned by the constructor function becomes the result of the whole `new` expression. If the constructor function doesn't explicitly return an object, the object created in step 1 is used instead (normally constructors don't return a value, but they can choose to do s<u>o if they want to override the normal object createion process</u>) 没太明白,中文版翻译可以理解
+
+
+
+
+
 ### 构造函数(constructor)|类|实例
 
 #### 概念
@@ -16570,7 +16435,7 @@ function factorial(n, p = 1) {
 
 
 
-### 函数使用实例
+### 函数实例
 
 #### 获取函数的调用次数
 
@@ -16666,6 +16531,141 @@ console.log(count);
 
 
 
+### 函数绑定
+
+> https://zh.javascript.info/bind
+
+当将对象方法作为回调进行传递，例如传递给 `setTimeout`，这儿会存在一个常见的问题：“丢失 `this`”。
+
+#### 丢失的this
+
+一旦方法被传递到与对象分开的某个地方 —— `this` 就丢失。
+
+下面是使用 `setTimeout` 时 `this` 是如何丢失的：
+
+```javascript
+let user = {
+  firstName: "John",
+  sayHi() {
+    alert(`Hello, ${this.firstName}!`);
+  }
+};
+
+setTimeout(user.sayHi, 1000); // Hello, undefined!
+```
+
+输出没有像 `this.firstName` 那样显示 “John”，而显示了 `undefined`！
+
+因为 `setTimeout` 获取到了函数 `user.sayHi`，但它和对象分离开了。最后一行可以被重写为：
+
+```javascript
+let f = user.sayHi;
+setTimeout(f, 1000); // 丢失了 user 上下文
+```
+
+#### 解决方法1-包装器
+
+最简单的解决方案是使用一个包装函数：
+
+```javascript
+let user = {
+  firstName: "John",
+  sayHi() {
+    alert(`Hello, ${this.firstName}!`);
+  }
+};
+
+setTimeout(function() {
+  user.sayHi(); // Hello, John!
+}, 1000);
+
+
+//更简短
+setTimeout(() => user.sayHi(), 1000); // Hello, John!
+```
+
+**代码存在的漏洞**
+
+如果在 `setTimeout` 触发之前（有一秒的延迟！）`user` 的值改变了怎么办？那么，突然间，它将调用错误的对象！
+
+```javascript
+let user = {
+  firstName: "John",
+  sayHi() {
+    alert(`Hello, ${this.firstName}!`);
+  }
+};
+
+setTimeout(() => user.sayHi(), 1000);
+
+// ……user 的值在不到 1 秒的时间内发生了改变
+user = {
+  sayHi() { alert("Another user in setTimeout!"); }
+};
+
+// Another user in setTimeout!
+```
+
+下一个解决方案保证了这样的事情不会发生。
+
+
+
+#### 解决方案2-bind
+
+```javascript
+let user = {
+  firstName: "John",
+  sayHi() {
+    alert(`Hello, ${this.firstName}!`);
+  }
+};
+
+let sayHi = user.sayHi.bind(user); // (*)
+
+// 可以在没有对象（译注：与对象分离）的情况下运行它
+sayHi(); // Hello, John!
+
+setTimeout(sayHi, 1000); // Hello, John!
+
+// 即使 user 的值在不到 1 秒内发生了改变
+// sayHi 还是会使用预先绑定（pre-bound）的值，该值是对旧的 user 对象的引用
+user = {
+  sayHi() { alert("Another user in setTimeout!"); }
+};
+```
+
+在 `(*)` 行，我们取了方法 `user.sayHi` 并将其绑定到 `user`。`sayHi` 是一个“绑定后（bound）”的方法，它可以被单独调用，也可以被传递给 `setTimeout` —— 都没关系，函数上下文都会是正确的。
+
+这里我们能够看到参数（arguments）都被“原样”传递了，只是 `this` 被 `bind` 绑定了：
+
+```javascript
+let user = {
+  firstName: "John",
+  say(phrase) {
+    alert(`${phrase}, ${this.firstName}!`);
+  }
+};
+
+let say = user.say.bind(user);
+
+say("Hello"); // Hello, John!（参数 "Hello" 被传递给了 say）
+say("Bye"); // Bye, John!（参数 "Bye" 被传递给了 say）
+```
+
+**便捷方法 bindAll**
+
+如果一个对象有很多方法，并且我们都打算将它们都传递出去，那么我们可以在一个循环中完成所有方法的绑定：
+
+```javascript
+for (let key in user) {
+  if (typeof user[key] == 'function') {
+    user[key] = user[key].bind(user);
+  }
+}
+```
+
+JavaScript 库还提供了方便批量绑定的函数，例如 lodash 中的 [_.bindAll(object, methodNames)](http://lodash.com/docs#bindAll)。
+
 
 
 ### 函数变种 ?
@@ -16720,6 +16720,147 @@ const linkifyAndImagify = str => linkify(imagify(str))
 ```
 
 
+
+
+
+闭包
+
+你可以在一个函数里面嵌套另外一个函数。嵌套（内部）函数对其容器（外部）函数是私有的。它自身也形成了一个闭包。一个闭包是一个可以自己拥有独立的环境与变量的表达式（通常是函数). 嵌套函数可以”继承“容器函数的参数和变量。换句话说，内部函数包含外部函数的作用域。
+
+由于内部函数可以访问外部函数的作用域，因此当内部函数生存周期大于外部函数时，外部函数中定义的变量和函数的生存周期将比内部函数执行时间长。当内部函数以某一种方式被任何一个外部函数作用域访问时，一个闭包就产生了
+
+可以总结如下:
+
+* 允许函数嵌套
+
+- 内部函数只可以在外部函数中访问
+- 内部函数形成了一个闭包：它可以访问外部函数的所有参数和变量及外部函数能访问的所有变量和函数，但是外部函数却不能使用它的参数和变量。
+
+
+
+#### 概要
+
+```JavaScript
+- 闭包就是能访问到外部函数变量的内部函数
+- 闭包可以用来将一些不愿意被别人访问的变量隐藏起来 //闭包的作用就是藏东西,暴露的东西使用返回值返回,缺点就是内存占用,可忽略
+- 闭包构成要素:
+ 1. 必须有函数的嵌套
+ 2. 内部函数要引用外部函数的变量
+ 3. 必须将内部函数作为返回值返回  //不正确
+ 
+ 
+- 闭包的生命周期
+ 闭包在外部函数调用时创建,调用一次产生一个
+ 相同对象调用,形成闭包.
+ 闭包在内部函数被垃圾回收时销毁.
+```
+
+
+
+```js
+//https://www.zhihu.com/question/460940032
+
+function createIncrement() {
+  let count = 0;
+  function increment() { 
+    count++;
+  }
+
+  let message = `Count is ${count}`;
+  function log() {
+    console.log(message);
+  }
+ 
+  return [increment, log];
+}
+
+const [increment, log] = createIncrement();
+increment(); 
+increment(); 
+increment(); 
+log(); // 0
+
+
+在①处调用 createIncrement 时，②处的 message 实际上已经创建出来了，那就相当于是字符串不变量了
+把函数log写成:
+function log(){
+  console.log(`Count is ${count}`)
+}
+```
+
+![](https://pic1.zhimg.com/80/v2-c518a99960e698edba1c3dca36e11804_720w.jpg?source=1940ef5c)
+
+
+
+
+
+
+
+#### 保存变量
+
+一个闭包必须保存它可见作用域中所有参数和变量。因为每一次调用传入的参数都可能不同，每一次对外部函数的调用实际上重新创建了一遍这个闭包。只有当返回的嵌套函数没有再被引用时，内存才会被释放.
+
+
+
+#### 多层嵌套函数
+
+函数可以被多层嵌套。例如，函数A可以包含函数B，函数B可以再包含函数C。B和C都形成了闭包，所以B可以访问A，C可以访问B和A。因此，闭包可以包含多个作用域；他们递归式的包含了所有包含它的函数作用域。这个称之为**作用域链**
+
+```js
+function A(x){
+  function B(y){
+    function C(z){
+      console.log(x+y+z)
+    }
+    C(3);
+  }
+  B(2);
+}
+A(1)
+```
+
+#### 命名冲突🔸
+
+如果一个闭包的函数定义了一个和外部函数的某个变量名称相同的变量，那么这个闭包将无法引用外部函数的这个变量.
+
+当同一个闭包作用域下两个参数或者变量同名时，就会产生命名冲突。更近的作用域有更高的优先权，所以最近的优先级最高，最远的优先级最低。这就是作用域链。链的第一个元素就是最里面的作用域，最后一个元素便是最外层的作用域。
+
+```js
+function outside(){
+  var x = 5;
+  return function inside(x){
+    return x*2;
+  }
+}
+outside()(10); //20
+
+//解析:
+命名冲突发生在return x上，inside的参数x和outside变量x发生了冲突。这里的作用链域是{inside, outside, 全局对象}。因此inside的x具有最高优先权，返回了20（inside的x）而不是10（outside的x）
+```
+
+
+
+
+
+#### 案例
+
+```JavaScript
+创建一个函数,函数每次调用时,都显示它执行的叠加次数
+
+function outer(){
+    let times = 0;
+    function inner(){
+        times++;
+        alert(times);
+    }
+    return inner;  //返回值是内部函数,而不是调用内部函数
+}
+
+let result = outer()
+result();//outer()(); outer()()执行的是内部函数,故每次均为1;result()执行的是闭包函数,叠加
+
+result = null; //内部函数会被垃圾回收
+```
 
 
 
