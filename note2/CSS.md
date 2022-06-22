@@ -181,9 +181,13 @@ CSS选择器
 
 #### 冲突的规则
 
+CSS 代表**层叠样式表 (Cascading Style Sheets)**
+
 CSS发生冲突遵循的规则有:
 
 ##### 层叠
+
+Stylesheets **cascade（样式表层叠）**
 
 * 顺序: 当应用两条同级别的规则到一个元素的时候，写在后面的就是实际使用的规则。
 
@@ -195,43 +199,89 @@ CSS发生冲突遵循的规则有:
 
 一些设置在父元素上的css属性是可以被子元素继承的，有些则不能
 
-* 定义:后代元素可以继承父元素设置的**<font color="red">文本的属性</font>**
-
+* 定义:后代元素可以继承父元素设置的**<font color="red">文本的属性</font>**<sup>都有哪些呢?</sup>
 * 继承的权重为0,优先继承离自己最近的父辈元素. 即使祖先元素使用 **!important**
-
 * **不能继承**: <font color="red">父辈元素的width, height, 背景图,背景色等其他</font>
+
+哪些属性属于默认继承很大程度上是由常识决定的。??(需要总结)
+
+
 
 #### 控制继承
 
 CSS 为控制继承提供了四个特殊的通用属性值。每个css属性都接收这些值。
 
-[`inherit`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inherit)
+##### [`inherit`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inherit)
 
 设置该属性会使子元素属性和父元素相同。实际上，就是 "开启继承".
 
-[`initial`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/initial)
+**`inherit`** 关键字使得元素获取其父元素的[计算值](https://developer.mozilla.org/zh-CN/docs/Web/CSS/computed_value)。它可以应用于任何 CSS 属性，包括 CSS 简写 [`all`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/all)。
 
-设置属性值和浏览器默认样式相同。如果浏览器默认样式中未设置且该属性是自然继承的，那么会设置为 `inherit` 。
+对于[继承](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inheritance#inherited_properties)属性，inherit 关键字只是增强了属性的默认行为，通常只在覆盖原有的值的时候使用。
 
-[`unset`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/unset)
+继承始终来自文档树中的父元素，即使父元素不是包含块。
 
-将属性重置为自然值，也就是如果属性是自然继承那么就是 `inherit`，否则和 `initial`一样
 
-[`revert`](https://developer.mozilla.org/en-US/docs/Web/CSS/revert)
+
+
+
+##### [`initial`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/initial)
+
+**`initial`** CSS关键字将属性的初始（或默认）值应用于元素。
+
+不应将初始值与浏览器样式表指定的值混淆。它可以应用于任何CSS属性。这包括CSS简写[all](https://developer.mozilla.org/zh-CN/docs/Web/CSS/all)，initial可用于将所有CSS属性恢复到其初始状态。
+
+在继承的属性上，初始值可能是意外的。你应该考虑使用 [`inherit`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inherit), [`unset`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/unset)，或[`revert` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/revert) 关键字代替。(此句晦涩, 以下为原文,)
+
+> On [inherited properties](https://developer.mozilla.org/en-US/docs/Web/CSS/inheritance#inherited_properties), the initial value may be unexpected. You should consider using the [`inherit`](https://developer.mozilla.org/en-US/docs/Web/CSS/inherit), [`unset`](https://developer.mozilla.org/en-US/docs/Web/CSS/unset), [`revert`](https://developer.mozilla.org/en-US/docs/Web/CSS/revert), or [`revert-layer`](https://developer.mozilla.org/en-US/docs/Web/CSS/revert-layer) keywords instead.
+
+
+
+
+
+
+
+##### [`unset`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/unset)
+
+CSS 关键字 **`unset`** 可以分为两种情况，如果这个属性本来有从父级继承的值（这个属性默认可以继承，且父级有定义），则将该属性重新设置为继承的值，如果没有继承父级样式，则将该属性重新设置为初始值。
+
+换句话说，在第一种情况下（继承属性）它的行为类似于[`inherit`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inherit) ，在第二种情况下（非继承属性）类似于[`initial`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/initial)。它可以应用于任何 CSS 属性，包括 CSS 简写属性 [`all`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/all) 。
+
+
+
+
+
+
+
+##### [`revert`](https://developer.mozilla.org/en-US/docs/Web/CSS/revert)
 
 只有很少的浏览器支持
 
 
 
+
+
+
+
+
+
+
+
 #### 重设所有属性值
 
-css属性 `all` 可以用于同时将这些继承值中的一个应用于（几乎）所有属性。它的值可以是其中任意一个(`inherit`, `initial`, `unset`, or `revert`)。
+CSS 的 shorthand 属性 `all` 可以用于同时将这些继承值中的一个应用于（几乎）所有属性。
+
+它的值可以是其中任意一个 (`inherit`, `initial`, `unset`, or `revert`)。
 
 这是一种撤销对样式所做更改的简便方法，以便回到之前已知的起点。
 
 ```css
 all: unset;
 ```
+
+**案例**
+
+<iframe width="100%" height="700" src="https://mdn.github.io/css-examples/learn/cascade/all.html" loading="lazy"></iframe>
 
 
 
@@ -241,13 +291,19 @@ all: unset;
 
 * 重要程度
 * 优先级
-* 顺序
+* 资源顺序
 
-##### 顺序
+##### 资源顺序
 
-超过一条规则，而且都是相同的权重，那么最后面的规则会应用
+如果你有超过一条规则，而且都是相同的权重，那么最后面的规则会应用。可以理解为后面的规则覆盖前面的规则，直到最后一个开始设置样式。
 
 ##### 优先级
+
+> [优先级 - CSS（层叠样式表） | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Specificity)
+
+优先级就是分配给指定的 CSS 声明的一个权重，它由 匹配的选择器中的 每一种选择器类型的 数值 决定。
+
+
 
 一些规则在最后出现，但是却应用了前面的规则。这是因为前面的有更高的**优先级**
 
@@ -259,22 +315,64 @@ all: unset;
 
 ##### 浏览器如何计算优先级
 
-一个选择器的优先级可以说是由四个部分相加 (分量)，可以认为是个十百千 — 四位数的四个位数：
+<span style="color:blue">一个选择器的优先级可以说是由四个部分相加 (分量)，可以认为是个十百千 — 四位数的四个位数：</span>
 
 1. **千位**： 如果声明在 [`style`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Global_attributes#attr-style) 的属性（内联样式）则该位得一分。这样的声明没有选择器，所以它得分总是1000。
 2. **百位**： 选择器中包含<u>ID选择器</u>则该位得一分。
 3. **十位**： 选择器中包含<u>类选择器、属性选择器或者伪类</u>则该位得一分。
 4. **个位**：选择器中包含<u>元素、伪元素选择器</u>则该位得一分。
 
-**注**: 通用选择器 (`*`)，组合符 (`+`, `>`, `~`, ' ')，和否定伪类 (`:not`) 不会影响优先级。
+**注**: <span style="color:blue">通用选择器 (`*`)，组合符 (`+`, `>`, `~`, ' ')，和否定伪类 (`:not`) 不会影响优先级。</span>
 
 在进行计算时不允许进行进位，例如，20 个类选择器仅仅意味着 20 个十位，而不能视为 两个百位，也就是说，无论多少个类选择器的权重叠加，都不会超过一个 ID 选择器。
+
+
+
+`:not` 否定伪类在优先级计算中不会被看作是伪类。事实上，在计算选择器数量时还是会把其中的选择器当做普通选择器进行计数。
+
+有如下 CSS 样式声明：
+
+```
+div.outer p {
+  color: orange;
+}
+
+div:not(.outer) p {
+  color: blueviolet;
+}
+```
+
+将其应用于以下的 HTML 时：
+
+```
+<div class="outer">
+  <p>This is in the outer div.</p>
+  <div class="inner">
+    <p>This text is in the inner div.</p> //颜色变成blueviolet
+  </div>
+</div>
+```
+
+会在屏幕上出现以下结果：
+
+
 
 ##### !important
 
 有一个特殊的 CSS 可以用来覆盖所有上面所有优先级计算，不过需要很小心的使用 — `!important`。用于修改特定属性的值， 能够覆盖普通规则的层叠。
 
 最佳实践: **强烈建议除了非常情况不要使用它。**当你不能编辑核心的CSS模块，不能用任何其他方式覆盖，而你又真的想要覆盖一个样式时。覆盖 `!important` 唯一的办法就是另一个 `!important` 具有 相同*优先级* 而且顺序靠后，或者更高优先级。
+
+经验:
+
+- **一定**要优先考虑使用样式规则的优先级来解决问题而不是 `!important`
+- **只有**在需要覆盖全站或外部 CSS 的特定页面中使用 `!important`
+- **永远不要**在你的插件中使用 `!important`
+- **永远不要**在全站范围的 CSS 代码中使用 `!important`
+
+
+
+
 
 **案例**: 
 
@@ -296,6 +394,8 @@ all: unset;
 
 #### CSS位置影响
 
+> 晦涩难理解
+
 相互冲突的声明将按以下顺序适用，后一种声明将覆盖前一种声明：
 
 1. 用户代理样式表中的声明(例如，浏览器的默认样式，在没有设置其他样式时使用)。
@@ -312,16 +412,50 @@ CSS选择器是元素和其他部分组合起来告诉浏览器哪个HTML元素�
 
 选择器所选择的元素，叫做“选择器的对象”。
 
-#### 选择器列表
+#### 选择器列表/分组
 
-多个使用相同样式的CSS选择器，那么这些单独的选择器可以被混编为一个“选择器列表”，使用逗号分隔
+多个使用相同样式的CSS选择器，那么这些单独的选择器可以被混编为一个“选择器列表”，使用<span style="color:blue">逗号分隔</span>
 
-如果任何一个选择器无效 (存在语法错误)，那么整条规则都会被忽略。
+<span style="color:blue">如果任何一个选择器无效 (存在语法错误)，那么整条规则都会被忽略。</span>
+
+```css
+h1,h2,h3,h4,h5,h6 {
+  color: green;
+  }
+```
+
+
+
+#### 继承及问题
+
+根据 CSS，子元素从父元素继承属性。但是它并不总是按此方式工作。看看下面这条规则：
+
+```css
+body {
+     font-family: Verdana, sans-serif;
+     }
+```
+
+所有 body 的子元素都应该显示 Verdana 字体，子元素的子元素也一样。并且在大部分的现代浏览器中，也确实是这样的。
+
+但是在那个浏览器大战的血腥年代里，这种情况就未必会发生，那时候对标准的支持并不是企业的优先选择。比方说，Netscape 4 就不支持继承，它不仅忽略继承，而且也忽略应用于 body 元素的规则。IE/Windows 直到 IE6 还存在相关的问题，在表格内的字体样式会被忽略。我们又该如何是好呢？
+
+##### 解决
+
+友善对待Netscape 4
+
+基本不重要, 这种问题现在基本上没有
 
 
 
 
-#### CSS选择器使用
+
+
+
+
+
+
+#### CSS选择器3种使用方式
 
 ##### 外部CSS
 
@@ -400,7 +534,11 @@ ID选择器开头为`#`而非句点，不过基本上和类选择器是同种用
 
 
 
-#### 标签属性选择器
+#### 属性选择器
+
+> [属性选择器 - CSS（层叠样式表） | MDN (mozilla.org)](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Attribute_selectors)
+
+CSS **属性选择器**通过已经存在的属性名或属性值匹配元素。
 
 ##### 存否和值选择器
 
@@ -410,8 +548,8 @@ ID选择器开头为`#`而非句点，不过基本上和类选择器是同种用
 | :-------------- | :------------------------------ | :----------------------------------------------------------- |
 | `[attr]`        | `a[title]`                      | 匹配带有一个名为*attr*的属性的元素——方括号里的值。           |
 | `[attr=value]`  | `a[href="https://example.com"]` | 匹配带有一个名为*attr*的属性的元素，其值正为*value*——引号中的字符串。 |
-| `[attr~=value]` | `p[class~="special"]`           | 匹配带有一个名为*attr*的属性的元素 ，其值正为*value*，或者匹配带有一个*attr*属性的元素，其值有一个或者更多，至少有一个和*value*匹配。注意，在一列中的好几个值，是用<span style="color:blue">空格隔开</span>的。 |
-| `[attr|=value]` | `div[lang|="zh"]`               | 匹配带有一个名为*attr*的属性的元素，其值可正为*value*，或者开始为*value*，后面紧随着一个<span style="color:blue">连字符</span> (-) |
+| `[attr~=value]` | `p[class~="special"]`           | 表示带有以 attr 命名的属性的元素，并且该属性是一个以空格作为分隔的值列表，其中至少有一个值为 value。 |
+| `[attr|=value]` | `div[lang|="zh"]`               | 表示带有以 attr 命名的属性的元素，属性值为“value”或是以“value-”为前缀（"`-`"为连字符，Unicode 编码为 U+002D）开头。典型的应用场景是用来匹配语言简写代码（如 zh-CN，zh-TW 可以用 zh 作为 value）。 |
 
 使用案例:
 
@@ -419,11 +557,13 @@ ID选择器开头为`#`而非句点，不过基本上和类选择器是同种用
 
 ##### 子字符串匹配选择器
 
-| 选择器          | 示例                | 描述                                                         |
-| :-------------- | :------------------ | :----------------------------------------------------------- |
-| `[attr^=value]` | `li[class^="box-"]` | 匹配带有一个名为*attr*的属性的元素，其值开头为*value*子字符串。 |
-| `[attr$=value]` | `li[class$="-box"]` | 匹配带有一个名为*attr*的属性的元素，其值结尾为*value*子字符串 |
-| `[attr*=value]` | `li[class*="box"]`  | 匹配带有一个名为*attr*的属性的元素，其值的字符串中的任何地方，至少出现了一次*value*子字符串。 |
+| 选择器                                           | 示例                | 描述                                                         |
+| :----------------------------------------------- | :------------------ | :----------------------------------------------------------- |
+| `[attr^=value]`                                  | `li[class^="box-"]` | 匹配带有一个名为*attr*的属性的元素，其值开头为*value*子字符串。 |
+| `[attr$=value]`                                  | `li[class$="-box"]` | 匹配带有一个名为*attr*的属性的元素，其值结尾为*value*子字符串 |
+| `[attr*=value]`                                  | `li[class*="box"]`  | 匹配带有一个名为*attr*的属性的元素，其值的字符串中的任何地方，至少出现了一次*value*子字符串。 |
+| [*attr* *operator* *value* i]                    |                     | 在属性选择器的右方括号前添加一个用空格隔开的字母 `i`（或 `I`），可以在匹配属性值时忽略大小写（支持 ASCII 字符范围之内的字母）。 |
+| `[*attr* *operator* *value* s]` Experimental阶段 |                     | 在属性选择器的右方括号前添加一个用空格隔开的字母 `s`（或 `S`），可以在匹配属性值时区分大小写（支持 ASCII 字符范围之内的字母）。 |
 
 
 
@@ -579,6 +719,18 @@ article p:first-child::first-line {
 
 `::before`和`::after`伪元素与`content`属性的共同使用，在CSS中被叫做“生成内容”，而且你会见到这种技术被用于完成各种任务。
 
+案例1
+
+<iframe width="100%" height="400" src="https://mdn.github.io/css-examples/learn/selectors/after-icon.html" loading="lazy"></iframe>
+
+案例2
+
+用 `::before`伪元素加入了个空字符串。我们把它设为了`display: block`，以让它可以用 width 和 height 进行样式化。然后我们可以用 CSS 像任何元素那样样式化。你可以摆弄 CSS，改变它的外观和行为。
+
+<iframe width="100%" height="500" src="https://mdn.github.io/css-examples/learn/selectors/before-styled.html" loading="lazy"></iframe>
+
+
+
 
 
 [CSS Arrow Please](http://www.cssarrowplease.com/)网站就是一个著名的示例，它帮你用CSS生成一个箭头。
@@ -658,21 +810,7 @@ article p:first-child::first-line {
 
 
 
-##### 伪类选择器
 
-1. 动态伪类选择器
-
-动态伪类并不存在于HTML中，只有当用户和网站交互的时候才能体现出来。动态伪类包含两种，第一种是在链接中常看到的锚点伪类，另一种为用户行为伪类
-
-注意: 锚点伪类的设置必须遵守一个“爱恨原则”LoVe/HAte，也就是“link-visited-hover-active”
-
-| 选择器    | 类型               | 功能描述                                                     |
-| --------- | ------------------ | ------------------------------------------------------------ |
-| E:link    | 链接伪类选择器     | 选择匹配的E元素,且匹配元素被定义了超链接并未被访问过.常用于链接锚点上. |
-| E:visited | 链接伪类选择器     | 选择匹配的E元素,且匹配元素被定义了超链接并已被访问过.常用于链接锚点上. |
-| E:hover   | 用户行为伪类选择器 | 选择匹配的E元素,且用户鼠标在停留在元素E上.IE6及以下仅支持a:hover |
-| E:active  | 用户行为伪类选择器 | 选择匹配的E元素,且匹配的元素被激活.常用于锚点于按钮上.       |
-| E:focus   | 用户行为伪类选择器 | 选择匹配的E元素,且匹配的元素获得焦点                         |
 
 **实例(未完成)**
 
@@ -1032,7 +1170,7 @@ n的值为:
 
 
 
-##### 伪元素选择器
+##### 伪元素选择器案例
 
 伪元素可用于定位文档中包含的文本，但无法在文档树中定位。伪类一般反映无法在CSS中轻松或可靠地检测到的某个元素属性或状态；另一方面，伪元素表示DOM外部的某种文档结构
 
@@ -1413,6 +1551,63 @@ display有一个特殊的值，它在内联和块之间提供了一个中间状�
 
 
 
+
+
+### 元素的显示模式
+
+按[新的 HTML 规范](https://www.zhihu.com/question/34952563/answer/60672228)，已经不按 inline 和 block 来区分元素类型了.
+
+待补充...
+
+#### 1. 块级元素
+
+* 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
+* 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
+
+#### 2. 行内元素
+
+* 特点: 无法设置宽高,转换成块元素或行内块元素宽高可起作用. ; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐).  
+
+* `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
+
+  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
+
+* 行内元素: **a b del  em i  ins span  strong s u  **
+
+```css
+多个span元素转换为inline-block后,会有一个左右间距. 可以span不换行解决这个问题.或者通过父元素添加font-size:0;
+span等行内元素是可以设置内边距 padding 的，只不过元素本身无法把父元素撑开，看上去就是设置的 padding 上下边距不起效了，而 margin 就只能设置 span 的左右边距。
+
+如果要给 span 设置边距，一般的方法就是给它设置一个 display: inline-block; ，把它变成行内块级元素就可以了
+
+```
+
+
+
+#### 3. 行内块
+
+* 特点: 可以设置宽高; 一行可有多个行内块元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距; (宽高默认由图片的原始大小决定;)
+
+* 行内块元素: **img  input等**
+
+#### 4.显示模式的转换
+
+1.其他模式元素转换为行内块元素
+
+​		display: inline-block
+
+2.其他模式元素转换为块元素
+
+​		display: block
+
+
+
+
+
+
+
+
+
 ### 处理不同方向的文本!!
 
 
@@ -1526,6 +1721,86 @@ RGBA颜色——它们的工作方式与RGB颜色完全相同，因此您可以�
 最佳实践:
 
 为了一致性，通常最好是你的整个项目使用相同的一个颜色模型
+
+
+
+#### 颜色4种表现方式
+
+##### 关键词
+
+**rgb**
+
+**rgba**
+
+**16进制**
+
+
+
+
+
+#### 2.盒子的3种基本属性
+
+width height background背景色
+
+* 盒子：在网页中，每个标签都是由一个矩形的图形展示的，所以我们认为网页是由一个个盒子组成的。
+* 盒子指的是html标签
+* div是一个没有语义的盒子
+
+
+
+#### 3.颜色介绍
+
+**互补色**: 色环是我们认识颜色关系的好工具。它是一个近色相邻、异色相离的圆环。 当两个颜色恰好在色环的两端时，这两个颜色就互为补色。 两个互为补色的颜色会在混合后变成灰色。 然而，补色搭配能形成强烈的视觉对比效果。
+
+```html
+红色（#FF0000）和蓝绿色 (#00FFFF)
+绿色（#00FF00）和品红色（#FF00FF）
+蓝色（#0000FF）和黄色（#FFFF00）
+```
+
+
+
+**三原色**
+
+电脑显示器和各类屏幕都是基于颜色叠加的模型：将红（R）、绿（G）、蓝（B）三原色的色光以不同的比例相加，就可以产生各种色彩光。 这在现代色彩理论中叫作三原色光模式（RGB Color Model）。 红色（R）、绿色（G）和蓝色（B）叫作三原色。 如果把两种原色相加，就可以产生二次色：蓝绿（G+B）、品红（R+B）和黄色（R+G）
+
+
+
+**三次色**
+
+三次色是由原色和二次色相加产生的颜色， 例如，在 RGB 颜色模型中，红色（原色）和黄色（二次色）相加产生橙色（三次色）。 将这六种颜色中相邻的颜色相加，便产生了十二色色环。
+
+设计里面有很多种颜色搭配方法。 涉及到三次色的一种配色方法是分裂补色搭配法。 选定主色之后，在色环上选择与它的补色相邻的两种颜色与之搭配。 此种搭配既有对比，又不失和谐。
+
+```html
+橙色	#FF7F00
+蓝绿色	#00FFFF
+树莓红	#FF007F
+```
+
+
+
+#### 4.调整颜色的色相
+
+颜色具有多种特性，包括色相、饱和度和亮度。 CSS3 引入了 `hsl()` 做为颜色的描述方式。
+
+**色相**是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。 以颜色光谱为例，光谱左边从红色开始，移动到中间的绿色，一直到右边的蓝色，色相值就是沿着这条线的取值。 在 `hsl()` 里面，色相用色环来代替光谱，色相值就是色环里面的颜色对应的从 0 到 360 度的角度值。
+
+**饱和度**是指色彩的纯度，也就是**颜色里灰色的占比**。 饱和度越高则灰色占比越少，色彩也就越纯；反之则完全是灰色。 饱和度的取值范围是表示灰色所占百分比的 0 至 100。
+
+**亮度**决定颜色的明暗程度，也就是颜色里白色或者黑色的占比。 其中，100% 的亮度表示纯白色， 0% 的亮度则表示纯黑色；而 50% 的亮度就表示在色相中选取的颜色。
+
+```html
+颜色	HSL
+红	hsl(0, 100%, 50%)
+黄	hsl(60, 100%, 50%)
+绿	hsl(120, 100%, 50%)
+蓝绿	hsl(180, 100%, 50%)
+蓝	hsl(240, 100%, 50%)
+品红	hsl(300, 100%, 50%)
+```
+
+
 
 #### 图片
 
@@ -1919,6 +2194,24 @@ BEM 即为块级元素修饰字符（Block Element Modifier）。在 BEM 中，�
 
 
 
+## 样式化文本
+
+
+
+
+
+## CSS布局
+
+
+
+
+
+
+
+
+
+## 2222
+
 
 
 ### 背景与边框
@@ -2225,298 +2518,11 @@ border-left:
 
 保存: 预设-存储
 
-下拉框选择"选择选中的切片"
+下拉框选择"选择选中的切片
 
 
 
-#### 从ps中获取css代码(1013)
 
-
-
-
-
-#### 盒子模型
-
-
-
-
-
-
-
-### CSS中的颜色
-
-#### 颜色4种表现方式
-
-##### 关键词
-
-**rgb**
-
-**rgba**
-
-**16进制**
-
-
-
-
-
-#### 2.盒子的3种基本属性
-
-width height background背景色
-
-* 盒子：在网页中，每个标签都是由一个矩形的图形展示的，所以我们认为网页是由一个个盒子组成的。
-* 盒子指的是html标签
-* div是一个没有语义的盒子
-
-
-
-#### 3.颜色介绍
-
-**互补色**: 色环是我们认识颜色关系的好工具。它是一个近色相邻、异色相离的圆环。 当两个颜色恰好在色环的两端时，这两个颜色就互为补色。 两个互为补色的颜色会在混合后变成灰色。 然而，补色搭配能形成强烈的视觉对比效果。
-
-```html
-红色（#FF0000）和蓝绿色 (#00FFFF)
-绿色（#00FF00）和品红色（#FF00FF）
-蓝色（#0000FF）和黄色（#FFFF00）
-```
-
-
-
-**三原色**
-
-电脑显示器和各类屏幕都是基于颜色叠加的模型：将红（R）、绿（G）、蓝（B）三原色的色光以不同的比例相加，就可以产生各种色彩光。 这在现代色彩理论中叫作三原色光模式（RGB Color Model）。 红色（R）、绿色（G）和蓝色（B）叫作三原色。 如果把两种原色相加，就可以产生二次色：蓝绿（G+B）、品红（R+B）和黄色（R+G）
-
-
-
-**三次色**
-
-三次色是由原色和二次色相加产生的颜色， 例如，在 RGB 颜色模型中，红色（原色）和黄色（二次色）相加产生橙色（三次色）。 将这六种颜色中相邻的颜色相加，便产生了十二色色环。
-
-设计里面有很多种颜色搭配方法。 涉及到三次色的一种配色方法是分裂补色搭配法。 选定主色之后，在色环上选择与它的补色相邻的两种颜色与之搭配。 此种搭配既有对比，又不失和谐。
-
-```html
-橙色	#FF7F00
-蓝绿色	#00FFFF
-树莓红	#FF007F
-```
-
-
-
-#### 4.调整颜色的色相
-
-颜色具有多种特性，包括色相、饱和度和亮度。 CSS3 引入了 `hsl()` 做为颜色的描述方式。
-
-**色相**是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。 以颜色光谱为例，光谱左边从红色开始，移动到中间的绿色，一直到右边的蓝色，色相值就是沿着这条线的取值。 在 `hsl()` 里面，色相用色环来代替光谱，色相值就是色环里面的颜色对应的从 0 到 360 度的角度值。
-
-**饱和度**是指色彩的纯度，也就是**颜色里灰色的占比**。 饱和度越高则灰色占比越少，色彩也就越纯；反之则完全是灰色。 饱和度的取值范围是表示灰色所占百分比的 0 至 100。
-
-**亮度**决定颜色的明暗程度，也就是颜色里白色或者黑色的占比。 其中，100% 的亮度表示纯白色， 0% 的亮度则表示纯黑色；而 50% 的亮度就表示在色相中选取的颜色。
-
-```html
-颜色	HSL
-红	hsl(0, 100%, 50%)
-黄	hsl(60, 100%, 50%)
-绿	hsl(120, 100%, 50%)
-蓝绿	hsl(180, 100%, 50%)
-蓝	hsl(240, 100%, 50%)
-品红	hsl(300, 100%, 50%)
-```
-
-
-
-
-
-### 元素的显示模式
-
-按[新的 HTML 规范](https://www.zhihu.com/question/34952563/answer/60672228)，已经不按 inline 和 block 来区分元素类型了.
-
-待补充...
-
-#### 1. 块级元素
-
-* 特点：可以设置宽高；独占一行；没有设置宽度时，会继承父元素的width。
-* 块元素：**div h1-h6 p hr ol ul li dl dd dt form **
-
-#### 2. 行内元素
-
-* 特点: 无法设置宽高,转换成块元素或行内块元素宽高可起作用. ; 一行可有多个行内元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距 (宽高默认由图片的原始大小决定; 基线对齐).  
-
-* `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
-
-  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
-
-* 行内元素: **a b del  em i  ins span  strong s u  **
-
-```css
-多个span元素转换为inline-block后,会有一个左右间距. 可以span不换行解决这个问题.或者通过父元素添加font-size:0;
-span等行内元素是可以设置内边距 padding 的，只不过元素本身无法把父元素撑开，看上去就是设置的 padding 上下边距不起效了，而 margin 就只能设置 span 的左右边距。
-
-如果要给 span 设置边距，一般的方法就是给它设置一个 display: inline-block; ，把它变成行内块级元素就可以了
-
-```
-
-
-
-#### 3. 行内块
-
-* 特点: 可以设置宽高; 一行可有多个行内块元素;  盒子间有1个或多个空格,会出现一个默认等宽的间距; (宽高默认由图片的原始大小决定;)
-
-* 行内块元素: **img  input等**
-
-#### 4.显示模式的转换
-
-1.其他模式元素转换为行内块元素
-
-​		display: inline-block
-
-2.其他模式元素转换为块元素
-
-​		display: block
-
-
-
-### 实例问题
-
-#### 1.两个行内块元素无法对齐
-
-```html
-网址出处:https://www.cnblogs.com/qfly/p/8085125.html
-例如,两个转换为行内块的span,一个有文字,一个没有文字,在网页中发现两个盒子无法对齐.
-
-原因:文本基线不一致的原因.没有文字的span的基线已经变成了底部的margin底边缘,后面盒子有文字,所以该盒子的基线就是文字的基线,二值基线对齐形成这个效果.
-
-可以通过改变对齐方式来解决vertical-align:middle;
-```
-
-
-
-#### 2.行内块元素overflow:hidden带来的塌陷问题
-
-```js
-https://stackoverflow.com/questions/32078950/why-baseline-of-inline-block-element-with-overflowhidden-is-set-to-its-bott#
-
-https://blog.csdn.net/w390058785/article/details/80567583
-
-https://www.cnblogs.com/wgwyanfs/p/6985261.html
-
-https://www.cnblogs.com/AliceX-J/p/5731755.html
-```
-
-
-
-因为实现隐藏功能的时候，隐藏部分的内容的vertical-align变成了baseline;对齐了，这样也导致行内块元素高度被撑高了。而后续的行内块元素跟行内元素，是接在了隐藏部分的vertical-align的高度上了。只要改回后续行内块元素跟行内元素的vertical-align值就可以了。
-
-解决方法:
-
-1.重新设置所有行内元素的对齐方式为vertical-align:top或者bottom; (vertical-align属性针对行内元素和表格属性元素使用,在块元素中不起作用)
-
-2.设置所有行内元素的overflow不为visible
-
-3.设置flex布局
-
-失败版本:
-
-```js
-https://codepen.io/westover/pen/ExWLpqM
-```
-
-
-
-#### 3. 行内块和行内元素横向布局的问题
-
-* 说明: 为什么不用行内块元素横向布局代替浮动
-
-* **行内块元素横向布局的问题:**    由于行内块元素是和文本的基线对齐,也可以说是底对齐. 给行内块元素设置<font color="red">**垂直方向**</font>的内外边距时会影响周围的元素.[从案例上来看,就是content区域已经无法底部对齐  对齐的是它的border(实际上是padding或者margin和另外的行内块元素的border或者说是内容区域对齐)]
-
-
-
-
-
-* **行内元素横向布局的问题**:     由于行内元素是包裹文本的,文本在每行是沿着基线对齐,此时行内元素垂直方向的内外边距是不起作用的.
-
-  `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
-
-  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
-
-![](https://www.w3h5.com/zb_users/upload/2019/04/201904141555172075784072.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### 在页面上隐藏元素的方法
-
-```Markdown
-#  占位
-visibility:hidden;
-marign-left:-100%;
-opacity:0;
-transform: scale(0);
-
-
-# 不占位
-display:none;
-width:0;height:0;overflow:hidden;
-
-# 仅对块内文本元素
-text-indent:-9999px;   //首行缩进
-font-size:0;
-```
-
-
-
-行内块元素当有内容时,它位置会降低/下移
-
-```js
-https://stackoverflow.com/questions/13390220/why-does-an-inline-block-div-get-positioned-lower-when-it-has-content/
-
-http://jsfiddle.net/ye0fbg4n/
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-### 十. 常见的CSS问题
-
-#### 基础
-
-1.[如何应用CSS到DOM中](../html&css/如何应用CSS到DOM中.md)
-
-2.
-
-
-
-#### 盒子和布局
-
-1.[如何调整CSS盒模型大小](../html&css/如何调整盒模型大小.md)
-
-
-
-
-
-
-
-## 0928
 
 ##### 新浪导航
 
@@ -7735,6 +7741,146 @@ HTML：
 > [styleguide/css.md at master · fex-team/styleguide (github.com)](https://github.com/fex-team/styleguide/blob/master/css.md)
 >
 > [Code Guide by @AlloyTeam](http://alloyteam.github.io/CodeGuide/)
+
+
+
+
+
+### 实例问题
+
+#### 1.两个行内块元素无法对齐
+
+```html
+网址出处:https://www.cnblogs.com/qfly/p/8085125.html
+例如,两个转换为行内块的span,一个有文字,一个没有文字,在网页中发现两个盒子无法对齐.
+
+原因:文本基线不一致的原因.没有文字的span的基线已经变成了底部的margin底边缘,后面盒子有文字,所以该盒子的基线就是文字的基线,二值基线对齐形成这个效果.
+
+可以通过改变对齐方式来解决vertical-align:middle;
+```
+
+
+
+#### 2.行内块元素overflow:hidden带来的塌陷问题
+
+```js
+https://stackoverflow.com/questions/32078950/why-baseline-of-inline-block-element-with-overflowhidden-is-set-to-its-bott#
+
+https://blog.csdn.net/w390058785/article/details/80567583
+
+https://www.cnblogs.com/wgwyanfs/p/6985261.html
+
+https://www.cnblogs.com/AliceX-J/p/5731755.html
+```
+
+
+
+因为实现隐藏功能的时候，隐藏部分的内容的vertical-align变成了baseline;对齐了，这样也导致行内块元素高度被撑高了。而后续的行内块元素跟行内元素，是接在了隐藏部分的vertical-align的高度上了。只要改回后续行内块元素跟行内元素的vertical-align值就可以了。
+
+解决方法:
+
+1.重新设置所有行内元素的对齐方式为vertical-align:top或者bottom; (vertical-align属性针对行内元素和表格属性元素使用,在块元素中不起作用)
+
+2.设置所有行内元素的overflow不为visible
+
+3.设置flex布局
+
+失败版本:
+
+```js
+https://codepen.io/westover/pen/ExWLpqM
+```
+
+
+
+#### 3. 行内块和行内元素横向布局的问题
+
+* 说明: 为什么不用行内块元素横向布局代替浮动
+
+* **行内块元素横向布局的问题:**    由于行内块元素是和文本的基线对齐,也可以说是底对齐. 给行内块元素设置<font color="red">**垂直方向**</font>的内外边距时会影响周围的元素.[从案例上来看,就是content区域已经无法底部对齐  对齐的是它的border(实际上是padding或者margin和另外的行内块元素的border或者说是内容区域对齐)]
+
+
+
+
+
+* **行内元素横向布局的问题**:     由于行内元素是包裹文本的,文本在每行是沿着基线对齐,此时行内元素垂直方向的内外边距是不起作用的.
+
+  `span` 等行内元素是可以设置内边距 `padding` 的，只不过元素本身无法把父元素撑开，看上去就是设置的 `padding` 上下边距不起效了，而 `margin` 就只能设置 `span` 的左右边距。
+
+  如果要给 `span` 设置边距，一般的方法就是给它设置一个 `display: inline-block;` ，把它变成行内块级元素就可以了
+
+![](https://www.w3h5.com/zb_users/upload/2019/04/201904141555172075784072.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### 在页面上隐藏元素的方法
+
+```Markdown
+#  占位
+visibility:hidden;
+marign-left:-100%;
+opacity:0;
+transform: scale(0);
+
+
+# 不占位
+display:none;
+width:0;height:0;overflow:hidden;
+
+# 仅对块内文本元素
+text-indent:-9999px;   //首行缩进
+font-size:0;
+```
+
+
+
+行内块元素当有内容时,它位置会降低/下移
+
+```js
+https://stackoverflow.com/questions/13390220/why-does-an-inline-block-div-get-positioned-lower-when-it-has-content/
+
+http://jsfiddle.net/ye0fbg4n/
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 十. 常见的CSS问题
+
+#### 基础
+
+1.[如何应用CSS到DOM中](../html&css/如何应用CSS到DOM中.md)
+
+2.
+
+
+
+#### 盒子和布局
+
+1.[如何调整CSS盒模型大小](../html&css/如何调整盒模型大小.md)
 
 
 
