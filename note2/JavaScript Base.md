@@ -2013,7 +2013,7 @@ let isArray = Array.isArray || (obj) => type(obj) === 'array';
 
 ##### plainObject
 
-> plainObject 来自于 jQuery，可以翻译成纯粹的对象，所谓"纯粹的对象"，就是该对象是通过 "{}" 或 "new Object" 创建的，该对象含有零个或者多个键值对。
+> plainObject 来自于 jQuery，可以翻译成纯粹的对象，所谓"纯粹的对象"，就是该对象是通过 "{}" 或 "new Object" 创建的，该对象含有零个或者多个键值对。 ???
 >
 > 之所以要判断是不是 plainObject，是为了跟其他的 JavaScript对象如 null，数组，宿主对象（documents）等作区分，因为这些用 typeof 都会返回object。
 >
@@ -7631,6 +7631,54 @@ Array.prototype.map.call(arrayLike, function(item) {
 
   
 
+### 纯粹对象 !!
+
+> https://hacks.mozilla.org/category/es6-in-depth/
+>
+> https://www.jianshu.com/p/b644bcf935ac
+
+
+
+#### 是什么
+
+vuejs文档中提到的纯粹对象:  **(含有零个或多个的 key/value 对)**：浏览器 API 创建的原生对象，原型上的 property 会被忽略。
+
+
+
+#### 介绍
+
+传统的对象不是纯粹的
+
+例如,声明的`let obj = {}`就是一个不纯粹的对象, 是通过原型链继承了Object, 也就生来自带了`Object`的一系列内置属性和方法
+
+`var obj = {}`相当于是执行了这个语句 `var obj = Object.create(Object.prototype)`：
+
+
+
+#### 如何创建纯粹对象
+
+Object.create(null)
+
+
+
+#### 非纯粹对象的坏处
+
+`({} + 1).length === 16 //true !!`  调用toString转换成字符串再加1,长度是16
+
+
+
+#### 纯粹对象的坏处
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### 对象3种创建方式
@@ -10063,6 +10111,37 @@ function newCreate(proto, propertiesObject) {
     })
   }
   return obj;
+}
+
+//https://www.jianshu.com/p/b644bcf935ac
+
+if (typeof Object.create !== 'function') {
+  Object.create = (function() {
+    function Temp() {}
+    
+    let hasOwn = Object.prototype.hasOwnProperty
+    return function(O) {
+      if (typeof O != 'object') {
+        throw TypeError('object prototype may only be an Object or null')
+      }
+      
+      Temp.prototype = O
+      let obj = new Temp()
+      Temp.prototype = null
+      
+      //存在参数properties
+      if (arguments.length > 1) {
+        let Properties = object(arguments[1])
+        for (let prop in Properties) {
+          if (hasOwn.call(Properties, prop)) { //?
+            obj[prop] = Properties[prop]
+          }
+        }
+      }
+      
+      return obj
+    }
+  })()
 }
 ```
 

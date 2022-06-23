@@ -9304,8 +9304,6 @@ Vue 的模板是被编译为 JavaScript 的，而其中的表达式会作为渲�
 
 
 
-## Vuex
-
 
 
 
@@ -9894,92 +9892,121 @@ new Vue({
 
 
 
-## vuex
+## Vuex
 
-#### 基本介绍
+### 基本介绍
 
-```js
-//基本介绍
 1.	专门在Vue中实现{/*集中式状态管理*/}的一个插件，对vue应用中多个组件的共享状态进行集中式的管理(读/写)，也可以认为是一种组件间通信的方式，且适用于任意组件间通信。
 2.	github站点: https://github.com/vuejs/vuex
 3.	在线文档: https://vuex.vuejs.org/zh-cn/
 
-//什么时候使用Vuex
+什么时候使用Vuex
 1. 多个组件依赖于同一状态
 2. 来自不同组件的行为需要变更同一状态
 3. 多个组件要共享状态 
 
 //生成的$store可以在vm身上访问到
-```
 
 
 
-#### 流程图
+### 流程图
 
 ![vuex图](https://img2018.cnblogs.com/blog/1581023/201902/1581023-20190222191642909-1072295625.png)
 
 
 
-#### vuex/store.js配置
+### 配置Vuex
 
-```js
-//命名格式:
-src目录新建vuex/store.js(建议) 或 store/index.js
+#### 1.项目中创建vuex文件
 
-//要点:
-1.v-model.number='word' 将v-model获取的字符串转换为数字传递给data中的word属性
-2.Vue.use(Vuex)+引入store插件后,vc和vm身上都会有一个$store属性, 是一个对象
+推荐如下几种格式:
 
-```
+`vuex/store.js`
 
-#### vuex/store.js格式
+`store/index.js`
 
-```js
-//1.store文件夹下的store.js或store/index.js中: 引入-use-定义(4个对象属性)-注册与暴露
-//2.main.js中引入
+#### 2.Vuex的引入和暴露
 
-import Vue from 'vue';
-import Vuex from 'vuex';
-Vue.use(Vuex);
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
 
-const state = {};
-const mutations = {};
-const actions = {};
-const getters = {};
+Vue.use(Vuex)
 
-const store=new Vuex.Store({
+const state = {}
+const mutations = {}
+const actions = {}
+const getters = {}
+
+const store = new Vuex.store({
   state,
   mutations,
   actions,
   getters
-});
+})
 
-export default store;
+export default store
+```
 
-// main.js中导入并添加到配置对象中
-import store from '.../store';
-import router from '.../router';
+
+
+#### 3.在项目main.js中引入
+
+```javascript
+import store from './store'
+import router from './router'
+
 new Vue({
   beforeCreate() {
     Vue.prototype.$bus = this;
     Vue.prototype.$API = API;
   },
-  el:"#app",
+  el: '#app',
   router,
   store,
-  render:h=>h(App)
-})
-================================
+  render: h=>h(App)
+}
+```
 
-2.添加state,actions,mutations,getters4个对象
-//state用来初始化状态(数据) 要写成一个对象，包含n组key-value，因为该state要管理n多个组件的状态
 
-//初始化actions,值为一个对象,包含:n个响应组件'动作'的函数
-//context是一个mini版的$store,要用context.commit()去通知mutations加工状态
 
-//初始化mutations,值为一个对象,包含:n个真正用于加工状态的函数
-const state={}
 
+
+### Vuex属性介绍
+
+#### state
+
+state用来初始化状态(数据) 要写成一个对象，包含n组key-value，因为该state要管理n多个组件的状态
+
+
+
+#### mutations
+
+值为一个对象,包含:n个真正用于加工状态的函数
+
+官方建议修改同步数据 
+vuex是集中管理状态数据,如果是异步修改,请求回来的数据不一定是正确的数据.
+问题 ==> vuex的调用工具监视不到mutation中的异步更新, 工具记录还是更新前的数据(不对)
+
+```javascript
+const mutations={
+    JIA(state, value){ //函数名称要大写,和actions中做区分
+    state.sum += value
+	}
+}
+```
+
+
+
+#### actions
+
+值为一个对象,包含:n个响应组件'动作'的函数
+
+context是一个mini版的$store,要用context.commit()去通知mutations加工状态
+
+
+
+```javascript
 const actions={
   jia(context, vlaue){ 
       context.commit('JIA', value) //大写原因:区分mutations和actions中'jia'
@@ -9990,29 +10017,16 @@ const actions={
    }
 };
 
-const mutations={
-    JIA(state, value){ //函数名称要大写,和actions中做区分
-    state.sum += value
-	}
-}
-const store=new Vuex.Store({
-    state,
-    actions,
-    mutations
-})
-
-export default store;
+jia({state, commit, rootState, dispatch}, value) {}
 ```
 
 
 
-#### mutations
 
-```js
-官方建议修改同步数据 
-vuex是集中管理状态数据,如果是异步修改,请求回来的数据不一定是正确的数据.
-问题 ==> vuex的调用工具监视不到mutation中的异步更新, 工具记录还是更新前的数据(不对)
-```
+
+#### getters
+
+
 
 
 
@@ -10273,7 +10287,7 @@ incrementIfOdd(value){
 
 
 
-### Vue路由
+## Vue路由
 
 #### vue-router插件
 
@@ -10696,7 +10710,9 @@ methods:{
 
 
 
-### 路由模式
+### 路由模式 hash与history比较
+
+> https://juejin.cn/post/7096034733649297421
 
 ```js
 //hash路由 browser路由
@@ -10707,14 +10723,6 @@ const router=new VueRouter({
     mode:'history', //hisroty/hash
     routes:[..]
 })
-```
-
-
-
-### 模糊匹配
-
-```js
-//vue里默认严格匹配,开启模糊匹配,在path路径之后添加'*'号.  了解
 ```
 
 
@@ -10766,7 +10774,11 @@ watch:{
 
 
 
-### Vue脚手架配置代理
+
+
+
+
+## Vue脚手架配置代理
 
 ```js
 参考：vue脚手架配置代理.md
@@ -10774,7 +10786,7 @@ watch:{
 
 
 
-### axios
+## axios
 
 #### 1.axios拦截器
 
@@ -11019,7 +11031,7 @@ export const axiosPost = ({url, data}) => service.post(url, data);
 
 
 
-### UI组件库-element
+## UI组件库-element
 
 ```js
 //主页
