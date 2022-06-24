@@ -2286,6 +2286,38 @@ export default commonStorage
 
 
 
+## http实例
+
+### 页面关闭时候发送请求
+
+#### 来源
+
+> 阮一峰的网络日志
+>
+>   ↓↓↓
+>
+> css-tricks.com
+>
+> https://css-tricks.com/send-an-http-request-on-page-exit/
+
+
+
+#### 解决
+
+**Fetch's keepalive flag**
+
+
+
+
+
+**Navigator.sendBeacon()**
+
+
+
+****
+
+
+
 
 
 
