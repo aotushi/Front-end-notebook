@@ -319,7 +319,7 @@ all: unset;
 
 1. **千位**： 如果声明在 [`style`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Global_attributes#attr-style) 的属性（内联样式）则该位得一分。这样的声明没有选择器，所以它得分总是1000。
 2. **百位**： 选择器中包含<u>ID选择器</u>则该位得一分。
-3. **十位**： 选择器中包含<u>类选择器、属性选择器或者伪类</u>则该位得一分。
+3. **十位**： 选择器中包含<u>类选择器、属性选择器、伪类</u>则该位得一分。
 4. **个位**：选择器中包含<u>元素、伪元素选择器</u>则该位得一分。
 
 **注**: <span style="color:blue">通用选择器 (`*`)，组合符 (`+`, `>`, `~`, ' ')，和否定伪类 (`:not`) 不会影响优先级。</span>
@@ -2195,6 +2195,135 @@ BEM 即为块级元素修饰字符（Block Element Modifier）。在 BEM 中，�
 
 
 ## 样式化文本
+
+掌握了 CSS 语言的基础之后，对于您来说，下一个需要关心的 CSS 主题就是为文本添加样式
+
+
+
+### 前提
+
+在开始这一模块之前，您应当像 [HTML 介绍](https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Introduction_to_HTML) 模块中所探讨的，已经熟悉了基本的 HTML，以及像 [CSS 介绍](https://developer.mozilla.org/en-US/docs/Learn/CSS/First_steps) 中所详述的，对自己的 CSS 基础感觉还满意。
+
+
+
+### 导引
+
+* [基本的文本以及字体样式](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Fundamentals)
+* [样式化列表](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Styling_lists)
+* [样式化链接](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Styling_links)
+* [网络字体](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Web_fonts)
+
+
+
+### Web字体
+
+web 字体——它们允许您下载自定义字体和您的 web 页面，以允许更多不同的、自定义的文本样式。
+
+
+
+#### web-safe字体
+
+只有少数几种字体可以保证兼容所有流行的操作系统——这就是所谓的 [Web-safe 字体](https://developer.mozilla.org/en-US/docs/Learn/CSS/Styling_text/Fundamentals#web_safe_fonts)。您可以使用字体堆栈来指定可选择的字体，后面是 Web-safe 的替代选项，然后是默认的系统字体
+
+实际的 Web 安全字体列表将随着操作系统的发展而改变，但是可以认为下面的字体是网页安全的，至少对于现在来说 (它们中的许多都非常流行，这要感谢微软在 90 年代末和 21 世纪初期的倡议*[Core fonts for the Web](https://en.wikipedia.org/wiki/Core_fonts_for_the_Web)* )：
+
+
+
+| 字体名称        | 泛型       | 注意                                                         |
+| :-------------- | :--------- | :----------------------------------------------------------- |
+| Arial           | sans-serif | 通常认为最佳做法还是添加 Helvetica 作为 Arial 的首选替代品，尽管它们的字体面几乎相同，但 Helvetica 被认为具有更好的形状，即使 Arial 更广泛地可用。 |
+| Courier New     | monospace  | 某些操作系统有一个 Courier New 字体的替代（可能较旧的）版本叫 Courier。使用 Courier New 作为 Courier 的首选替代方案，被认为是最佳做法。 |
+| Georgia         | serif      |                                                              |
+| Times New Roman | serif      | 某些操作系统有一个 Times New Roman 字体的替代（可能较旧的）版本叫 Times。使用 Times 作为 Times New Roman 的首选替代方案，被认为是最佳做法。 |
+| Trebuchet MS    | sans-serif | 您应该小心使用这种字体——它在移动操作系统上并不广泛。         |
+| Verdana         | sans-serif |                                                              |
+
+
+
+#### 使用和注意
+
+Web 字体是一种 CSS 特性，允许您指定在访问时随您的网站一起下载的字体文件
+
+##### 基本使用
+
+下载
+
+[`@font-face`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face)块，它指定要下载的字体文件
+
+```css
+@font-face {
+  font-family: "myFont";
+  src: url("myFont.ttf");
+}
+```
+
+使用
+
+使用 @font-face 中指定的字体种类名称来将你的定制字体应用到你喜欢的任何东西上
+
+```css
+html {
+  font-family: "myFont", "Bitstream Vera Serif", serif;
+}
+```
+
+
+
+##### 注意事项
+
+* 浏览器支持不同的字体格式，因此您需要多种字体格式以获得良好的跨浏览器支持
+* 字体一般都不能自由使用。您必须为他们付费，或者遵循其他许可条件，比如在代码中 (或者在您的站点上) 提供字体创建者。
+
+
+
+#### 查找字体
+
+字体是由字体铸造厂创建的，并且存储在不同的文件格式中。通常有三种类型的网站可以获得字体：
+
+- 免费的字体经销商：这是一个可以下载免费字体的网站.比如： [Font Squirre](https://www.fontsquirrel.com/)，[dafont](http://www.dafont.com/) 和 [Everything Fonts](https://everythingfonts.com/)。
+- 收费的字体经销商：这是一个收费则字体可用的网站，例如[fonts.com](http://www.fonts.com/)或[myfonts.com](http://www.myfonts.com/)。您也可以直接从字体铸造厂中购买字体，例如[Linotype](https://www.linotype.com/)，[Monotype](http://www.monotype.com/) 或 [Exljbris](http://www.exljbris.com/)。
+- 在线字体服务：这是一个存储和为你提供字体的网站，它使整个过程更容易。更多细节见[使用在线字体服务](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Web_fonts#使用在线字体服务)。
+
+
+
+**步骤介绍**
+
+1.前往[Font Squirrel](https://www.fontsquirrel.com/) 并选择两种字体,选择华丽标题字体和朴实段落字体,格式不重要
+
+​	1.1 解压字体包中会含有多个字体. 这里只使用一个单一字体
+
+2.生成所需代码
+
+​	2.1 确保满足任何许可证的要求,如果您打算在一个商业或web项目中使用
+
+​    2.2 前往Fontsquirrel [Webfont Generator](https://www.fontsquirrel.com/tools/webfont-generator)
+
+​	2.3 使用上传字体按钮上传你的两个字体
+
+​	2.4 勾选复选框，“是的，我上传的字体符合网络嵌入的合法条件。
+
+​	2.5 点击下载你的套件（kit）
+
+在生成器完成处理之后，您应该得到一个 ZIP 文件，将它保存在与 HTML 和 CSS 相同的目录中。
+
+3.查看下载后的文件
+
+​	3.1 每个字体的多个版本(跨浏览器支持需要使用多种字体)
+
+​	3.2  每个字体的一个演示 HTML 文件在你的浏览器中加载，看看在不同的使用环境下字体会是什么样子。
+
+​	3.3 一个 `stylesheet.css` 文件，它包含了你需要的生成好的 @font-face 代码
+
+4.使用
+
+1. 将解压缩的目录重命名为简易的目录，比如`fonts`
+2. 打开 `stylesheet.css` 文件，把包含在你的网页中的 `@font-face`块复制到你的 `web-font-start.css` 文件—— 你需要把它们放在最上面，在你的 CSS 之前，因为字体需要导入才能在你的网站上使用。
+3. 每个`url()`函数指向一个我们想要导入到我们的 CSS 中的字体文件——我们需要确保文件的路径是正确的，因此，在每个路径的开头添加`fonts/` （必要时进行调整）。
+4. 现在，您可以在字体栈中使用这些字体，就像任何 web 安全或默认的系统字体一样。
+
+
+
+
 
 
 
