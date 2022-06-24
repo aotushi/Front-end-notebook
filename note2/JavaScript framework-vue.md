@@ -11032,11 +11032,18 @@ const router = new VueRouter({
 })
 ```
 
+注意[导航守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html)并没有应用在跳转路由上，而仅仅应用在其目标上. 在下面这个例子中，为 `/a` 路由添加一个 `beforeEnter` 守卫并不会有任何效果。(文档中没有案例)
 
+#### 案例 !!!
 
-#### 案例
-
-在下面这个例子中，为 `/a` 路由添加一个 `beforeEnter` 守卫并不会有任何效果。
+* relative redirect to a sibling route
+* absolute redirect
+* dynamic redirect, 
+* named redirect
+* redirect with params
+* redirect with caseSensitive
+* redirect with pathToRegexpOptions
+* catch all redirect
 
 <iframe src="https://codesandbox.io/embed/vuerouter-redirect-s634z9?autoresize=1&fontsize=12&hidenavigation=1&theme=dark"
      style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
