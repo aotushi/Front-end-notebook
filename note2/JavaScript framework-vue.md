@@ -10567,9 +10567,423 @@ this.$route.params.pathMatch // '/non-existing'
 
 
 
-#### 高级匹配模式
+#### 高级匹配模式 !!
 
 `vue-router` 使用 [path-to-regexp (opens new window)](https://github.com/pillarjs/path-to-regexp/tree/v1.7.0)作为路径匹配引擎，所以支持很多高级的匹配模式，例如：可选的动态路径参数、匹配零个或多个、一个或多个，甚至是自定义正则匹配。查看它的[文档 (opens new window)](https://github.com/pillarjs/path-to-regexp/tree/v1.7.0#parameters)学习高阶的路径匹配，还有[这个例子 (opens new window)](https://github.com/vuejs/vue-router/blob/dev/examples/route-matching/app.js)展示 `vue-router` 怎么使用这类匹配。
+
+<iframe src="https://codesandbox.io/embed/vuerouter-advancedmatch-565fmm?autoresize=1&fontsize=12&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vueRouter/advancedMatch"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### 根路径
+
+路径: '/'
+
+路由path: '/'
+
+$route序列化结果:
+
+```javascript
+{
+  "meta": {},
+  "path": "/",
+  "hash": "",
+  "query": {},
+  "params": {},
+  "fullPath": "/",
+  "matched": [
+    {
+      "path": "",
+      "regex": {
+        "keys": []
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+##### 动态路由
+
+路径: '/params/foo/bar'
+
+路由path: '/params/:foo/:bar'
+
+$route序列化结果:
+
+```javascript
+{
+  "meta": {},
+  "path": "/params/foo/bar",
+  "hash": "",
+  "query": {},
+  "params": {
+    "foo": "foo",
+    "bar": "bar"
+  },
+  "fullPath": "/params/foo/bar",
+  "matched": [
+    {
+      "path": "/params/:foo/:bar",
+      "regex": {
+        "keys": [
+          {
+            "name": "foo",
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": false,
+            "repeat": false,
+            "partial": false,
+            "asterisk": false,
+            "pattern": "[^\\/]+?"
+          },
+          {
+            "name": "bar",
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": false,
+            "repeat": false,
+            "partial": false,
+            "asterisk": false,
+            "pattern": "[^\\/]+?"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+##### 可选参数
+
+> *a param can be made optional by adding "?"*
+
+路径: '/optional-params'
+
+路由路径: '/optional-params/:foo?'   //如果去掉问号, 使用原来的path路径就访问不过来了
+
+$route序列化结果
+
+```javascript
+{
+  "meta": {},
+  "path": "/optional-params",
+  "hash": "",
+  "query": {},
+  "params": {},
+  "fullPath": "/optional-params",
+  "matched": [
+    {
+      "path": "/optional-params/:foo?",
+      "regex": {
+        "keys": [
+          {
+            "name": "foo",
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": true,
+            "repeat": false,
+            "partial": false,
+            "asterisk": false,
+            "pattern": "[^\\/]+?"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+##### 正则表达式
+
+> *a param can be followed by a regex pattern in parens*
+>
+> this route will only be matched if :id is all numbers
+
+组件中的路径: '/params-with-regex/123'
+
+路由路径: `path:/params-with-regex/:id(\\d+)`
+
+```javascript
+{
+  "meta": {},
+  "path": "/params-with-regex/123",
+  "hash": "",
+  "query": {},
+  "params": {
+    "id": "123"
+  },
+  "fullPath": "/params-with-regex/123",
+  "matched": [
+    {
+      "path": "/params-with-regex/:id(\\d+)",
+      "regex": {
+        "keys": [
+          {
+            "name": "id",
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": false,
+            "repeat": false,
+            "partial": false,
+            "asterisk": false,
+            "pattern": "\\d+"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+组件中的路径: `/params-with-regex/abc`
+
+$route序列化结果:
+
+```json
+{
+  "name": null,
+  "meta": {},
+  "path": "/params-with-regex/abc",
+  "hash": "",
+  "query": {},
+  "params": {},
+  "fullPath": "/params-with-regex/abc",
+  "matched": []
+}
+```
+
+
+
+
+
+##### 通配符
+
+> asterisk can match anything
+
+路由路径: `path: '/asterisk/*'`
+
+组件中的路径: `to="/asterisk/foo"`
+
+$route序列化结果:
+
+```json
+{
+  "meta": {},
+  "path": "/asterisk/foo",
+  "hash": "",
+  "query": {},
+  "params": {
+    "pathMatch": "foo"   //params对象有属性'pathMatch'
+  },
+  "fullPath": "/asterisk/foo",
+  "matched": [
+    {
+      "path": "/asterisk/*",
+      "regex": {
+        "keys": [
+          {
+            "name": 0,
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": false,
+            "repeat": false,
+            "partial": false,
+            "asterisk": true,
+            "pattern": ".*"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+路由路径: 同上
+
+组件中的路径: `/asterisk/foo/bar`
+
+$route的序列化结果
+
+```json
+{
+  "meta": {},
+  "path": "/asterisk/foo/bar",
+  "hash": "",
+  "query": {},
+  "params": {
+    "pathMatch": "foo/bar"
+  },
+  "fullPath": "/asterisk/foo/bar",
+  "matched": [
+    {
+      "path": "/asterisk/*",
+      "regex": {
+        "keys": [
+          {
+            "name": 0,
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": false,
+            "repeat": false,
+            "partial": false,
+            "asterisk": true,
+            "pattern": ".*"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+##### 圆括号和?
+
+> *make part of the path optional by wrapping with parens and add "?"*
+
+路由路径: `/optional-group/(foo/)?bar`
+
+组件路径: `/optional-group/bar`
+
+$route序列化结果
+
+```json
+{
+  "meta": {},
+  "path": "/optional-group/bar",
+  "hash": "",
+  "query": {},
+  "params": {},
+  "fullPath": "/optional-group/bar",
+  "matched": [
+    {
+      "path": "/optional-group/(foo/)?bar",
+      "regex": {
+        "keys": [
+          {
+            "name": 0,
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": true,
+            "repeat": false,
+            "partial": true,
+            "asterisk": false,
+            "pattern": "foo\\/"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+路由路径: 同上
+
+组件中的路径: `/optional-group/foo/bar`
+
+$route序列化结果
+
+```json
+{
+  "meta": {},
+  "path": "/optional-group/foo/bar",
+  "hash": "",
+  "query": {},
+  "params": {
+    "pathMatch": "foo/"
+  },
+  "fullPath": "/optional-group/foo/bar",
+  "matched": [
+    {
+      "path": "/optional-group/(foo/)?bar",
+      "regex": {
+        "keys": [
+          {
+            "name": 0,
+            "prefix": "/",
+            "delimiter": "/",
+            "optional": true,
+            "repeat": false,
+            "partial": true,
+            "asterisk": false,
+            "pattern": "foo\\/"
+          }
+        ]
+      },
+      "components": {},
+      "alias": [],
+      "instances": {},
+      "enteredCbs": {},
+      "meta": {},
+      "props": {}
+    }
+  ]
+}
+```
+
+
+
+
 
 
 
@@ -10774,6 +11188,35 @@ router.push({ path: '/user', params: { userId }}) // -> /user
 | 声明式                            | 编程式                |
 | --------------------------------- | --------------------- |
 | `<router-link :to="..." replace>` | `router.replace(...)` |
+
+
+
+#### query参数+
+
+```js
+//$route 路由组件的实例对象身上有一个$route属性(对象).身上有一个query属性
+
+//流程:
+1.其他路由组件-传参:路由链接标签里传递query参数 以?开头以&链接以key=value值形式添加参数,例如 "`xx.com/?id=${..}&title=${..}`"
+2.注册路由处-接收参数,query参数无需声明即可接收
+3.目标路由组件-使用参数: 通过computed属性获取到this.$route.query中id,title和content的值.通过data只能获取到第一次的.
+
+```
+
+
+
+
+
+#### query+params
+
+```js
+//流程:
+1.传参-其他组件: params参数要写在前面,query紧随后面. 例:"`xxx.com/${id}?title=${y.title}&content=${y.content}`"
+2.接参-路由注册: path:'detail/:id'  //同时接收params和query，要先声明params
+3.用参-目标路由组件: 使用computed获取对象的this.$router.query或this.$route.params中的对象的属性值.
+
+
+```
 
 
 
@@ -10989,8 +11432,6 @@ const router = new VueRouter({
 
 “重定向”的意思是，当用户访问 `/a`时，URL 将会被替换成 `/b`，然后匹配路由为 `/b`
 
-
-
 **redirect属性的值可以是 路径字符串, 命名的路由, 方法**
 
 注意[导航守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html)并没有应用在跳转路由上，而仅仅应用在其目标上
@@ -11068,178 +11509,219 @@ const router = new VueRouter({
 
 
 
+### 路由组件props传参
 
+#### 背景
 
+在组件中使用 `$route` 会使之与其对应路由形成高度耦合，从而使组件只能在某些特定的 URL 上使用，限制了其灵活性。
 
+#### 解决
 
-### xxxx
+使用`props`将组件和路由解耦,取代与`$route`的耦合
 
-#### 案例-一级路由
-
-```js
-//编写路由的3步
-1.定义路由组件 pages文件夹下
-	//src/pages/Home.vue, About.vue
- 1.1 路由组件位置: src/pages/Name.vue
-2.创建路由器,管理所有路由
- 2.1 新建路由文件夹 src/router/index.js
- 2.2 注册路由 Vue.use(VueRouter) + new VueRouter({})
- 2.3 配置对象中是routes:[{path:'/xx', component:xx }]  路径+路由组件
- 2.4 暴露路由器
-	
-3.使用路由
- 3.1 main.js中导入,添加到配置对象中
-     app组件中不用再引入路由器组件(pages/name.vue)了
- 3.2 用<router-link to='/about'>代替<a>标签 ,to代替href /about代替./about.html
- 3.3 高亮使用active-class='active'代替active
- 3.3 使用<router-view></router-view>占位
-	 
-其他:
-//一个路径匹配多个组件
-路由器插件中,component改components,改为对象{h1:'Home',h2:'Home2'}
-模板页面的路由器占位符添加name属性: name='h1'
-
-//vc和vm身上多了$route, $router两个属性  都是导入router插件并添加到配置对象身上的
-```
-
-
-
-
-
-
-
-
-
-
-
-#### 路由传参
-
-```js
-路由传参有两种形式:params query
- - params和query参数在匹配的时候都会被收集到当前路由对象中的属性当中;
- - params参数需要占位接收,query参数不用占位.
-
-路径带参数的3种写法:
-1.字符串写法
- this.$router.push('/search/'+this.keyword+"?keyword1="+this.keyword.toUpperCase())
-2.模板字符串
-this.$router.push(`/search/'+${this.keyword}+"?keyword1="+${this.keyword.toUpperCase()}`)
-
-3.对象写法
-this.$router.push({
-    name:'search', 
-    params:{keyword:this.keyword},
-    query:{keyword1:this.keyword.toUpperCase()}
+```javascript
+const User = {
+  template: '<div>User {{ $route.params.id }}</div>'
+}
+const router = new VueRouter({
+  routes: [{ path: '/user/:id', component: User }]
 })
 ```
 
+通过`props`解耦
 
+```javascript
+const User = {
+  props: ['id'],
+  template: '<div>User {{ id }}</div>'
+}
+const router = new VueRouter({
+  routes: [
+    { path: '/user/:id', component: User, props: true },
 
-
-
-#### params参数+
-
-```js
-//$route  路由组件的实例对象身上有一个$route属性(对象),身上有一个params属性.
-$route: Object
-    fullPath: "/home/message/detail/?id=001&title=%E6%B6%88%E6%81%AF1&content=%E7%88%B1%E6%8A%BD%E7%83%9F"
-    hash: ""
-    matched: (3) [{…}, {…}, {…}]
-    meta: {}
-    name: undefined
-    params: {}
-    path: "/home/message/detail/"
-    query: {id: "001", title: "消息1", content: "爱抽烟"}
-__proto__: Object
-
-
-=======================================================
-    
-//流程:
-1.传参: 路由链接标签通过to属性,
-   <router-link :to="`url/${id}/${title}/${content}`">标签体内容</router-link>
-2.接参-注册路由处: 通过路由配置对象里的path属性占位接收. path:'url/:id/:title/:content'
- 2.1 收集传递过来的params参数,会被放到当前路由对象的params对象当中.
-3.用参-路由组件: 通过computed属性获取到this.$route.params中的id,title和content值.
-
-//
-this.$router.push('/login/'+this.keyword)
-
-path:'/login/:params'
-```
-
-
-
-
-
-#### query参数+
-
-```js
-//$route 路由组件的实例对象身上有一个$route属性(对象).身上有一个query属性
-
-//流程:
-1.其他路由组件-传参:路由链接标签里传递query参数 以?开头以&链接以key=value值形式添加参数,例如 "`xx.com/?id=${..}&title=${..}`"
-2.注册路由处-接收参数,query参数无需声明即可接收
-3.目标路由组件-使用参数: 通过computed属性获取到this.$route.query中id,title和content的值.通过data只能获取到第一次的.
-
-```
-
-
-
-
-
-#### query+params
-
-```js
-//流程:
-1.传参-其他组件: params参数要写在前面,query紧随后面. 例:"`xxx.com/${id}?title=${y.title}&content=${y.content}`"
-2.接参-路由注册: path:'detail/:id'  //同时接收params和query，要先声明params
-3.用参-目标路由组件: 使用computed获取对象的this.$router.query或this.$route.params中的对象的属性值.
-
-
-```
-
-
-
-#### 命名路由简化路由跳转|传参+
-
-#### 声明式+编程式路由导航
-
-```js
-//简介:
-通过一个名称来标识一个路由显得更方便一些.   命名路由才能配合to的对象写法
-//格式:
-- 父路由组件中
-
-//声明式路由导航
-<router-link 
-	:to="{
-		name:'xiangqing',   //相应在路由注册处,也有个相同的name属性
-        params:{id:msg.id}, //传递params参数
-        query:{title:msg.title, content:msg.content} //传递query参数
-	}">{{msg.title}}</router-link>
-
-//编程式路由导航 name可以搭配params,query,但是path只能搭配query
-this.$router.push({
-    name:'xiangqing', //路由组件名称
-    params:{id:msg.id},
-    query:{title:msg.title, content:msg.content}
-})
-
-this.$router.push({
-    path:'/xiangqing',
-    query:{title:msg.title, content:msg.content}
-})
-
-- 路由注册:
-children:[
+    // 对于包含命名视图的路由，你必须分别为每个命名视图添加 `props` 选项： !!!
     {
-        path:'detail/:id',
-        component:Detail,
-        name:'xiangqing'
+      path: '/user/:id',
+      components: { default: User, sidebar: Sidebar },
+      props: { default: true, sidebar: false }
     }
-]
+  ]
+})
 ```
+
+这样你便可以在任何地方使用该组件，使得该组件更易于重用和测试。
+
+
+
+#### props传参 3种形式
+
+未使用路由props传参时,接收路由参数的方法(computed等)
+
+```javascript
+//直接使用$route.params.xxx
+
+//计算属性等
+computed: {
+  id(){ return this.$route.params.id },
+  title(){ return this.$route.query.title },
+  content(){ return this.$route.query.content } 
+}
+```
+
+
+
+##### 布尔模式
+
+> 如果 `props` 被设置为 `true`，`route.params` 将会被设置为组件属性。
+
+在路由配置中添加`props: true`后, 路由组件的`$attrs`会接收到相应的params参数, 一半是使用props来接收它.
+
+注意：对于包含命名视图的路由，你必须分别为每个命名视图添加 `props` 选项
+
+
+
+
+
+##### 对象模式
+
+如果 `props` 是一个对象，它会被按原样设置为组件属性。<span style="color:red">当 `props` 是静态的时候有用。 ???</span>
+
+这里的'静态'不理解. 在组件中使用props传递数据根据是否绑定v-bind分为静态和动态, 但是和接收路由props是没关系的吧.
+
+```javascript
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/promotion/from-newsletter',
+      component: Promotion,
+      props: { newsletterPopup: false }  //props对象形态, 只能传递布尔值
+    }
+  ]
+})
+```
+
+
+
+##### 函数模式
+
+可以创建一个函数返回 `props`。这样你便可以将参数转换成另一种类型，将静态值与基于路由的值结合等等。
+
+```javascript
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/search',
+      component: SearchUser,
+      props: route => ({ query: route.query.q })
+    }
+  ]
+})
+```
+
+URL `/search?q=vue` 会将 `{query: 'vue'}` 作为属性传递给 `SearchUser` 组件。
+
+请尽可能保持 `props` 函数为无状态的，因为它只会在路由发生变化时起作用。如果你需要状态来定义 `props`，请使用包装组件，这样 Vue 才可以对状态变化做出反应。
+
+##### 案例
+
+<iframe src="https://codesandbox.io/embed/vuerouter-routecomponentdeliverparams-rhk23r?autoresize=1&eslint=1&fontsize=12&hidenavigation=1&moduleview=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="vueRouter/routeComponentDeliverParams"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+### 路由传参的 3 种方式
+
+
+
+
+
+### 路由Hash模式和History模式
+
+> [浅谈前端路由原理hash和history - 掘金 (juejin.cn)](https://juejin.cn/post/6993840419041706014)
+>
+> 
+
+>  `vue-roter` 的两种路由模式，及差异化，简单来讲就是，`hash` 路由兼容梗好，但是带#显得丑些， `histroy` 和正常 url 路径一样，但是需要在服务器进行单独配置。大
+
+#### Hash概述及特点
+
+##### 定义
+
+> `hash` 模式是一种把前端路由的路径用井号 `#` 拼接在真实 `url` 后面的模式。当井号 `#` 后面的路径发生变化时，浏览器并不会重新发起请求，而是会触发 `onhashchange` 事件。
+
+
+
+
+
+`vue-router` 默认 hash 模式 —— 使用 URL 的 hash 来模拟一个完整的 URL，于是当 URL 改变时，页面不会重新加载。
+
+ `hash`（#）是 `URL` 的锚点，代表的是网页中的一个位置，单单改变 `#` 后的部分，浏览器只会滚动到相应位置，不会重新加载网页，也就是说 `#` 是用来指导浏览器动作的，对服务器端完全无用，`HTTP` 请求中也不会不包括 `#` ，同时每一次改变 `#` 后的部分，都会在浏览器的访问历史中增加一个记录，使用 "后退" 按钮，就可以回到上一个位置，所以说 `hash` 模式通过锚点值的改变，根据不同的值，渲染指定 `DOM` 位置的不同数据。
+
+`#` 符号本身以及它后面的字符称之为 `hash`，可通过` window.location.hash` 属性读取。
+
+
+
+##### 特点
+
+- `hash` 虽然出现在URL中，但不会被包括在 `HTTP` 请求中。它是用来指导浏览器动作的，对服务器端完全无用，因此，改变 `hash` 不会重新加载页面
+
+- 可以为 `hash` 的改变添加监听事件：
+
+- ```
+  window.addEventListener("hashchange", fncEvent, false)
+  ```
+
+- 每一次改变 hash（`window.location.hash`），都会在浏览器的访问历史中增加一个记录
+
+- url 带一个 `#` 号
+
+
+
+#### History概述及特点
+
+##### 定义
+
+`history API` 是 `H5` 提供的新特性，允许开发者**直接更改前端路由**，即更新浏览器 `URL` 地址而**不重新发起请求**。
+
+
+
+- 新的 `url` 可以是与当前 `url` 同源的任意 `url` ，也可以是与当前 `url` 一样的地址，但是这样会导致的一个问题是，会把**重复的这一次操作**记录到栈当中。
+- 通过 `history.state` ，添加任意类型的数据到记录中。
+- 可以额外设置 `title` 属性，以便后续使用。
+- 通过 `pushState` 、 `replaceState` 来实现无刷新跳转的功能。
+
+
+
+
+
+
+
+### VueRoute实现原理
+
+> [Vue 了解前端路由 hash 与 history 差异 - 掘金 (juejin.cn)](https://juejin.cn/post/7096034733649297421)
+
+- `SPA` 单页面及应用方式:单一页面应用程序，只有一个完整的页面；它在第一次加载页面时,就将唯一完整的 `html` 页面和所有其余页面组件一起下载下来，这样它在切换页面时，不会加载整个页面，而是只更新某个指定的容器中内容。
+- 单页面应用(`SPA`)的核心之一是: 更新视图而不重新请求页面。
+- 路由器对象底层实现的三大步骤即(1)**监视**地址栏变化；(2)**查找**当前路径对应的页面组件；(3)将找到的页面组件**替换**到 `router-vieW` 的位置。
+- `vue-router` 在实现单页面前端路由时，提供了两种方式：`Hash` 模式和 `History` 模式；vue2 是根据 `mode` 参数来决定采用哪一种方式，vue3 则是 `history` 参数
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 路由其他配置
 
 
 
@@ -11277,102 +11759,6 @@ const router=new VueRouter({
 
 
 
-
-
-#### 路由配置的props属性+
-
-```js
-//介绍:
-1.原因:
- 1.1在组件中使用 $route 会使之与其对应路由形成高度耦合,从而使组件只能在某些特定的 URL 上使用，限制了其灵活性。(使用 props 将组件和路由解耦)
- 1.2通过路由配置传递给路由组件传递props属性,简化了以往需要computed计算得到$route.params/query.属性名来获取url参数
-
-2. 路由新增一个属性props:{},有3种形式(静态数据,布尔值,函数):  ****
- 2.1 映射自定义的静态数据给当前路由,但只能传递非params和query参数
- 2.2 布尔值为true, 映射params参数为props,传给路由组件
- 2.3 路由对象中的属性props可以为一个函数,参数route(vc或vm身上的$route),返回一个对象.对象key-value作为传递给组件props的key-value
-	
-
- 2.3.1 $route身上有params和query参数
- 例如:
-children:[
-    {
-        // path:'detail/:id/:title/:content', //声明接收params参数
-		// path:'detail', //query参数无需声明即可接收
-        path:'detail/:id',
-        component:Detail,
-        name:'xiangqing',
-       // props:{carName:'马自达·阿特兹'} //通过props对象形式, 映射自定义的静态数据
-	   // props:true //映射params参数为props传给路由组件中的属性
-		props(route){ //此处接收到的route是vc或vm身上的$route 当前的路由对象
-            const{id}=route.params;
-            const{title, content}=route.query;
-            return {
-                id, title, content
-            }
-        }
-    }
-]
-
- 
-3.接收props参数
-<script>
-export default{
-    name:'Detail',
-    props:['id', 'title', 'content'],
-    computed:{
-        /*
-        id(){ return this.$route.params.id },
-        title(){ return this.$route.query.title },
-        content(){ return this.$route.query.content }
-        */
-    }
-}
-</script>
-```
-
-
-
-#### 编程式路由导航++
-
-```js
-//介绍
-除了使用<router-link>创建a标签来定义导航链接,还可以借助router的实例方法来实现.
-在Vue实例内部,可以通过$router访问路由实例,可以调用this.$router.push
-
-```
-
-#### api(go back push replace)
-
-```js
-$router 是router为VueRouter的实例
-
-//api
-1.	this.$router.push(path): 相当于点击路由链接(可以返回到当前路由界面,浏览器可以回退)
-2.	this.$router.replace(path): 用新路由替换当前路由(不可以返回到当前路由界面)
-3.	this.$router.back(): 请求(返回)上一个记录路由
-4.	this.$router.go(-1): 请求(返回)上一个记录路由
-5.	this.$router.go(1): 请求下一个记录路由
-
-```
-
-
-
-```js
-//不保留历史痕迹 在路由链接里添加关键字 replace
-//使用$router, 是new VueRouter的实例化对象身上的属性.
-
-methods:{
-    事件回调(x){
-        this.$router.push(path);  path就是路径, 事件函数可以传参
-    }
-}
-```
-
-
-
-
-
 #### 缓存路由组件keep-alive
 
 ```js
@@ -11388,73 +11774,195 @@ methods:{
 
 
 
+### 导航守卫
+
+`vue-router` 提供的导航守卫主要用来通过跳转或取消的方式守卫导航。有多种机会植入路由导航过程中：<span style="color:blue">全局的, 单个路由独享的, 或者组件级的</span>
+
+**参数或查询的改变并不会触发进入/离开的导航守卫**。你可以通过[观察 `$route` 对象](https://v3.router.vuejs.org/zh/guide/essentials/dynamic-matching.html#响应路由参数的变化)来应对这些变化，或使用 `beforeRouteUpdate` 的组件内守卫。
+
+#### 导航守卫的分类
+
+```md
+	全局导航守卫： 
+		无论是从哪个页面往哪个页面跳转，只要有路由跳转，就会拦住，进行检测
+
+		
+		前置守卫   配置的比较靠前       匹配路由前拦截，用的最多     
+		解析守卫   配置的位置中间       匹配路由中拦截，用的比较少
+		后置守卫   配置的比较靠后       匹配路由完成拦截，用的比较少
+
+	路由独享守卫：
+
+		只能去拦住固定的往某个页面跳转的，是配置在当前路由当中，时间比较靠前
+		前置守卫   配置的比较靠前       匹配路由前拦截，用的最多     
+		解析守卫   配置的位置中间       匹配路由中拦截，用的比较少
+		后置守卫   配置的比较靠后       匹配路由完成拦截，用的比较少
 
 
-### 路由模式 hash与history比较
+	组件内守卫：	
+		只能去拦住固定的往某个页面跳转的，是配置在组件内部，也就是路由匹配已经完成了，时间比较靠后
 
-> https://juejin.cn/post/7096034733649297421
+		只有一个，就是解析完了，已经跳转到组件的时候，但是组件还没创建成功的时候拦截
+```
 
-```js
-//hash路由 browser路由
 
-路由配置文件中默认hash模式,URL根目录后有个'#'号. 通过mode属性启用browser路由,去除URL后的'#'号
 
-const router=new VueRouter({
-    mode:'history', //hisroty/hash
-    routes:[..]
+#### 全局前置守卫
+
+##### 注册
+
+使用 `router.beforeEach` 在路由器构造函数中,注册一个全局前置守卫：
+
+```javascript
+const router = new VueRouter({ ... })
+
+router.beforeEach((to, from, next) => {
+  // ...
+})
+```
+
+当一个导航触发时，全局前置守卫按照创建顺序调用。守卫是异步解析执行，此时导航在所有守卫 resolve 完之前一直处于 **等待中**。
+
+
+
+##### 参数
+
+每个守卫方法接收三个参数：
+
+- **`to: Route`**: 即将要进入的目标 [路由对象](https://v3.router.vuejs.org/zh/api/#路由对象)
+- **`from: Route`**: 当前导航正要离开的路由
+- **`next: Function`**: 一定要调用该方法来 **resolve** 这个钩子。执行效果依赖 `next` 方法的调用参数。
+  - **`next()`**: 进行管道中的下一个钩子。如果全部钩子执行完了，则导航的状态就是 **confirmed** (确认的)。
+  - **`next(false)`**: 中断当前的导航。如果浏览器的 URL 改变了 (可能是用户手动或者浏览器后退按钮)，那么 URL 地址会重置到 `from` 路由对应的地址。
+  - **`next('/')` 或者 `next({ path: '/' })`**: 跳转到一个不同的地址。当前的导航被中断，然后进行一个新的导航。你可以向 `next` 传递任意位置对象，且允许设置诸如 `replace: true`、`name: 'home'` 之类的选项以及任何用在 [`router-link` 的 `to` prop](https://v3.router.vuejs.org/zh/api/#to) 或 [`router.push`](https://v3.router.vuejs.org/zh/api/#router-push) 中的选项。
+  - **`next(error)`**: (2.4.0+) 如果传入 `next` 的参数是一个 `Error` 实例，则导航会被终止且该错误会被传递给 [`router.onError()`](https://v3.router.vuejs.org/zh/api/#router-onerror) 注册过的回调。
+
+
+
+**确保 `next` 函数在任何给定的导航守卫中都被严格调用一次。它可以出现多于一次，但是只能在所有的逻辑路径都不重叠的情况下，否则钩子永远都不会被解析或报错**。??
+
+
+
+#### 全局解析守卫
+
+用 `router.beforeResolve` 注册一个全局守卫。这和 `router.beforeEach` 类似，区别是在导航被确认之前，**同时在所有组件内守卫和异步路由组件被解析之后**，解析守卫就被调用
+
+
+
+#### 全局后置守卫
+
+你也可以注册全局后置钩子，然而和守卫不同的是，这些钩子不会接受 `next` 函数也不会改变导航本身：
+
+```javascript
+router.afterEach((to, from) => {
+  // ...
 })
 ```
 
 
 
+#### 路由独享守卫
 
+可以在路由配置上直接定义 `beforeEnter` 守卫. 这些守卫与全局前置守卫的方法参数是一样的
 
-### 默认显示页面
-
-```js
-//默认显示页面设置
-在要设置的路由同层级的最后配置一个对象,属性有path和redirect.
-
-const router=new VueRouter({
-    mode:'hisroty',
-    routes:[
-        {},
-        {},
-        {
-            path:'/',
-            redirect:'/about'  //写路径而不是写组件s
-        }
-    ]
-})
-```
-
-
-
-### 路由里开启异步任务++
-
-```js
-//消息延迟出现  使用watch,可以添加定时器
-//和 react中的异步actions类似
-
-//获取detail路由组件中URL参数,延后显示
-//在detail组件的script标签中的配置添加methods方法
-watch:{
-    $route:{  //监视的是vc身上的$route属性
-        deep:true,
-        immediate:true,
-        handler(value){
-            setTimeout(()=>{
-                this.content=value.query.content;
-            })
-        }
+```javascript
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/foo',
+      component: Foo,
+      beforeEnter: (to, from, next) => {
+        // ...
+      }
     }
-}
-
+  ]
+})
 ```
 
 
 
+#### 组件内的守卫
 
+可以在路由组件内直接定义以下路由导航守卫：
+
+- `beforeRouteEnter`
+- `beforeRouteUpdate` (2.2 新增)
+- `beforeRouteLeave`
+
+
+
+```javascript
+const Foo = {
+  template: `...`,
+  beforeRouteEnter(to, from, next) {
+    // 在渲染该组件的对应路由被 confirm 前调用
+    // 不！能！获取组件实例 `this`
+    // 因为当守卫执行前，组件实例还没被创建
+  },
+  beforeRouteUpdate(to, from, next) {
+    // 在当前路由改变，但是该组件被复用时调用
+    // 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候，
+    // 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+    // 可以访问组件实例 `this`
+  },
+  beforeRouteLeave(to, from, next) {
+    // 导航离开该组件的对应路由时调用
+    // 可以访问组件实例 `this`
+  }
+}
+```
+
+
+
+##### beforeRouteEnter()中无法访问this的原因及解决
+
+`beforeRouteEnter` 守卫 **不能** 访问 `this`，因为守卫在导航确认前被调用，因此即将登场的新组件还没被创建。
+
+不过，你可以通过传一个回调给 `next`来访问组件实例。在导航被确认的时候执行回调，并且把组件实例作为回调方法的参数。
+
+```javascript
+beforeRouteEnter (to, from, next) {
+  next(vm => {
+    // 通过 `vm` 访问组件实例
+  })
+}
+```
+
+注意 `beforeRouteEnter` 是支持给 `next` 传递回调的唯一守卫
+
+
+
+##### beforeRouteLeave
+
+通常用来禁止用户在还未保存修改前突然离开。该导航可以通过 `next(false)` 来取消
+
+```javascript
+beforeRouteLeave (to, from, next) {
+  const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+  if (answer) {
+    next()
+  } else {
+    next(false)
+  }
+}
+```
+
+
+
+#### 完整的导航解析流程
+
+1. 导航被触发。
+2. 在失活的组件里调用 `beforeRouteLeave` 守卫。
+3. 调用全局的 `beforeEach` 守卫。
+4. 在重用的组件里调用 `beforeRouteUpdate` 守卫 (2.2+)。
+5. 在路由配置里调用 `beforeEnter`。
+6. 解析异步路由组件。
+7. 在被激活的组件里调用 `beforeRouteEnter`。
+8. 调用全局的 `beforeResolve` 守卫 (2.5+)。
+9. 导航被确认。
+10. 调用全局的 `afterEach` 钩子。
+11. 触发 DOM 更新。
+12. 调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数，创建好的组件实例会作为回调函数的参数传入。
 
 
 
