@@ -11719,46 +11719,6 @@ URL `/search?q=vue` 会将 `{query: 'vue'}` 作为属性传递给 `SearchUser` �
 
 
 
-
-
-### 路由其他配置
-
-
-
-#### 路由元信息meta
-
-```js
-//定义路由时可以配置meta字段,值为一个对象形式
-
-
-
-//访问位置
-当访问目标组件时(meta配置所在的组件),在vc实例身上的,其他组件标签当然可以使用:
-1. 在$route.meta身上
-
-
-//使用案例 当访问某个路由组件的时候通过meta属性来决定是否显示某个公共组件
-
-//App组件中的公共组件标签<Footer/>
-模板中Footer组件标签:
-<Footer v-show="$router.meta.isHidden"/>
-
-路由器配置中,search组件:
-const router=new VueRouter({
-    routes:[
-        {
-            path:'/foo',
-            component:Foo,
-            meta:{isHidden:true}
-        }
-    ]
-})
-```
-
-
-
-
-
 #### 缓存路由组件keep-alive
 
 ```js
@@ -11963,6 +11923,315 @@ beforeRouteLeave (to, from, next) {
 10. 调用全局的 `afterEach` 钩子。
 11. 触发 DOM 更新。
 12. 调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数，创建好的组件实例会作为回调函数的参数传入。
+
+
+
+### 路由元信息
+
+##### 如何定义meta字段?
+
+定义路由的时候可以配置 `meta` 字段：
+
+```javascript
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/foo',
+      component: Foo,
+      children: [
+        {
+          path: 'bar',
+          component: Bar,
+          // a meta field
+          meta: { requiresAuth: true }
+        }
+      ]
+    }
+  ]
+})
+```
+
+
+
+##### 如何访问meta字段?
+
+一个路由匹配到的所有路由记录会暴露为 `$route` 对象 (还有在导航守卫中的路由对象) 的 `$route.matched` 数组。因此，我们需要遍历 `$route.matched` 来检查路由记录中的 `meta` 字段。
+
+
+
+##### 案例,在导航守卫中检查元字段
+
+```javascript
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!auth.loggedIn()) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next() // 确保一定要调用 next()
+  }
+})
+```
+
+
+
+### 过渡动效 ???
+
+`<router-view>` 是基本的动态组件，所以我们可以用 `<transition>` 组件给它添加一些过渡效果
+
+```html
+<transition>
+  <router-view></router-view>
+</transition>
+```
+
+
+
+### 数据获取
+
+#### 背景
+
+有时候，进入某个路由后，需要从服务器获取数据。例如，在渲染用户信息时，你需要从服务器获取用户的数据。我们可以通过两种方式来实现：
+
+- **导航完成之后获取**：先完成导航，然后在接下来的组件生命周期钩子中获取数据。在数据获取期间显示“加载中”之类的指示。
+- **导航完成之前获取**：导航完成前，在路由进入的守卫中获取数据，在数据获取成功后执行导航。
+
+
+
+#### 导航完成之后获取
+
+当你使用这种方式时，我们会马上导航和渲染组件，然后在组件的 `created` 钩子中获取数据。这让我们有机会在数据获取期间展示一个 loading 状态，还可以在不同视图间展示不同的 loading 状态。 ??
+
+##### 案例
+
+假设我们有一个 `Post` 组件，需要基于 `$route.params.id` 获取文章数据：
+
+```html
+<template>
+  <div class="post">
+    <div v-if="loading" class="loading">
+      Loading...
+    </div>
+
+    <div v-if="error" class="error">
+      {{ error }}
+    </div>
+
+    <div v-if="post" class="content">
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+
+
+```javascript
+export default {
+  data () {
+    return {
+      loading: false,
+      post: null,
+      error: null
+    }
+  },
+  created () {
+    // 组件创建完后获取数据，
+    // 此时 data 已经被 observed 了
+    this.fetchData()
+  },
+  watch: {
+    // 如果路由有变化，会再次执行该方法
+    '$route': 'fetchData'
+  },
+  methods: {
+    fetchData () {
+      this.error = this.post = null
+      this.loading = true
+      // replace getPost with your data fetching util / API wrapper
+      getPost(this.$route.params.id, (err, post) => {
+        this.loading = false
+        if (err) {
+          this.error = err.toString()
+        } else {
+          this.post = post
+        }
+      })
+    }
+  }
+}
+```
+
+
+
+#### 在导航完成前获取数据
+
+通过这种方式，我们在导航转入新的路由前获取数据。我们可以在接下来的组件的 `beforeRouteEnter` 守卫中获取数据，当数据获取成功后只调用 `next` 方法。
+
+```javascript
+export default {
+  data () {
+    return {
+      post: null,
+      error: null
+    }
+  },
+  beforeRouteEnter (to, from, next) {
+    getPost(to.params.id, (err, post) => {
+      next(vm => vm.setData(err, post))
+    })
+  },
+  // 路由改变前，组件就已经渲染完了
+  // 逻辑稍稍不同
+  beforeRouteUpdate (to, from, next) {
+    this.post = null
+    getPost(to.params.id, (err, post) => {
+      this.setData(err, post)
+      next()
+    })
+  },
+  methods: {
+    setData (err, post) {
+      if (err) {
+        this.error = err.toString()
+      } else {
+        this.post = post
+      }
+    }
+  }
+}
+```
+
+在为后面的视图获取数据时，用户会停留在当前的界面，因此建议在数据获取期间，显示一些进度条或者别的指示。如果数据获取失败，同样有必要展示一些全局的错误提醒。
+
+
+
+### 滚动行为??
+
+
+
+
+
+### 路由懒加载
+
+#### 背景
+
+当打包构建应用时，JavaScript 包会变得非常大，影响页面加载。如果我们能把不同路由对应的组件分割成不同的代码块，然后当路由被访问的时候才加载对应组件，这样就更加高效了。
+
+结合 Vue 的[异步组件 (opens new window)](https://cn.vuejs.org/v2/guide/components-dynamic-async.html#异步组件)和 Webpack 的[代码分割功能 (opens new window)](https://doc.webpack-china.org/guides/code-splitting-async/#require-ensure-/)，轻松实现路由组件的懒加载。
+
+
+
+#### 如何做?
+
+首先，可以将异步组件定义为返回一个 Promise 的工厂函数 (该函数返回的 Promise 应该 resolve 组件本身)：
+
+```javascript
+const Foo = () =>
+  Promise.resolve({
+    /* 组件定义对象 */
+  })
+```
+
+第二，在 Webpack 2 中，我们可以使用[动态 import (opens new window)](https://github.com/tc39/proposal-dynamic-import)语法来定义代码分块点 (split point)：
+
+```javascript
+import('./Foo.vue') // 返回 Promise
+```
+
+结合这两者，这就是如何定义一个能够被 Webpack 自动代码分割的异步组件
+
+```javascript
+const Foo = () => import('./Foo.vue')
+```
+
+在路由配置中什么都不需要改变，只需要像往常一样使用 `Foo`：
+
+```js
+const router = new VueRouter({
+  routes: [{ path: '/foo', component: Foo }]
+})
+```
+
+
+
+#### 把组件按组分块???
+
+
+
+
+
+### 导航故障
+
+#### 背景
+
+当使用 `router-link` 组件时，Vue Router 会自动调用 `router.push` 来触发一次导航。 虽然大多数链接的预期行为是将用户导航到一个新页面，但也有少数情况下用户将留在同一页面上：
+
+- 用户已经位于他们正在尝试导航到的页面
+- 一个[导航守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html)通过调用 `next(false)` 中断了这次导航
+- 一个[导航守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html)抛出了一个错误，或者调用了 `next(new Error())`
+
+当使用 `router-link` 组件时，**这些失败都不会打印出错误**。然而，如果你使用 `router.push` 或者 `router.replace` 的话，可能会在控制台看到一条 *"Uncaught (in promise) Error"* 这样的错误，后面跟着一条更具体的消息。让我们来了解一下如何区分*导航故障*。
+
+
+
+#### 检测导航故障
+
+*导航故障*是一个 `Error` 实例，附带了一些额外的属性。要检查一个错误是否来自于路由器，可以使用 `isNavigationFailure` 函数：
+
+```javascript
+import VueRouter from 'vue-router'
+const { isNavigationFailure, NavigationFailureType } = VueRouter
+
+// 正在尝试访问 admin 页面
+router.push('/admin').catch(failure => {
+  if (isNavigationFailure(failure, NavigationFailureType.redirected)) {
+    // 向用户显示一个小通知
+    showToast('Login in order to access the admin panel')
+  }
+})
+```
+
+
+
+##### `NavigationFailureType`
+
+`NavigationFailureType` 可以帮助开发者来区分不同类型的*导航故障*。有四种不同的类型：
+
+- `redirected`：在导航守卫中调用了 `next(newLocation)` 重定向到了其他地方。
+- `aborted`：在导航守卫中调用了 `next(false)` 中断了本次导航。
+- `cancelled`：在当前导航还没有完成之前又有了一个新的导航。比如，在等待导航守卫的过程中又调用了 `router.push`。
+- `duplicated`：导航被阻止，因为我们已经在目标位置了
+
+
+
+#### 导航故障的属性
+
+所有的导航故障都会有 `to` 和 `from` 属性，分别用来表达这次失败的导航的目标位置和当前位置。
+
+```js
+// 正在尝试访问 admin 页面
+router.push('/admin').catch(failure => {
+  if (isNavigationFailure(failure, NavigationFailureType.redirected)) {
+    failure.to.path // '/admin'
+    failure.from.path // '/'
+  }
+})
+```
+
+
+
+
+
+
 
 
 
