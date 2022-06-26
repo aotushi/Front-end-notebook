@@ -1386,7 +1386,46 @@ html {
 
 外边距/内边距/边框
 
-#### 外边距!!!
+#### 外边距margin
+
+`**margin**` 属性为给定元素设置所有四个（上下左右）方向的外边距属性。也就是 [`margin-top`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-top)，[`margin-right`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-right)，[`margin-bottom`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-bottom)，和 [`margin-left`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-left) 四个外边距属性设置的[简写](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Shorthand_properties)
+
+
+
+##### 语法
+
+`margin` 属性接受 1~4 个值。每个值可以是 [`<length>`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/length)，[`<percentage>`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage)，或 `auto`。
+
+**[`length`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/length)**
+
+以固定值为外边距。
+
+[`percentage`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage)
+
+相对于[包含块](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Containing_block)的*宽度*，以百分比值为外边距。
+
+`auto`
+
+让浏览器自己选择一个合适的外边距。有时，在一些特殊情况下，该值可以使元素居中
+
+
+
+##### <u>水平居中</u>
+
+在现代浏览器中实现水平居中
+
+```css
+display: flex;
+justify-content: center;
+```
+
+在 IE8-9 这样的不支持弹性盒布局的旧式浏览器中,以上代码不生效
+
+```css
+margin: 0 auto;
+```
+
+
 
 
 
@@ -1408,13 +1447,16 @@ html {
 
 ```html
 <style>
-  p:nth-child(1) {
-    margin-bottom: 13px;
-  }
-  p:nth-child(2) {
-    margin-top: 87px;
-  }
+p:nth-child(1){
+  margin-bottom: 13px;
+}
+p:nth-child(2){
+  margin-top: 87px;
+}
 </style>
+
+<p>下边界范围会...</p>
+<p>...会跟这个元素的上边界范围重叠。</p>
 ```
 
 
@@ -1443,9 +1485,18 @@ div {
 <p>... 上边界范围是 87</p>
 ```
 
+<iframe src="https://codesandbox.io/embed/marginfolding-zrrf96?autoresize=1&fontsize=12&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="marginFolding"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
 
 
 
+> 问题??
+>
+> 按照如图所示的代码,在浏览器中, div的上下margin分别为设置的大小,p的margin也并没有改变
 
 
 
@@ -1625,6 +1676,50 @@ CSS中万物皆盒，因此我们可以通过给[`width`](https://developer.mozi
 [`overflow`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow)属性是你控制一个元素溢出的方式，它告诉浏览器你想怎样处理溢出。`overflow`的默认值为`visible`，这就是我们的内容溢出的时候，我们在默认情况下看到它们的原因。
 
 可以使用[`overflow-y`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-y)属性，设置`overflow-y: scroll`来仅在`y`轴方向滚动。用[`overflow-x`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-x)，以在x轴方向上滚动，尽管这不是处理长英文词的好办法
+
+#### text-overflow
+
+**`text-overflow`** [CSS](https://developer.mozilla.org/zh-CN/docs/Web/CSS) 属性用于确定如何提示用户存在隐藏的溢出内容。其形式可以是裁剪、显示一个省略号（“`…`”）或显示一个自定义字符串。
+
+`text-overflow` 属性只对那些在块级元素溢出的内容有效，但是必须要与块级元素*内联*（inline）方向一致（举个反例：文本无法在盒子的下方溢出）。
+
+##### 语法
+
+```css
+text-overflow: xxx;
+```
+
+- 关键字之一：`clip`、`ellipsis`、`fade`
+- 函数 `fade()`：传入 [``](https://developer.mozilla.org/zh-CN/docs/Web/CSS/length) 或 [``](https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage) 来控制淡出距离
+- 一个字符串 `<string>`。
+
+
+
+##### 参数
+
+clip
+
+默认值。这个关键字会在[内容区域](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Box_Model/Introduction_to_the_CSS_box_model)的极限处截断文本，因此可能会在单词的中间发生截断
+
+如果你的目标浏览器支持 `text-overflow: ''`，为了能在两个单词过渡处截断，你可以使用一个空字符串值（`''`）作为 `text-overflow` 属性的值。
+
+
+
+ellipsis
+
+这个关键字会用一个省略号（`'…'`、`U+2026 HORIZONTAL ELLIPSIS`）来表示被截断的文本。
+
+
+
+`<string>` 测试阶段
+
+用来表示被截断的文本。字符串内容将被添加在[内容区域](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Box_Model/Introduction_to_the_CSS_box_model)中，所以会减少显示出的文本。
+
+
+
+`<fade>(<length> | <percentage> )`  测试阶段
+
+这个函数将会截断行内溢出文本并在完全透明的行边缘添加一个淡出特效。 参数决定淡出特效的距离。[``](https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage) 以行宽而定。小于 `0` 的值视为 0。大于行宽的值视为行宽。
 
 
 
@@ -2215,11 +2310,323 @@ BEM 即为块级元素修饰字符（Block Element Modifier）。在 BEM 中，�
 
 
 
+### 基本文本及字体样式
+
+用于样式文本的 CSS 属性通常可以分为两类，我们将在本文中分别观察。
+
+- **字体样式**: 作用于字体的属性，会直接应用到文本中，比如使用哪种字体，字体的大小是怎样的，字体是粗体还是斜体，等等。
+- **文本布局风格**: 作用于文本的间距以及其他布局功能的属性，比如，允许操纵行与字之间的空间，以及在内容框中，文本如何对齐。
+
+
+
+> 注意: 包含在元素中的文本是作为一个单一的实体。你不能将文字其中一部分选中或添加样式，如果你要这么做，那么你必须要用适合的元素来包装它们，比如 ( [``](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/span) 或者 [``](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/strong)), 或者使用伪元素，像[::first-letter](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::first-letter) (选中元素文本的第一个字母), [::first-line](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::first-line) (选中元素文本的第一行), 或者 [::selection](https://developer.mozilla.org/zh-CN/docs/Web/CSS/::selection) (当前光标双击选中的文本)
+
+
+
+#### 字体
+
+##### 颜色
+
+[`color`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/color) 属性设置选中元素的前景内容的颜色 (通常指文本，不过也包含一些其他东西，或者是使用 [`text-decoration`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/text-decoration) 属性放置在文本下方或上方的线 (underline overline)
+
+`color` 也可以接受任何合法的 [CSS 颜色单位](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#colors),
+
+
+
+##### 字体种类
+
+文本上设置一个不同的字体，你可以使用 [`font-family`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-family) 属性.
+
+这个允许你为浏览器指定一个字体 (或者一个字体的列表)，然后浏览器可以将这种字体应用到选中的元素上。
+
+浏览器只会把在当前机器上可用的字体应用到当前正在访问的网站上；
+
+如果字体不可用，那么就会用浏览器默认的字体代替 [default font](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Fundamentals#默认字体)
+
+<u>网页安全字体</u>
+
+字体可用性，只有某几个字体通常可以应用到所有系统，因此可以毫无顾忌地使用。这些都是所谓的 **网页安全字体**。
+
+实际的 Web 安全字体列表将随着操作系统的发展而改变，但是可以认为下面的字体是网页安全的，至少对于现在来说
+
+下面有表格
+
+> **注意**: 在各种资源中，[cssfontstack.com](http://www.cssfontstack.com/) 网站维护了一个可用在 Windows 和 Mac 操作系统上使用的网页安全字体的列表，这可以帮助决策网站的安全性。
+
+
+
+<u>默认字体</u>
+
+CSS 定义了 5 个常用的字体名称: `serif, ``sans-serif, ``monospace`, `cursive,`和 `fantasy. `
+
+当使用这些通用名称时，使用的字体完全取决于每个浏览器，而且它们所运行的每个操作系统也会有所不同。
+
+| 名称         | 定义                                                         | 示例                |
+| :----------- | :----------------------------------------------------------- | :------------------ |
+| `serif`      | 有衬线的字体（衬线一词是指字体笔画尾端的小装饰，存在于某些印刷体字体中） | My big red elephant |
+| `sans-serif` | 没有衬线的字体。                                             | My big red elephant |
+| `monospace`  | 每个字符具有相同宽度的字体，通常用于代码列表。               | My big red elephant |
+| `cursive`    | 用于模拟笔迹的字体，具有流动的连接笔画。                     | My big red elephant |
+| `fantasy`    | 用来装饰的字体                                               | My big red elephant |
+
+
+
+<u>字体栈</u>
+
+由于你无法保证你想在你的网页上使用的字体的可用性 (甚至一个网络字体可能由于某些原因而出错), 你可以提供一个**字体栈** (**font stack**)，这样的话，浏览器就有多种字体可以选择了。只需包含一个`font-family属性`，其值由几个用逗号分离的字体名称组成。
+
+```css
+p {
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+}
+```
+
+在字体栈的最后提供一个合适的通用的字体名称是个不错的办法，这样的话，即使列出的字体都无法使用，浏览器至少可以提供一个还算合适的选择。
+
+
+
+#### 字体大小
+
+字体大小 (通过 [`font-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-size) 属性设置) 可以取大多数这些单位的值 (以及其他，比如百分比 [percentages](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#percentages))，然而你在调整字体大小时，最常用的单位是：
+
+* px
+  *  将像素的值赋予给你的文本。这是一个绝对单位， 它导致了在任何情况下，页面上的文本所计算出来的像素值都是一样的。
+* em
+  * 1em 等于我们设计的当前元素的父元素上设置的字体大小
+* rem
+  * 1`rem` 等于 HTML 中的根元素的字体大小， (i.e. [`<html>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/html)) ，而不是父元素.
+  *  `rem` 不支持 Internet Explorer 8 和以下的版本
+
+元素的 `font-size` 属性是从该元素的父元素继承的。
+
+
+
+
+
+#### 字体样式,字体粗细,文本转换和文本装饰
+
+CSS 提供了 4 种常用的属性来改变文本的样子：
+
+##### font-style
+
+用来打开和关闭文本 italic (斜体)
+
+##### font-weight
+
+设置文字的粗体大小
+
+##### text-transform
+
+允许你设置要转换的字体
+
+- `none`: 防止任何转型。
+- `uppercase`: 将所有文本转为大写。
+- `lowercase`: 将所有文本转为小写。
+- `capitalize`: 转换所有单词让其首字母大写。
+- `full-width`: 将所有字形转换成全角，即固定宽度的正方形，类似于等宽字体，允许拉丁字符和亚洲语言字形（如中文，日文，韩文）对齐。
+
+
+
+##### text-decoration
+
+设置/取消字体上的文本装饰 (你将主要使用此方法在设置链接时取消设置链接上的默认下划线。) 可用值为
+
+- `none`: 取消已经存在的任何文本装饰。
+- `underline`: 文本下划线.
+- `overline`: 文本上划线
+- `line-through`: 穿过文本的线 strikethrough over the text.
+
+ [`text-decoration`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/text-decoration) 可以一次接受多个值
+
+
+
+#### 文字阴影
+
+ [`text-shadow`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/text-shadow) 属性.最多需要 4 个值
+
+```css
+text-shadow: 4px 4px 5px red;
+```
+
+4 个属性如下：
+
+1. 阴影与原始文本的水平偏移，可以使用大多数的 CSS 单位 [length and size units](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#length_and_size), 但是 px 是比较合适的。这个值必须指定。
+2. 阴影与原始文本的垂直偏移;效果基本上就像水平偏移，除了它向上/向下移动阴影，而不是左/右。这个值必须指定。
+3. 模糊半径 - 更高的值意味着阴影分散得更广泛。如果不包含此值，则默认为 0，这意味着没有模糊。可以使用大多数的 CSS 单位 [length and size units](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#length_and_size).
+4. 阴影的基础颜色，可以使用大多数的 CSS 颜色单位 [CSS color unit](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#colors). 如果没有指定，默认为 `black`.
+
+
+
+##### 多种阴影
+
+以通过包含以逗号分隔的多个阴影值，将多个阴影应用于同一文本
+
+```css
+text-shadow: -1px -1px 1px #aaa,
+             0px 4px 1px rgba(0,0,0,0.5),
+             4px 4px 5px rgba(0,0,0,0.7),
+             0px 0px 7px rgba(0,0,0,0.4);
+```
+
+
+
+#### 文本布局
+
+##### 文本对齐
+
+ [`text-align`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/text-align) 属性用来控制文本如何和它所在的内容盒子对齐
+
+
+
+##### 行高
+
+ [`line-height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/line-height) 属性设置文本每行之间的高，可以接受大多数单位 [length and size units](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#length_and_size)，不过也可以设置一个无单位的值，作为乘数，无单位的值乘以 [`font-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-size) 来获得 `line-height`。
+
+推荐的行高大约是 1.5–2 (双倍间距。) 
+
+
+
+##### 字母和单词间距
+
+[`letter-spacing`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/letter-spacing) 和 [`word-spacing`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/word-spacing) 属性允许你设置你的文本中的字母与字母之间的间距、或是单词与单词之间的间距。
+
+
+
+#### 其他Font属性/文本布局样式
+
+
+
+#### Font简写
+
+这些是按照以下顺序来写的： [`font-style`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-style), [`font-variant`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-variant), [`font-weight`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-weight), [`font-stretch`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-stretch), [`font-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-size), [`line-height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/line-height), and [`font-family`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-family).
+
+只有 `font-size` 和 `font-family` 是一定要指定的。
+
+[`font-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-size) 和 [`line-height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/line-height) 属性之间必须放一个正斜杠。
+
+```css
+font: italic normal bold normal 3em/1.5 Helvetica, Arial, sans-serif;
+```
+
+
+
+### 样式化列表 ??
+
+[List 列表](https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Introduction_to_HTML/HTML_text_fundamentals#lists) 大体上和其他文本一样，但是仍有一些你需要知道的特殊 CSS 属性，和一些可供参考的最佳实践
+
+使用[浏览器开发者工具](https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/What_are_browser_developer_tools)查看那些列表元素，你会注意到若干个默认的样式预设值：
+
+-  [`ul`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/ul) 和  [`ol`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/ol) 元素设置[`margin`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin)的顶部和底部：16px(1em) 0;和 padding-left: 40px(2.5em); （在这里注意的是浏览器默认字体大小为 16px）。
+- [``](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/li) 默认是没有设置间距的。
+- [``](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/dl) 元素设置 margin 的顶部和底部：16px(1em) ，无内边距设定。
+- [``](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/dd) 元素设置为： [`margin-left`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/margin-left) `40px` (`2.5em`)。
+- 在参考中提到的 [``](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/p) 元素设置 margin 的顶部和底部：16px(1em)，和其他的列表类型相同。
+
+
+
+### 样式化链接??
+
+#### 链接状态
+
+每一个状态都可以用对应的 [伪类](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors#pseudo-classes) 来应用样式：
+
+- **Link (没有访问过的)**: 这是链接的默认状态，当它没有处在其他状态的时候，它可以使用[`:link`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:link) 伪类来应用样式。
+- **Visited**: 这个链接已经被访问过了 (存在于浏览器的历史纪录), 它可以使用 [`:visited`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:visited) 伪类来应用样式。
+- **Hover**: 当用户的鼠标光标刚好停留在这个链接，它可以使用 [`:hover`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:hover) 伪类来应用样式。
+- **Focus**: 一个链接当它被选中的时候 (比如通过键盘的 Tab 移动到这个链接的时候，或者使用编程的方法来选中这个链接 [`HTMLElement.focus()` (en-US)](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus)) 它可以使用 [`:focus`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:focus) 伪类来应用样式。
+- **Active**: 一个链接当它被激活
+
+
+
+#### 默认的样式
+
+当你观察默认样式的时候，你也许会注意到一些东西：
+
+- 链接具有下划线。
+- 未访问过的 (Unvisited) 的链接是蓝色的。
+- 访问过的 (Visited) 的链接是紫色的。
+- 悬停 (Hover) 在一个链接的时候鼠标的光标会变成一个小手的图标。
+- 选中 (Focus) 链接的时候，链接周围会有一个轮廓，你应该可以按 tab 来选中这个页面的链接 (在 Mac 上，你可能需要使用*Full Keyboard Access: All controls* 选项，然后再按下 Ctrl + F7 ，这样就可以起作用)
+- 激活 (Active) 链接的时候会变成红色 (当你点击链接时，请尝试按住鼠标按钮。)
+
+
+
+#### 更改链接样式
+
+```css
+a {
+
+}
+
+
+a:link {
+
+}
+
+a:visited {
+
+}
+
+a:focus {
+
+}
+
+a:hover {
+
+}
+
+a:active {
+
+}
+```
+
+这几个规则的顺序是有意义的，因为链接的样式是建立在另一个样式之上的
+
+要记住这个顺序，你可以尝试这样帮助记忆：**L**o**V**e **F**ears **HA**te.
+
+
+
+#### 在链接中包含图标
+
+常见的做法是在链接中包含图标，使链接提供更多关于链接指向的内容的信息。例子，比如，我们会使用[icons8.com 上的这个优秀的范例](https://icons8.com/web-app/741/external-link)。
+
+```css
+a[href*="http"] {
+  background: url('https://mdn.mozillademos.org/files/12982/external-link-52.png') no-repeat 100% 0;
+  background-size: 16px 16px;
+  padding-right: 19px;
+}
+```
+
+
+
+#### [样式化链接为按钮](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Styling_links#样式化链接为按钮)
+
+`li`标签元素转换为行内元素或行内块元素后,会出现缝隙问题.
+
+解决方案有多重: 
+
+* 所有`<li>`标签处于一行, 不推荐,
+* 父元素`<ul>`设置字体为0, `<li>`重新设置字体大小
+* 给`<li>`元素设置负边距
+* 其他
+
+<iframe src="https://codesandbox.io/embed/css-stylingbuttonbythetagofa-uoirm9?fontsize=12&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="css/stylingButtonBytheTagOf&#039;a&#039;"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
 ### Web字体
 
-web 字体——它们允许您下载自定义字体和您的 web 页面，以允许更多不同的、自定义的文本样式。
+* 使用 [`font-family`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-family)属性来控制。您需要提供一个或多个字体种类名称，浏览器会在列表中搜寻，直到找到它所运行的系统上可用的字体。
 
-
+* Web 字体是一种 CSS 特性，允许您指定在访问时随您的网站一起下载的字体文件，这意味着任何支持 Web 字体的浏览器都可以使用您指定的字体
 
 #### web-safe字体
 
@@ -2274,7 +2681,7 @@ html {
 * 浏览器支持不同的字体格式，因此您需要多种字体格式以获得良好的跨浏览器支持
 * 字体一般都不能自由使用。您必须为他们付费，或者遵循其他许可条件，比如在代码中 (或者在您的站点上) 提供字体创建者。
 
-
+### web字体示例
 
 #### 查找字体
 
@@ -2284,7 +2691,7 @@ html {
 - 收费的字体经销商：这是一个收费则字体可用的网站，例如[fonts.com](http://www.fonts.com/)或[myfonts.com](http://www.myfonts.com/)。您也可以直接从字体铸造厂中购买字体，例如[Linotype](https://www.linotype.com/)，[Monotype](http://www.monotype.com/) 或 [Exljbris](http://www.exljbris.com/)。
 - 在线字体服务：这是一个存储和为你提供字体的网站，它使整个过程更容易。更多细节见[使用在线字体服务](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Web_fonts#使用在线字体服务)。
 
-
+#### 生成所需代码
 
 **步骤介绍**
 
@@ -2323,7 +2730,93 @@ html {
 
 
 
+#### 关于@font-face
 
+```css
+@font-face {
+  font-family: 'ciclefina';
+  src: url('fonts/cicle_fina-webfont.eot');
+  src: url('fonts/cicle_fina-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/cicle_fina-webfont.woff2') format('woff2'),
+         url('fonts/cicle_fina-webfont.woff') format('woff'),
+         url('fonts/cicle_fina-webfont.ttf') format('truetype'),
+         url('fonts/cicle_fina-webfont.svg#ciclefina') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+```
+
+
+
+* font-family 指定了您想要引用的字体的名称
+* src 
+  * 要导入到您的 CSS(`url`部分) 的字体文件的路径，以及每种字体文件的格式 (`format`部分)
+  * 后面的部分不是必要的，但是声明它是很有用的，因为它允许浏览器更快地找到可以使用的字体。
+  * 可以列出多个声明，用逗号分隔——浏览器会搜索并使用它能找到的第一个
+  * 最好是把新的、更好的格式比如 WOFF2 放在前面，把偏老的，不是那么好的格式像 TTF 这样的放在后面。
+* font-weight/font-style
+  * 指定字体的粗细，以及它是否斜体。如果您正在导入相同字体的多个粗细，您可以指定它们的粗细/样式，然后使用不同的[`font-weight`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-weight)/[`font-style`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/font-style)来选择它们之间的不同值，而不必调用字体种类不同名称的所有不同成员。
+
+
+
+### 使用在线字体服务
+
+#### 介绍
+
+在线字体服务通常会为你存储和服务字体，这样你就不用担心写`@font-face`代码了，通常只需要在你的网站上插入一两行代码就可以让一切都运行。例子包括[Typekit](https://typekit.com/) 和[Cloud.typography](http://www.typography.com/cloud/welcome/)。大多数这些服务都是基于订阅的，除了[Google Fonts](https://www.google.com/fonts)，这是一个有用的免费服务，特别是对于快速的测试工作和编写演示。
+
+
+
+#### 使用
+
+1. 前往 [Google Fonts](https://www.google.com/fonts).
+2. 使用左边的过滤器来显示你想要选择的字体类型，并选择一些你喜欢的字体。
+3. 要选择字体种类，点击
+4. 选择右上角的'selected families',选择相应的link标签或者import方法
+5. 将选择的内容复制到网页上.刷新网页即可看到设置的字体
+
+
+
+### 其他
+
+#### word-break
+
+ 属性 `word-break` 指定了怎样在单词内断行。
+
+##### 语法
+
+```css
+/* Keyword values */
+word-break: normal;
+word-break: break-all;
+word-break: keep-all;
+word-break: break-word; /* deprecated */
+
+/* Global values */
+word-break: inherit;
+word-break: initial;
+word-break: unset;
+```
+
+
+
+##### 参数
+
+normal
+
+使用默认的断行规则。
+
+break-all
+
+对于 non-CJK (CJK 指中文/日文/韩文) 文本，可在任意字符间断行。
+
+keep-all
+
+CJK 文本不断行。Non-CJK 文本表现同 `normal`。
+
+
+
+#### writing-mode
 
 
 
