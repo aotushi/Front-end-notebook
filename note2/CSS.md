@@ -609,6 +609,8 @@ li[class^='a' i] {
 
 表示在一组兄弟元素中的第一个元素
 
+
+
 [`:last-child`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:last-child) 
 
 代表父元素的最后一个子元素
@@ -1282,6 +1284,18 @@ a[href^=http]::after {
 ```css
 p~img
 ```
+
+
+
+#### 选择器使用遇到的问题
+
+##### 伪类选择器`:first-child`, `:last-child`失效
+
+>   使用`:first-child`伪类时一定要保证前面没有兄弟节点，把h1去掉就可以；或者使用div包住article，然后css：`div.article:first-child`
+>
+>   或者使用`first-of-type`
+
+
 
 
 
