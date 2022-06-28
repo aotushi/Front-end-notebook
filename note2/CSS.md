@@ -2695,9 +2695,9 @@ html {
 * 浏览器支持不同的字体格式，因此您需要多种字体格式以获得良好的跨浏览器支持
 * 字体一般都不能自由使用。您必须为他们付费，或者遵循其他许可条件，比如在代码中 (或者在您的站点上) 提供字体创建者。
 
-### web字体示例
+#### web字体示例
 
-#### 查找字体
+##### 查找字体
 
 字体是由字体铸造厂创建的，并且存储在不同的文件格式中。通常有三种类型的网站可以获得字体：
 
@@ -2705,7 +2705,7 @@ html {
 - 收费的字体经销商：这是一个收费则字体可用的网站，例如[fonts.com](http://www.fonts.com/)或[myfonts.com](http://www.myfonts.com/)。您也可以直接从字体铸造厂中购买字体，例如[Linotype](https://www.linotype.com/)，[Monotype](http://www.monotype.com/) 或 [Exljbris](http://www.exljbris.com/)。
 - 在线字体服务：这是一个存储和为你提供字体的网站，它使整个过程更容易。更多细节见[使用在线字体服务](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_text/Web_fonts#使用在线字体服务)。
 
-#### 生成所需代码
+##### 生成所需代码
 
 **步骤介绍**
 
@@ -2744,7 +2744,7 @@ html {
 
 
 
-#### 关于@font-face
+##### 关于@font-face
 
 ```css
 @font-face {
@@ -2773,15 +2773,15 @@ html {
 
 
 
-### 使用在线字体服务
+#### 使用在线字体服务
 
-#### 介绍
+##### 介绍
 
 在线字体服务通常会为你存储和服务字体，这样你就不用担心写`@font-face`代码了，通常只需要在你的网站上插入一两行代码就可以让一切都运行。例子包括[Typekit](https://typekit.com/) 和[Cloud.typography](http://www.typography.com/cloud/welcome/)。大多数这些服务都是基于订阅的，除了[Google Fonts](https://www.google.com/fonts)，这是一个有用的免费服务，特别是对于快速的测试工作和编写演示。
 
 
 
-#### 使用
+##### 使用
 
 1. 前往 [Google Fonts](https://www.google.com/fonts).
 2. 使用左边的过滤器来显示你想要选择的字体类型，并选择一些你喜欢的字体。
@@ -2791,9 +2791,9 @@ html {
 
 
 
-### 其他
+#### 其他
 
-#### word-break
+##### word-break
 
  属性 `word-break` 指定了怎样在单词内断行。
 
@@ -2830,13 +2830,13 @@ CJK 文本不断行。Non-CJK 文本表现同 `normal`。
 
 
 
-#### writing-mode
+##### writing-mode
 
 
 
 
 
-## CSS布局
+## CSS布局(待完成)
 
 
 
