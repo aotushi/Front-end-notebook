@@ -1047,9 +1047,21 @@ last 2 versions
 
 ### require.context
 
+> https://webpack.js.org/guides/dependency-management/#requirecontext
+>
+> https://blog.csdn.net/weixin_45622540/article/details/107505732
+
 **syntax**
 
 > the arguments must be literals
+
+require.context函数接受三个参数
+
+directory {String} -读取文件的路径
+
+useSubdirectories {Boolean} -是否遍历文件的子目录
+
+regExp {RegExp} -匹配文件的正则
 
 ```javascript
 require.context(
@@ -1076,6 +1088,17 @@ require.context()结果是一个函数, 有3个属性:
 * `resolve` 是一个函数并返回解析request的模块id
 * `keys` 是一个函数,返回匹配成功模块的名字组成的数组
 * `id` 上下文模块的模块. ???
+
+
+
+执行了keys方法返回了一个由匹配文件的文件名组成的数组
+id属性返回了匹配的文件夹的相对于工程的相对路径,是否遍历子目录,匹配正则组成的字符串
+
+对于resolve方法可以看到它是一个函数接受req参数,经过实践我发现这个req参数的值是keys方法返回的数组的元素,接着我们传入其中一个元素执行resolve函数 resolve方法返回了一个字符串代表着传入参数的文件相对于整个工程的相对路径
+
+
+
+同时返回值作为一个函数,也接受一个req参数,这个和resolve方法的req参数是一样的,即匹配的文件名的相对路径,而files函数返回的是一个模块,
 
 
 

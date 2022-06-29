@@ -2149,7 +2149,7 @@ session 保存数据理论上没有任何限制
 
 
 
-### 前台数据存储
+## 前台数据存储
 
 > 作为 Web Storage API 的接口，**`Storage`** 提供了访问特定域名下的会话存储或本地存储的功能，例如，可以添加、修改或删除存储的数据项。
 >
@@ -2171,7 +2171,38 @@ session 保存数据理论上没有任何限制
 
 
 
-#### sessionStorage
+### Window.sessionStorage
+
+#### 概述
+
+`sessionStorage` 属性允许你访问一个，对应当前源的 session [`Storage`](https://developer.mozilla.org/zh-CN/docs/Web/API/Storage) 对象。它与 [`localStorage`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage) 相似，不同之处在于 `localStorage` 里面存储的数据没有过期时间设置，而存储在 `sessionStorage` 里面的数据在页面会话结束时会被清除。
+
+#### 特点
+
+- 页面会话在浏览器打开期间一直保持，并且重新加载或恢复页面仍会保持原来的页面会话。
+- **在新标签或窗口打开一个页面时会复制顶级浏览会话的上下文作为新会话的上下文，**这点和 session cookies 的运行方式不同。
+- 打开多个相同的 URL 的 Tabs 页面，会创建各自的 `sessionStorage`。
+- 关闭对应浏览器标签或窗口，会清除对应的 `sessionStorage`
+
+
+
+#### 语法
+
+```javascript
+// 保存数据到 sessionStorage
+sessionStorage.setItem('key', 'value');
+
+// 从 sessionStorage 获取数据
+let data = sessionStorage.getItem('key');
+
+// 从 sessionStorage 删除保存的数据
+sessionStorage.removeItem('key');
+
+// 从 sessionStorage 删除所有保存的数据
+sessionStorage.clear();
+```
+
+
 
 
 

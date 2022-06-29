@@ -11076,6 +11076,58 @@ const MyReusableModule = {
 
 
 
+#### 实践案例
+
+store文件夹解构如下：
+
+```javascript
+store
+	--basemodules
+  --localStandardData
+  --modules
+  	--anhui
+    	--meteringpoint.js
+			--powerplantMeteringpoint.js
+    --beiJing
+    	--xxx.js
+    --xinjiang
+    	--xxx.js
+  	--xxx1.js
+		--xxx2.js
+```
+
+问题及解决方法：
+
+store文件夹下存在多个js文件多个文件夹，结构有嵌套，单一结构数量又多。如果在默认文件中使用import方法引入，写法繁琐。
+
+使用require.context自动导入模块
+
+```javascript
+const modulesFiles = require.context('./modules', true, /\.js$/)
+const modules = modulesFiles.keys().reduce((modules, modulePath) => {
+  let moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
+
+  // 处理多层级文件 让第二层级首字母大写
+  if (moduleName.includes('/')) {
+    let multipleFolderName = moduleName.split('/')
+    
+    // for (let idx = 1, len = multipleFolderName.length; idx < len; idx++) {
+    //   const item = multipleFolderName[idx]
+    //   multipleFolderName[idx] = item.slice(0, 1).toUpperCase() + item.slice(1)
+    // }
+    // moduleName = multipleFolderName.join('')
+   
+
+    multipleFolderName.forEach((item, idx) => idx != 0 && item[0].toUpperCase())
+    moduleName = multipleFolderName.join('')
+  }
+
+  const value = modulesFiles(modulePath)
+  modules[moduleName] = value.default
+  return modules
+ }, {})
+```
+
 
 
 
