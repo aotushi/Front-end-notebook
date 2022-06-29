@@ -1351,6 +1351,8 @@ css的box模型有一个外部显示类型，来决定盒子是块级还是内�
 
 #### 盒模型组成部分
 
+
+
 CSS中组成一个块级盒子需要:
 
 - **Content box**: 这个区域是用来显示内容，大小可以通过设置 [`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width) 和 [`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height).
@@ -1364,25 +1366,47 @@ CSS中组成一个块级盒子需要:
 
 #### 标准盒模型
 
-在标准模型中，如果你给盒设置 `width` 和 `height`，实际设置的是 *content box*。 padding 和 border 再加上设置的宽高一起决定整个盒子的大小。
+> box's actual width = width + padding\*2 + border\*2
+
+在标准模型中，如果你给盒设置 `width` 和 `height`，实际设置的是 *content's box*。 padding 和 border 再加上设置的宽高一起决定整个盒子的大小。
 
 margin 不计入实际大小 —— 当然，它会影响盒子在页面所占空间，但是影响的是盒子外部空间。盒子的范围到边框为止 —— 不会延伸到margin。
 
-盒子宽度 = width
+
+
+假设定义了 `width`, `height`, `margin`, `border`, and `padding`:
+
+```css
+.box {
+  width: 350px;
+  height: 150px;
+  margin: 25px;
+  padding: 25px;
+  border: 5px solid black;
+}
+```
+
+如果使用标准模型宽度 = 410px (350 + 25 + 25 + 5 + 5)，高度 = 210px (150 + 25 + 25 + 5 + 5)，padding 加 border 再加 content box。
+
+![](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/standard-box-model.png)
+
+
 
 #### 替代(IE)盒模型
 
-盒子宽度(高度) = width + padding\*2 + border\*2
+> box's actual width = 350px = content'width + padding\*2 + border\*2
+
+CSS的替代盒模型。使用这个模型，所有宽度都是可见宽度，所以内容宽度是该宽度减去边框和填充部分。使用上面相同的样式得到 (width = 350px, height = 150px).
+
+![](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model/alternate-box-model.png)
 
 
 
 #### 盒模型的切换
 
-默认浏览器会使用标准模型。如果需要使用替代模型，您可以通过为其设置 `box-sizing: border-box` 来实现。 
+<span style="color:blue">默认浏览器会使用标准模型。如果需要使用替代模型，您可以通过为其设置 `box-sizing: border-box` 来实现。</span> 
 
-如果你希望所有元素都使用替代模式，而且确实很常用，设置 `box-sizing` 在 `<html>` 元素上，然后设置所有元素继承该属性
-
-Internet Explorer默认使用替代盒模型，没有可用的机制来切换。（译者注：IE8+ 支持使用`box-sizing` 进行切换 
+所有元素都使用替代模式，而且确实很常用，设置 `box-sizing` 在 `<html>` 元素上，然后设置所有元素继承该属性.
 
 ```css
 html {
@@ -1395,6 +1419,10 @@ html {
 ```
 
 如果想要深入理解，请看 [the CSS Tricks article on box-sizing](https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/)。 ?? 没太明白.
+
+Internet Explorer默认使用替代盒模型，没有可用的机制来切换。（译者注：IE8+ 支持使用`box-sizing` 进行切换 .
+
+
 
 
 
@@ -1616,6 +1644,10 @@ display有一个特殊的值，它在内联和块之间提供了一个中间状�
 
 
 
+### 背景和边框
+
+> [The Shapes of CSS | CSS-Tricks - CSS-Tricks](https://css-tricks.com/the-shapes-of-css/)
+
 
 
 ### 元素的显示模式
@@ -1681,21 +1713,143 @@ span等行内元素是可以设置内边距 padding 的，只不过元素本身�
 
 #### 概要
 
-CSS中万物皆盒，因此我们可以通过给[`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width)和[`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height)（或者 [`inline-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inline-size) 和 [`block-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/block-size)）赋值的方式来约束盒子的尺寸。
+CSS 中万物皆盒，因此我们可以通过给[`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width)和[`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height)（或者 [`inline-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/inline-size) 和 [`block-size`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/block-size)）赋值的方式来约束盒子的尺寸。溢出是在你往盒子里面塞太多东西的时候发生的，所以盒子里面的东西也不会老老实实待着。
 
 
 
 #### overflow属性
 
-[`overflow`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow)属性是你控制一个元素溢出的方式，它告诉浏览器你想怎样处理溢出。`overflow`的默认值为`visible`，这就是我们的内容溢出的时候，我们在默认情况下看到它们的原因。
+##### 概述
 
-可以使用[`overflow-y`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-y)属性，设置`overflow-y: scroll`来仅在`y`轴方向滚动。用[`overflow-x`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-x)，以在x轴方向上滚动，尽管这不是处理长英文词的好办法
+[`overflow`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow)属性是你控制一个元素溢出的方式，它告诉浏览器你想怎样处理溢出。
+
+CSS 属性 **overflow** 定义当一个元素的内容太大而无法适应 [块级格式化上下文](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Block_formatting_context) 时候该做什么。它是 [`overflow-x`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-x) 和[`overflow-y`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-y)的 [简写属性 ](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Shorthand_properties)。
+
+##### 语法
+
+```css
+/* 默认值。内容不会被修剪，会呈现在元素框之外 */ overflow: visible; 
+
+/* 内容会被修剪，并且其余内容不可见 */ overflow: hidden; 
+
+
+/* 内容会被修剪，浏览器会显示滚动条以便查看其余内容 */ overflow: scroll; 
+
+
+/* 由浏览器定夺，如果内容被修剪，就会显示滚动条 */ overflow: auto; 
+
+
+/* 规定从父元素继承 overflow 属性的值 */ overflow: inherit;
+
+
+overflow: hidden, scroll; /* overflow-x设置为隐藏, overflow-y设置为scroll*/
+```
+
+
+
+<iframe class="interactive is-default-height" height="500" src="https://interactive-examples.mdn.mozilla.net/pages/css/overflow.html" title="MDN Web Docs Interactive Example" loading="lazy"></iframe>
+
+指定除`visible`(默认值) 以外的值将创建一个新的 [块级格式化上下文](https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Block_formatting_context). 这在技术层面上是必须的——如果一个浮动元素和滚动条相交，它会在每个滚动步骤后强行重新包装内容，从而导致慢滚动体验。???
+
+为使 `overflow `有效果:
+
+* 块级容器必须有一个指定的高度（`height`或者`max-height`）或者
+* 将`white-space`设置为`nowrap`。
+
+
+
+##### 注意事项
+
+* 设置一个轴为`visible`（默认值），同时设置另一个轴为不同的值，会导致设置`visible`的轴的行为会变成`auto`
+* 即使将 overflow 设置为 hidden，也可以使用 JavaScript [`Element.scrollTop`](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/scrollTop) 属性来滚动 HTML 元素。
+
+
+
+##### overflow-x / overflow-y
+
+使用[`overflow-x`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-x)，以在 x 轴方向上滚动，尽管这不是处理长英文词的好办法.
+
+如果你真的需要在小盒子里面和长英文词打交道, 可能需要[`word-break`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/word-break)或者[`overflow-wrap`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-wrap)属性。
+
+
+
+##### word-break
+
+指定了怎样在单词内断行.
+
+语法:
+
+```css
+/* Keyword values */
+word-break: normal;
+word-break: break-all;
+word-break: keep-all;
+word-break: break-word; /* deprecated */
+
+/* Global values */
+word-break: inherit;
+word-break: initial;
+word-break: unset;
+```
+
+
+
+<iframe class="interactive is-default-height" height="400" src="https://interactive-examples.mdn.mozilla.net/pages/css/word-break.html" title="MDN Web Docs Interactive Example" loading="lazy"></iframe>
+
+
+
+##### overflow-wrap(word-wrap)
+
+背景:
+
+> **word-wrap 属性原本属于微软的一个私有属性，在 CSS3 现在的文本规范草案中已经被重名为 [`overflow-wrap`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/overflow-wrap) 。word-wrap 现在被当作 overflow-wrap 的“别名”。稳定的谷歌 Chrome 和 Opera 浏览器版本支持这种新语法。**
+
+概述:
+
+是用来说明当一个不能被分开的字符串太长而不能填充其包裹盒时，为防止其溢出，浏览器是否允许这样的单词中断换行
+
+与[`word-break`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/word-break)相比，`overflow-wrap`仅在无法将整个单词放在自己的行而不会溢出的情况下才会产生中断
+
+语法:
+
+```css
+/* Keyword values */
+overflow-wrap: normal;
+overflow-wrap: break-word;
+
+/* Global values */
+overflow-wrap: inherit;
+overflow-wrap: initial;
+overflow-wrap: unset;
+```
+
+`normal`
+
+行只能在正常的单词断点处中断。（例如两个单词之间的空格）。
+
+`break-word`
+
+表示如果行内没有多余的地方容纳该单词到结尾，则那些正常的不能被分割的单词会被强制分割换行。
+
+
+
+#### 溢出建立了块级上下文
+
+CSS 中有所谓**块级排版上下文（****Block Formatting Context，BFC）**的概念**。
+
+在你使用诸如`scroll`或者`auto`的时候，你就建立了一个块级排版上下文。结果就是，你改变了`overflow`的值的话，对应的盒子就变成了更加小巧的状态。
+
+在容器之外的东西没法混进容器内，也没有东西可以突出盒子，进入周围的版面。激活了滚动动作，你的盒子里面所有的内容会被收纳，而且不会遮到页面上其他的物件，于是就产生了一个协调的滚动体验。
+
+
+
+
 
 #### text-overflow
 
-**`text-overflow`** [CSS](https://developer.mozilla.org/zh-CN/docs/Web/CSS) 属性用于确定如何提示用户存在隐藏的溢出内容。其形式可以是裁剪、显示一个省略号（“`…`”）或显示一个自定义字符串。
+**`text-overflow`** [CSS](https://developer.mozilla.org/zh-CN/docs/Web/CSS) 属性用于确定如何提示用户存在隐藏的溢出内容。其形式可以是裁剪、显示一个省略号（“`…`”）或显示一个自定义字符串.
 
-`text-overflow` 属性只对那些在块级元素溢出的内容有效，但是必须要与块级元素*内联*（inline）方向一致（举个反例：文本无法在盒子的下方溢出）。
+`text-overflow` 属性只对那些在块级元素溢出的内容有效，但是必须要与块级元素*内联*（inline）方向一致（举个反例：文本无法在盒子的下方溢出）
 
 ##### 语法
 
@@ -2837,6 +2991,103 @@ CJK 文本不断行。Non-CJK 文本表现同 `normal`。
 
 
 ## CSS布局(待完成)
+
+CSS 页面布局技术允许我们拾取网页中的元素，并且控制它们相对正常布局流、周边元素、父容器或者主视口/窗口的位置。在这个模块中将涉及更多关于页面[布局技术](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Layout_mode)的细节：
+
+- 正常布局流
+- [`display`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/display)属性
+- 弹性盒子
+- 网格
+- 浮动
+- 定位
+- CSS 表格布局
+- 多列布局
+
+
+
+### 正常布局流(Normal flow)
+
+正常布局流 (normal flow) 是指在不对页面进行任何布局控制时，浏览器默认的 HTML 布局方式。
+
+下列布局技术会覆盖默认的布局行为：
+
+-  **[`display`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/display)** 属性 — 标准的 value，比如`block`, `inline` 或者 `inline-block` 元素在正常布局流中的表现形式 (见 [Types of CSS boxes](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model#types_of_css_boxes)). 接着是全新的布局方式，通过设置`display`的值，比如 [CSS Grid](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids) 和 [Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox).
+- **浮动**——应用 **[`float`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/float)** 值，诸如 `left` 能够让块级元素互相并排成一行，而不是一个堆叠在另一个上面。
+- **[`position`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/position)** 属性 — 允许你精准设置盒子中的盒子的位置，正常布局流中，默认为 `static` ，使用其它值会引起元素不同的布局方式，例如将元素固定到浏览器视口的左上角。
+- **表格布局**— 表格的布局方式可以用在非表格内容上，可以使用`display: table`和相关属性在非表元素上使用。
+- **多列布局**— 这个 [Multi-column layout](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Columns) 属性 可以让块按列布局，比如报纸的内容就是一列一列排布的。
+
+
+
+### display属性
+
+#### 背景
+
+在 css 中实现页面布局的主要方法是设定`display`属性的值。此属性允许我们更改默认的显示方式。正常流中的所有内容都有一个`display`的值，用作元素的默认行为方式。
+
+
+
+### 弹性盒子(FlexBox)
+
+Flexbox 是 CSS 弹性盒子布局模块（[Flexible Box Layout](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Flexible_Box_Layout) Module）的缩写，它被专门设计出来用于创建横向或是纵向的一维页面布局。
+
+要使用 flexbox，你只需要在想要进行 flex 布局的父元素上应用`display: flex` ，所有直接子元素都将会按照 flex 进行布局。
+
+
+
+### Grid布局
+
+Flexbox 用于设计横向或纵向的布局，而 Grid 布局则被设计用于同时在两个维度上把元素按行和列排列整齐。
+
+
+
+### 浮动
+
+把一个元素“浮动”(float) 起来，会改变该元素本身和在正常布局流（normal flow）中跟随它的其他元素的行为。这一元素会浮动到左侧或右侧，并且从正常布局流 (normal flow) 中移除，这时候其他的周围内容就会在这个被设置浮动 ([`float`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/float)) 的元素周围环绕
+
+**浮动的框可以向左或向右移动，直到它的外边缘碰到包含框或另一个浮动框的边框为止。**
+
+**由于浮动框不在文档的普通流中，所以文档的普通流中的块框表现得就像浮动框不存在一样。**
+
+
+
+#### 浮动的样式表现
+
+
+
+#### 行框和清理
+
+
+
+
+
+
+
+
+
+### 定位技术
+
+定位 (positioning) 能够让我们把一个元素从它原本在正常布局流 (normal flow) 中应该在的位置移动到另一个位置。定位 (positioning) 并不是一种用来给你做主要页面布局的方式，它更像是让你去管理和微调页面中的一个特殊项的位置。
+
+5种定位类型
+
+- **静态定位 (Static positioning)**是每个元素默认的属性——它表示“将元素放在文档布局流的默认位置——没有什么特殊的地方”。
+- **相对定位 (Relative positioning)**允许我们相对于元素在正常的文档流中的位置移动它——包括将两个元素叠放在页面上。这对于微调和精准设计 (design pinpointing) 非常有用。
+- **绝对定位 (Absolute positioning)**将元素完全从页面的正常布局流 (normal layout flow) 中移出，类似将它单独放在一个图层中。我们可以将元素相对于页面的 `<html>` 元素边缘固定，或者相对于该元素的*最近被定位祖先元素 (nearest positioned ancestor element)*。绝对定位在创建复杂布局效果时非常有用，例如通过标签显示和隐藏的内容面板或者通过按钮控制滑动到屏幕中的信息面板。
+- **固定定位 (Fixed positioning)**与绝对定位非常类似，但是它是将一个元素相对浏览器视口固定，而不是相对另外一个元素。这在创建类似在整个页面滚动过程中总是处于屏幕的某个位置的导航菜单时非常有用。
+- **粘性定位 (Sticky positioning)**是一种新的定位方式，它会让元素先保持和`position: static`一样的定位，当它的相对视口位置 (offset from the viewport) 达到某一个预设值时，他就会像`position: fixed`一样定位。
+
+
+
+### 表格布局
+
+
+
+### 多列布局
+
+多列布局模组给了我们 一种把内容按列排序的方式，就像文本在报纸上排列那样。由于在 web 内容里让你的用户在一个列上通过上下滚动来阅读两篇相关的文本是一种非常低效的方式，那么把内容排列成多列可能是一种有用的技术。
+
+要把一个块转变成多列容器 (multicol container)，我们可以使用 [`column-count`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/column-count)属性来告诉浏览器我们需要多少列，也可以使用[`column-width` (en-US)](https://developer.mozilla.org/en-US/docs/Web/CSS/column-width)来告诉浏览器以至少某个宽度的尽可能多的列来填充容器。
 
 
 
