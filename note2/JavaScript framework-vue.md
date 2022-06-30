@@ -54,7 +54,7 @@ vue.js中文官网：http://cn.vuejs.org/
 
 
 
-### 核心特点
+### Vue 5 种特点
 
 #### 1.响应式数据绑定
 
@@ -305,7 +305,7 @@ Vue.js 的核心是一个允许采用简洁的模板语法来声明式的将数�
 
 ### 什么是MVVM
 
-> MVVM采用分而治之的思想,把不同的代码放到不同的模块当中，然后通过特定的逻辑联系到一起
+Model–View–ViewModel （MVVM） 是一个软件架构设计模式,
 
 * M：model、就是模型数据，普通的JS对象.可以理解为data中的对象
 * V：view、就是Dom
@@ -316,6 +316,12 @@ Vue.js 的核心是一个允许采用简洁的模板语法来声明式的将数�
 <span style="background: #ccc">V 到 M（视图影响数据）：Dom Listeners：通过事件监听联系到一起。</span>
 
 <span style="background: #ccc">只要数据进行了改变，同时视图也会同时更新。</span>
+
+#### MVVM组成图示
+
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/4/17/16a2afb76e831546~tplv-t2oaga2asx-zoom-in-crop-mark:3024:0:0:0.awebp)
+
+
 
 理解了基本思想之后，我们要做什么才能**实现VM呢？**
 
@@ -364,7 +370,9 @@ vue.js 则是采用数据劫持结合`发布者-订阅者模式`的方式，通�
 
 
 
-### vue.js数据劫持实现
+### vue.js数据劫持实现 ????
+
+> CSDN vue教程
 
 #### 1.思路整理
 
@@ -3107,6 +3115,23 @@ https://juejin.cn/post/6844903904585449486
 
 #### 3.1 父子组件生命周期
 
+加载渲染过程
+
+父 beforeCreate -> 父 created -> 父 beforeMount -> 子 beforeCreate -> 子 created -> 子 beforeMount -> 子 mounted -> 父 mounted
+
+子组件更新过程
+
+父 beforeUpdate -> 子 beforeUpdate -> 子 updated -> 父 updated
+
+父组件更新过程
+
+父 beforeUpdate -> 父 updated
+
+销毁过程
+
+父 beforeDestroy -> 子 beforeDestroy -> 子 destroyed -> 父 destroyed
+
+
 
 
 #### 3.2 其他情况
@@ -3386,9 +3411,8 @@ vm.a = 2 // => new: 2, old: 1
 
 ### computed和watch之间的区别
 
-* 只要是computed能完成的功能，watch都可以完成
-* watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
-* computed依赖缓存,值不变前提下多次读取使用缓存;watch多次读取会多次调用
+* 只要是computed能完成的功能，watch都可以完成; watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
+* computed依赖缓存,值不变前提下多次读取使用缓存; watch多次读取会多次调用
 
 
 
@@ -14489,6 +14513,12 @@ $parent：代表父组件对象
 
 
 
+### Vue项目优化
+
+> https://juejin.cn/post/6844903918753808398#heading-20
+
+
+
 
 
 
@@ -14496,6 +14526,12 @@ $parent：代表父组件对象
 
 
 ## Vue开发问题
+
+> https://juejin.cn/post/6844903632815521799 (待完成)
+
+
+
+
 
 ### 1.Vue数据更新但页面没有更新的7种情况
 
@@ -14730,6 +14766,47 @@ watch: {
 
 
 
+### 如何保存页面当前的状态?
+
+> https://www.yuque.com/cuggz/interview/hswu8g#02b671eb804c1a7a0e637fb68e91d8ac
+
+
+
+既然是要保持页面的状态（其实也就是组件的状态），那么会出现以下两种情况：
+
+- 前组件会被卸载
+- 前组件不会被卸载
+
+那么可以按照这两种情况分别得到以下方法：
+
+#### 组件会被卸载
+
+##### 将状态存储在**LocalStorage / SessionStorage**
+
+只需要在组件即将被销毁的生命周期中在 LocalStorage / SessionStorage 中把当前组件的 state 通过 JSON.stringify() 储存下来就可以了。在这里面需要注意的是组件更新状态的时机。
+
+
+
+缺点:
+
+* json序列化有无法处理的数据类型
+* ???
+
+##### 路由传值
+
+
+
+#### 组件不会卸载
+
+##### 单页面渲染
+
+要切换的组件作为子组件全屏渲染，父组件中正常储存页面状态
+
+
+
+#### 其他
+
+keep-alive
 
 
 
@@ -14739,10 +14816,11 @@ watch: {
 
 
 
+### 面试题整理
 
+https://juejin.cn/post/6844903918753808398#heading-20
 
-
-
+https://www.yuque.com/cuggz/interview/hswu8g#02b671eb804c1a7a0e637fb68e91d8ac
 
 
 

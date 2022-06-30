@@ -695,6 +695,8 @@ link元素中的CSS媒体查询,不同屏幕加载不同样式文件
 CSS样式表中的媒体查询:
 
 ```html
+//mobile.css
+
 @media only screen and (max-width: 414px){
 	html{ font-size: 64px;}
 }
