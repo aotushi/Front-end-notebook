@@ -3053,9 +3053,166 @@ Flexbox 用于设计横向或纵向的布局，而 Grid 布局则被设计用于
 
 #### 浮动的样式表现
 
+#### 浮动的案例
+
+##### 两列布局
+
+每个列都需要一个外部元素来包含其内容，并让我们一次操作它的所有内容。在这个例子中，我们选择了[`<div>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/div)，但你可以选择更多语义合适的东西[`<article>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/article)、[`<section>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/section)、和[`<aside>`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/aside)，诸如此类。
+
+css样式的实现方案: 
+
+* 使用百分比实现了一个流式布局**liquid layout**
+
+* 将宽度设置为一个固定的单位如 rem 或像素 **固定宽度布局**（**fixed-width layout**）
+
+
+
+```css
+div:nth-of-type(1) {
+  width: 48%;
+  float: left;
+}
+
+div:nth-of-type(2) {
+  width: 48%;
+  float: right;
+}
+```
+
+
+
+<iframe src="https://codesandbox.io/embed/autumn-tree-8omgiq?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="autumn-tree-8omgiq"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+
+
+##### 三列布局
+
+<iframe src="https://codesandbox.io/embed/autumn-tree-8omgiq?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="autumn-tree-8omgiq"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+css样式:
+
+```css
+#case3-layout3 {
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+div:nth-of-type(1) {
+  width: 36%;
+  float: left;
+}
+
+div:nth-of-type(2) {
+  width: 30%;
+  float: left;
+  margin-left: 4%;
+}
+
+div:nth-of-type(3) {
+  width: 26%;
+  float: right;
+}
+```
+
+
+
+注意: 使用浮动可以使可视化布局与源顺序不同。尝试改变第二列的 [`float`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/float)值为 `right`
+
+你会看到现在的视觉顺序是这样的：
+
+```
+div1  div3  div2
+```
+
+这是因为第二个<div>源代码顺序上比第三个<div>等级要高 (DOM 上第二个<div>先出现并声明了`float: right;`) ，所以在浮动顺序上也会比第三个<div>等级要高。又因为两者同时像右浮动，第二个<div>就会更加地靠右。
+
 
 
 #### 行框和清理
+
+##### 浮动后元素的表现
+
+浮动框旁边的行框被缩短，从而给浮动框留出空间，行框围绕浮动框.<span style="color:blue">创建浮动框可以使文本围绕图像</span>.
+
+文字围绕浮动的元素,但浮动元素底部是覆盖元素的.
+
+![](https://www.w3school.com.cn/i/css/positioning_floating_linebox.gif)
+
+<iframe src="https://codesandbox.io/embed/autumn-tree-8omgiq?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="autumn-tree-8omgiq"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+
+
+##### 阻止行框围绕浮动框
+
+**clear**
+
+需要对该行框使用clear属性,clear 属性的值可以是 left、right、both 或 none，它表示框的哪些边不应该挨着浮动框。
+
+**上外边距**
+
+除了给元素添加clear属性之外,还可以给此元素添加<u>上外边距</u>, 使元素的顶边边缘垂直下降到浮动框下面:
+
+![](https://www.w3school.com.cn/i/css/positioning_floating_clear.gif)
+
+
+
+##### 浮动元素导致父元素高度塌陷
+
+假设希望让一个图片浮动到文本块的左边，并且希望这幅图片和文本包含在另一个具有背景颜色和边框的元素中。您可能编写下面的代码：
+
+```css
+.news {
+  background-color: gray;
+  border: solid 1px black;
+  }
+
+.news img {
+  float: left;
+  }
+
+.news p {
+  float: right;
+  }
+
+<div class="news">
+<img src="news-pic.jpg" />
+<p>some text</p>
+</div>
+```
+
+出现的问题:
+
+因为浮动元素脱离了文档流，所以包围图片和文本的 div 不占据空间
+
+<u>浮动导致的父元素高度塌陷的解决方案:</u>
+
+* 需要在父元素最后添加空的div元素,给空的div元素添加`clear:both`属性. 或者,
+
+* 对父元素进行浮动
+
+
+
+
 
 
 
