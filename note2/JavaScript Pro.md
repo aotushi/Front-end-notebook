@@ -9302,6 +9302,39 @@ console.log(PersonClass2.nameValue); //'jack'
 
 
 
+### ES2022- 类的声明格式 (待整理)
+
+```javascript
+class SampleClass {
+    /*
+      instead of:
+      constructor() { this.publicID = 42; }
+    */
+    publicID = 42; // public field
+
+    /*
+      instead of:
+      static get staticPublicField() { return -1 }
+    */
+    static staticPublicField = -1;
+
+    // static private field
+    static #staticPrivateField = 'private';
+
+    //private methods
+    #privateMethod() {}
+
+    // static block
+    static {
+      // executed when the class is created
+    }
+}
+```
+
+
+
+
+
 ### 继承与派生类
 
 #### 0. ES5继承与ES6继承实现 ????
@@ -16187,6 +16220,32 @@ const __main = async function () {
   console.log(results);
 }
 __main();
+```
+
+
+
+### ES2022- await
+
+> https://h3manth.com/ES2022/
+
+> await outside of async functions in modules
+
+```javascript
+// say this is index.mjs
+
+// fails
+await Promise.resolve('🍎');
+// → SyntaxError: await is only valid in async function
+
+// fix with wrapping
+(async function() {
+  await Promise.resolve('🍎');
+  // → 🎉
+}());
+
+// to top-level await
+await Promise.resolve('🍎') // '🍎'
+const i18n = await import(`./content-${language}.mjs`);
 ```
 
 

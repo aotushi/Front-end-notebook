@@ -11649,6 +11649,12 @@ a==1&&a==2&&a==3
 
 
 
+#### ES2022-Object.hasOwn()
+
+
+
+
+
 ### 对象的引用和复制
 
 #### 1.引用类型和原始类型引用复制的区别
@@ -21255,6 +21261,8 @@ for (let e of iterator) {
 
 
 
+#### ES2022-at()
+
 
 
 
@@ -22705,6 +22713,37 @@ alert(`$(d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`);
 #### moment.js
 
 > https://momentjs.com/
+
+
+
+## Error
+
+
+
+
+
+### ES 2022-Error cause
+
+> cause property indicating the cause of an error. [📕](https://github.com/tc39/proposal-error-cause)
+
+```
+const actual = new Error('a better error!', { cause: 'Error cause' });
+
+actual instanceof Error; // true
+actual.cause; // 'Error cause'
+
+
+
+
+
+try {
+  maybeWorks();
+} catch (err) {
+  throw new Error('maybeWorks failed!', { cause: err });
+}
+```
+
+
 
 
 
@@ -26038,7 +26077,7 @@ function getLocalStorage(key) {
 
 
 
-## 正则表达式
+## 正则表达式(待完成)
 
 ### 0.学习资源
 
