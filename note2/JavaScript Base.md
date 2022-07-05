@@ -61,6 +61,73 @@
 - 旧特性不删除也不修复，而是引入更好的版本，比如let就是var的改进版
 - 如果语言的某些方面有变化，只在新的语法结构内生效，即隐式选用，例如，yield只在generator中才是关键字、模块和类中的所有代码都默认开启严格模式
 
+### ECMAScript阅读指南
+
+> https://zhuanlan.zhihu.com/p/262261803
+
+
+
+#### 前言
+
+是否必要,重要性.
+
+其他相关文章:
+
+> 编写本文之前我阅读了其他优秀的文章，也推荐阅读:
+>
+> 1. Timothy Gu 的 [How to Read the ECMAScript Specification](https://link.zhihu.com/?target=https%3A//timothygu.me/es-howto)
+> 2. V8 团队的 [Understanding ECMAScript](https://link.zhihu.com/?target=https%3A//v8.dev/blog/tags/understanding-ecmascript)
+
+
+
+#### 介绍
+
+ECMAScript 是 **[Ecma International](https://link.zhihu.com/?target=https%3A//www.ecma-international.org/)** 颁布的一部语言标准，编号为 262，所以又称为 ECMA-262。
+
+Ecma International 是一个制定信息和通讯技术方面的国际标准的组织。
+
+ECMAScript 由 EMCA International 的 **[TC39](https://link.zhihu.com/?target=https%3A//tc39.es/)**（**Technical Committee 39**）技术委员会编写，TC39 将编写好的 ECMAScript 标准文档提交给 Ecma International，再由 Ecma International 正式发布。
+
+从 2015 年开始，ECMAScript 每年发布一个正式版，并在标题中写上年份，比如「**ECMAScript® 2020 Language Specification, 11th edition**」，可简称为「ES2020」或「ES11」。
+
+JavaScript 编程语言先于规范诞生，「ECMAScript」这一名字是当时提交至标准协会时起的名称，它们两者可谓共生共荣、相依相存，因此也可以将 ECMAScript 理解为 JavaScript 的正式名称。
+
+
+
+#### 版本选择
+
+Ecma International 会将历代规范发布在他们官网, 地址:[ECMAScript® 2022 language specification](https://www.ecma-international.org/publications-and-standards/standards/ecma-262/)
+
+而 TC39 会在他们的网站上发布另一个 Draft（草案）版本 [ECMAScript® 2023 Language Specification](https://tc39.es/ecma262/)
+
+
+
+**为什么 ECMAScript 会在两个网站上出现两个版本？为什么 TC39 会在 2020 年就发布了 2021 年的内容？应该以哪个为准？**
+
+Ecma International 每年发布一次新的正式版规范。而 TC39 作为 ES 规范的编写者，会在一年之内定期地**多次**发布新内容到他们的网站上，因此 TC39 的版本会比 Ecma International 官网上的更加新一些，其中包含一些**已完成但暂未正式列入规范**的新内容（详见下一章节）。
+
+TC39 会每年将自己编写的内容整理出来，在上半年提交给 Ecma International 作为正式版于七月份发布。而当提交之后，TC39 在当年后续更新的内容即被标记为下一年的内容。这就是为什么 TC39 网站上在 2020 年就出现了 2021 年的内容。
+
+除非你想明确地了解各年度的 ECMAScript 有何区别，或者想针对某一个特定版本来学习，那我推荐在 Ecma International 官网上找对应的版本来阅读。否则，**对于大多数情况来说，我推荐阅读 [TC39 网站上的 Living Standard 真·最新版本](https://link.zhihu.com/?target=https%3A//tc39.es/ecma262/)**。
+
+
+
+#### ECMAScript修改的5个阶段
+
+要对 ECMAScript 规范做出任何修改，比如要新增、改写一项功能，一般需要经历五个阶段，它定义在 [The TC39 Process](https://link.zhihu.com/?target=https%3A//tc39.es/process-document/) 中，分别是 Strawperson、Proposal、Draft、Candidate、Finished。只有走完这五个阶段进入 Finished 状态的修改点才会列入正式版规范。
+
+请注意这五个阶段中的 Draft （草案阶段）是对某一个 ES 规范修改点的状态描述，它和上一章节中 TC39 网站上的 **[ECMAScript® 2023 Language Specification](https://link.zhihu.com/?target=https%3A//tc39.es/ecma262/)** 文档标题部分标注的「Draft ECMA-262」并不是一个意思。
+
+
+
+
+
+
+
+
+
+
+
 
 
 
