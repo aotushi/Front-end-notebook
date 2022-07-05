@@ -468,14 +468,14 @@ viewport 相关选项
 
 `viewport`配置的具体含义：
 
-| name          | 可能值                | 描述                                                    |
-| :------------ | :-------------------- | :------------------------------------------------------ |
-| width         | 正整数或device-width  | 以pixels（像素）为单位， 定义布局视口的宽度。           |
-| height        | 正整数或device-height | 以pixels（像素）为单位， 定义布局视口的高度。           |
-| initial-scale | 0.0 - 10.0            | 定义页面初始缩放比率。                                  |
-| minimum-scale | 0.0 - 10.0            | 定义缩放的最小值；必须小于或等于maximum-scale的值。     |
-| maximum-scale | 0.0 - 10.0            | 定义缩放的最大值；必须大于或等于minimum-scale的值。     |
-| user-scalable | 布尔值（yes或者no）   | 如果设置为 no，用户将不能放大或缩小网页。默认值为 yes。 |
+| name          | 可能值                | 描述                                                         |
+| :------------ | :-------------------- | :----------------------------------------------------------- |
+| width         | 正整数或device-width  | 以pixels（像素）为单位， 定义布局视口的宽度。                |
+| height        | 正整数或device-height | 以pixels（像素）为单位， 定义布局视口的高度。                |
+| initial-scale | 0.0 - 10.0            | 定义页面初始缩放比率。This parameter sets the initial zoom level, which means **1 CSS pixel** is equal to **1 viewport pixel**. |
+| minimum-scale | 0.0 - 10.0            | 定义缩放的最小值；必须小于或等于maximum-scale的值。          |
+| maximum-scale | 0.0 - 10.0            | 定义缩放的最大值；必须大于或等于minimum-scale的值。          |
+| user-scalable | 布尔值（yes或者no）   | 如果设置为 no，用户将不能放大或缩小网页。默认值为 yes。      |
 
 
 
