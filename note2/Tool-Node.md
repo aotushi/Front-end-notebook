@@ -740,9 +740,19 @@ cnpm i node-sass
 
 ### package.json
 
+#### 是什么
+
+大家都知道，**`package.json 用来描述项目及项目所依赖的模块信息。`**，就是帮我们管理项目中的依赖包的，让我们远离了依赖地狱。
+
+通过 npm 管理，使用一些简单的命令，自动生成`package.json`, 安装包依赖关系都由`package.json`来管理，我们几乎不必考虑它们。
+
+#### 资料
+
 > 英文原版：https://docs.npmjs.com/files/package.json
 >
 > 国内整理：《[npm的package.json中文文档](https://github.com/ericdum/mujiang.info/issues/6/)》
+
+#### 字段
 
 以下指示选取了其中几个比较重要的字段:
 
@@ -778,6 +788,209 @@ version必须能被[node-semver](https://github.com/isaacs/node-semver)解析，
 在这种情况下，最好将这些附属的项目列在`devDependencies`中。
 
 这些东西会在执行`npm link`或者`npm install`的时候初始化，并可以像其他npm配置参数一样管理。
+
+
+
+#### 版本号
+
+> 公众号: 程序员成长指北
+
+版本号由三部分组成：`major.minor.patch`，主版本号.次版本号.修补版本号。
+
+例如：1.2.3，主要版本1，次要版本2，补丁3。
+
+- `补丁`中的更改表示不会破坏任何内容的错误修复。
+- `次要版本`的更改表示不会破坏任何内容的新功能。
+- `主要版本`的更改代表了一个破坏兼容性的大变化。如果用户不适应主要版本更改，则内容将无法正常工作。
+
+#### 安装依赖包的版本如何指定
+
+`~` 会匹配最近的小版本依赖包，比如 ~1.2.3 会匹配所有 1.2.x 版本，但是不包括 1.3.0
+
+`^` 会匹配最新的大版本依赖包，比如 ^1.2.3 会匹配所有 1.x.x 的包，包括 1.3.0，但是不包括 2.0.0
+
+`*` 安装最新版本的依赖包，比如 *1.2.3 会匹配 x.x.x，
+
+
+
+你可以`指定特定的版本号`，直接写1.2.3，前面**什么前缀都没有**，这样固然没问题，但是如果依赖包发布新版本修复了一些小bug，那么需要手动修改package.json文件；`~` 和 `^` 则可以解决这个问题。
+
+但是需要注意 ^ 版本更新可能比较大，会造成项目代码错误， **建议使用 `~` 来标记版本号**，这样可以保证项目不会出现大的问题，也能保证包中的小bug可以得到修复。
+
+版本号写 *，这意味着安装最新版本的依赖包，但缺点同上，可能会造成版本不兼容，**慎用！**
+
+
+
+#### 多人开发时依赖包安装的问题
+
+场景介绍:
+
+假设我们中安装了 `vue`, 当我们运行安装 `npm install vue -save` 的时候，在项目中的package.json 的 vue 版本是  `vue: ^3.0.0`,，vue 发布了新版本 3.0.1，这时新来一个同事，从新 `git clone` 克隆项目，执行 `npm install`安装的时候，在他电脑的vue版本就是 3.0.1了，因为^只是锁了主要版本，这样我们电脑中的vue版本就会不一样.
+
+**从理论上讲（大家都遵循语义版本控制的话）**，它们应该仍然是兼容的，但也许 bugfix 会影响我们正在使用的功能，而且当使用vue版本3.0.0和3.0.1运行时，我们的应用程序会产生不同的结果。
+
+
+
+解决方法:
+
+为了解决这个不同人电脑安装的所有依赖版本都是一致的，确保项目代码在安装所执行的运行结果都一样，这时 `package-lock.json` 就应运而生了。
+
+
+
+
+
+### package-lock.json
+
+#### 介绍
+
+`package-lock.json` 它会**在 npm 更改 node_modules 目录树 或者 package.json 时自动生成的** ，它准确的描述了当前项目npm包的依赖树，并且在随后的安装中会根据 package-lock.json 来安装，保证是相同的一个依赖树，不考虑这个过程中是否有某个依赖有小版本的更新。
+
+它的产生就是来对整个依赖树进行版本固定的（锁死）。
+
+
+
+当我们在一个项目中`npm install`时候，会自动生成一个`package-lock.json`文件，和`package.json`在同一级目录下。`package-lock.json`记录了项目的一些信息和所依赖的模块。
+
+当我们下次再`npm install`时候，npm 发现如果项目中有 `package-lock.json` 文件，会根据 `package-lock.json` 里的内容来处理和安装依赖而不再根据 `package.json`。
+
+
+
+注意:
+
+> 注意，使用`cnpm install`时候，并不会生成 `package-lock.json` 文件，也不会根据 `package-lock.json` 来安装依赖包，还是会使用 `package.json` 来安装。
+
+
+
+#### 生成逻辑
+
+假设我们现在有三个 package，在项目 lock-test中，安装依赖A，A项目面有B，B项目面有C
+
+```json
+// package lock-test
+{ "name": "lock-test", "dependencies": { "A": "^1.0.0" }}
+// package A
+{ "name": "A", "version": "1.0.0", "dependencies": { "B": "^1.0.0" }}
+// package B
+{ "name": "B", "version": "1.0.0", "dependencies": { "C": "^1.0.0" }}
+// package C
+{ "name": "C", "version": "1.0.0" }
+```
+
+在这种情况下 `package-lock.json`, 会生成类似下面铺平的结构
+
+```json
+// package-lock.json
+{ 
+    "name": "lock-test",  
+    "version": "1.0.0",  
+    "dependencies": {    
+        "A": { "version": "1.0.0" },
+        "B": { "version": "1.0.0" },
+        "C": { "version": "1.0.0" }  
+    }
+}
+```
+
+如果后续无论是直接依赖的 A 发版，或者间接依赖的B, C 发版，只要我们不动 `package.json`, `package-lock.json` 都不会重新生成。
+
+A 发布了新版本 1.1.0，虽然我们 package.json 写的是 ^1.0.0 但是因为 `package-lock.json` 的存在，npm i 并不会自动升级，
+
+我们可以手动运行 npm i A@1.1.0 来实现升级。
+
+因为 1.1.0 `package-lock.json` 里记录的 A@1.0.0 是不一致的，因此会更新 `package-lock.json` 里的 A 的版本为 1.1.0。
+
+B 发布了新版本 1.0.1, 1.0.2, 1.1.0, 此刻如果我们不做操作是不会自动升级 B 的版本的，但如果此刻 A 发布了 1.1.1，虽然并没有升级 B 的依赖，但是如果我们项目里升级 A@1.1.1，此时 `package-lock.json` 里会把 B 直接升到 1.1.0 ,因为此刻^1.0.0的最新版本就是 1.1.0。
+
+经过这些操作后 项目 lock-test 的 package.json 变成
+
+```json
+// package 
+lock-test{ "dependencies": { "A": "^1.1.0" }}
+```
+
+对应的 `package-lock.json` 文件
+
+```json
+{  
+    "name": "lock-test",  
+    "version": "1.0.0",
+    "dependencies": {  
+        "A": { "version": "1.1.0" },
+        "B": { "version": "1.1.0" },
+        "C": { "version": "1.0.0" }
+    }
+}
+```
+
+这个时候我们将 B 加入我们 lock-test 项目的依赖, B@^1.0.0，package.json如下
+
+```json
+{ "dependencies": { "A": "^1.1.0", "B": "^1.0.0" }}
+```
+
+我们执行这个操作后，`package-lock.json` 并没有被改变，因为现在 `package-lock.json` 里 B@1.1.0 满足 ^1.0.0 的要求
+
+但是如果我们将 B 的版本固定到 2.x 版本, `package-lock.json` 就会发生改变
+
+```json
+{ "dependencies": { "A": "^1.1.0", "B": "^2.0.0" }}
+```
+
+因为存在了两个冲突的B版本，`package-lock.json` 文件会变成如下形式
+
+```json
+{  
+    "name": "lock-test",
+    "version": "1.0.0",  
+    "dependencies": {    
+        "A": {      
+            "version": "1.1.0",      
+            "dependencies": {        
+                "B": { "version": "1.1.0" }      
+            }    
+        },    
+        "B": { "version": "2.0.0" },    
+        "C": { "version": "1.0.0" }  
+    }
+}
+```
+
+因为 B 的版本出现了冲突，npm 使用嵌套描述了这种行为
+
+我们实际开发中并不需要关注这种生成的算法逻辑，我们只需要了解，`package-lock.json` 的生成逻辑是为了能够精准的反映出我们 node_modules 的结构，并保证能够这种结构被还原。
+
+
+
+#### package-lock.json意外更改的原因
+
+1. package.json 文件修改了
+2. 挪动了包的位置
+
+将部分包的位置从 dependencies 移动到 devDependencies 这种操作，虽然包未变，但是也会影响 `package-lock.json`，会将部分包的 dev 字段设置为 true
+
+3. registry 的影响
+
+经过实际使用发现，如果我们 node_modules 文件夹下的包中下载时，就算版本一样，安装源 `registry` 不同，执行 npm i 时也会修改 package-lock.json
+
+
+
+可能还存在其他的原因，但是 `package-lock.json` 是不会无缘无故被更改的，一定是因为 **package.json 或者 node_modules 被更改了**，因为 正如上面提到的 package-lock.json 为了能够精准的反映出我们 node_modules 的结构
+
+
+
+#### 开发建议
+
+一般情况下 `npm install` 是可以的，他能保证根据 `package-lock.json` 还原出开发时的 `node_modules`。
+
+但是为了防止出现刚刚提到的意外情况，除非涉及到对包的调整，其他情况下建议使用 `npm ci `来安装依赖，会避免异常的修改 `package-lock.json`，
+
+持续集成工具中更推荐是用 `npm ci`，保证`构建环境的准确性`，**npm i 和 npm ci 的区别** 可以参考官方文档 npm-ci
+
+
+
+
+
+
 
 
 
