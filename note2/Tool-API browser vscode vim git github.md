@@ -581,7 +581,7 @@ Changes not staged for commit:  为登上舞台修改提交
 
 
 
-### git高级
+### git命令
 
 #### 历史版本回滚
 
@@ -748,6 +748,32 @@ git checkout -b name
 * Use the imperative mood in the subject line
 * Wrap the body at 72 characters
 * Use the body to explain waht and why vs. how
+
+
+
+#### revert commit 与 reset commit
+
+Revert 的指令是**再做一个新的 Commit，来取消你想要撤回的 Commit, 所以会增加一条commit**
+
+在[SourceTree](https://so.csdn.net/so/search?q=SourceTree&spm=1001.2101.3001.7020)中，如果想取消已经commit的code，**可以右击选reverse commit.（撤回 老commit的同时，新建了一个commit)**
+
+如果想撤回[commit](https://so.csdn.net/so/search?q=commit&spm=1001.2101.3001.7020)又不想新加一个commit的话，不要用reverse commit，**而是用Reset 指令**
+
+
+
+#### reset rebase  revert的区别
+
+| 指令   | 改变历史记录 | 使用场景                                                     |
+| ------ | ------------ | ------------------------------------------------------------ |
+| reset  | 是           | 把目前的状态设定成某个指定的 Commit的状态，通常适用于尚未推出去的 Commit。 |
+| rebase | 是           | 不管是新增、修改、删除Commit 都相当方便，用来整理、编辑没有推出去的 Commit 相当方便，但通常也只适用于尚未推出去的 Commit。 |
+| revert | 是           | 新增一个Commit 来取消另一个Commit 的內容，原本的 Commit 依旧会保存在历史记录中。虽然会因此而增加 Commit 数，但通常比较适用于已经推出去的 Commit，或是不允许使用 Reset 或 Rebase 之修改历史记录的指令的场合。 |
+
+
+
+
+
+
 
 
 
