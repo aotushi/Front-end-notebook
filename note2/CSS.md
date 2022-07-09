@@ -1303,9 +1303,21 @@ p~img
 
 ### 盒模型
 
+#### 是什么
+
+实质上是一个包围每个 HTML 元素的框。它包括：外边距、边框、内边距以及实际的内容。
 
 
-#### 块级盒子和内联盒子
+
+#### 盒模型的内部/外部显示类型
+
+css的box模型有一个外部显示类型，来决定盒子是块级还是内联。
+
+同样盒模型还有内部显示类型，它决定了盒子内部元素是如何布局的。默认情况下是按照 **[正常文档流](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Normal_Flow)** 布局，也意味着它们和其他块元素以及内联元素一样(如上所述).
+
+但是，我们可以通过使用类似 `flex` 的 `display` 属性值来更改内部显示类型。 如果设置 `display: flex`，在一个元素上，外部显示类型是 `block`，但是内部显示类型修改为 `flex`。 该盒子的所有直接子元素都会成为flex元素，会根据 [弹性盒子（Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox) [）](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox)规则进行布局
+
+##### 块级盒子和内联盒子
 
 **块级**盒子 (**block box**) 和 **内联盒子** (**inline box**)**。**这两种盒子会在**页面流**（page flow）和**元素之间的关系**方面表现出不同的行为:
 
@@ -1321,27 +1333,13 @@ p~img
 如果一个盒子对外显示为 `inline`，那么他的行为如下:
 
 - 盒子不会产生换行。
--  [`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width) 和 [`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height) 属性将不起作用。
+- [`width`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/width) 和 [`height`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/height) 属性将不起作用。
 - 垂直方向的内边距、外边距以及边框会被应用但是不会把其他处于 `inline` 状态的盒子推开。
 - 水平方向的内边距、外边距以及边框会被应用且会把其他处于 `inline` 状态的盒子推开。
 
 用做链接的 `<a>` 元素、 `<span>`、 `<em>` 以及 `<strong>` 都是默认处于 `inline` 状态的。
 
 
-
-#### 内部和外部显示类型
-
-css的box模型有一个外部显示类型，来决定盒子是块级还是内联。
-
-同样盒模型还有内部显示类型，它决定了盒子内部元素是如何布局的。默认情况下是按照 **[正常文档流](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Normal_Flow)** 布局，也意味着它们和其他块元素以及内联元素一样(如上所述).
-
-但是，我们可以通过使用类似 `flex` 的 `display` 属性值来更改内部显示类型。 如果设置 `display: flex`，在一个元素上，外部显示类型是 `block`，但是内部显示类型修改为 `flex`。 该盒子的所有直接子元素都会成为flex元素，会根据 [弹性盒子（Flexbox](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox) [）](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox)规则进行布局
-
-
-
-#### 什么是盒模型
-
-完整的 CSS 盒模型应用于块级盒子，内联盒子只使用盒模型中定义的部分内容。模型定义了盒的每个部分 —— margin, border, padding, and content —— 合在一起就可以创建我们在页面上看到的内容.
 
 #### 分类
 
@@ -1352,8 +1350,6 @@ css的box模型有一个外部显示类型，来决定盒子是块级还是内�
 
 
 #### 盒模型组成部分
-
-
 
 CSS中组成一个块级盒子需要:
 
@@ -1367,8 +1363,6 @@ CSS中组成一个块级盒子需要:
 ![](https://mdn.mozillademos.org/files/16558/box-model.png)
 
 #### 标准盒模型
-
-> box's actual width = width + padding\*2 + border\*2
 
 在标准模型中，如果你给盒设置 `width` 和 `height`，实际设置的是 *content's box*。 padding 和 border 再加上设置的宽高一起决定整个盒子的大小。
 
@@ -1395,8 +1389,6 @@ margin 不计入实际大小 —— 当然，它会影响盒子在页面所占�
 
 
 #### 替代(IE)盒模型
-
-> box's actual width = 350px = content'width + padding\*2 + border\*2
 
 CSS的替代盒模型。使用这个模型，所有宽度都是可见宽度，所以内容宽度是该宽度减去边框和填充部分。使用上面相同的样式得到 (width = 350px, height = 150px).
 
@@ -3093,8 +3085,11 @@ div:nth-of-type(2) {
 
 
 
-
 ##### 三列布局
+
+> *当第二个div使用float:right时, 其显示位置却位于最右边*     这是因为第二个\<div>源代码顺序上比第三个\<div>等级要高 (DOM 上第二个\<div>先出现并声明了float: right;) 
+>
+> 所以在浮动顺序上也会比第三个\<div>等级要高。又因为两者同时像右浮动，第二个\<div>就会更加地靠右。
 
 <iframe src="https://codesandbox.io/embed/autumn-tree-8omgiq?fontsize=14&hidenavigation=1&theme=dark"
      style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
@@ -3141,7 +3136,24 @@ div:nth-of-type(3) {
 div1  div3  div2
 ```
 
-这是因为第二个<div>源代码顺序上比第三个<div>等级要高 (DOM 上第二个<div>先出现并声明了`float: right;`) ，所以在浮动顺序上也会比第三个<div>等级要高。又因为两者同时像右浮动，第二个<div>就会更加地靠右。
+这是因为第二个\<div>源代码顺序上比第三个\<div>等级要高 (DOM 上第二个\<div>先出现并声明了`float: right;`) ，所以在浮动顺序上也会比第三个\<div>等级要高。又因为两者同时像右浮动，第二个\<div>就会更加地靠右。
+
+##### 三列布局2
+
+> 百度IFE
+
+去除浮动的几种表现:
+
+   1.实现三栏布局,左右浮动,中间自适应. 要点: 第二个div是有浮动,最后一个div则是自适应的div
+   2.对自适应的div实现BFC特性的几种方法: 
+   * 使用overflow:hidden/auto;  最方便
+   * float不是none; 无论是left还是right,宽度需要声明.
+   * 父元素position: relative; 当前div元素position为absolute, left: 117px 需要计算父元素的左margin, 也需要特别声明width的值: width: calc(100% - 2xxpx)
+   * display: 
+        * inline-block; 行内块,需要声明width的值
+        * flex; 自适应宽度,但是需要文字居中重新声明 justify-content: center;
+
+
 
 
 
