@@ -6981,6 +6981,10 @@ let fraction = 0.123_456_789; //
 
 **包装类实现**
 
+原始值在某种情况下被转换成它的对象形式(new String(), new Number(), new Boolean()),这通常称为"装箱".
+
+把基本数据类型转换为对应的引用类型的操作称为<span style="color:red">装箱"</span> 把引用类型转换为基本的数据类型称为<span style="color:red">拆箱"</span>
+
 ```javascript
 new Number(value);
 let a = new Number('123'); //a === 123 is false  a打印结果: Number {123}
