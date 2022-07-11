@@ -9520,7 +9520,81 @@ class Square extends Rectangle {
 
 * 只可在派生类的构造函数中使用super()，如果尝试在非派生类（不是用extends声明的类）或函数中使用则会导致程序抛出错误。·
 * 在构造函数中访问this之前一定要调用super()，它负责初始化this，如果在调用super()之前尝试访问this会导致程序出错。
-* 如果不想调用super()，则唯一的方法是让类的构造函数返回一个对象。
+* 如果不想调用super()，则唯一的方法是让类的构造函数返回一个对象。???
+
+
+
+### 类的继承分析
+
+> 你不知道的JavaScript上卷 4.4 混入
+
+#### 背景
+
+在继承或者实例化时，JavaScript的对象机制并不会自动执行复制行为。简单来说，JavaScript中只有对象，并不存在可以被实例化的“类”。<span style="color:red">一个对象并不会被复制到其他对象，它们会被关联起来</span>
+
+由于在其他语言中类表现出来的都是复制行为，因此JavaScript开发者也想出了<u>一个方法来模拟类的复制行为</u>，这个方法就是混入。接下来我们会看到两种类型的混入：显式和隐式。
+
+#### 显式混入
+
+回顾一下之前提到的Vehicle和Car。由于JavaScript不会自动实现Vehicle到Car的复制行为, 手动实现复制功能。这个功能在许多库和框架中被称为extend(..)，但是为了方便理解我们称之为mixin(..)
+
+```javascript
+function mixin(sourceObj, targetObj) {
+  for (var key in sourceObj) {
+    if (!(key in targetObj)) {
+      targetObj[key] = sourceObj[key]
+    }
+  }
+  return targetObj
+}
+
+var Vehicle = {
+  engines: 1,
+  ignition: function() {
+    console.log('Turning on my engine')
+  },
+  drive: function() {
+    this.ignition()
+    console.log('Steering and moving forward')
+  }
+}
+
+var Car = mixin(Vehicle, {
+  wheels: 4,
+  drive: function() {
+    Vehicle.drive.call(this)
+    console.log('Rolling on all' + this.wheels + 'wheels')
+  }
+})
+```
+
+现在Car中就有了一份Vehicle属性和函数的副本了。<span style="color:blue">从技术角度来说，函数实际上没有被复制，复制的是函数引用</span>。所以，Car中的属性ignition只是从Vehicle中复制过来的对于ignition()函数的引用。相反，属性engines就是直接从Vehicle中复制了值1。
+
+Car已经有了drive属性（函数），所以这个属性引用并没有被mixin重写，从而保留了Car中定义的同名属性，实现了“子类”对“父类”属性的重写
+
+##### 1. 再说多态
+
+Vehicle.drive.call(this)。这就是<span style="color:blue">显式多态</span>。还记得吗，在之前的伪代码中对应的语句是inherited:drive()，我们称之为<span style="color:blue">相对多态</span>.
+
+JavaScript（在ES6之前；参见附录A）并没有相对多态的机制。所以，由于Car和Vehicle中都有drive()函数，为了指明调用对象，我们必须使用<u>绝对（而不是相对）引用</u>。我们通过名称显式指定Vehicle对象并调用它的drive()函数。
+
+但是如果直接执行Vehicle.drive()，函数调用中的this会被绑定到Vehicle对象而不是Car对象（参见第2章），这并不是我们想要的。因此，我们会使用．call(this)（参见第2章）来确保drive()在Car对象的上下文中执行。
+
+
+
+##### 2.混合复制
+
+
+
+##### 3.寄生继承
+
+
+
+
+
+
+
+
 
 
 
@@ -9599,7 +9673,7 @@ console.log(rect instanceof Square); //false
 
 ### 派生自表达式的类 ????!!!!
 
-CMAScript 6最强大的一面或许是从表达式导出类的功能了。只要表达式可以被解析为一个函数并且具有[[Construct]]属性和原型，那么就可以用extends进行派生。
+CMAScript 6最强大的一面或许是从表达式导出类的功能了。<span style="color:blue">只要表达式可以被解析为一个函数并且具有[[Construct]]属性和原型，那么就可以用extends进行派生。</span>
 
 ```javascript
 function Rectangle(length, width) {
@@ -9624,7 +9698,7 @@ console.log(x instanceof Rectangle); //true
 
 Rectangle是一个ECMAScript 5风格的构造函数，Square是一个类，由于Rectangle具有[[Construct]]属性和原型，因此Square类可以直接继承它
 
-<u>extends强大的功能使得类可以继承自任意类型的表达式</u>，从而创造更多可能性，例如动态地确定类的继承目标。
+<span style="color:blue"><u>extends强大的功能使得类可以继承自任意类型的表达式</u></span>，从而创造更多可能性，例如动态地确定类的继承目标。
 
 ```javascript
 function Rectangle(length, width) {
@@ -9730,7 +9804,7 @@ console.log(colors.length); //0
 
 这段代码最后console.log()的输出结果与预期不符，MyArray实例的length和数值型属性的行为与内建数组中的不一致，这是因为通过传统JavaScript继承形式实现的数组继承没有从Array.apply()或原型赋值中继承相关功能。
 
-ECMAScript 6类语法的一个目标是支持内建对象继承，因而ES6中的类继承模型与ECMAScript 5及早期版本中的稍有不同，主要体现在两个方面:
+<u>ECMAScript 6类语法的一个目标是支持内建对象继承，因而ES6中的类继承模型与ECMAScript 5及早期版本中的稍有不同，主要体现在两个方面:</u>
 
 * 在ECMAScript 5的传统继承方式中，先由派生类型（例如，MyArray）创建this的值，然后调用基类型的构造函数（例如Array.apply()方法）。这也意味着，this的值开始指向的是MyArray的实例，但是随后会被来自Array的其他属性所修饰。
 * ECMAScript 6中的类继承则与之相反，先由基类（Array）创建this的值，然后派生类的构造函数（MyArray）再修改这个值。所以一开始可以通过this访问基类的所有内建功能，然后再正确地接收所有与之相关的功能。
@@ -9755,7 +9829,7 @@ MyArray直接继承自Array，其行为与Array也很相似，操作数值型属
 
 ### Symbol.species属性 ????
 
-内建对象继承的一个实用之处是，原本在内建对象中返回实例自身的方法将自动返回派生类的实例。所以，如果你有一个继承自Array的派生类MyArray，那么像slice()这样的方法也会返回一个MyArray的实例。
+<u>内建对象继承的一个实用之处是，原本在内建对象中返回实例自身的方法将自动返回派生类的实例</u>。所以，如果你有一个继承自Array的派生类MyArray，那么像slice()这样的方法也会返回一个MyArray的实例。
 
 ```javascript
 class MyArray extends Array {
