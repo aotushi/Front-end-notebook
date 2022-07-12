@@ -1,3 +1,59 @@
+## 前端框架出现前的比较
+
+### 页面局部刷新
+
+> [前端框架的出现 | 深入理解Vue.js实战 (godbasin.github.io)](https://godbasin.github.io/vue-ebook/vue-ebook/0.html#前端的飞速发展)
+
+一般看来，浏览器生成了最终的 Render 树，页面也已经渲染完毕，似乎浏览器已经完成了它的工作了。但现实中我们的页面更多的不只是静态的页面，还会包括点击、拖拽等事件操作，以及接口请求、数据渲染到页面等动态的交互逻辑，这时候我们会需要更新页面的信息。
+
+我们的业务代码中情况会复杂得多，除了插入内容，还包括内容更新、删除元素节点等。不管是哪种情况，目前来说前端一般分为两种方式：
+
+(1) 字符串模版：使用拼接的方式生成 DOM 字符串，直接通过`innerHTML()`插入页面。
+(2) 节点模版：使用`createElement()`/`appendChild()`/`textContent`等方法，动态地插入 DOM 节点。
+
+假设页面中存在`<div id="div"></div>`这样一个元素，我们需要插入一些内容如`<p>测试<a>test</a></p>`：
+
+```javascript
+var div = document.getElementById('div')
+
+/** 1.字符串模板 **/
+div.innerHTML = "<p>测试<a>test</a></p>"
+
+/** 2.节点模板 **/
+const p = document.createElement('p')
+p.textContent = '测试'
+const a = document.createElement('a')
+a.textContent = 'test'
+
+p.appendChild(a)
+div.appendChild(p)
+```
+
+我们使用 DOM API 和 CSS API 的时候，通常会触发浏览器的两种操作：**Repaint（重绘）和 Reflow（回流）**：
+
+- Repaint：页面部分重画，通常不涉及尺寸的改变，常见于颜色的变化。
+- Reflow：意味着节点需要重新计算和绘制，常见于尺寸的改变。
+
+在 Reflow 的时候，浏览器会使渲染树中受到影响的部分失效，并重新构造这部分渲染树，完成 Reflow 后，浏览器会重新绘制受影响的部分到屏幕中，该过程成为 Repaint。
+
+回流的花销跟 render tree 有多少节点需要重新构建有关系，所以使用`innerHTML()`可能会导致更多的开销。
+
+### 非框架和框架就某个功能的实现比较
+
+> [前端框架的出现 | 深入理解Vue.js实战 (godbasin.github.io)](https://godbasin.github.io/vue-ebook/vue-ebook/0.html#前端框架的出现-2)
+
+省略
+
+
+
+
+
+
+
+
+
+
+
 ## Vue简介
 
 > [Vue简介-Vue是什么？-CSDNVue入门技能树](https://edu.csdn.net/skill/vue/vue-712ec6452ab547478479a4509f787517?a=vue-f92d37226dc14bb58918663305bfc15b)

@@ -1396,6 +1396,18 @@ CSSOM树和DOM树是互不关联的两个过程。平时我们把link标签放�
 
 
 
+### 浏览器如何渲染页面>>>待完成
+
+> [How browsers work (taligarsiel.com)](http://taligarsiel.com/Projects/howbrowserswork1.htm)
+
+
+
+
+
+
+
+
+
 
 
 ## 浏览器相关
