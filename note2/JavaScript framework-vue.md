@@ -2955,6 +2955,29 @@ Vue.filter('dataFormater', function(value, str='YYYY-MM-DD'){
 
 
 
+```vue
+ <div>
+    <h2>显示格式化的日期时间</h2>
+    <p>{{ date }}</p>
+    <p>{{ date | filterDate }}</p>
+    <p>年月日: {{ date | filterDate("YYYY-MM-DD") }}</p>
+ </div>
+ ......
+  filters: {
+    filterDate(value, format = "YYYY-MM-DD HH:mm:ss") {
+      console.log(this)//undefined 过滤器没有this指向的
+      return moment(value).format(format);
+    }
+  },
+  data() {
+    return {
+      date: new Date()
+    };
+  }
+```
+
+
+
 
 
 
@@ -5252,7 +5275,7 @@ Vue.component('my-component-name', { /* ... */ })
 
 Vue实例中有个选项components可以注册局部组件，注册后就只在该实例作用域下有效
 
-**引入**
+**2种引入**
 
 * 通过一个普通的 JavaScript 对象来定义组件
 * 使用`import`函数返回`Promise`
@@ -5382,6 +5405,8 @@ export default {
 
 ##### 基础组件的自动化全局注册
 
+> 文档
+
 **背景**
 
 某些组件是相对通用的,有时候会把它们称为[基础组件](https://cn.vuejs.org/v2/style-guide/#基础组件名-强烈推荐)，它们会在各个组件中被频繁的用到。所以会导致很多组件里都会有一个包含基础<span style="color:blue">组件的长列表</span>
@@ -5439,6 +5464,43 @@ https://github.com/bencodezen/vue-enterprise-boilerplate/blob/main/src/component
 **全局注册的行为必须在根 Vue 实例 (通过 `new Vue`) 创建之前发生**
 
 
+
+##### 其他方法
+
+> https://mp.weixin.qq.com/s/0Yekkc08ozbNxuquHVGveg
+
+先在components文件夹（这里面都是些高频组件）添加一个叫global.js的文件，在这个文件里使用require.context 动态将需要的高频组件统统打包进来。然后在main.js文件中引入global.js的文件。
+
+```javascript
+//global.js
+
+import Vue from 'vue'
+function changeStr(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+const requireComponent = require.context('./', false, /\.vue$/)
+
+const install = () => {
+  requireComponent.keys().forEach(fileName => {
+    let config = requireComponent(fileName)
+    console.log(config) // ./child1.vue 然后用正则拿到child1
+    let componentName = changeStr(
+    	fileName.replace(/^\.\//, '').replace(/\.\w+$/, '')
+    )
+    
+    Vue.component(comopnentName, config.default || config)
+  })
+}
+
+export default {
+  install //对外暴露install方法
+}
+
+//main.js
+import index from './components/globals.js'
+Vue.use(index)
+```
 
 
 
@@ -7372,7 +7434,11 @@ function (sonProp) {
 
 ## 可复用性&组合 ?
 
-### 混入
+### 混入mixin
+
+> 文档
+>
+> https://mp.weixin.qq.com/s/0Yekkc08ozbNxuquHVGveg
 
 #### 是什么
 
@@ -7380,7 +7446,11 @@ function (sonProp) {
 
 
 
-#### 使用
+#### 使用场景
+
+当某段代码重复出现在多个组件中，并且这个重复的代码块很大的时候，将其作为一个minxin常常能给后期的维护带来很大的方便。
+
+
 
 ```javascript
 // 定义一个混入对象
@@ -7699,6 +7769,56 @@ directives: {
 4. 鼠标松开`(onmouseup)`时完成一次拖拽
 
 
+
+##### 高精度权限控制
+
+> https://mp.weixin.qq.com/s/0Yekkc08ozbNxuquHVGveg
+
+我们通常给一个元素添加v-if / v-show，来判断该用户是否有权限，但如果判断条件繁琐且多个地方需要判断，这种方式的代码不仅不优雅而且冗余。针对这种情况，我们可以封装了一个指令权限，能简单快速的实现按钮级别的权限判断。我们先在新建个array.js文件，用于存放与权限相关的全局函数
+
+```javascript
+//array.js
+
+export function checkArray(key) {
+  let arr = ['admin', 'editor']
+  let index = arr.indexOf(key)
+  if (index > -1) {
+    return true //有权限
+  } else  {
+    return false //无权限
+  }
+}
+```
+
+然后将array文件挂载到全局
+
+```javascript
+//mian.js
+
+import {checkArray} from './common/array'
+Vue.config.productionTop = false;
+Vue.directive('permission', {
+  inserted(el, binding) { 
+    let permission = binding.value; // 获取到 v-permission的值
+    if (permission) {
+      let hasPermission = checkArray(permission);
+      if (!hasPermission) { // 没有权限 移除Dom元素
+        el.parentNode && el.parentNode.removeChild(el);
+      }
+    }
+  }
+})
+```
+
+最后我们在页面中可以通过自定义指令v-permission来判断
+
+```html
+ <div class="btns">
+    <button v-permission="'admin'">权限按钮1</button>  // 会显示
+    <button v-permission="'visitor'">权限按钮2</button> //无显示
+    <button v-permission="'editor'">权限按钮3</button> // 会显示
+  </div>
+```
 
 
 
@@ -9356,6 +9476,71 @@ Vue 的模板是被编译为 JavaScript 的，而其中的表达式会作为渲�
 #### 服务端渲染
 
 
+
+## API
+
+#### render函数
+
+> https://mp.weixin.qq.com/s/0Yekkc08ozbNxuquHVGveg
+
+有时候项目中template里存在一值多判断，如果按照下方代码书写业务逻辑，代码冗余且杂乱。
+
+```vue
+<template>
+  <div>
+    <h1 v-if="level === 1">
+      <slot></slot>
+    </h1>
+    <h2 v-else-if="level === 2">
+      <slot></slot>
+    </h2>
+    <h3 v-else-if="level === 3">
+      <slot></slot>
+    </h3>
+    <h4 v-else-if="level === 4">
+      <slot></slot>
+    </h4>
+    <h5 v-else-if="level === 5">
+      <slot></slot>
+    </h5>
+    <h6 v-else-if="level === 6">
+      <slot></slot>
+    </h6>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {}
+  },
+  props: {
+    level: {
+      type: Number,
+      required: true,
+    },
+  },
+}
+</script>
+```
+
+使用 render 函数重写上面的例子：
+
+```javascript
+<script>
+  export default {
+		props: {
+      level: {
+        require: true,
+        type: Number
+      }
+    },
+    render(createElement) {
+      return createElement('h' + this.level, this.$slots.default)
+    }
+}
+</script>
+```
 
 
 
@@ -11688,6 +11873,7 @@ const router = new VueRouter({
 
 * watch
 * beforeRouteUpate
+* router key
 
 
 
@@ -11710,6 +11896,20 @@ beforeRouteUpate(to, from, next) {
   
 }
 ```
+
+
+
+##### router key
+
+> https://mp.weixin.qq.com/s/0Yekkc08ozbNxuquHVGveg
+
+```html
+<router-view v-bind="$route.fullpath"></router-view>
+```
+
+
+
+
 
 
 
