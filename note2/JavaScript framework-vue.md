@@ -1225,20 +1225,18 @@ methods: {
 
 
 
-## Vue安装及环境配置
+## Vue环境快速搭建
+
+### 直接引入CDN
+
+
+
+### Vue CLI脚手架
 
 安装步骤如下:
 
 1. nodejs安装配置
 2. 安装vue及脚手架
-
-
-
-### nodejs安装配置
-
-见工具笔记
-
-### 安装vue及脚手架
 
 #### 1.安装vue.js
 
@@ -1256,67 +1254,229 @@ npm install vue -g`或者`cnpm install vue -g
 
 > https://cli.vuejs.org/zh/guide/installation.html
 
-
-
-**1.卸载旧版本**
-
-卸载2.x版本 `npm uninstall vue-cli -g`
-
-卸载3.x版本  `npm uninstall @vue/cli -g`
-
-
-
-**2.安装新版本**
+**安装新版本**
 
 > npm i @vue/cli@3.12.1 -g    //指定版本安装
 >
 > npm i @vue/cli -g    //默认安装最新版
 
-**3.新建项目**
+**新建项目**
 
 > vue create 项目名称
 
-**4.启动项目**
+**启动项目**
 
-根据package.json中的启动命令启动
+一般来说，比较规范的项目都会有个 README.md 文件，我们可以通过该文件看到项目相关的一些内容，包括项目背景、项目启动和构建、相关负责人等说明
+
+如果没有readme.md文件,可以查看`package.json`文件：
+
+```json
+{
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  }
+}
+```
+
+一般来说，开发环境是`dev`、`serve`等，生产环境是`build`，`scripts`里是一些任务，运行命令`npm run taskName`就可以启动了
 
 
 
-### vue项目结构
+#### CLI与Webpack介绍
 
-#### 1. build 构建脚本目录
+> [第2章 Vue 环境快速搭建 | 深入理解Vue.js实战 (godbasin.github.io)](https://godbasin.github.io/vue-ebook/vue-ebook/2.html#_2-2-vue-cli-脚手架)
 
-* build.js 产生环境构建脚本
-* check-version.js 检查npm,node.js版本
-* utils.js 构建相关工具方法
-* vue-loader.conf.js 配置css加载器及编译css之后自动添加前缀
-* webpack.base.conf.js webpack基本配置
-* webpack.dev.conf.js webpack开发环境配置
-* webpack.prod.conf.js webpack生产环境配置
+Vue CLI 服务是构建于 webpack 和 webpack-dev-server 之上的，它包含了：
 
-#### 2.config项目配置
+- 加载其它 CLI 插件的核心服务
+- 一个针对绝大部分应用优化过的内部的 webpack 配置
+- 项目内部的 vue-cli-service 命令，提供 serve、build 和 inspect 命令
 
-* dev.env.js 开发环境配置
-* index.js 项目配置文件
-* prod.env.js 生产环境变量
-* node_modules npm加载的项目依赖模块
-* src 这里是要开发的目录,基本上要**做的事情都在这个目录里。里面包含了几个目录及文件：**
-  * assets 资源目录，放置一些图片或者公共js、公共css。但是因为它们属于代码目录下，所以可以用 webpack 来操作和处理。意思就是你可以使用一些预处理比如 Sass/SCSS 或者 Stylus。
-  * components 用来存放自定义组件的目录，目前里面会有一个示例组件。
-  * router  前端路由目录，我们需要配置的路由路径写在index.js里面；
-  * App.vue 根组件；这是 Vue 应用的根节点组件，往下看可以了解更多关注 Vue 组件的信息。
-  * main.js应用的入口文件。主要是引入vue框架，根组件及路由设置，并且定义vue实例，即初始化 Vue 应用并且制定将应用挂载到index.html 文件中的哪个 HTML 元素上。通常还会做一些注册全局组件或者添额外的 Vue 库的操作。
-  * static  **静态资源目录，如图片、字体等。不会被webpack构建**
-  * index.html **首页入口文件，可以添加一些 meta 信息等。 这是应用的模板文件，Vue 应用会通过这个 HTML 页面来运行，也可以通过 lodash 这种模板语法在这个文件里插值。 注意：这个不是负责管理页面最终展示的模板，而是管理 Vue 应用之外的静态 HTML 文件，一般只有在用到一些高级功能的时候才会修改这个文件。**
-  * package.json  **npm包配置文件，定义了项目的npm脚本，依赖包等信息**
-  * README.md **项目的说明文档，markdown 格式**
-  * .xxx **这些是一些配置文件，包括语法配置，git配置等**
-    * .babelrc: babel 编译参数
-    * .editorconfig 编辑器相关的配置,代码格式
-    * .eslintignore 配置需要忽略的路径, 一半build, config, dist, test等目录都会配置忽略
-    * .eslintrc.js 配置代码格式风格检查规则
-    * .gitignore git上传需要忽略的文件配置
-    * .postcssrc.js css转换工具
+要理解 CLI 的一些配置，我们先要来理解一下 Webpcak 的一些概念。本质上，Webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module bundler)。当 Webpack 处理应用程序时，它会递归地构建一个依赖关系图(dependency graph)，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。这里我们主要介绍搭建时涉及的一些配置。
+
+**四个核心概念：入口(entry)、输出(output)、loader、插件(plugins)。**
+
+##### 入口(entry)
+
+入口(entry)将您应用程序的入口起点认为是根上下文(contextual root)或 app 第一个启动文件。这个概念的理解可以举例来说明下，例如在 Vue 中是`new Vue()`位置所在的文件，在 Angular 中是启动`.bootstrap()`的文件，在 React 中则是`ReactDOM.render()`或者是`React.render()`的启动文件。
+
+```javascript
+// 将entry指向启动文件即可
+module.exports = {
+  entry: "./path/to/my/entry/file.js"
+};
+
+// 我们来看看，Vue CLI里源码是怎样的：
+webpackConfig
+  .entry("app")
+  .add("./src/main.js")
+  .end();
+```
+
+显然，Vue CLI 的默认入口文件是./src/main.js。我们能看到 Vue CLI 内部的 webpack 配置是通过链式调用的，该能力通过 webpack-chain 库提供的。这个库提供了一个 webpack 原始配置的上层抽象，使其可以定义具名的 loader 规则和具名插件，并有机会在后期进入这些规则并对它们的选项进行修改。
+
+
+
+##### 出口(output)
+
+出口(output)属性描述了如何处理归拢在一起的代码(bundled code)，在哪里打包应用程序。简单来说，就是最终打包好的代码放哪。一般需要以下两点配置：
+(1) filename: 编译文件的文件名(main.js/bundle.js/index.js 等)。
+(2) path：对应一个绝对路径，此路径是你希望一次性打包的目录。
+
+```javascript
+// 这是一般的Webpack写法
+module.exports = {
+  output: {
+    filename: "bundle.js",
+    path: "/home/proj/public/assets"
+  }
+};
+
+// 我们来看看，Vue CLI源码的实现：
+webpackConfig.output
+  .path(api.resolve(options.outputDir))
+  .filename(isLegacyBundle ? "[name]-legacy.js" : "[name].js")
+  .publicPath(options.publicPath);
+```
+
+
+
+##### loader
+
+Webpack 把每个文件(.css, .html, .scss, .jpg, etc.) 都作为模块处理，但 Webpack 只理解 JavaScript。如果你看过生成的 bundle.js 代码就会发现，Webpack 将所有的模块打包一起，每个模块添加标记 id，通过这样一个 id 去获取所需模块的代码。而我们的 loader 的作用，就是把不同的模块和文件转换为这样一个模块，打包进去。
+
+loader 支持链式传递。能够对资源使用流水线(pipeline)。loader 链式地按照先后顺序进行编译，从后往前，最终需要返回 javascript。不同的应用场景需要不同的 loader，这里我简单介绍几个常用的（loader 使用前都需要安装，请自行查找依赖安装）。
+
+**babel-loader**
+babel-loader 将 ES6/ES7 语法编译生成 ES5，当然有些特性还是需要 babel-polyfill 支持的（Babel 默认只转换新的 JavaScript 句法，而不转换新的 API，如 Promise 等全局对象）。而对于 babel-loader 的配置，可以通过`options`进行，但一般更常使用.babelrc 文件进行（使用 Vue CLI 生成的项目目录中，可以使用 babel.config.js 文件来配置）：
+
+**css 相关 loader**
+
+- css-loader: 处理 css 文件中的 url()
+- style-loader: 将 css 插入到页面的 style 标签
+- less-loader: less 转换为 css
+- postcss-loader(autoprefixer-loader): 自动添加兼容前缀(`-webkit-`、`-moz-`等)
+
+**其他 loader**
+
+- url-loader/file-loader: 修改文件名，放在输出目录下，并返其对应的 url
+  - url-loader 在当文件大小小于限制值时，它可以返回一个 Data Url
+- html-loader/raw-loader: 把 Html 文件输出成字符串
+  - html-loader 默认处理 html 中的`<img src="image.png">`为`require("./image.png")`，需要在配置中指定 image 文件的加载器
+
+说了这么多，我们来看看 Vue CLI 里自带了多少的 Loader：
+
+省略
+
+
+
+
+
+##### 解析(resolve)
+
+这些选项能设置模块如何被解析，因为这里会使用到所以也介绍一下用到的：
+
+- resolve.extensions
+  - 自动解析确定的扩展。默认值为：`[".js", ".json"]`
+- resolve.modules
+  模块将在 resolve.modules 中指定的所有目录内搜索。
+- resolve.alias
+  - 创建`import`或`require`的别名，来确保模块引入变得更简单。如果使用 typescript 的话，我们还需要配置 tsconfig.json
+
+我们来看看 Vue CLI 提供的默认配置：
+
+```javascript
+bpackConfig.resolve.extensions // 此处为支持解析的文件名后缀
+  .merge([".mjs", ".js", ".jsx", ".vue", ".json", ".wasm"])
+  .end()
+  .modules // 这里所有的模块，我们都在 node_modules 目录下搜索
+  .add("node_modules")
+  .add(api.resolve("node_modules"))
+  .add(resolveLocal("node_modules"))
+  .end()
+  .alias // 我们能看到，在Vue CLI生成的项目里，可以直接使用 @ 映射到 src 目录下
+  .set("@", api.resolve("src"))
+  .set(
+    "vue$",
+    options.runtimeCompiler
+      ? "vue/dist/vue.esm.js"
+      : "vue/dist/vue.runtime.esm.js"
+  );
+```
+
+
+
+#### 在Vue CLI里配置Webpack
+
+调整 webpack 配置有几种种方式
+
+(1) 最简单的方式就是在 vue.config.js 中的 configureWebpack 选项提供一个对象：
+
+```javascript
+// vue.config.js
+module.exports = {
+  configureWebpack: {
+    plugins: [
+      // 没办法，我还是需要使用jQuery
+      new webpack.ProvidePlugin({
+        jQuery: "jquery",
+        $: "jquery"
+      })
+    ]
+  }
+};
+```
+
+(2) 如果你需要基于环境有条件地配置行为，或者想要直接修改配置，那就换成一个函数 (该函数会在环境变量被设置之后懒执行)。该方法的第一个参数会收到已经解析好的配置。在函数内，你可以直接修改配置，或者返回一个将会被合并的对象：
+
+```javascript
+// vue.config.js
+module.exports = {
+  configureWebpack: config => {
+    if (process.env.NODE_ENV === "production") {
+      // 为生产环境修改配置...
+    } else {
+      // 为开发环境修改配置...
+    }
+  }
+};
+```
+
+
+
+(3) 在 vue.config.js 中的 chainWebpack 修改，允许我们更细粒度的控制其内部配置。例如：
+
+```javascript
+// vue.config.js
+module.exports = {
+  filenameHashing: false,
+  chainWebpack: config => {
+    // 我不想要预加载的preload和prefetch
+    // delete删除HTML相关的preload和prefetch webpack插件
+    config.plugins.delete("preload");
+    config.plugins.delete("prefetch");
+
+    // 我想要使用typescript
+    // 加个loader
+    config
+      .rule("ts")
+      .test(/\.ts$/)
+      .use("ts-loader");
+  }
+};
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
