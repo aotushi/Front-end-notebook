@@ -1287,6 +1287,10 @@ npm install vue -g`或者`cnpm install vue -g
 #### CLI与Webpack介绍
 
 > [第2章 Vue 环境快速搭建 | 深入理解Vue.js实战 (godbasin.github.io)](https://godbasin.github.io/vue-ebook/vue-ebook/2.html#_2-2-vue-cli-脚手架)
+>
+> [vue-cli 源码分析 | vue-cli-analysis (kuangpf.com)](https://kuangpf.com/vue-cli-analysis/)
+
+
 
 Vue CLI 服务是构建于 webpack 和 webpack-dev-server 之上的，它包含了：
 
