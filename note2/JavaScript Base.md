@@ -8376,8 +8376,6 @@ for...in循环的枚举顺序并不像上述枚举函数那么严格,但实现�
 
 
 
-
-
 #### ES5和ES6属性枚举的区别
 
 >  ECMAScript 5中未定义对象属性的枚举顺序，由JavaScript引擎厂商自行决定。然而，ECMAScript6严格规定了对象的自有属性被枚举时的返回顺序，这会影响到Object.getOwnPropertyNames()方法
@@ -8497,6 +8495,40 @@ Object.keys(searchParams) 是把一个对象转化为数组，这个数组当中
 
 
 
+####  遍历对象的 9种方法
+
+> https://mp.weixin.qq.com/s/RbuZWsgO4hzsbnzqViN99w
+
+
+
+| 类型                              | 特点                                                         |
+| :-------------------------------- | :----------------------------------------------------------- |
+| Object.keys(obj)                  | 返回对象本身可直接枚举的属性(不含Symbol属性）                |
+| Object.values(obj)                | 返回对象本身可直接枚举的属性值(不含Symbol属性）              |
+| Object.entries(obj)               | 返回对象本身可枚举属性键值对相对应的数组(不含Symbol属性）    |
+| Object.getOwnPropertyNames(obj)   | 返回对象所有自身属性的属性名（不包括Symbol值作为名称的属性） |
+| Object.getOwnPropertySymbols(obj) | 返回一个给定对象自身的所有 Symbol 属性的数组                 |
+| for……in                           | 所有可枚举的属性（包括原型上的）                             |
+| for……of                           | 必须部署了Iterator接口后才能使用，例如数组、Set和Map结构、类数组对象、Generator对象以及字符串 |
+| forEach                           | break不能中断循环                                            |
+| Reflect.ownKeys(obj)              | 对象自身所有属性                                             |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### 扩展对象
 
 在JS程序中,把一个对象的属性复制到另一个对象上是很常见的,使用下面的代码很容易实现:
@@ -8560,6 +8592,43 @@ function merge(target, ...sources) {
   return target
 }
 ```
+
+
+
+##### 存在的问题
+
+指回替换对象的第一层key, 对于多层的,会当做值处理
+
+> https://blog.csdn.net/weixin_45818024/article/details/114651552
+>
+> https://juejin.cn/post/6882549580559777800
+
+
+
+```javascript
+//对象的合并 存在的问题: 原型链污染漏洞
+function merge(target, source) {
+    for (let key in source) {
+        if (key in source && key in target) {
+            merge(target[key], source[key])
+        } else {
+            target[key] = source[key]
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12506,6 +12575,42 @@ friend.getGreeting()方法的[[HomeObject]]属性值是friend，friend的原型�
 
 ### 17. 实际使用
 
+#### 合并多个对象的方法
+
+> https://juejin.cn/post/6882549580559777800
+>
+> https://blog.csdn.net/weixin_45818024/article/details/114651552
+
+
+
+##### 1. 利用assign合并多个对象
+
+
+
+##### 利用扩展操作符
+
+
+
+##### 浅拷贝
+
+
+
+
+
+##### 深拷贝
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### 比较两个对象中的属性是否相同数量是否相等
 
 ```js
@@ -12530,7 +12635,7 @@ function (obj1, obj2) {
 
 
 
-#### 12.2 两个对象的属性是否相等
+#### 两个对象的属性是否相等
 
 ```js
 //

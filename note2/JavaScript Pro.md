@@ -1943,6 +1943,8 @@ console.log(Person.prototype.constructor === Person); //true
 #### 定义
 
 > 由相互关联的原型组成的链状结构就是原型链
+>
+> 在JS中,实例对象与原型之间的链接,叫做原型链. 其基本思想是利用原型让一个引用类型继承另一个引用类型的属性和方法.然后层层递进,就构成了实例与原型的链条,这就是原型链的基本概念.
 
 #### 原型链终点
 
@@ -2047,6 +2049,24 @@ console.log(Object.getPrototypeOf(friend) === dog); //true
 ```
 
 此示例没有通过调用Object.create()方法来创建friend对象，而是创建一个标准对象字面量，并将一个值赋给\_\_proto\_\_属性。<u>换句话说，当使用Object.create()方法创建对象时，必须为所有其他对象属性指定完整的属性描述符。 ????</u>
+
+
+
+### 原型链漏洞
+
+> https://mp.weixin.qq.com/s/lDwSyQF-7LvbrqMTLq_raw
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
