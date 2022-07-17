@@ -733,6 +733,130 @@ git checkout -b name
 
 
 
+#### revert commit 与 reset commit
+
+Revert 的指令是**再做一个新的 Commit，来取消你想要撤回的 Commit, 所以会增加一条commit**
+
+在[SourceTree](https://so.csdn.net/so/search?q=SourceTree&spm=1001.2101.3001.7020)中，如果想取消已经commit的code，**可以右击选reverse commit.（撤回 老commit的同时，新建了一个commit)**
+
+如果想撤回[commit](https://so.csdn.net/so/search?q=commit&spm=1001.2101.3001.7020)又不想新加一个commit的话，不要用reverse commit，**而是用Reset 指令**
+
+
+
+#### reset rebase  revert的区别
+
+| 指令   | 改变历史记录 | 使用场景                                                     |
+| ------ | ------------ | ------------------------------------------------------------ |
+| reset  | 是           | 把目前的状态设定成某个指定的 Commit的状态，通常适用于尚未推出去的 Commit。 |
+| rebase | 是           | 不管是新增、修改、删除Commit 都相当方便，用来整理、编辑没有推出去的 Commit 相当方便，但通常也只适用于尚未推出去的 Commit。 |
+| revert | 是           | 新增一个Commit 来取消另一个Commit 的內容，原本的 Commit 依旧会保存在历史记录中。虽然会因此而增加 Commit 数，但通常比较适用于已经推出去的 Commit，或是不允许使用 Reset 或 Rebase 之修改历史记录的指令的场合。 |
+
+
+
+#### 合并rebase
+
+> [【Git】rebase 用法小结 - 简书 (jianshu.com)](https://www.jianshu.com/p/4a8f4af4e803)
+
+rebase的作用简要概括为：可以对某一段线性提交历史进行编辑、删除、复制、粘贴；因此，合理使用rebase命令可以使我们的提交历史干净、简洁！
+
+但是需要注意的是：
+
+> 不要通过rebase对任何已经提交到公共仓库中的commit进行修改（你自己一个人玩的分支除外）
+
+
+
+##### 具体操作
+
+当我们在本地仓库中提交了多次，在我们把本地提交push到公共仓库中之前，为了让提交记录更简洁明了，我们希望把如下分支B、C、D三个提交记录合并为一个完整的提交，然后再push到公共仓库。
+
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2018/5/2/1631fdf49c54c568~tplv-t2oaga2asx-zoom-in-crop-mark:3024:0:0:0.awebp)
+
+现在我们在测试分支上添加了四次提交，我们的目标是把最后三个提交合并为一个提交
+
+![](https://upload-images.jianshu.io/upload_images/2147642-ce849c4eab3d803b.png?imageMogr2/auto-orient/strip|imageView2/2/w/434/format/webp)
+
+
+
+这里我们使用命令
+
+```bash
+git rebase -i [startpoint] [endpoint]
+```
+
+`-i`的意思是`--interactive`，即弹出交互式的界面让用户编辑完成合并操作.
+
+`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定`[endpoint]`，则该区间的终点默认是当前分支HEAD所指向的commit(注：该区间指定的是一个前开后闭的区间)。 
+
+在查看到了log日志后，我们运行以下命令：
+
+```bash
+git rebase -i 36224db
+```
+
+或者
+
+```bash
+git rebase -i HEAD~3
+```
+
+然后我们会看到如下界面:
+
+![](https://upload-images.jianshu.io/upload_images/2147642-03d48aa767efb307.png?imageMogr2/auto-orient/strip|imageView2/2/w/647/format/webp)
+
+
+
+上面未被注释的部分列出的是我们本次rebase操作包含的所有提交，下面注释部分是git为我们提供的命令说明。每一个commit id 前面的pick表示指令类型，git 为我们提供了以下几个命令:
+
+```bash
+pick：保留该commit（缩写:p）
+
+reword：保留该commit，但我需要修改该commit的注释（缩写:r）
+
+edit：保留该commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）
+
+squash：将该commit和前一个commit合并（缩写:s）
+
+fixup：将该commit和前一个commit合并，但我不要保留该提交的注释信息（缩写:f）
+
+exec：执行shell命令（缩写:x）
+
+drop：我要丢弃该commit（缩写:d）
+```
+
+根据我们的需求，我们将commit内容编辑如下:
+
+![](https://upload-images.jianshu.io/upload_images/2147642-a651234e62ed20a5.png?imageMogr2/auto-orient/strip|imageView2/2/w/536/format/webp)
+
+
+
+上面的意思就是把第二次、第三次提交都合并到第一次提交上
+
+然后`wq`保存退出后是注释修改界面:
+
+![](https://upload-images.jianshu.io/upload_images/2147642-44bbd784dcadfb31.png?imageMogr2/auto-orient/strip|imageView2/2/w/801/format/webp)
+
+可以再浏览态 按下两个dd可以删除一行
+
+最终的编辑效果如下：
+
+![](https://upload-images.jianshu.io/upload_images/2147642-334e0a5c47a24f87.png?imageMogr2/auto-orient/strip|imageView2/2/w/448/format/webp)
+
+编辑完保存即可完成commit的合并了：
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 最佳实践
+
 #### commit信息
 
 > [How to Write a Git Commit Message (cbea.ms)](https://cbea.ms/git-commit/?continueFlag=5736f6f7a67304664b0f56b2e45e0238)
@@ -751,23 +875,301 @@ git checkout -b name
 
 
 
-#### revert commit 与 reset commit
+#### 前端工程化下git提交规范
 
-Revert 的指令是**再做一个新的 Commit，来取消你想要撤回的 Commit, 所以会增加一条commit**
+> [代码规范 | 带你入门前端工程 (gitee.io)](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#扩展)
 
-在[SourceTree](https://so.csdn.net/so/search?q=SourceTree&spm=1001.2101.3001.7020)中，如果想取消已经commit的code，**可以右击选reverse commit.（撤回 老commit的同时，新建了一个commit)**
-
-如果想撤回[commit](https://so.csdn.net/so/search?q=commit&spm=1001.2101.3001.7020)又不想新加一个commit的话，不要用reverse commit，**而是用Reset 指令**
+git 规范一般包括两点：分支管理规范和 git commit 规范。
 
 
 
-#### reset rebase  revert的区别
+#### 分支管理规范
 
-| 指令   | 改变历史记录 | 使用场景                                                     |
-| ------ | ------------ | ------------------------------------------------------------ |
-| reset  | 是           | 把目前的状态设定成某个指定的 Commit的状态，通常适用于尚未推出去的 Commit。 |
-| rebase | 是           | 不管是新增、修改、删除Commit 都相当方便，用来整理、编辑没有推出去的 Commit 相当方便，但通常也只适用于尚未推出去的 Commit。 |
-| revert | 是           | 新增一个Commit 来取消另一个Commit 的內容，原本的 Commit 依旧会保存在历史记录中。虽然会因此而增加 Commit 数，但通常比较适用于已经推出去的 Commit，或是不允许使用 Reset 或 Rebase 之修改历史记录的指令的场合。 |
+一个项目可以创建两个分支：master 和 dev。master 对应线上分支，不能直接在 master 分支上写代码，开发时需要从 master 上拉一个 dev 分支进行开发。
+
+
+
+**开发新功能**
+
+当团队成员开发新功能时，需要从 dev 上拉一个 `feature-功能名称-开发姓名` 分支进行开发，例如：`feature-login-tgz`。开发完成后需要合并回 dev 分支。
+
+**修改bug**
+
+当团队成员修改 bug 时，需要从有 bug 的分支（环境）上拉一个 `bug-功能名称-开发姓名` 分支进行修复，例如：`bug-login-tgz`。修复完成后需要合并回原来出现 bug 的分支。
+
+以 `feature` 或 `bug` 开始的分支都属于临时分支，在通过测试并上线后需要将临时分支进行删除。避免 git 上出现太多无用的分支。
+
+**合并分支**
+
+在将一个分支合并到另一个分支时（例如将 `feature-*` 合并到 dev），需要查看自己的新分支中有没有多个重复提交或意义不明的 commit。如果有，则需要对它们进行合并（git rebase）。示例：
+
+```bash
+# 这两个 commit 可以合并成一个
+chore: 修改按钮文字
+chore: 修改按钮样式
+
+# 合并后
+chore: 修改按钮样式及文字
+```
+
+**注意**：在将 `feature-*` 合并到 dev 时，需要先将 dev 分支合并到 `feature-*` 分支，然后再将 `feature-*` 合并到 dev 分支，避免出现代码冲突的情况。同理，合并 `bug-*` 分支也一样。  ????
+
+**部署**
+
+当 dev 分支通过测试后，就可以合并到 master 进行发布了
+
+
+
+**发布可能出现的意外情况**
+
+举个例子，假设程序要新增 a、b 两个功能，我们的操作流程是这样的：
+
+1. 从 dev 分支拉两个新分支 `feature-a-tgz`、`feature-b-tgz`。
+2. 开发完成合并回 dev。
+3. dev 测试完毕后，合并到 master 进行发布。
+
+如果这时突然被告知 b 功能不上，只上 a 功能。我们可以将 `feature-a-tgz` 分支重新部署到测试环境，这样就不用做任何的代码回滚。只要 `feature-a-tgz` 分支测试通过就可以直接合到 master 进行线上发布。
+
+
+
+#### git commit提交规范
+
+ commit message 的格式：
+
+```bash
+<type>(<scope>): <subject>
+<BLANK LINE>
+<body>
+<BLANK LINE>
+<footer>
+```
+
+commit message 分为三个部分(使用空行分割):
+
+1. 标题行（subject）: 必填, 描述主要修改类型和内容。
+2. 主题内容（body）: 描述为什么修改, 做了什么样的修改, 以及开发的思路等等。
+3. 页脚注释（footer）: 可以写注释，放 BUG 号的链接。
+
+scope
+
+commit message 影响的功能或文件范围, 比如: route, component, utils, build...
+
+[subject](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#subject)
+
+commit message 的概述
+
+[body](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#body)
+
+具体修改内容, 可以分为多行.
+
+[footer](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#footer)
+
+一些备注, 通常是 BREAKING CHANGE 或修复的 bug 的链接
+
+
+
+
+
+commit 的类型：
+
+- feat: 新功能、新特性
+- fix: 修改 bug
+- perf: 更改代码，以提高性能（在不影响代码内部行为的前提下，对程序性能进行优化）
+- refactor: 代码重构（重构，在不影响代码内部行为、功能下的代码修改）
+- docs: 文档修改
+- style: 代码格式修改, 注意不是 css 修改（例如分号修改）
+- test: 测试用例新增、修改
+- build: 影响项目构建或依赖项修改
+- revert: 恢复上一次提交
+- ci: 持续集成相关文件修改
+- chore: 其他修改（不在上述类型中的修改）
+- release: 发布新版本
+
+#####  约定式提交规范
+
+以下内容来源于：https://www.conventionalcommits.org/zh-hans/v1.0.0-beta.4/
+
+- 每个提交都必须使用类型字段前缀，它由一个名词组成，诸如 `feat` 或 `fix` ，其后接一个可选的作用域字段，以及一个必要的冒号（英文半角）和空格。
+- 当一个提交为应用或类库实现了新特性时，必须使用 `feat` 类型。
+- 当一个提交为应用修复了 `bug` 时，必须使用 `fix` 类型。
+- 作用域字段可以跟随在类型字段后面。作用域必须是一个描述某部分代码的名词，并用圆括号包围，例如： `fix(parser):`
+- 描述字段必须紧接在类型/作用域前缀的空格之后。描述指的是对代码变更的简短总结，例如： `fix: array parsing issue when multiple spaces were contained in string.`
+- 在简短描述之后，可以编写更长的提交正文，为代码变更提供额外的上下文信息。正文必须起始于描述字段结束的一个空行后。
+- 在正文结束的一个空行之后，可以编写一行或多行脚注。脚注必须包含关于提交的元信息，例如：关联的合并请求、Reviewer、破坏性变更，每条元信息一行。
+- 破坏性变更必须标示在正文区域最开始处，或脚注区域中某一行的开始。一个破坏性变更必须包含大写的文本 `BREAKING CHANGE`，后面紧跟冒号和空格。
+- 在 `BREAKING CHANGE:` 之后必须提供描述，以描述对 API 的变更。例如： `BREAKING CHANGE: environment variables now take precedence over config files.`
+- 在提交说明中，可以使用 `feat` 和 `fix` 之外的类型。
+- 工具的实现必须不区分大小写地解析构成约定式提交的信息单元，只有 `BREAKING CHANGE` 必须是大写的。
+- 可以在类型/作用域前缀之后，: 之前，附加 `!` 字符，以进一步提醒注意破坏性变更。当有 `!` 前缀时，正文或脚注内必须包含 `BREAKING CHANGE: description`
+
+
+
+#### commit实例
+
+##### fix（修复BUG）
+
+每次 git commit 最好加上范围描述。
+
+例如这次 BUG 修复影响到全局，可以加个 global。如果影响的是某个目录或某个功能，可以加上该目录的路径，或者对应的功能名称。
+
+```js
+// 示例1
+fix(global):修复checkbox不能复选的问题
+// 示例2 下面圆括号里的 common 为通用管理的名称
+fix(common): 修复字体过小的BUG，将通用管理下所有页面的默认字体大小修改为 14px
+// 示例3
+fix(test): value.length -> values.length
+```
+
+##### [#](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#feat-添加新功能或新页面)feat（添加新功能或新页面）
+
+```js
+feat: 添加网站主页静态页面
+
+这是一个示例，假设对任务静态页面进行了一些描述。
+ 
+这里是备注，可以是放 BUG 链接或者一些重要性的东西。
+```
+
+##### [#](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#chore-其他修改)chore（其他修改）
+
+chore 的中文翻译为日常事务、例行工作。顾名思义，即不在其他 commit 类型中的修改，都可以用 chore 表示。
+
+```js
+chore: 将表格中的查看详情改为详情
+```
+
+其他类型的 commit 和上面三个示例差不多，在此不再赘述。
+
+
+
+#### 验证git commit规范
+
+利用 [git hook (opens new window)](https://git-scm.com/book/zh/v2/自定义-Git-Git-钩子)能在特定的重要动作发生时触发自定义脚本。
+
+验证 git commit 规范也不例外，我们需要通过 git 的 `pre-commit` 钩子函数来进行。当然，你还需要下载一个辅助插件 husky 来帮助你进行验证。
+
+> pre-commit 钩子在键入提交信息前运行，它用于检查即将提交的快照。
+
+husky 是一个开源的工具，使用它我们可以在 `package.json` 里配置 `git hook` 脚本。下面让我们看一下如何使用：
+
+下载
+
+```bash
+npm i -D husky
+```
+
+在package.json中加上下面的代码
+
+```json
+"husky": {
+  "hooks": {
+    "pre-commit": "npm run lint",
+    "commit-msg": "FORCE_COLOR=1 node script/verify-commit.js",
+    "pre-push": "npm test"
+  }
+}
+```
+
+然后在你项目根目录下新建一个文件夹 `script`，并在下面新建一个文件 `verify-commit.js`，输入以下代码：
+
+```javascript
+const chalk = require('chalk')
+
+const msgPath = process.env.HUSKY_GIT_PARAMS
+const userEmail = process.env.GIT_AUTHOR_EMAIL
+const msg = require('fs')
+.readFileSync(msgPath, 'utf-8')
+.trim()
+
+const commitRE = /^(feat|fix|docs|style|refactor|perf|test|workflow|build|ci|chore|release|workflow)(\(.+\))?: .{1,80}/
+
+if (!commitRE.test(msg)) {
+    console.log()
+    console.error(
+    `  ${chalk.bgRed.white(' ERROR ')} ${chalk.red(
+        '不合法的 commit 消息格式',
+    )}\n\n`
+        + chalk.red(
+            '  请使用正确的提交格式:\n\n',
+        )
+        + `    ${chalk.green('feat: add \'comments\' option')}\n`
+        + `    ${chalk.green('fix: handle events on blur (close #28)')}\n\n`
+        + chalk.blue('  请查看 git commit 提交规范：https://github.com/woai3c/Front-end-articles/blob/master/git%20commit%20style.md。\n'),
+    )
+
+    process.exit(1)
+}
+```
+
+
+
+现在来解释下各个钩子的含义：
+
+1. `"pre-commit": "npm run lint"`，在 `git commit` 前执行 `npm run lint` 检查代码格式。
+2. `"commit-msg": "node script/verify-commit.js"`，在 `git commit` 时执行脚本 `verify-commit.js` 验证 commit 消息。如果不符合脚本中定义的格式，将会报错。
+3. `"pre-push": "npm test"`，在你执行 `git push` 将代码推送到远程仓库前，执行 `npm test` 进行测试。如果测试失败，将不会执行这次推送。
+
+通过工具，我们可以很好的管理团队成员的 git commit 格式，无需使用人力来检查，大大提高了开发效率。
+
+
+
+#### lint-staged
+
+使用 `lint-staged` 可以只对 git 暂存区上的文件进行校验，不需要对所有的文件进行 lint 检查。
+
+安装
+
+```bash
+npm i -D lint-staged
+```
+
+将原来 `package.json` 文件中的代码：
+
+```json
+"husky": {
+  "hooks": {
+    "pre-commit": "npm run lint",
+    "commit-msg": "node script/verify-commit.js",
+    "pre-push": "npm test"
+  }
+},
+```
+
+改为
+
+```bash
+"husky": {
+  "hooks": {
+    "pre-commit": "lint-staged",
+    "commit-msg": "node script/verify-commit.js",
+    "pre-push": "npm test"
+  }
+},
+"lint-staged": {
+  "src/**/*.{js,jsx,ts,tsx}": "eslint",
+  "test/**/*.{js,jsx,ts,tsx}": "eslint"
+},
+```
+
+文件过滤说明：
+
+```javascript
+{
+    "*.js": "项目下所有的 js 文件（不包含子文件夹）",
+    "**/*.js": "项目下所有的 js 文件",
+    "src/*.js": "src 目录所有的 js 文件（不包含子文件夹）",
+    "src/**/*.js": "src 目录所有的 js 文件"
+}
+```
+
+多个后缀匹配：
+
+```json
+"lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": "eslint",
+  },
+```
 
 
 

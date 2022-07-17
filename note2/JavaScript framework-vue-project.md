@@ -1,10 +1,22 @@
 ## 前台项目
 
-### 配置信息
+### 项目创建
+
+#### 脚手架创建项目
 
 
 
-### assets和public文件夹区别
+#### 认识项目目录及各个项目作用
+
+
+
+#### main.js基本编码
+
+
+
+### 项目配置
+
+#### assets和public文件夹区别
 
 ```
 assets存放组件共用资源,后期会被webpack处理, 而public不会.
@@ -13,28 +25,55 @@ public代表根路径,后期打包的dist文件夹
 
 
 
-### eslint禁用
+#### eslint禁用
+
+默认项目中安装了eslint语法检查工具,严格级别高. 开发阶段需要禁用eslint.否则语法上问题,导致项目经常操作
+
+如何禁用?
+
+* 创建脚手架webpack配置文件  `vue.config.js`
+* 项目重启
 
 ```js
-//3种方式
-
 vue.config.js中配置lintOnSave:false
-module.exports={
-    lint
+module.exports = {
+	lintOnSave: false, //禁用eslint
 }
 ```
 
 
 
-### @代替src配置
+#### `@`代替具体路径
 
-```js
-// @表示src文件夹
-文档:webpack:resolve->alias->
-使用: 使用import App from '@/App' 代替import APP from './App' 
-设置:
+#### 作用
 
-jsconfig.json配置别名@提示     import XXX from '@/'
+别名的作用,代表的是我们`src`文件夹的路径
+
+#### 配置
+
+##### 1.更改路径
+
+一般是将src文件夹改成缩写
+
+```javascript
+//原写法
+import App from 'src/App.vue'
+```
+
+
+
+```javascript
+//新写法
+import App from '@/App.vue'   //此时输入@符后,是没有自动提示的
+```
+
+
+
+##### 2.配置@的提示
+
+根目录创建`jsconfig.json`文件,并配置别名@提示	
+
+```json
 {
   "compilerOptions": {
     "baseUrl": "./",
@@ -48,24 +87,201 @@ jsconfig.json配置别名@提示     import XXX from '@/'
 
 
 
+#### 其他
+
+想看webpack相应版本的文档
+
+如何查看vue-cli脚手架创建的项目搭配的webpack版本?
+
+> 扩展 search node_modules
+>
+> 搜索webpack 查看关键字version
+>
+> 现在版本是5.72.1
+
+通过查询[解析(Resolve) | webpack 中文文档 (docschina.org)](https://webpack.docschina.org/configuration/resolve/#resolvealias)来具体配置
+
+##### resolve.alias
+
+创建 `import` 或 `require` 的别名，来确保模块引入变得更简单。例如，一些位于 `src/` 文件夹下的常用模块：
+
+
+
+#### jsconfig.json配置文件
+
+> [VScode的jsconfig.json配置文件说明 - 掘金 (juejin.cn)](https://juejin.cn/post/7079769333471117343)
+>
+> [jsconfig.json Reference (visualstudio.com)](https://code.visualstudio.com/docs/languages/jsconfig)  vscode下的配置文件
+
+##### 是什么
+
+* `jsconfig.json`表明其所在目录为JS项目的根目录
+* `jsconfig.json`文件指定根目录文件及通过JS语言服务提供的特别选项
+
+
+
+##### 原因
+
+* 显式的项目. 
+
+> A JavaScript project is defined via a `jsconfig.json` file. The presence of such a file in a directory indicates that the directory is the root of a JavaScript project. The file itself can optionally list the files belonging to the project, the files to be excluded from the project, as well as compiler options (see below).
+
+
+
+##### 实例
+
+Using the "exclude" property
+
+> The `exclude` attribute (a glob pattern) tells the language service what files are not part of your source code. This keeps performance at a high level. If IntelliSense is slow, add folders to your `exclude` list (VS Code will prompt you to do this if it detects the slow down).
+
+```json
+//vscode文档实例
+
+{
+  "compilerOptions": {
+    "module" : "commonjs",
+    "target": "es6"
+  },
+  "exclude": ["node_modules"]
+}
+
+//vue-cli脚手架生成实例
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "baseUrl": "./",
+    "moduleResolution": "node",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ],
+  }
+}
+```
+
+
+
+Using the "include" property
+
+> If no `include` attribute is present, then this defaults to including all files in the containing directory and subdirectories. 
+>
+> When a `include` attribute is specified, only those files are included.
+>
+> Tips: The file paths in `exclude` and `include` are relative to the location of `jsconfig.json`.
+
+```json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6"
+  },
+  "include": ["src/**/*"]
+}
+```
+
+
+
+##### 使用webpack 别名
+
+For IntelliSense to work with webpack aliases, you need to specify the `paths` keys with a glob pattern.
+
+For example, for alias 'ClientApp':
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "ClientApp/*": ["./ClientApp/*"]
+    }
+  }
+}
+```
+
+and then to use the alias
+
+```
+import Something from 'ClientApp/foo';
+```
+
+
+
+##### 最佳实践
+
+> **Tip:** If you do not have a `jsconfig.json` in your workspace, VS Code will by default exclude the `node_modules` folder.
+
+
+
+下面是一个将常见项目组件映射到其安装文件夹的表，建议将其排除在外：
+
+| 组件                        | 要排除的文件夹             |
+| --------------------------- | -------------------------- |
+| node                        | 排除node_modules文件夹     |
+| webpack, webpack-dev-server | 排除内容文件夹，例如dist。 |
+| bower                       | 排除bower_components文件夹 |
+| ember                       | 排除tmp和temp文件夹        |
+| jspm                        | 排除jspm_packages文件夹    |
+
+
+
+
+
 ### git基本操作
 
+#### git介绍
+
 ```
-//本地->远程
+git基本操作
+		先有本地代码
+			创建本地库
+			创建远程库
+			关联本地和远程
+			修改本地
+			修改远程
+
+		先有远程代码
+			直接克隆
 
 
-//远程->本地
-git clone url
+
+	git分支扩展
+		分支创建和合并
+			本地创建分支   git checkout -b dev
+			本地推送新分支自动在远程库建立新分支  git push origin dev
+			合并分支之前如果是多人协作先拉取一下远程master，以防止别人已经做了更改
+			本地切换到master 然后再合并分支  git merge dev 
+			合并之后再次推送到远程master
+		分支删除
+			项目开发完成可以删除分支		  
+			git push origin --delete dev  删除远程分支
+			git branch -d dev  删除本地分支 
+```
 
 
+
+```bash
 //项目操作
-git remote add origin url...
-git add .
-git commit -m "update"  //单引号在git中会被视作提交信息的一部分
-git push origin master
-
-git pull origin master
+git init // 创建本地库
+xxx      // 创建远程库
+git remote add origin xxx.git //本地库关联远程库   origin是远程库的别名
+git add .                     //放到暂存区
+git commit -m "update"        //提交到仓库区  单引号在git中会被视作提交信息的一部分
+git push origin master        //推送到origin地址中的master分支上
 ```
+
+
+
+#### 工程化下的git提交规范
+
+> [代码规范 | 带你入门前端工程 (gitee.io)](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#git-规范)
 
 
 
