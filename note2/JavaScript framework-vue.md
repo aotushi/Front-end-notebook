@@ -1687,11 +1687,54 @@ const v=new Vue({
 
 
 
-### Vue实例的方法
+### Vue实例的选项
 
 > [Component Instance | Vue.js (vuejs.org)](https://vuejs.org/api/component-instance.html)
 >
 > [API — Vue.js (vuejs.org)](https://cn.vuejs.org/v2/api/index.html#实例-property)
+
+Vue 实例提供了非常丰富的选项（`new Vue()`时传入的选项），除了上面介绍的生命周期之外，最常见的大概是这几个了：
+
+实例常用选项
+
+| 选项名       | 说明                                                         | 类型                                                         |
+| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `el`         | 通过 CSS 选择器或者 HTMLElement 实例的方式，提供一个在页面上已存在的 DOM 元素作为 Vue 实例的挂载目标 | `string`/`Element`                                           |
+| `template`   | 字符串模板，将会替换挂载的元素                               | `string`                                                     |
+| `render`     | 字符串模板的代替方案，该渲染函数接收一个`createElement`方法作为第一个参数用来创建 VNode | `(createElement: () => VNode) => VNode`                      |
+| `data`       | Vue 实例的数据对象，用于数据绑定                             | `Object`/`Function` 组件只支持`Function`                     |
+| `props`      | 用于接收来自父组件的数据                                     | `Array<string>`/`Object`                                     |
+| `methods`    | Vue 实例的事件，可用于事件绑定                               | `{ [key: string]: Function }`                                |
+| `computed`   | 计算属性，用于简化模板的复杂数据计算                         | `{ [key: string]: Function or { get: Function, set: Function } }` |
+| `watch`      | 观察 Vue 实例变化的一个表达式或计算属性函数                  | `{ [key: string]: string or Function or Object or Array }`   |
+| `directives` | 自定义指令                                                   | `Object`                                                     |
+| `filters`    | 过滤器                                                       | `Object`                                                     |
+| `components` | 组件                                                         | `Object`                                                     |
+
+Vue 实例中的这些选项，大多数都可以作为全局实例属性来获取或者访问:
+
+```javascript
+const vm = new Vue({
+  //一些选项
+})
+
+vm.$data //获取data
+vm.$props //获取props
+vm.$el; // 获取挂载元素
+vm.$options; // 获取 Vue 实例的初始选项
+vm.$parent; // 获取父实例
+vm.$root; // 获取根实例
+vm.$children; // 获取当前实例的直接子组件
+vm.$refs; // 获取持有注册过 ref 特性 的所有 DOM 元素和组件实例
+
+vm.$watch; // 观察 Vue 实例变化的一个表达式或计算属性函数
+vm.$set; // 向响应式对象中添加一个属性，并确保这个新属性同样是响应式的，且触发视图更新
+vm.$delete; // 删除对象的属性。如果对象是响应式的，确保删除能触发更新视图
+```
+
+
+
+
 
 * $data 
 
