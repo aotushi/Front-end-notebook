@@ -2099,6 +2099,162 @@ var unwatch = vm.$watch(
 
 
 
+### DOM相关选项
+
+> https://godbasin.github.io/vue-ebook/vue-ebook/3.html#_3-1-vue-%E5%AE%9E%E4%BE%8B
+
+
+
+#### el
+
+Vue 实例中，`el`选项提供一个页面中已存在的 DOM 元素作为实例的挂载目标。
+
+挂载的意思是，在选中的该元素所在的位置进行页面渲染，该元素会被替换成需要渲染的页面内容。
+
+我们可以传入一个 CSS 选择器，也可以传入一个 DOM 元素。
+
+例如，页面中有一个 id 为#app 的元素，如果我们希望以`<div id="app"></div>`该元素作为 Vue 实例的挂载目标，以下方式都是可以的：
+
+```javascript
+new Vue({
+  // 1.传入Element 元素方式一
+  el: document.getElementById('app'),
+  // 2.传入 Element 元素方式二
+  el: document.getElementByTagName('div')[0]
+  
+  // 3. 传入css选择器方式一
+  el: '#app',
+  // 4. 传入css选择器方式二
+  // 最好选择唯一的元素,不推荐这种方式
+  el: 'div'
+})
+```
+
+所谓挂载元素，在实例挂载之后，元素可以用`vm.$el`访问。当然，前面生命周期中我们讲了，需要在`mounted`之后才能获取到：
+
+```javascript
+new Vue({
+  el: "#app",
+  template: "<div>{{ message }}</div>",
+  data() {
+    return {
+      message: "欢迎来到Vue的世界"
+    };
+  },
+  mounted() {
+    console.log(this.$el);
+  }
+});
+```
+
+如果在实例化时存在这个选项，实例将立即进入编译过程，否则，需要显式调用`vm.$mount()`手动开启编译，也就是这样：
+
+```javascript
+const vm = new Vue({
+  template: "<div>{{ message }}</div>",
+  data() {
+    return {
+      message: "欢迎来到Vue的世界"
+    };
+  },
+  mounted() {
+    console.log(this.$el);
+  }
+});
+
+// 需要的时候使用
+vm.$mount("#app");
+```
+
+> 如果 render 函数和 template 属性都不存在，挂载 DOM 元素的 HTML 会被提取出来用作模板，此时，必须使用 Runtime + Compiler 构建的 Vue 库。我们来理解下这句话：
+
+
+
+#### template
+
+给 Vue 实例提供字符串模板，该模板将会替换挂载的元素，我们来看一个简单的代码片段：
+
+```html
+<body>
+  <div id="app"></div>
+  <script>
+    new Vue({
+      el: "#app",
+      template: "<p>{{ message }}</p>",
+      data() {
+        return {
+          message: "欢迎来到Vue的世界"
+        };
+      },
+      beforeMount() {
+        console.log("beforeMount", this.$el);
+      },
+      mounted: function() {
+        console.log("mounted", this.$el);
+      }
+    });
+  </script>
+</body>
+```
+
+这里挂载的元素指的是`<div id="app"></div>`，当我们使用了 template 选项之后，我们在页面中可以看到最终页面中的内容是 template 中的内容，此时`<div id="app"></div>`已经被替换成 template 中的`<p></p>`，并将 message 中的内容替换成绑定的数据了：
+
+![](https://github-imglib-1255459943.cos.ap-chengdu.myqcloud.com/vue-3-4.jpg)
+
+
+
+我们也能看到，在`beforeMount`生命周期中，`vm.$el`获取的是挂载的元素模板，而在`mounted`生命周期后则变成了 template 中的真实 DOM 元素：
+![image](https://github-imglib-1255459943.cos.ap-chengdu.myqcloud.com/vue-3-5.jpg)
+
+
+
+
+
+#### render
+
+字符串模板 template 的代替方案，该渲染函数接收一个`createElement`方法作为第一个参数用来创建 VNode。[第1章](https://godbasin.github.io/vue-ebook/vue-ebook/1.html)中我们有讲到 Vue 里使用了虚拟 DOM，而`createElement`创建的便是虚拟 DOM，在 Vue 里称为 VNode。要怎么用呢，例如我们可以实现一个`v-if`的能力：
+
+```javascript
+new Vue({
+  // 该段实现:
+  // <p v-if="confition">condition work!</p>
+  // <p v-else> condition not work!</p>
+  render: function(createElement) {
+    if (this.condition) {
+      return createElement('p', "condition work!")
+    } else {
+      return createElement('p', 'condition not work!')
+    }
+  }
+  
+  // 该段实现
+  // <ul><li v-for="item in items">{{item}}</li></ul>
+  render: function(createElement) {
+  	return createElement('ul', this.times.map(function(item) {
+      return createElement('li', item)
+    }))
+}
+})
+```
+
+一般来说，我们可以结合 JSX 来使用（需要添加 Babel 插件噢）：
+
+```javascript
+import MyComponent from './MyComponent.vue'
+
+new Vue({
+  render: function(h) {
+    return (
+    	<MyComponent>
+      	<p>Hello world!</p>
+      </MyComponent>
+    )
+  }
+})
+```
+
+
+
 
 
 
@@ -3136,9 +3292,13 @@ data: {
 
 ### 过滤器
 
+> https://godbasin.github.io/vue-ebook/vue-ebook/3.html#_3-2-2-%E8%BF%87%E6%BB%A4%E5%99%A8
+>
+> 官网
+
 #### 是什么
 
-用来文本格式化
+用来文本格式化, 支持全局定义和组件中定义
 
 #### 使用
 
@@ -3179,7 +3339,7 @@ new Vue({
 
 
 
-过滤器可以串联,从左到右执行,返回的结果被下一个过滤器接收并处理
+过滤器可以<u>串联,从左到右执行,返回的结果被下一个过滤器接收并处理</u>
 
 过滤器是JS函数,可以接收参数.但管道符左侧实为第一个参数.
 
@@ -3190,6 +3350,34 @@ new Vue({
 //过滤器接收参数
 {{ message | filterA('arg1', 'arg2')}}  //第一个参数是message,第二个为'arg1', 第三个为'arg2'
 ```
+
+
+
+实例
+
+千分位处理
+
+```javascript
+// 全局定义
+// 千分位处理
+Vue.filter('thousandth', function (value) {
+  if (!value) return '';
+  return value && value.toString().replace(/^(-?\d+?)((?:\d{3})+)(?=\.\d+$|$)/, function (all, pre, groupOf3Digital) {
+    return pre + groupOf3Digital.replace(/\d{3}/g, ',$&')
+  });
+})
+
+// 局部定义
+// 乘以倍数
+filters: {
+  multiply: function (value, times) {
+    if (!value) return '';
+    return value * ( parseInt(times) || 1);
+  }
+}
+```
+
+
 
 
 
@@ -3243,21 +3431,188 @@ Vue.filter('dataFormater', function(value, str='YYYY-MM-DD'){
 
 
 
+### 常用模板语法
+
+> https://godbasin.github.io/vue-ebook/vue-ebook/3.html#_3-2-%E5%B8%B8%E7%94%A8%E6%A8%A1%E6%9D%BF%E8%AF%AD%E6%B3%95
+
+关于数据绑定、事件绑定，其实也是一种 Vue 提供的方便开发者使用的模板语法。在底层的实现上，Vue 将模板编译成虚拟 DOM 渲染函数。结合响应系统，Vue 能够智能地计算出最少需要重新渲染多少组件，并把 DOM 操作次数减到最少。下面我们会结合对语法的理解，来介绍它们的使用。
+
+#### 数据绑定
+
+数据绑定在 Vue 里有最基础的几种方式
+
+| 语法                 | 说明                                             |
+| -------------------- | ------------------------------------------------ |
+| 插值语法`{{}}`       | 文本插值，可配合过 Javascript 表达式和过滤器使用 |
+| `v-once`             | 一次性插值，数据改变时插值处的内容不会更新       |
+| `v-html`             | 可输出真正的 HTML，不会被转义为普通文本          |
+| `v-bind:`（简写`:`） | 可用于绑定 DOM 属性、或一个组件 prop 到表达式    |
 
 
-### 模块,组件, 模块化与组件化
 
-|      | 模块                                        | 组件                                   |
-| ---- | ------------------------------------------- | -------------------------------------- |
-| 理解 | 向外提供特定功能的js程序,一般就是一个js文件 | 用来实现特定界面功能效果的代码资源集合 |
-| 原因 | 复杂                                        | 一个界面的功能很复杂                   |
-| 作用 | 复用,简化,提高效率                          | 复用编码,简化项目编码                  |
+#### 插值
+
+```vue
+<template>
+  <div>{{ message }}</div>
+  <div v-once>{{ message }}</div>
+  <div v-html="message"></div>
+
+  <div>{{ msgHtml }}</div>
+  <div v-html="msgHtml"></div>
+</template>
+
+<script>
+  export default {
+    data() {
+      return {
+        message: "欢迎来到Vue的世界",
+        msgHtml: "<p style='color: red'>欢迎来到红色Vue的世界</p>"
+      };
+    },
+    created() {
+      this.message = "啦啦啦啦啦啦";
+    },
+    mounted() {
+      this.message = "略略略略略";
+    }
+  };
+</script>
+```
+
+最终的DOM渲染结果:
+
+![](https://github-imglib-1255459943.cos.ap-chengdu.myqcloud.com/vue-3-6.jpg)
 
 
 
-|      | 模块化                 | 组件化                                       |
-| ---- | ---------------------- | -------------------------------------------- |
-| 定义 | 应用的js都以模块来编写 | 应用是以多组件方式实现. 是组件化的应用和开发 |
+
+
+`v-once`只渲染元素和组件一次，后面的所有重新渲染过程，被绑定的该元素/组件及其所有的子节点将被视为静态内容并跳过。但在这里，最终呈现的并不是我们初始`data`中的“欢迎来到 Vue 的世界”，而是`created`周期中设定的“啦啦啦啦啦啦”。
+
+真实 DOM 挂载发生在`beforeMount`之后、`mounted`之前，也就是说，我们在`mounted`之前的生命周期中更改`data`中 message 的值，都是有效的。
+
+所以关于插值，需要注意以下两点：
+
+(1) `v-once`在`mounted`生命周期之后，不可再更改。
+(2) `v-html`请只对可信内容使用 HTML 插值，绝不要对用户提供的内容使用插值，因为它很容易导致 XSS 攻击（该内容在[第1章](https://godbasin.github.io/vue-ebook/vue-ebook/1.html)有阐述）
+
+
+
+#### JavaScript表达式
+
+```javascript
+{{ price * 100 + 2000 }} {{ message.split('').reverse().join('') }} {{ type ===
+'group' ? '团队' : '个人' }}
+
+<div v-bind:class="isActived ? 'actived' : ''"></div>
+
+<div v-bind:index="'item-' + index"></div>
+
+<!-- 以下是语句，不是表达式 -->
+{{ var message = "123" }} {{ if(type === 'group') { return '团队' } }}
+```
+
+#### v-bind
+
+
+
+#### data
+
+Vue 里数据的变更检测是来自于 getter/setter，从而让`data`的属性能够响应数据变化。前面我们也讲到，Vue 将遍历 data 选项的 JavaScript 对象所有的属性，并使用`Object.defineProperty`把这些属性全部转为 getter/setter:
+
+```javascript
+Object.defineProperty(obj, key, {
+  enumerable: true,
+  configurable: true,
+  //getter
+  get: function reactiveGetter() {
+    const value = getter ? getter.call(obj) : val;
+    if (Dep.target) {
+      //依赖检测
+      dep.depend();
+      if (childOb) {
+        childOb.dep.depend();
+        if (Array.isArray(value)) {
+          dependArray(value)
+        }
+      }
+    }
+    return value
+  },
+  
+  //setter 最终更新后悔通知
+  set: function reactiveSetter(newVal) {
+    const value = getter ? getter.call(obj) : val
+    if (newVal === value || (newVal !== newVal && value !== value)) {
+      return
+    }
+    
+    if (process.env.Node_ENV !== "production" && customSetter) {
+      customSetter()
+    }
+    
+    if (getter && !setter) return
+    if (setter) {
+      setter.call(obj, newVal)
+    } else {
+      val = newVal
+    }
+    childOb = !shallow && observe(newVal)
+    //会通知哦
+    dep.notify()
+  }
+})
+```
+
+由于 Vue 会在初始化实例时对属性执行 getter/setter 转化，所以属性必须在 data 对象上存在才能让 Vue 将它转换为响应式的。换句话说，只有当实例被创建时就已经存在于`data`中的属性才是响应式的（新增的属性等都不会触发视图的更新）。问题也是很显然，Vue 无法检测到对象属性的添加或删除，也无法检测一些特殊的数组变动：
+
+```javascript
+// 只有这些操作会通知变更噢
+const methodsToPatch = [
+  "push",
+  "pop",
+  "shift",
+  "unshift",
+  "splice",
+  "sort",
+  "reverse"
+];
+
+// 拦截上述这些操作方法，然后通知变更
+methodsToPatch.forEach(function(method) {
+  // cache original method
+  const original = arrayProto[method];
+  def(arrayMethods, method, function mutator(...args) {
+    const result = original.apply(this, args);
+    const ob = this.__ob__;
+    let inserted;
+    switch (method) {
+      case "push":
+      case "unshift":
+        inserted = args;
+        break;
+      case "splice":
+        inserted = args.slice(2);
+        break;
+    }
+    if (inserted) ob.observeArray(inserted);
+    // notify change
+    ob.dep.notify();
+    return result;
+  });
+});
+```
+
+所以在更新`data`中绑定的对象或者数组的时候需要注意，除了使用可触发变更检测的特殊方法之外，也可以使用`vm.$set`(`Vue.set`)实例方法。`vm.$set`(`Vue.set`)用于向响应式对象中添加一个属性，并确保这个新属性同样是响应式的，且触发视图更新：
+
+```javascript
+// 更新数组
+vm.$set(vm.items, indexOfItem, newValue);
+
+// 更新对象
+vm.$set(vm.someObject, keyOfObject, newValue);
+```
 
 
 
@@ -3750,6 +4105,8 @@ computed 则是通过【依赖追踪】实现的，在 computed 求值时引用�
 
 #### 背景
 
+侦听器用来监听某些数据变化，观察 Vue 实例变化的一个表达式或计算属性函数。Vue 实例将会在实例化时调用`$watch()`，遍历 watch 对象的每一个属性。
+
 当需要在数据变化时**执行异步或开销较大**的操作时，使用侦听器
 
 #### 语法
@@ -3811,8 +4168,7 @@ vm.a = 2 // => new: 2, old: 1
 
 #### 详细
 
-* 一个对象，键是需要观察的表达式，值是对应回调函数。
-* 值也可以是方法名，或者包含选项的对象。
+* 一个对象，键是需要观察的<u>表达式</u>，值是对应<u>回调函数</u>/ 方法名
 * Vue 实例将会在实例化时调用 `$watch()`，遍历 watch 对象的每一个 property。
 
 
@@ -3832,6 +4188,9 @@ vm.a = 2 // => new: 2, old: 1
 ### computed和watch之间的区别
 
 * 只要是computed能完成的功能，watch都可以完成; watch能完成的功能，computed不一定能完成，例如：watch可以进行异步操作
+  * computed属性的结果是会被缓存的,并且依赖响应式数据的变化才会发生变化
+  * 定义的函数接收return的结果, return属性同步执行,是没有办法拿到异请求的结果的
+
 * computed依赖缓存,值不变前提下多次读取使用缓存; watch多次读取会多次调用
 
 
@@ -4523,14 +4882,16 @@ methods:{
 
 为了解决这个问题，Vue.js 为 `v-on` 提供了**事件修饰符**。之前提过，修饰符是由点开头的指令后缀来表示的
 
-```js
-.stop 阻止时间冒泡
-.prevent 阻止标签的默认行为
-.capture 
-.self 只监听自身标签触发的事件
-.once 该事件只触发一次
-.passive
-```
+| 修饰符                                               | 说明                                        |
+| ---------------------------------------------------- | ------------------------------------------- |
+| `.stop`                                              | `event.stopPropagation()`，阻止事件继续传播 |
+| `.prevent`                                           | `event.preventDefault()`，阻止默认事件      |
+| `.capture`                                           | 添加事件监听器时使用事件捕获模式            |
+| .self                                                | 只监听自身标签触发的事件                    |
+| `.once`                                              | 只绑定一次                                  |
+| `.enter`/`.tab`/`.esc`/`.space`/`.ctrl`/`.[keyCode]` | 按键修饰符                                  |
+
+
 
 
 

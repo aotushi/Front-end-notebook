@@ -24124,7 +24124,11 @@ let newIndent = indent.repeat(++indentLevel);
 **参数**
 
 ```javascript
-str.replace(regexp|substr, newSubStr|function)
+replace(regexp, newSubstr)
+replace(regexp, replacerFunction)
+
+replace(substr, newSubstr)
+replace(substr, replacerFunction)
 ```
 
 `regexp(pattern)` 
@@ -24151,10 +24155,12 @@ str.replace(regexp|substr, newSubStr|function)
 
 **使用字符串作为参数**
 
+替换纸字符串可以包含以下指定的替代模式:
+
 | 变量名    | 代表的值                                                     |
 | --------- | ------------------------------------------------------------ |
 | $$        | 插入一个'$'                                                  |
-| $&        | 插入整个匹配项                                               |
+| $&        | inserts the matched substring  (与 regexp 相匹配的子串)      |
 | $`        | 插入当前匹配的字串左边的内容                                 |
 | $'        | 插入当前匹配的子串右边的内容                                 |
 | $n        | 假如第一个参数是 [`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)对象，并且 n 是个小于100的非负整数，那么插入第 n 个括号匹配的字符串。提示：索引是从1开始。如果不存在第 n个分组，那么将会把匹配到到内容替换为字面量。比如不存在第3个分组，就会用“$3”替换匹配到的内容 |
@@ -24185,6 +24191,60 @@ str.replace('o', "$'"); //'hell world world'
 
 精确的参数个数依赖于 `replace()` 的第一个参数是否是一个正则表达式（[`RegExp`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp)）对象，以及这个正则表达式中指定了多少个括号子串，如果这个正则表达式里使用了命名捕获， 还会添加一个命名捕获的对象)
 
+该函数 `func(match, p1, p2, ..., pn, offset, input, groups)` 带参数调用：
+
+1. `match` － 匹配项，
+2. `p1, p2, ..., pn` － 分组的内容（如有），
+3. `offset` － 匹配项的位置，
+4. `input` － 源字符串，
+5. `groups` － 所指定分组的对象。
+
+如果正则表达式中没有括号，则只有 3 个参数：`func(str, offset, input)`
+
+按其在字符串中的位置来替换每个匹配项
+
+```javascript
+'Ho-Ho-ho'.replace(/ho/gi, (match, offset) => offset)  //'0-3-6'
+```
+
+在下面的示例中，有两对括号，因此将使用 5 个参数调用替换函数：第一个是完全匹配项，然后是 2 对括号，然后是匹配位置（在示例中未使用）和源字符串：
+
+```javascript
+let str = "John Smith";
+
+let result = str.replace(/(\w+) (\w+)/, (match, name, surname) => `${surname}, ${name}`);
+
+alert(result); // Smith, John
+```
+
+如果有许多组，用 rest 参数（…）可以很方便的访问：
+
+```javascript
+let str = "John Smith";
+
+let result = str.replace(/(\w+) (\w+)/, (...match) => `${match[2]}, ${match[1]}`);
+
+alert(result); // Smith, John
+```
+
+或者，如果我们使用的是命名组，则带有它们的 `groups` 对象始终是最后一个对象，因此我们可以这样获得它：
+
+```javascript
+let str = "John Smith";
+
+let result = str.replace(/(?<name>\w+) (?<surname>\w+)/, (...match) => {
+  let groups = match.pop();
+
+  return `${groups.surname}, ${groups.name}`;
+});
+
+alert(result); // Smith, John
+```
+
+使用函数可以为我们提供终极替代功能，因为它可以获取匹配项的所有信息，可以访问外部变量，可以做任何事。
+
+
+
 **实例**  ????
 
 [交换字符串中的两个单词](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#交换字符串中的两个单词)
@@ -24196,6 +24256,25 @@ var newstr = str.replace(re, "$2, $1");
 // Smith, John
 console.log(newstr);
 ```
+
+
+
+千分位处理
+
+> https://godbasin.github.io/vue-ebook/vue-ebook/3.html#_3-2-2-%E8%BF%87%E6%BB%A4%E5%99%A8
+
+```javascript
+// 全局定义
+// 千分位处理
+Vue.filter('thousandth', function (value) {
+  if (!value) return '';
+  return value && value.toString().replace(/^(-?\d+?)((?:\d{3})+)(?=\.\d+$|$)/, function (all, pre, groupOf3Digital) {
+    return pre + groupOf3Digital.replace(/\d{3}/g, ',$&')
+  });
+})
+```
+
+
 
 
 
