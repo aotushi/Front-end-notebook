@@ -375,6 +375,14 @@ function process(data) {
 ## 执行上下文栈
 
 > https://github.com/mqyqingfeng/Blog/issues/4
+>
+> 相关链接:
+>
+> https://github.com/mqyqingfeng/Blog/issues/5  变量对象
+>
+> [JavaScript深入之作用域链 · Issue #6 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/6) 
+>
+> [JavaScript深入之从ECMAScript规范解读this · Issue #7 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/7)
 
 ### 1. 顺序执行
 
@@ -409,7 +417,7 @@ foo(); //'foo2'
 
 刷过面试题的都知道这是因为 JavaScript 引擎并非一行一行地分析和执行程序，而是一段一段地分析执行。当执行一段代码的时候，会进行一个“准备工作”，比如第一个例子中的变量提升，和第二个例子中的函数提升。
 
-但是本文真正想让大家思考的是：这个“一段一段”中的“段”究竟是怎么划分的呢？
+<span style="color:red">但是本文真正想让大家思考的是：这个“一段一段”中的“段”究竟是怎么划分的呢？</span>
 
 到底JavaScript引擎遇到一段怎样的代码时才会做“准备工作”呢？
 
@@ -419,11 +427,11 @@ foo(); //'foo2'
 
 这就要说到 JavaScript 的可执行代码(executable code)的类型有哪些了？
 
-其实很简单，就三种，全局代码、函数代码、eval代码。
+其实很简单，就三种，<u>全局代码、函数代码、eval代码。</u>
 
-举个例子，当执行到一个函数的时候，就会进行准备工作，这里的“准备工作”，让我们用个更专业一点的说法，就叫做"执行上下文(execution context)"。
+举个例子，<u>当执行到一个函数的时候，就会进行准备工作，这里的“准备工作”，就叫做"执行上下文(execution context)"。</u>
 
-### 3. 执行上下文
+### 3. 执行上下文栈
 
 我们写的函数多了去了，如何管理创建的那么多执行上下文呢？
 
@@ -700,6 +708,8 @@ AO = {
 3. 在进入执行上下文时会给变量对象添加形参、函数声明、变量声明等初始的属性值
 4. 在代码执行阶段，会再次修改变量对象的属性值
 
+
+
 ### 练习题
 
 **第一题**
@@ -722,7 +732,7 @@ bar(); //
 
 第二段会打印：`1`。
 
-这是因为函数中的 "a" 并没有通过 var 关键字声明，所有不会被存放在 AO 中。
+这是因为<u>函数中的 "a" 并没有通过 var 关键字声明，所以不会被存放在 AO 中</u>。
 
 第一段执行 console 的时候， AO 的值是：
 
@@ -768,19 +778,31 @@ fn(2); //2 3
 
 
 
-## 作用域链  ????
+## 作用域链
+
+> [JavaScript深入之作用域链 · Issue #6 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/6)
+
+在[《JavaScript深入之执行上下文栈》](https://github.com/mqyqingfeng/Blog/issues/4)中讲到，当JavaScript代码执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)。
+
+对于每个执行上下文，都有三个重要属性：
+
+- 变量对象(Variable object，VO)
+- 作用域链(Scope chain)
+- this
+
+
 
 ### 1.含义
 
-当查找变量的时候，会先从当前上下文的变量对象中查找，如果没有找到，就会从父级(词法层面上的父级)执行上下文的变量对象中查找，一直找到全局上下文的变量对象，也就是全局对象。<u>这样由多个执行上下文的变量对象构成的链表就叫做作用域链</u>。
-
-### 2. 用函数来模拟作用域链创建
+在[《JavaScript深入之变量对象》](https://github.com/mqyqingfeng/Blog/issues/5)中讲到，当查找变量的时候，会先从当前上下文的变量对象中查找，如果没有找到，就会从父级(词法层面上的父级)执行上下文的变量对象中查找，一直找到全局上下文的变量对象，也就是全局对象。<span style="color:red">这样由多个执行上下文的变量对象构成的链表就叫做作用域链。</span>
 
 下面，让我们以一个函数的创建和激活两个时期来讲解作用域链是如何创建和变化的。
 
+### 2. 函数创建
+
 在[《JavaScript深入之词法作用域和动态作用域》](https://github.com/mqyqingfeng/Blog/issues/3)中讲到，**函数的作用域在函数定义的时候就决定了**。
 
-这是因为函数有一个内部属性 [[scope]]，当函数创建的时候，就会保存所有父变量对象到其中，你可以理解 [[scope]] 就是所有父变量对象的层级链，但是注意：[[scope]] 并不代表完整的作用域链！
+这是因为函数有一个内部属性 [[scope]]，<span style="color:red">当函数创建的时候，就会保存所有父变量对象到其中</span>，你可以理解 [[scope]] 就是所有父变量对象的层级链，但是注意：[[scope]] 并不代表完整的作用域链！
 
 举个例子:
 
@@ -1326,7 +1348,23 @@ var fooReference = {
 
 
 
-## 执行上下文???? 未完成
+## 执行上下文
+
+> [JavaScript深入之执行上下文 · Issue #8 · mqyqingfeng/Blog (github.com)](https://github.com/mqyqingfeng/Blog/issues/8)
+
+在[《JavaScript深入之执行上下文栈》](https://github.com/mqyqingfeng/Blog/issues/4)中讲到，当 JavaScript 代码执行一段可执行代码(executable code)时，会创建对应的执行上下文(execution context)。
+
+对于每个执行上下文，都有三个重要属性：
+
+- 变量对象(Variable object，VO)
+- 作用域链(Scope chain)
+- this
+
+然后分别在[《JavaScript深入之变量对象》](https://github.com/mqyqingfeng/Blog/issues/5)、[《JavaScript深入之作用域链》](https://github.com/mqyqingfeng/Blog/issues/6)、[《JavaScript深入之从ECMAScript规范解读this》](https://github.com/mqyqingfeng/Blog/issues/7)中讲解了这三个属性。
+
+阅读本文前，如果对以上的概念不是很清楚，希望先阅读这些文章。
+
+因为，这一篇，我们会结合着所有内容，讲讲执行上下文的具体处理过程。
 
 ### 1.思考题
 
