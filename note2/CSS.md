@@ -85,6 +85,37 @@ CSS 可以用于给文档添加样式
 
 
 
+#### 如何使用
+
+#### link与@import的区别
+
+就结论而言，强烈建议使用`link`标签，慎用`@import`方式。
+
+> https://segmentfault.com/a/1190000015950516
+
+区别
+
+**1.从属关系区别**
+`@import`是 CSS 提供的语法规则，只有导入样式表的作用；`link`是HTML提供的标签，不仅可以加载 CSS 文件，还可以定义 RSS、rel 连接属性等。
+
+**2.加载顺序区别**
+加载页面时，`link`标签引入的 CSS 被同时加载；`@import`引入的 CSS 将在页面加载完毕后被加载。
+
+**3.兼容性区别**
+`@import`是 CSS2.1 才有的语法，故只可在 IE5+ 才能识别；`link`标签作为 HTML 元素，不存在兼容性问题。
+
+**4.DOM可控性区别**
+可以通过 JS 操作 DOM ，插入`link`标签来改变样式；由于 DOM 方法是基于文档的，无法使用`@import`的方式插入样式。
+
+**5.权重区别(该项有争议，下文将详解)**
+`link`引入的样式权重大于`@import`引入的样式。
+
+
+
+
+
+
+
 ### CSS语法
 
 CSS 规则集（rule-set）由选择器和声明块组成：
@@ -3852,7 +3883,7 @@ https://developer.aliyun.com/article/488445
 
 ##### Box: CSS布局的基本单位
 
-Box 是 CSS 布局的对象和基本单位， 直观点来说，就是一个页面是由很多个 Box 组成的。元素的类型和 display 属性，决定了这个 Box 的类型。 不同类型的 Box， 会参与不同的 Formatting Context（一个决定如何渲染文档的容器），因此Box内的元素会以不同的方式渲染。让我们看看有哪些盒子：
+Box 是 CSS 布局的对象和基本单位， 直观点来说，就是一个页面是由很多个 Box 组成的。元素的类型和 display 属性，决定了这个 Box 的类型。 不同类型的 Box， 会参与不同的 Formatting Context（一个决定如何渲染文档的容器），因此Box内的元素也会以不同的方式进行渲染。让我们看看有哪些盒子：
 
 - block-level box:display 属性为 block, list-item, table 的元素，会生成 block-level box。并且参与 block fomatting context；
 - inline-level box:display 属性为 inline, inline-block, inline-table 的元素，会生成 inline-level box。并且参与 inline formatting context；
@@ -3870,9 +3901,9 @@ BFC(Block formatting context)直译为"块级格式化上下文"。它是一个�
 
 ##### BFC布局规则
 
-1. 内部的Box会在垂直方向，一个接一个地放置。
+1. 内部的Box按垂直方向排列
 2. Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠
-3. 每个元素的margin box的左边， 与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。
+3. 每个元素的margin box的左边， 与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。(是不补偿最左边??)
 4. BFC的区域不会与float box重叠。
 5. BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
 6. 计算BFC的高度时，浮动元素也参与计算
@@ -4059,6 +4090,42 @@ BFC(Block formatting context)直译为"块级格式化上下文"。它是一个�
 > `BFC`就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
 
 因为`BFC`内部的元素和外部的元素绝对不会互相影响，因此， 当`BFC`外部存在浮动时，它不应该影响`BFC`内部Box的布局，`BFC`会通过变窄，而不与浮动有重叠。同样的，当`BFC`内部有浮动时，为了不影响外部元素的布局，`BFC`计算高度时会包括浮动的高度。避免margin重叠也是这样的一个道理。
+
+
+
+##### 4.外边距塌陷解决
+
+> //https://developer.mozilla.org/zh-CN/docs/Web/Guide/CSS/Block_formatting_context
+
+描述: 嵌套关系的两个块元素, 第一个子元素向上的外边距(margin-top),父元素会跟着掉下来,形成外边距塌陷(第二个不会出现塌陷)
+解决方案:
+
+* BFC
+  * 父元素开启BFC: 浮动/overflow
+  * 子元素都设置浮动
+* 设置边框: 父元素设置上边框: `border-top: 1px solid red;`
+
+
+
+##### 5.浮动布局造成父元素高度塌陷
+
+ 描述:浮动元素由于是脱离标准流状态,父元素在不设置固定高度时,会造成高度塌陷(高度0), 原因是父元素认为子元素没有占位置
+
+解决方案:
+
+* 父元素设置BFC: 
+* 父元素设置固定高度
+* 父元素调用clearfix清除浮动
+
+```css
+.clearfix::after {
+  content: '';
+  display: box;
+  clear: both;
+}
+```
+
+
 
 
 
@@ -7595,6 +7662,16 @@ animation-fill-mode:forwars
 	</body>
 </html>
 
+```
+
+
+
+#### 实例
+
+如何显示比浏览器默认最小字体12px还小的字体
+
+```css
+-webkit-transofrm: scale(0.5)
 ```
 
 

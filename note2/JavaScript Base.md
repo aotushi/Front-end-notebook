@@ -22903,6 +22903,19 @@ Math.random()生成一个0-1之间的随机数(小数) 不包括0也不包括1
 
 
 
+#### Math.max
+
+```javascript
+Math.max(NaN, Infinity) //NaN
+
+```
+
+
+
+
+
+
+
 ### Math用法
 
 #### 0. 生成制定(x-y)之间的随机数
