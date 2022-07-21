@@ -1280,12 +1280,12 @@ fn main() {
 
 也就是同一个作用域里的同名变量，可以有两个不同的绑定，这个因为一些原因被否掉了。
 
-剩下的选项就是**报错（dead zone）**。报错有两个方案，一个是根据空间上、词法上、源码的文本顺序来看，只要在声明前使用，就报错，这个叫 Lexical dead zone（词法死区），这个也被否掉了：
+剩下的选项就是**报错（dead zone）**。<span style="color:red">报错有两个方案</span>，一个是根据空间上、词法上、源码的文本顺序来看，只要在声明前使用，就报错，这个叫 Lexical dead zone（词法死区），这个也被否掉了：
 
 ```javascript
 f()
 let a = 1 
-function f() {alert(a)}
+function f() {alert(a)} //Uncaught ReferenceError: a is not defined
 ```
 
 因为 a 的使用虽然从源码顺讯上是放在了 let a 后面，但从执行时间上却先求值了。所以只剩最后一个方案，**时间死区（Temporal dead zone）**，也就是最终到了 ES6 里的 TDZ，这里 temporal 不是暂时的意思，temporal 有”时间的“含义，和空间相对应，比如最新替代 Date 的规范也叫 Temporal。
@@ -6724,107 +6724,41 @@ console.log('c =', c);  //
 
 ### 变量提升和函数提升
 
-```javascript
-# 变量的提升
- - 在JS中所有使用var声明的变量，会在所有的代码执行前被声明
-	也就是说我们可以在一个变量声明前就对其进行使用
-    变量的提升只会提前声明，而不会提前赋值
- - 不使用var声明的变量不会被提升，所以不能在声明前使用
+#### 是什么?
 
+**变量提升**
 
-# 函数的提升
- - 在JS中所有以function开头的函数，会在所有的代码执行前被创建
-	所以我们可以在函数声明前就对其进行调用
- - 使用函数表达式所定义的函数不会被提升，所以无法在声明前进行调用
+* 在JS中所有使用var声明的变量，会在所有的代码执行前被声明. 也就是说我们可以在一个变量声明前就对其进行使用. 变量的提升只会提前声明，而不会提前赋值
 
+**函数提升**
 
-# JS的代码如何执行？
- 1. 预解析代码
- 	- 找到代码中所有使用var声明的变量，以function开头的函数
-	- 对var声明的变量进行提前声明但不赋值，对于function开头的函数进行创建
- 2. 逐行执行代码
- 
- 
- script标签下,使用var开头的变量都是window的属性,使用function开头的函数都是window的方法
-
-=====================debug调试模式下========================
-var a = 10;       //window的属性
-var b = 20;
-c = 30;
-
-function fn() {    //是全局对象window的方法,被创建
-   alert('fn');
-}
-
-var fn2 = function () {  //是全局对象window的方法,但未定义.因为是var开头
-      alert('fn2');
-};
-```
+* 在JS中所有以function开头的函数，会在所有的代码执行前被创建;可以在函数声明前就对其进行调用. 
+* 使用函数表达式所定义的函数不会被提升. 如果进行函数调用会抛出`TypeError`异常()(RHS,不合理操作报错)
+* 有多个相同函数声明,前面的会被最后的覆盖.
 
 
 
-案例
+**两者关系**
 
-```javascript
-var a = 10;
-a = 10;   // 声明变量时，可以省略var和let，相当于windwo.a = 10; 但声明关键字必须写
-===============================
-console.log(a);
-var a = 10;   //a此时是undefined，只会提前声明但不会提前赋值。去掉var，会显示a没有定义报错
-================================
-var a = 10； 
-// 相当于var a； 优先执行
-// a = 10;
+<span style="color:blue">函数声明和变量var声明都会被提升。函数会首先被提升，然后才是变量。</span>
 
-====================================
-    
-fn();  //函数会被执行
-fn2(); //报错  'fn2 is not a function...'
-    
-function fn(){              //function开头 函数提升，会被创建
-    console.log('我是函数fn');
-}    
-
-var fn2 = function(){       //var开头，并非function开头
-    console.log('fn2()');
-}
-```
+函数声明和变量声明相同, 变量声明会被覆盖;
 
 
 
-案例2
+#### 案例
 
-```javascript
-# 判断执行顺序
-console.log(a);
-var a = 1;
-console.log(a);
-var a = 2;
-console.log(a);
-function a(){alert(3)}
-console.log(a);
-a = function(){alert(4);}
-console.log(a);
+> https://juejin.cn/post/6844903794082316296
 
-======================================
-    
-# 执行顺序及结果
-var a;
-function a(){alert(3);}
 
-f a(){alert(3);}
-1
-2
-2
-f (){alert(4);}
 
-```
 
-案例3
+
+
+
+
 
 ```js
-- 1116添加 1112题目
-
 var a = 10;
 function test(){
 	a=100;
@@ -6833,8 +6767,7 @@ function test(){
     var a;
     console.log(a);
 }
-test();//100 10 100
-
+test();//100 10 10
 简化:
 
 function test(){
