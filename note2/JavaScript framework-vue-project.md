@@ -289,6 +289,16 @@ git push origin master        //推送到origin地址中的master分支上
 
 ### 页面
 
+#### 路由组件和非路由组件文件结构
+
+非路由组件一般放在**src/coponents**文件夹下
+
+路由组件一般放置在**src/pages|views**文件夹下
+
+
+
+
+
 ```js
 1.
 //页面结构:上中下
@@ -3611,3 +3621,4 @@ mobile = Number(random.pick(['139', '176','186','135'])+random.integet(0,9999999
 
 
 
+H
