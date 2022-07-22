@@ -279,6 +279,13 @@ git push origin master        //推送到origin地址中的master分支上
 
 
 
+```bash
+//如何撤销git add操作
+git reset HEAD 整体回到上一次操作
+```
+
+
+
 #### 工程化下的git提交规范
 
 > [代码规范 | 带你入门前端工程 (gitee.io)](https://woai3c.gitee.io/introduction-to-front-end-engineering/02.html#git-规范)
@@ -297,47 +304,40 @@ git push origin master        //推送到origin地址中的master分支上
 
 
 
+#### 路由组件和非路由组件区别
 
-
-```js
-1.
-//页面结构:上中下
-//切换页面无刷新:请求是ajax,这个是单页面应用,中间的部分是我们的路由组件切换  ++
-
-2.文件结构
-components下新建文件夹 组件的name/index.vue
-
-3.组件3步
-
-4.路由组件和一般组件的区别?
 相同:使用都是3大步:定义-注册-使用;
-不同:存储文件夹不同;
-	注册的文件夹不同(非路由注册在要使用的组件中,路由组件在路由配置中注册);
-	使用(非路由使用组件标签, 路由组件使用声明式(router-link,view)+编程式导航(push replace)来使用);
-	生命周期不一样(路由组件在切换时会销毁重建(keep-alive),非路由组件不会)
+不同:
+
+​	存储文件夹不同;
+​	注册的文件夹不同(非路由注册在要使用的组件中,路由组件在路由配置中注册);
+​	使用(非路由使用组件标签, 路由组件使用声明式(router-link,view)+编程式导航(push replace)来使用);
+​	生命周期不一样(路由组件在切换时会销毁重建(keep-alive),非路由组件不会)
 
 
-5.路由组件步骤
- this.$router(路由器对象) this.$route(路由对象)
 
-6.<style lang="less" scoped>  lang表示以什么语言来解析
-前提是安装了less, less-loader模块
-按钮点击需要编程式路由导航
-重定向路由
+#### 通过判断路径隐藏页面
 
-7.如何撤销git add操作
-git reset HEAD 整体回到上一次操作
+案例: 登录页面和注册页面不需要显示footer组件
 
-8.官方插件和第三方插件 区别: Vue.use(官方插件),第三方直接导入引用
+使用路由对象中的元配置 meta. 可以配置任意选项
 
-9.router中 路由对象的meta对象配置
+```html
+//写法繁琐 不推荐 避免变的很长
 
-访问哪个页面 vc中的$route中就会有响应页面的配置信息
+<div>
+  <Header></Header>
+  <router-view></router-view>
+  <Footer v-show="$route.path !== '/login' && $route.path !== '/register'"></Footer>
+</div>
 
 
-10.路由路径的3种写法
-1.
-
+//推荐
+<div>
+  <Header></Header>
+  <router-view></router-view>
+  <Footer v-show="!$route.meta.isHidden"></Footer>
+</div>
 ```
 
 
