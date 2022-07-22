@@ -12473,7 +12473,7 @@ $.get('http://127.0.0.1', {a:100, b:200}, function(data){console.log(data)})
 
 
 
-## Promise🌈
+## Promise⭐⭐⭐
 
 ### 异步编程背景
 
@@ -12654,7 +12654,7 @@ loadScript('/my/script.js', function(error, script) {
 });
 ```
 
-我们在 `loadScript` 中所使用的方案其实很普遍。它被称为<u>“Error 优先回调（error-first callback）”风格</u>。
+我们在 `loadScript` 中所使用的方案其实很普遍。它被称为<u>“<span style="color:red">Error 优先回调（error-first callback）”风格</span></u>。
 
 它的约定是:
 
