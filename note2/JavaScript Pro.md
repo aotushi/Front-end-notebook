@@ -1594,7 +1594,7 @@ foo();
 
 然而 JavaScript 却是可以的！
 
-当我们了解了具体的执行过程后，我们知道 f 执行上下文维护了一个作用域链：
+当我们了解了具体的执行过程后，我们知道<span style="color:red"> f 执行上下文维护了一个作用域链</span>：
 
 ```javascript
 fContext = {
@@ -1713,7 +1713,7 @@ data[0]Context 的 AO 并没有 i 值，所以会沿着作用域链从匿名函�
 
 
 
-### 4.闭包实例
+### 4.实例
 
 在定时器, 事件监听器,Ajax请求,跨窗口通信,Web Works或者其他的异步(或同步)任务中,<span style="color:blue;"> 只要使用了回调函数,实际上就是在使用闭包.</span>
 
@@ -2723,11 +2723,14 @@ js的另一大特点是非阻塞，实现这一点的关键在于下面要说的
 
 - `setInterval()`
 - `setTimeout()`
+- Ajax
+- DOM事件监听
 
 以下事件属于微任务
 
-- `new Promise()`
-- `new MutaionObserver()`
+- Promise
+- async/await
+- MutaionObserver()
 
 在一个事件循环中，异步事件返回结果后会被放到一个任务队列中。
 
@@ -9623,7 +9626,7 @@ class Square extends Rectangle {
 
 
 
-### 类的继承分析
+### 类的继承分析 ????
 
 > 你不知道的JavaScript上卷 4.4 混入
 
@@ -12943,7 +12946,7 @@ promise.then(null, function(err) {
 
 * catch()方法，相当于只给其传入拒绝处理程序的then()方法
 * 使用`null`作为第一个参数: `then(null, errorHandleingFunction)`
-* 或使用: `.catch(errorHandlingFunction)`, 其`.catch(f)`调用时`.then(null, f)`的完全模拟,它知识一个简写形式.
+* 或使用: `.catch(errorHandlingFunction)`, 其`.catch(f)`调用时`.then(null, f)`的完全模拟,它只是一个简写形式.
 
 
 
@@ -13328,9 +13331,7 @@ new Promise((resolve, reject) => {
 
 
 
-如果是多个报错的话:
-
-只会处理从顺序上出现的第一个错误
+如果是多个报错的话, 只会处理从顺序上出现的第一个错误
 
 ```javascript
 Promise.resolve(1)
@@ -14638,7 +14639,7 @@ p.finally(function() {
 - 与`Promise.resolve(2).then(() => {}, () => {})` （resolved的结果为`undefined`）不同，`Promise.resolve(2).finally(() => {})` resolved的结果为 `2`。
 - 同样，`Promise.reject(3).then(() => {}, () => {})` (fulfilled的结果为`undefined`), `Promise.reject(3).finally(() => {})` rejected 的结果为 `3`。
 
-> Note:  在finally回调中 throw (货返回被闪退的promise) 将以 throw() 指定的原因拒绝新的promise.
+> Note:  在finally回调中 throw (或返回被闪退的promise) 将以 throw() 指定的原因拒绝新的promise.
 
 
 
@@ -14764,20 +14765,17 @@ Promise.myReject = function(err) {
 
 ##### 概述
 
-这个方法接收多个promise组成的可迭代的对象(Array, Set, Map, String), 返回一个输入的promises结果的数组的Promise实例.
+`Promise.all` 接受一个可迭代对象（通常是一个数组项为 promise 的数组），并返回一个新的 promise。
 
-当所有输入的promise成功或输入可迭代对象不包含promise,返回的promise将会成功
+当所有给定的 promise 都 resolve 时，新的 promise 才会 resolve，并且其结果数组将成为新 promise 的结果。
 
-当任意输入的promise失败 或 非promise抛出错误, 返回的promise会立即失败,失败信息是第一个失败promise或错误
+结果数组中元素的顺序与其在源 promise 中的顺序相同(即使第一个 promise 花费了最长的时间才 resolve，但它仍是结果数组中的第一个)
 
-返回的promise的两种状态原因
+**如果任意一个 promise 被 reject，由 `Promise.all` 返回的 promise 就会立即 reject，并且带有的就是这个 error。**
 
-* resolve
-  * 当所有输入的promises已经成功 resolved
-  * 可迭代对象不包含promises
-* reject
-  * 当任意一个输入的promise拒绝
-  * 非promise抛出一个错误
+**允许在** `iterable` **中使用非 promise 的“常规”值**, 原样返回.
+
+
 
 
 
@@ -14874,7 +14872,7 @@ setTimeout(() => {
 })
 
 //Promise {<pending>}
-//2
+//2 定时器的ID
 //the stack is not empty
 //Promise {<fulfilled>: Array(2)}
 ```
