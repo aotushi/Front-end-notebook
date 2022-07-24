@@ -2079,7 +2079,7 @@ person.constructor === Person.prototype.constructor; //true
 
 > 最后是关于继承，前面我们讲到“每一个对象都会从原型‘继承’属性”，实际上，继承是一个十分具有迷惑性的说法，引用《你不知道的JavaScript》中的话，就是：
 >
-> 继承意味着复制操作，然而 JavaScript 默认并不会复制对象的属性，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，所以与其叫继承，委托的说法反而更准确些。
+> 继承意味着复制操作，然而 JavaScript 默认并不会复制对象的属性，相反，JavaScript 只是在两个对象之间创建一个关联，这样，一个对象就可以通过委托访问另一个对象的属性和函数，所以与其叫继承，<span style="color: red">委托</span>的说法反而更准确些。
 
 \_\_proto\_\_特性
 
@@ -2446,7 +2446,7 @@ console.log(person2.frineds); //["daisy", "kelly", "taylor"]
 
 ### 寄生式继承
 
-创建一个仅用于封装继承过程的函数,该函数在内部以某种形式来做增强对象,最后返回对象
+创建一个仅用于封装继承过程的函数,该函数在内部以某种形式来做增强对象(例如添加方法),最后返回对象
 
 ```javascript
 function createObj(o) {
@@ -12725,7 +12725,7 @@ function step3(error, script) {
 
 > Promise 是异步编程的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。
 >
-> 所谓`Promise`，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。
+> 所谓`Promise`，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，可以获取异步操作的消息。
 
 #### 类比
 
@@ -12734,6 +12734,13 @@ function step3(error, script) {
 > 你给了粉丝们一个列表。他们可以在上面填写他们的电子邮件地址，以便当歌曲发布后，让所有订阅了的人能够立即收到。
 >
 > 即便遇到不测，例如录音室发生了火灾，以致你无法发布新歌，他们也能及时收到相关通知
+
+
+
+ES6推出的新的更好的异步编程解决方案(相对于纯回调的方式)
+
+- 在异步操作启动前或完成后, 再指定回调函数得到异步结果
+- 解决嵌套回调的回调地狱问题  ---promise链式调用
 
 
 
@@ -14767,13 +14774,13 @@ Promise.myReject = function(err) {
 
 `Promise.all` 接受一个可迭代对象（通常是一个数组项为 promise 的数组），并返回一个新的 promise。
 
-当所有给定的 promise 都 resolve 时，新的 promise 才会 resolve，并且其结果数组将成为新 promise 的结果。
+当所有给定的 promise 都 resolve 时，结果 promise 才会 resolve，并且其结果数组将成为新 promise 的结果。
 
 结果数组中元素的顺序与其在源 promise 中的顺序相同(即使第一个 promise 花费了最长的时间才 resolve，但它仍是结果数组中的第一个)
 
-**如果任意一个 promise 被 reject，由 `Promise.all` 返回的 promise 就会立即 reject，并且带有的就是这个 error。**
+**如果任意一个 promise 被 reject， `Promise.all` 返回的 promise 就会立即 reject，并且带有的就是这个 error。**
 
-**允许在** `iterable` **中使用非 promise 的“常规”值**, 原样返回.
+**允许在** `iterable` **中使用非 promise 的“常规”值**, 会被原样返回.
 
 
 
@@ -14821,7 +14828,7 @@ An [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
   * If an <span style="color:blue">**empty *iterable*** </span>is passed, then the promise returned by this method is <span style="color:blue">**fulfilled synchronously**</span>. The resolved values is an empty array.
   * If a nonempty *iterable* is passed, and **all** of <u>the promises fulfill, or are not promsies</u>, then the promise returned by this method is **fulfilled asynchronously**
 
-##### Rejecttion
+##### Rejection
 
 If any of the passed-in promises reject, `Promise.all` asynchronously rejects with the value of the promises that rejected, whether or not other promise have resolved.
 
@@ -14841,13 +14848,40 @@ function promisesAll(promises) {
     let resArr = [];
     let count = 0;
     promises.forEach((promise, idx) => {
-      promise.then(res => {
+      promise.then(
+        res => {
         resArr[idx] = res;
         count++;
         count === promises.length && resolve(resArr);
-      }, err => { reject(err) });
+      },
+        err => { reject(err) }          
+      );
     })
   })
+}
+
+
+//20220724
+Promise.prototype.all = function (promises) {
+	return new Promise((resolve, reject) => {
+		// 判断是否为可迭代对象
+		if (!Array.isArray(promises)) {
+			throw new TypeError('promises must be an iterable object')
+		}
+
+		let resultArr = []
+		promises.forEach((promise, idx) => {
+			promise.then(
+				value => {
+					resultArr[idx] = value
+					idx === (promises.length - 1) && resolve(resultArr)
+				 },
+				error => { 
+					reject(error)
+				}
+			)
+		})
+	})
 }
 ```
 
@@ -15005,6 +15039,48 @@ Promise.myAllSettled = function (promises) {
     })
   })
 }
+
+
+//https://segmentfault.com/a/1190000025142845
+
+function allSettled(promises) {
+  if (promises.length === 0) return Promise.resolve([])
+  
+  const _promises = promises.map(
+    item => item instanceof Promise ? item : Promise.resolve(item)
+    )
+  
+  return new Promise((resolve, reject) => {
+    const result = []
+    let unSettledPromiseCount = _promises.length
+    
+    _promises.forEach((promise, index) => {
+      promise.then((value) => {
+        result[index] = {
+          status: 'fulfilled',
+          value
+        }
+        
+        unSettledPromiseCount -= 1
+        // resolve after all are settled
+        if (unSettledPromiseCount === 0) {
+          resolve(result)
+        }
+      }, (reason) => {
+        result[index] = {
+          status: 'rejected',
+          reason
+        }
+        
+        unSettledPromiseCount -= 1
+        // resolve after all are settled
+        if (unSettledPromiseCount === 0) {
+          resolve(result)
+        }
+      })
+    })
+  })
+}
 ```
 
 
@@ -15075,11 +15151,46 @@ Promise.myAny = function(promises) {
     })
   })
 }
+
+
+//https://zhuanlan.zhihu.com/p/376881585
+/**
+ * @param {Array<Promise>} promises
+ * @returns {Promise}
+ */
+function any(promises) {
+  // return a Promise, which resolves as soon as one promise resolves
+  return new Promise((resolve, reject) => {
+    let isFulfilled = false
+    const errors = []
+    let errorCount = 0
+    promises.forEach((promise, index) => promise.then((data) => {
+      if (!isFulfilled) {
+        resolve(data)
+        isFulfilled = true
+      }
+    }, (error) => {
+      errors[index] = error
+      errorCount += 1
+
+      if (errorCount === promises.length) {
+        reject(new AggregateError('none resolved', errors))
+      }
+    }))
+  })
+}
+
+
+//https://github.com/azl397985856/fe-interview/issues/125
+Promise.any = ps => new Promise((resolve, reject) => {
+ let cnt = 0;
+ ps.map(p => p.then(resolve).catch((err) => ++cnt === ps.length && reject(err)))
+})
 ```
 
 
 
-#### Promise.race
+#### Promise.race   ????
 
 ##### 概述
 
@@ -15116,6 +15227,8 @@ Promise.race(iterable)
 ##### 实现
 
 ```javascript
+// resolve将非Promise转换为promise
+
 Promise.myRace = function (promiseArr) {
   return new Promise((resolve, reject) => {
     promiseArr.forEach(p => {
@@ -15123,11 +15236,39 @@ Promise.myRace = function (promiseArr) {
     })
   })
 }
+
+
+//https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/140
+
+Promise._race = promises => new Promise((resolve, reject) => {
+  promises.forEach(promise => promise.then(resolve, reject))
+})
+
+Promise.myrace = function(iterator) {
+    return new Promise ((resolve,reject) => {
+        try {
+            let it = iterator[Symbol.iterator]();
+            while(true) {
+                let res = it.next();
+                console.log(res);
+                if(res.done) break;
+                if(res.value instanceof Promise) {
+                    res.value.then(resolve,reject);
+                } else {
+                    resolve(res.value)
+                }
+                
+            }
+        } catch (error) {
+            reject(error)
+        }
+    }) 
+}
 ```
 
 
 
-## Promise的使用案例
+## Promise的使用案例 !!!!
 
 #### 如何串行执行多个Promise
 
@@ -15843,9 +15984,7 @@ new Promise((resolve, reject) => {
 
 #### Promise中断链条
 
-* 返回一个pending状态的promise对象 有且只有这一种方法
-* 传一个错误的promise对象值,会被catch捕获,如果没有catch方法会报错
-* 中断方法 return new Promise(()=>{})
+* 返回一个pending状态的promise对象 有且只有这一种方法: 中断方法 return new Promise(()=>{})
 
 ```js
 const p=new Promise((resolve, reject)=>{
@@ -15854,7 +15993,7 @@ const p=new Promise((resolve, reject)=>{
 });
 p.then((value)=>{
     console.log(22);
-    return new Promise(()={});
+    return new Promise(()=>{});
 }).then((value)=>{
     console.log(33);
 }).then((value)=>{
@@ -15862,6 +16001,10 @@ p.then((value)=>{
 }).then((value)=>{
     console.log(55);
 })
+
+//11
+//22
+// 自动返回的Promise{<pending>}
 ```
 
 
@@ -15875,6 +16018,18 @@ async/await 是以更舒适的方式使用promise的一种特殊语法.
 > [Async 是如何被 JavaScript 实现的 (qq.com)](https://mp.weixin.qq.com/s/FfDe9mpEvJF17lW8eqMLLQ)
 
 
+
+#### aysnc/await 概述
+
+* `async`用来描述`async`函数的.函数的返回值为promise对象.
+* promise对象的结果和状态由`async`函数的返回值决定. 返回规则和then方法回调返回结果是一样的.
+  * 如果返回结果是非promise类型的值,则返回值是成功的promise
+  * 抛出一个错误, 函数的状态为失败状态rejected, 错误值为函数返回值.
+  * 如果返回结果是promise类型的值, 则promise的状态和值决定了async这个promise的状态和返回
+* await右侧的表达式一般为promise对象, 但也可以是其它的值
+  * 如果表达式是promise对象, await返回的是promise成功的值.如果是失败的值,await会把promise的异常抛出, 并使用try..catch捕获错误.
+  * 如果表达式是其它值, 直接将此值作为await的返回值
+* await...后面的代码相当于放到成功的回调中
 
 
 
@@ -15890,7 +16045,7 @@ async是一个关键字,用来描述函数: 即这个函数总是会返回一个
 
 #### 概述
 
-* 只能在async函数内部使用. 关键字await让JavaScript引擎等待直到promise完成(settle)并返回结果.
+* 只能在async函数内部使用. <span style="color:blue">关键字await让引擎等待直到promise完成(settle)并返回结果.</span>
 
 * await右侧的表达式一般为promise对象, 但也可以是其它的值
 * 如果表达式是promise对象, await返回的是promise成功的值.如果是失败的值,await会把promise的异常抛出,可以使用try..catch捕获错误.
@@ -15931,9 +16086,11 @@ f();
 * await 接收 `thenables`
 * Class 中的 async 方法
 
-<u>现在浏览器在 modules 里 允许顶层 await</u>
+<u>现在浏览器在 modules 里 允许顶层 await </u>
 
 >  在现代浏览器中，当我们处于一个 module 中时，那么在顶层使用 `await` 也是被允许的。我们将在 [模块 (Module) 简介](https://zh.javascript.info/modules-intro) 中详细学习 modules。
+>
+>  补充: ES2022 已经支持
 
 ```javascript
 // 我们假设此代码在 module 中的顶层运行
@@ -16748,13 +16905,13 @@ new Promise((resolve,reject)=>{
 })
 ```
 
-| 轮数 | 说明                     | 输出  | 产生                                          | 剩余                                          |
-| ---- | ------------------------ | ----- | --------------------------------------------- | --------------------------------------------- |
-| 1    | 执行同步输出             | 1,7   | 宏任务: setTimeout1<br />微任务: then1, then8 | 宏任务: setTimeout1<br />微任务: then1, then8 |
-| 2    | 执行微任务: then1,then8  | 2,3,8 | 宏任务: setTimeout1<br />微任务: then4, then6 | 宏任务: setTimeout1<br />微任务: then4, then6 |
-| 3    | 执行微任务: then4, then6 | 4,6   | 宏任务: setTimeout1<br />微任务: then5        | 宏任务: setTimeout1<br />微任务: then5        |
-| 4    | 执行微任务: then5        | 5     | 宏任务: setTimeout1<br />微任务: 无           | 宏任务: setTimeout1<br />微任务: 0            |
-| 5    | 执行宏任务               | 0     | 宏任务: 无<br />微任务: 无                    |                                               |
+| 轮数 | 说明                     | 输出  | 产生                                              | 剩余                                          |
+| ---- | ------------------------ | ----- | ------------------------------------------------- | --------------------------------------------- |
+| 1    | 执行同步输出             | 1,7   | 宏任务: setTimeout1<br />微任务: then1, then8     | 宏任务: setTimeout1<br />微任务: then1, then8 |
+| 2    | 执行微任务: then1,then8  | 2,3,8 | 宏任务: setTimeout1<br />微任务: then4, then6 ??? | 宏任务: setTimeout1<br />微任务: then4, then6 |
+| 3    | 执行微任务: then4, then6 | 4,6   | 宏任务: setTimeout1<br />微任务: then5            | 宏任务: setTimeout1<br />微任务: then5        |
+| 4    | 执行微任务: then5        | 5     | 宏任务: setTimeout1<br />微任务: 无               | 宏任务: setTimeout1<br />微任务: 0            |
+| 5    | 执行宏任务               | 0     | 宏任务: 无<br />微任务: 无                        |                                               |
 
 
 
